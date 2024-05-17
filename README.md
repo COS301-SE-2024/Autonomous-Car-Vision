@@ -42,9 +42,9 @@ Gitflow
 
 <div style="text-align: center;">
   <div>
-    <img src="https://cdn.svgporn.com/logos/nextjs-icon.svg" alt="Next.js" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/react.svg" alt="React" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/jest.svg" alt="Jest" style="width: 100px;">
+    <img src="https://img.shields.io/badge/Electron-011C27?style=for-the-badge&logo=Electron">
+    <img src="https://img.shields.io/badge/React-011C27?style=for-the-badge&logo=React">
+    <img src="https://img.shields.io/badge/Tailwind%20CSS-011C27?style=for-the-badge&logo=Tailwind%20Css">
   </div>
 </div>
 
