@@ -5,69 +5,44 @@
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car
 vision to detect potential hazards, provide collision warnings and analyse road conditions.
 
-## Demo Links
-
-### Demo 2:
-- **Requirement Specification (SRS):** [View SRS](<link to srs>)
-- **Design Specification:** [View DRS](<link to drs>)
-- **GitHub Project Board:** [View Project Board](<link to project boad>)
-
-### Demo 1
-- **Demo Video:** [MP11-Demo1](<>)
+## Demo Videos
+- **Demo1:** [MP11-Demo1](<>)
+  
+## Documentation
 - **Requirement Specification (SRS):** [View SRS](<>)
 - **Design Specification:** [View DRS](<>)
 - **GitHub Project Board:** [View Project Board](<>)
 
-## Team members and roles |
+## Team members and roles
 
-
-## GitHub Repository Information
-
-### Git Structure
-
-Our project Uses a monorepo. This approach enables our team to maintain a unified codebase, ensuring consistency.
-
-### Git Organisation and Management
-
-Sub-team leaders conduct initial code reviews. Then the DevOps team performs a comprehensive final review. Before a merge to the master branch, as they allone have permissions to do so.
-
-Therefore, a pull request requires 3 reviews before it can be merged into master.
-### Branching Strategy
-Gitflow
-<div align="center"><img src="https://wac-cdn.atlassian.com/dam/jcr:34c86360-8dea-4be4-92f7-6597d4d5bfae/02%20Feature%20branches.svg?cdnVersion=1539" width="700" height="500"></div>
 
 ## Tech Stack
-
-### Frontend
-
-<div style="text-align: center;">
-  <div>
-    <img src="https://img.shields.io/badge/Electron-011C27?style=for-the-badge&logo=Electron">
-    <img src="https://img.shields.io/badge/React-011C27?style=for-the-badge&logo=React">
-    <img src="https://img.shields.io/badge/Tailwind%20CSS-011C27?style=for-the-badge&logo=Tailwind%20Css">
-  </div>
-</div>
 
 ### Backend
 
 <div style="text-align: center;">
   <div>
-    <img src="https://cdn.svgporn.com/logos/typescript-icon.svg" alt="TypeScript" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/python.svg" alt="Python" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/fastapi-icon.svg" alt="FastAPI" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/javascript.svg" alt="JS" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/deno.svg" alt="Deno" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/supabase-icon.svg" alt="supa" style="width: 100px;">
+    <img src="https://img.shields.io/badge/TensorFlow-%23FF6F00.svg?style=for-the-badge&logo=TensorFlow&logoColor=white">
+    <img src="https://img.shields.io/badge/Keras-%23D00000.svg?style=for-the-badge&logo=Keras&logoColor=white">
+    <img src="https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white">
+    <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
+    <img src="https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase">
+    <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white">
+    <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB">
+    <img src="https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white">
+    <img src="https://img.shields.io/badge/nVIDIA-%2376B900.svg?style=for-the-badge&logo=nVIDIA&logoColor=white">
   </div>
 </div>
 
-### Deployment
+### Frontend
 
 <div style="text-align: center;">
   <div>
-    <img src="https://cdn.svgporn.com/logos/docker-icon.svg" alt="Docker" style="width: 100px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRw5LkEgsBfdc9IKn8KLzHXisDPIcOk0uGu6_ox5WRig&s" alt="GitHub" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/supabase-icon.svg" alt="supa" style="width: 100px;">
+    <img src="https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white">
+    <img src="https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB">
+    <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white">
+    <img src="https://img.shields.io/badge/svelte-%23f1413d.svg?style=for-the-badge&logo=svelte&logoColor=white">
+    <img src="https://img.shields.io/badge/RollupJS-ef3335?style=for-the-badge&logo=rollup.js&logoColor=white">
   </div>
 </div>
 
@@ -75,17 +50,19 @@ Gitflow
 
 <div style="text-align: center;">
   <div>
-    <img src="https://yt3.googleusercontent.com/9y13pxP3xxovml6W83D4Kbq4joCA-WaKy01i1BAihK6315sPq7z_oTIa3YdGa7ws4k4aaRbf=s900-c-k-c0x00ffffff-no-rj" alt="Playwright" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/deno.svg" alt="Deno" style="width: 100px;">
+    <img src="https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white">
+    <img src="https://img.shields.io/badge/pytest-20555A?style=for-the-badge&logo=pytest">
+    <img src="https://img.shields.io/badge/playwright-20555A?style=for-the-badge&logo=playwright">
   </div>
 </div>
 
-### Project Management
+### Deployment
 
 <div style="text-align: center;">
   <div>
-    <img src="https://cdn.svgporn.com/logos/git-icon.svg" alt="Git" style="width: 100px;">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRw5LkEgsBfdc9IKn8KLzHXisDPIcOk0uGu6_ox5WRig&s" alt="GitHub" style="width: 100px;">
-    <img src="https://cdn.svgporn.com/logos/visual-studio-code.svg" alt="Visual Studio Code" style="width: 100px;">
+    <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
+    <img src="https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white">
   </div>
 </div>
+
+
