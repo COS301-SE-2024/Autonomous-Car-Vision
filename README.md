@@ -1,7 +1,10 @@
 <h1 align="center"> Autonamous Car Vision </h1>
 
 <p align="center"> 
-	[![codecov](https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP)](https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision)
+	<a href="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision">
+		<img alt="Coverage" src="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP">
+	</a>
+</p>
 
 ## Project Information
 
@@ -57,7 +60,7 @@ The aim of this project is to provide and implement a comprehensive suite of AI 
 				<img alt="" src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=whit">
 			</a>
       <br>
-			<a href="https://www.linkedin.com/in/donatello-grahame-carboni-a00421262/">
+			<a href="https://www.linkedin.com/in/donatello-grahame-carboni/">
 				<img alt="" src="https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white">
 			</a>
 		</td>
