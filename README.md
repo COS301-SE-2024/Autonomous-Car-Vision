@@ -1,5 +1,8 @@
 <h1 align="center"> Autonamous Car Vision </h1>
 
+<p align="center"> 
+	[![codecov](https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP)](https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision)
+
 ## Project Information
 
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
