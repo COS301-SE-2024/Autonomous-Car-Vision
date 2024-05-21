@@ -2,11 +2,13 @@
 cd Desktop
 corepack enable
 
+# If on Linux
+sudo npm i --force
+
 # Ensure you have the correct version of yarn:
 yarn set version stable
-yarn install
 
-# install dependancies: 
+# install dependancies: (Use sudo if on Linux)
 yarn install
 
 # to run rollup: 
