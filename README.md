@@ -20,9 +20,10 @@ The aim of this project is to provide and implement a comprehensive suite of AI 
 - **Demo1:** [MP11-Demo1](<>)
   
 ## Documentation
-- **Requirement Specification (SRS):** [View SRS](<>)
-- **Design Specification:** [View DRS](<>)
-- **GitHub Project Board:** [View Project Board](<>)
+- **Requirement Specification (SRS):** [View SRS](<https://docs.google.com/document/d/1RneKYxdZ6Puh0oDMYznyLlH7IyLYlZNr96-eTJLRfFM/edit?usp=sharing>)
+- **Design Specification:** [View DRS](<https://docs.google.com/document/d/1CSEkUonx3BWCphiJutNxLYvaYaXjCjlZtbQ8ylQ3tLA/edit?usp=sharing>)
+- **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
+- **Git Standards:** [View Git Standards] (<https://drive.google.com/file/d/15JxWbp9tIwMUwO4pRSRfW2hGdMKYE4wI/view?usp=sharing>)
 
 <h2 align="center"> Meet The Team </h2>
 
