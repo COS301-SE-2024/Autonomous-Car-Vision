@@ -7,9 +7,11 @@
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml">
 		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml/badge.svg">
 	</a>
+	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
+	    <img alt="Github issues" src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision/">
+	</a>
 	
 </p>
-	![Github issues](https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision/)
 
 ## Project Information
 
