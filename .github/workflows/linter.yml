@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 18
       - name: Install dependencies
+        working-directory: ./Desktop
         run: npm install
       - name: Lint Svelte
         run: npm run lint:svelte
