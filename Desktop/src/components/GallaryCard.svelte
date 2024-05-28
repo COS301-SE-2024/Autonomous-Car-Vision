@@ -1,6 +1,23 @@
+
+
 <script>
-  let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
-    
+    import EditVideoModal from './EditVideoModal.svelte';
+
+    let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
+    let showEditModal = false;
+
+    function openEditModal() {
+        showEditModal = true;
+    }
+
+    function handleCancel() {
+        showEditModal = false;
+    }
+
+    function handleEditSave() {
+        // Logic to save the edited video length
+        showEditModal = false;
+    }
 </script>
 
 <div class="gallery-card">
@@ -11,7 +28,12 @@
         <p class="details-link"> Details here...</p>
     </div>
     <div class="buttons">
-        <button class="edit">Edit  </button>
+
+        <button class="edit" on:click={openEditModal}>Edit  </button>
+        {#if showEditModal}
+            <EditVideoModal on:cancel={handleCancel} on:save={handleEditSave} />
+        {/if}
+
         <button class="process">Process</button>
         <button class="download">Download</button>
         <button class="delete">Delete </button>
