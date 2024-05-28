@@ -2655,6 +2655,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"flowbite-svelte-icons@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "flowbite-svelte-icons@npm:1.6.1"
+  peerDependencies:
+    svelte: ^3.54.0 || ^4.0.0 || ^5.0.0
+    tailwind-merge: ^2.0.0
+    tailwindcss: ^3.3.2
+  checksum: 10c0/d311541846500b316229d25cf3f2a5bab493f87e225a85cb4de3471fbc4b758484c608eaa80f302fe75ee1c1918ccd39f03af9782181ffdfd82505077c3b5018
+  languageName: node
+  linkType: hard
+
 "for-each@npm:^0.3.3":
   version: 0.3.3
   resolution: "for-each@npm:0.3.3"
@@ -7125,6 +7136,7 @@ __metadata:
     autoprefixer: "npm:^10.0.0"
     babel-jest: "npm:^27.0.0"
     electron: "npm:^13.0.0"
+    flowbite-svelte-icons: "npm:^1.6.1"
     jest: "npm:^27.0.0"
     postcss: "npm:^8.0.0"
     postcss-import: "npm:^12.0.0"
