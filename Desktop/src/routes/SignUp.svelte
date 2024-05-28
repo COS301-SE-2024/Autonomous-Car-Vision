@@ -1,3 +1,8 @@
-<div>
-    <h1>testing routes in svelte</h1>
-</div>
+<script>
+    import SignUpForm from '../components/SignUpForm.svelte'
+  </script>
+  
+  <div>
+      <SignUpForm />
+  </div>
+  
