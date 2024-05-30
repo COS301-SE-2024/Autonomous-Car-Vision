@@ -712,6 +712,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mdi/js@npm:^7.4.47":
+  version: 7.4.47
+  resolution: "@mdi/js@npm:7.4.47"
+  checksum: 10c0/4364d4dff943c630f9cdddba1a74d3713654e4da1b85bc7a307b2285447a57c41434a39a8520b39957df1028186a2e5944102fd1386d6c0c73e709335f5ccb3e
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -6403,6 +6410,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-materialify@npm:^0.3.11":
+  version: 0.3.11
+  resolution: "svelte-materialify@npm:0.3.11"
+  peerDependencies:
+    svelte: ">=3.29.4"
+  checksum: 10c0/e8a0d8c0df16ea112cae7deede9574647c28f446846c473a43684c4f6605315b256146b78616b6a27727d2f14a9299e05b29fdf13934c601b3484b0d7d5d6fd3
+  languageName: node
+  linkType: hard
+
 "svelte-preprocess@npm:^5.1.4":
   version: 5.1.4
   resolution: "svelte-preprocess@npm:5.1.4"
@@ -7043,6 +7059,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "your-project-name@workspace:."
   dependencies:
+    "@mdi/js": "npm:^7.4.47"
     "@rollup/plugin-commonjs": "npm:^18.0.0"
     "@rollup/plugin-node-resolve": "npm:^11.0.0"
     "@testing-library/svelte": "npm:^3.0.0"
@@ -7059,6 +7076,7 @@ __metadata:
     rollup-plugin-terser: "npm:^7.0.2"
     svelte: "npm:^3.0.0"
     svelte-jester: "npm:^1.0.0"
+    svelte-materialify: "npm:^0.3.11"
     svelte-preprocess: "npm:^5.1.4"
     svelte-spa-router: "npm:^4.0.1"
     tailwindcss: "npm:^2.0.0"
