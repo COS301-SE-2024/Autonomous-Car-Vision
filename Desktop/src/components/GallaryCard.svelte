@@ -2,7 +2,9 @@
 
 <script>
     import EditVideoModal from './EditVideoModal.svelte';
+    import GallaryMore from './GallaryCard.svelte';
 
+    let showMoreModal = false;
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
     let isDownloaded = true;
 
@@ -13,6 +15,8 @@
 
     function handleMore() {
         // Logic for the more button
+       showMoreModal = true;
+    
     }
     // let showEditModal = false;
 
@@ -36,7 +40,10 @@
             src={imgSource} alt="video preview"/>
             <div class="button-container">
                 {#if isDownloaded}
-                    <button class="more" on:click={handleMore}>More</button>
+                    <button class="more" on:click={handleMore}>More</button>    
+                    {#if showMoreModal}
+                        <GallaryMore/>
+                    {/if}
                 {:else}
                     <button class="download" on:click={handleDownload}>Download</button>
                 {/if}
