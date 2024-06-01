@@ -9,10 +9,10 @@
             class="flex flex-col gap-4 justify-center content-center flex-wrap"
         >
             <a href="#/login">
-                <Button depressed class="bg-primary-green-light w-20 rounded-lg">Log In</Button>
+                <Button depressed class="text-black bg-primary-green-light w-32 rounded-lg">Log In</Button>
             </a>
             <a href="#/signup">
-                <Button depressed class="bg-primary-green-light w-20 rounded-lg">Sign Up</Button>
+                <Button depressed class="text-black bg-primary-green-light w-32 rounded-lg">Sign Up</Button>
             </a>
         </div>
     </div>
