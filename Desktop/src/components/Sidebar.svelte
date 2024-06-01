@@ -1,51 +1,70 @@
 <script>
-    import { Avatar, Icon } from "svelte-materialify";
-    import { mdiAccountCircle } from "@mdi/js";
-    import { mdiAccountCog } from "@mdi/js";
-    import { mdiLogout } from "@mdi/js";
-  
-    // import AccountPopup from "./AccountPopup.svelte";
-  
-    export let items = [];
-  
-    const accountPopupItems = [
-      {
-        name: "Account settings",
-        route: "#/accountsettings",
-        iconPath: mdiAccountCog,
-      },
-      { name: "Log out", route: "#/", iconPath: mdiLogout },
-    ];
-  
-    let showAccountPopup = false;
-  
-    function toggleAccountPopup() {
-      showAccountPopup = !showAccountPopup;
+  import { onMount } from "svelte";
+  import { Avatar, Icon } from "svelte-materialify";
+  import { mdiAccountCircle } from "@mdi/js";
+  import { mdiAccountCog } from "@mdi/js";
+  import { mdiLogout } from "@mdi/js";
+
+  import AvatarPopup from "./AvatarPopup.svelte";
+
+  export let items = [];
+
+  const accountPopupItems = [
+    {
+      name: "Account settings",
+      route: "#/accountsettings",
+      iconPath: mdiAccountCog,
+    },
+    { name: "Log out", route: "#/", iconPath: mdiLogout },
+  ];
+
+  let showAccountPopup = false;
+
+  function toggleAccountPopup() {
+    showAccountPopup = !showAccountPopup;
+  }
+
+  function closeAccountPopup() {
+    showAccountPopup = false;
+  }
+
+  onMount(() => {
+    document.addEventListener("click", handleClickOutside);
+  });
+
+  function handleClickOutside(event) {
+    const popup = document.querySelector(".account-popup-content");
+    const avatar = document.querySelector(".avatar-container");
+    if (popup && !popup.contains(event.target) && !avatar.contains(event.target)) {
+      closeAccountPopup();
     }
-  </script>
-  
-  <div class="fixed h-screen w-1/5 bg-gray-800 p-4 flex flex-col justify-end text-white">
-    <aside>
-      <nav>
-        <ul class="flex flex-col space-y-2">
-          {#each items as { name, route, iconPath }}
-            <li class="border-t border-gray-700">
-              <a href={route} class="flex items-center py-2 hover:bg-blue-600 transition">
-                <Icon path={iconPath} />
-                <span class="ml-2">{name}</span>
-              </a>
-            </li>
-          {/each}
-        </ul>
-      </nav>
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="flex justify-center items-center py-4 border-b border-gray-700 cursor-pointer" on:click={toggleAccountPopup}>
-        <Avatar class="bg-gray-700 p-2 rounded-full">
-          <Icon path={mdiAccountCircle} />
-        </Avatar>
-      </div>
+  }
+</script>
+
+<div class="fixed h-screen w-1/5 bg-gray-dark p-4 flex flex-col justify-end text-gray-light z-50">
+  <aside>
+    <nav>
+      <ul class="flex flex-col space-y-2">
+        {#each items as { name, route, iconPath }}
+          <li class="border-b border-gray-light">
+            <a href={route} class="flex items-center py-2 hover:bg-gray transition">
+              <Icon path={iconPath} />
+              <span class="ml-2">{name}</span>
+            </a>
+          </li>
+        {/each}
+      </ul>
+    </nav>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div class="relative flex justify-center items-center py-4 border-gray cursor-pointer avatar-container" on:click={toggleAccountPopup}>
+      <Avatar class="bg-gray p-2 rounded-full">
+        <Icon path={mdiAccountCircle} />
+      </Avatar>
       {#if showAccountPopup}
-        <AccountPopup items={accountPopupItems}/>
+        <div class="absolute top-0 right-0 transform translate-x-full -translate-y-full mt-2 account-popup-content">
+          <AvatarPopup items={accountPopupItems} on:close={closeAccountPopup}/>
+        </div>
       {/if}
-    </aside>
-  </div>
+    </div>
+  </aside>
+</div>

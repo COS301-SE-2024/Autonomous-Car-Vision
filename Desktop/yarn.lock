@@ -2647,6 +2647,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-selector@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "file-selector@npm:0.6.0"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/477ca1b56274db9fee1a8a623c4bfef580389726a5fef843af8c1f2f17f70ec2d1e41b29115777c92e120a15f1cca734c6ef36bb48bfa2ee027c68da16cd0d28
+  languageName: node
+  linkType: hard
+
 "fill-range@npm:^7.1.1":
   version: 7.1.1
   resolution: "fill-range@npm:7.1.1"
@@ -6400,6 +6409,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-file-dropzone@npm:^2.0.7":
+  version: 2.0.7
+  resolution: "svelte-file-dropzone@npm:2.0.7"
+  dependencies:
+    file-selector: "npm:^0.6.0"
+  peerDependencies:
+    svelte: ^3.54.0 || ^4.0.0
+  checksum: 10c0/87f55cc9fadbf32a0fe16a22ffb6005bd08b67acaa5e90fd42cc2d67f86cc3e8604b7d9970f96f12fbf564bc41e8464f18327870807f07f42d325f3bb3a60f33
+  languageName: node
+  linkType: hard
+
 "svelte-jester@npm:^1.0.0":
   version: 1.8.2
   resolution: "svelte-jester@npm:1.8.2"
@@ -6662,6 +6682,13 @@ __metadata:
   dependencies:
     punycode: "npm:^2.1.1"
   checksum: 10c0/397f5c39d97c5fe29fa9bab73b03853be18ad2738b2c66ee5ce84ecb36b091bdaec493f9b3cee711d45f7678f342452600843264cc8242b591c8dc983146a6c4
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.4.0":
+  version: 2.6.2
+  resolution: "tslib@npm:2.6.2"
+  checksum: 10c0/e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
   languageName: node
   linkType: hard
 
@@ -7075,6 +7102,7 @@ __metadata:
     rollup-plugin-svelte: "npm:^7.0.0"
     rollup-plugin-terser: "npm:^7.0.2"
     svelte: "npm:^3.0.0"
+    svelte-file-dropzone: "npm:^2.0.7"
     svelte-jester: "npm:^1.0.0"
     svelte-materialify: "npm:^0.3.11"
     svelte-preprocess: "npm:^5.1.4"
