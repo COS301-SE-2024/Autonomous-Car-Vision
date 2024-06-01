@@ -6,7 +6,7 @@
 
     let showMoreModal = false;
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
-    let isDownloaded = true;
+    let isDownloaded = false;
 
     function handleDownload() {
         // Logic to download the video
@@ -27,27 +27,40 @@
 </script>
 
 <div class="gallery-card">
-    <div class="image-container">
-            <img  
-            src={imgSource} alt="video preview"/>
-            <div class="button-container">
-                {#if isDownloaded}
-                    <button class="more"  on:click={handleMore}>More</button>      
-                {:else}
-                    <button class="download" on:click={handleDownload}>Download</button>
-                {/if}
-            </div>
-    </div>
+    {#if isDownloaded}
     
-    <div class="details">
-        <p class="details-link"> Details here...</p>
-    </div>
+        <div class="image-container">
+                <img  
+                src={imgSource} alt="video preview"/>
+                <div class="button-container">
+                        <button class="more"  on:click={handleMore}>More</button> 
+                   
+                </div>
+        </div>
+    
+        <div class="details">
+            <p class="details-link"> Details here...</p>
+        </div>
+ {:else}
+        <div class="image-container" style={"filter:grayscale(100%)"}>
+                <img  
+                src={imgSource} alt="video preview"/>
+                <div class="button-container">
+                    <button class="download" on:click={handleDownload}>Download</button>
+                </div>
+        </div>
+            <div class="details">
+                <p class="details-link"> Details here...</p>
+            </div>
+     
+     {/if}
     <div>
         {#if showMoreModal}
           <GallaryMore on:close={handleBack}/>
          {/if}
     </div>
 </div>
+
 
 
 
@@ -75,7 +88,7 @@
     }
 
      .image-container:hover img{
-        filter: grayscale(100%);
+        filter: blur(4px);
     }
 
     .button-container {
