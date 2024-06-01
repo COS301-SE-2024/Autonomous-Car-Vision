@@ -1,5 +1,7 @@
 <script>
     import GallaryCard from '.././components/GallaryCard.svelte';
+
+    
   </script>
   
   <div class="max-w-fit mx-autorounded-xl shadow-lg flex items-center space-x-4 ">

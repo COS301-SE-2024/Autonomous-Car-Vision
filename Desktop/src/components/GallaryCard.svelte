@@ -28,22 +28,16 @@
             <div class="button-container">
                 {#if isDownloaded}
                     <button class="more" on:click={handleMore}>More</button>    
-                    {#if showMoreModal}
-                        <GallaryMore/>
-                    {/if}
+                    <div>
+                        {#if showMoreModal}
+                    <GallaryMore/>
+                {/if}
+            </div>
+                    
                 {:else}
                     <button class="download" on:click={handleDownload}>Download</button>
                 {/if}
             </div>
-        <!-- <div class="button-cluster">
-            <button class="edit" on:click={openEditModal} >Edit</button>
-                {#if showEditModal}
-                    <EditVideoModal on:cancel={handleCancel} on:save={handleEditSave} />
-                {/if}
-            <button class="process">Process</button>
-            <button class="download">Download</button>
-            <button class="delete">Delete</button>
-        </div> -->
     </div>
     
     <div class="details">
