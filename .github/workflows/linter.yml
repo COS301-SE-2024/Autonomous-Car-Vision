@@ -17,20 +17,23 @@ jobs:
         with:
           node-version: 18
       - name: Install dependencies
-        run: npm ci
+        working-directory: ./Desktop
+        run: npm install --force
       - name: Lint Svelte
+        working-directory: ./Desktop
         run: npm run lint:svelte
-      - name: Upload Svelte Lint results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: lint-svelte-results
-          path: lint-results-svelte.xml
+      # - name: Upload Svelte Lint results
+      #   if: always()
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: lint-svelte-results
+      #     path: lint-results-svelte.xml
       - name: Lint Electron
+        working-directory: ./Desktop
         run: npm run lint:electron
-      - name: Upload Electron Lint results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: lint-electron-results
-          path: lint-results-electron.xml
+      # - name: Upload Electron Lint results
+      #   if: always()
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: lint-electron-results
+      #     path: lint-results-electron.xml

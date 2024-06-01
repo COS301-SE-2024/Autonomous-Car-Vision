@@ -1,12 +1,8 @@
 <script>
-  import GallaryPage from './pages/GallaryPage.svelte';
-  
+  import Router from 'svelte-spa-router';
+  import routes from './routes/routes';
 </script>
 
-<div
-  class="p-6 max-w-lg mx-auto bg-white rounded-xl shadow-lg flex items-center space-x-4 border-8"
->
-  <div>
-    <GallaryPage/>
-  </div>
+<div>
+  <Router {routes} />
 </div>
