@@ -3,7 +3,7 @@
 
     const currentTab = writable('original');
     
-    let imageSrc = "path/to/image.jpg";
+    let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
 
     function switchTab(tab) {
         currentTab.set(tab);
@@ -34,7 +34,8 @@
     
     <div class="content { $currentTab === 'original' ? 'active' : '' }">
         <div class="image-container">
-            <img src={imageSrc} alt="Video Thumbnail">
+            <img  
+            src={imgSource} alt="video thumbnail"/>
         </div>
         <div class="details">
             <p>Video Title</p>
@@ -44,7 +45,10 @@
             <button on:click={edit}>Edit</button>
             <button on:click={process}>Process</button>
             <button on:click={deleteItem}>Delete</button>
-            <button on:click={model}>Model</button>
+            <button class="model" on:click={model}><div class="profile-image">
+                <img  
+                src={imgSource} alt="model profile"/>
+            </div></button>
         </div>
     </div>
 
@@ -61,13 +65,13 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: white;
+        background-color: rgb(252, 252, 252);
         padding: 20px;
         border: 1px solid #ccc;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
         width: 80%;
-        max-width: 800px;
+        /* max-width: 800px; */
         border-radius: 8px;
     }
 
@@ -89,7 +93,7 @@
     }
 
     .content {
-        display: none;
+        display: none; 
     }
 
     .content.active {
@@ -98,12 +102,24 @@
 
     .image-container {
         position: relative;
+
     }
 
     .image-container img {
-        width: 100%;
+        position: relative;
+        width: 50%;
     }
 
+    .profile-image {
+        position: relative;
+        width: 10%;
+    }
+
+    .profile-image img {
+        position: center;
+        width: 100%;
+        border-radius: 100%;
+    }
     .button-cluster {
         margin-top: 10px;
     }
@@ -116,6 +132,16 @@
         color: white;
         border-radius: 4px;
         cursor: pointer;
+    }
+    .button-cluster button.model {
+        margin: 5px;
+        padding: 10px;
+        background-color: #4b8dd3;
+        border: none;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        /* width: 10%; */
     }
 
     .details {
