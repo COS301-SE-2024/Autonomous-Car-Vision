@@ -2,6 +2,9 @@ from rest_framework import viewsets
 from .serializers import UserSerializer, AuthSerializer, OTPSerializer
 from .models import User, Auth, OTP
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -17,102 +20,87 @@ class OTPViewSet(viewsets.ModelViewSet):
     queryset = OTP.objects.all()
     serializer_class = OTPSerializer      
     permission_classes = [IsAuthenticated]  
+    
+@api_view(['POST', 'PUT', 'DELETE'])
+def manage_user(request, pk=None):
+    if request.method == 'POST':
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# # User Views
-# def user_list(request):
-#     users = User.objects.all()
-#     return render(request, 'myapp/user_list.html', {'users': users})
+    if pk is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-# def user_create(request):
-#     if request.method == 'POST':
-#         form = UserForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('user_list')
-#     else:
-#         form = UserForm()
-#     return render(request, 'myapp/user_form.html', {'form': form})
+    try:
+        user = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-# def user_update(request, uid):
-#     user = get_object_or_404(User, uid=uid)
-#     if request.method == 'POST':
-#         form = UserForm(request.POST, instance=user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('user_list')
-#     else:
-#         form = UserForm(instance=user)
-#     return render(request, 'myapp/user_form.html', {'form': form})
+    if request.method == 'PUT':
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# def user_delete(request, uid):
-#     user = get_object_or_404(User, uid=uid)
-#     if request.method == 'POST':
-#         user.delete()
-#         return redirect('user_list')
-#     return render(request, 'myapp/user_confirm_delete.html', {'object': user})
+    if request.method == 'DELETE':
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-# # Auth Views
-# def auth_list(request):
-#     auths = Auth.objects.all()
-#     return render(request, 'myapp/auth_list.html', {'auths': auths})
+@api_view(['POST', 'PUT', 'DELETE'])
+def manage_auth(request, pk=None):
+    if request.method == 'POST':
+        serializer = AuthSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# def auth_create(request):
-#     if request.method == 'POST':
-#         form = AuthForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('auth_list')
-#     else:
-#         form = AuthForm()
-#     return render(request, 'myapp/auth_form.html', {'form': form})
+    if pk is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-# def auth_update(request, id):
-#     auth = get_object_or_404(Auth, id=id)
-#     if request.method == 'POST':
-#         form = AuthForm(request.POST, instance=auth)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('auth_list')
-#     else:
-#         form = AuthForm(instance=auth)
-#     return render(request, 'myapp/auth_form.html', {'form': form})
+    try:
+        auth = Auth.objects.get(pk=pk)
+    except Auth.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
-# def auth_delete(request, id):
-#     auth = get_object_or_404(Auth, id=id)
-#     if request.method == 'POST':
-#         auth.delete()
-#         return redirect('auth_list')
-#     return render(request, 'myapp/auth_confirm_delete.html', {'object': auth})
+    if request.method == 'PUT':
+        serializer = AuthSerializer(auth, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# # OTP Views
-# def otp_list(request):
-#     otps = OTP.objects.all()
-#     return render(request, 'myapp/otp_list.html', {'otps': otps})
+    if request.method == 'DELETE':
+        auth.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-# def otp_create(request):
-#     if request.method == 'POST':
-#         form = OTPForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('otp_list')
-#     else:
-#         form = OTPForm()
-#     return render(request, 'myapp/otp_form.html', {'form': form})
+@api_view(['POST', 'PUT', 'DELETE'])
+def manage_otp(request, pk=None):
+    if request.method == 'POST':
+        serializer = OTPSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# def otp_update(request, id):
-#     otp = get_object_or_404(OTP, id=id)
-#     if request.method == 'POST':
-#         form = OTPForm(request.POST, instance=otp)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('otp_list')
-#     else:
-#         form = OTPForm(instance=otp)
-#     return render(request, 'myapp/otp_form.html', {'form': form})
+    if pk is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-# def otp_delete(request, id):
-#     otp = get_object_or_404(OTP, id=id)
-#     if request.method == 'POST':
-#         otp.delete()
-#         return redirect('otp_list')
-#     return render(request, 'myapp/otp_confirm_delete.html', {'object': otp})
+    try:
+        otp = OTP.objects.get(pk=pk)
+    except OTP.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        serializer = OTPSerializer(otp, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        otp.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
