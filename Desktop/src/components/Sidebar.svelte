@@ -5,7 +5,7 @@
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
 
-  import AvatarPopup from "./AvatarPopup.svelte";
+  import AccountPopup from "./AccountPopup.svelte";
 
   export let items = [];
 
@@ -62,7 +62,7 @@
       </Avatar>
       {#if showAccountPopup}
         <div class="absolute top-0 right-0 transform translate-x-full -translate-y-full mt-2 account-popup-content">
-          <AvatarPopup items={accountPopupItems} on:close={closeAccountPopup}/>
+          <AccountPopup items={accountPopupItems} on:close={closeAccountPopup}/>
         </div>
       {/if}
     </div>
