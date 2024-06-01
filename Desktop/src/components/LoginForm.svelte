@@ -14,20 +14,20 @@
     let show = false;
 </script>
 
-<div class="w-6/12 mx-auto py-4 my-4">
+<div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
     <MaterialApp>
         <div class="flex flex-row gap-2">
             <a
                 class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                 href="#/login"
             >
-                <Button class="text-black bg-gradient-to-r from-green-300 to-green-600" depressed block>Log In</Button>
+                <Button class="text-primary-text-light bg-primary-green-light" depressed block>Log In</Button>
             </a>
             <a
                 class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                 href="#/signup"
             >
-                <Button class="text-black bg-gray-200" depressed block>Sign Up</Button>
+                <Button class="text-primary-text-light bg-gray-light" depressed block>Sign Up</Button>
             </a>
         </div>
         <div class="w-full p-4 border-2 rounded-md border-green-500 mt-2">
@@ -52,7 +52,7 @@
                     </div>
                 </TextField>
             </div>
-            <Button class="bg-green-400" on:click={onSubmit} rounded block
+            <Button class="bg-primary-green-light" on:click={onSubmit} rounded block
                 >Log in</Button
             >
         </div>
