@@ -1,11 +1,13 @@
 <script>
     import { writable } from 'svelte/store';
     import EditVideoModal from './EditVideoModal.svelte';
+    import DeleteModal from './DeleteModal.svelte';
 
     const currentTab = writable('original');
     
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
     let showEditModal = false;
+    let showDeleteModal = false;
 
     function switchTab(tab) {
         currentTab.set(tab);
@@ -22,6 +24,7 @@
 
     function deleteItem() {
         // Delete functionality
+        showDeleteModal = true;
     }
 
     function model() {
@@ -30,11 +33,17 @@
 
     function handleCancel() {
         showEditModal = false;
+        showDeleteModal = false;
     }
 
     function handleEditSave() {
         // Logic to save the edited video length
         showEditModal = false;
+    }
+
+    function handleDeleteSave() {
+        // Logic to delete the video
+        showDeleteModal = false;
     }
 </script>
 
@@ -59,6 +68,9 @@
                 {/if}
             <button on:click={process}>Process</button>
             <button on:click={deleteItem}>Delete</button>
+            {#if showDeleteModal}
+                    <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} />
+                {/if}
             <button class="model" on:click={model}><div class="profile-image">
                 <img  
                 src={imgSource} alt="model profile"/>
