@@ -2,8 +2,11 @@
     import { writable } from 'svelte/store';
     import EditVideoModal from './EditVideoModal.svelte';
     import DeleteModal from './DeleteModal.svelte';
+    import ModelList from './ModelList.svelte';
 
     const currentTab = writable('original');
+    const showModelList = writable(false);
+    let selectedModel = null;
     
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
     let showEditModal = false;
@@ -45,6 +48,15 @@
         // Logic to delete the video
         showDeleteModal = false;
     }
+
+    function toggleModelList() {
+        showModelList.update(value => !value);
+    }
+
+    function handleModelSelect(event) {
+        selectedModel = event.detail;
+        showModelList.set(false);
+    }
 </script>
 
 <div class="modal">
@@ -63,18 +75,27 @@
         </div>
         <div class="button-cluster">
             <button on:click={edit} >Edit</button>
-            {#if showEditModal}
+                {#if showEditModal}
                     <EditVideoModal on:cancel={handleCancel} on:save={handleEditSave} />
                 {/if}
             <button on:click={process}>Process</button>
             <button on:click={deleteItem}>Delete</button>
-            {#if showDeleteModal}
+                {#if showDeleteModal}
                     <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} />
                 {/if}
-            <button class="model" on:click={model}><div class="profile-image">
-                <img  
-                src={imgSource} alt="model profile"/>
-            </div></button>
+            <div class="model-button">
+                <button class="model" on:click={toggleModelList}>
+                    {#if selectedModel}
+                         <img src={selectedModel.profileImg}  class="profile-image" alt="Selected Model" width="20" height="20"/> 
+                    {:else}
+                         <img src={imgSource} class="profile-image" alt="default Model" width="20" height="20"/>
+                    {/if}
+                </button>
+                {#if $showModelList}
+                    <ModelList on:select={handleModelSelect} />
+                {/if}
+            </div>
+            
         </div>
     </div>
 
@@ -140,6 +161,7 @@
     
     .button-cluster {
         margin-top: 10px;
+        display: flex;
     }
 
     .button-cluster button {
@@ -154,14 +176,16 @@
 
     
     .button-cluster .model {
-        margin: 5px;
-        padding: 10px;
+        margin: 2px;
+        padding: 5px;
         background-color: #4b8dd3;
         border: none;
         color: white;
         cursor: pointer;
-        width: 50%;
-        height: 40%;
+        width: 20%;
+        height: 80%;
+        position: relative;
+        
     }
 
     
@@ -169,14 +193,12 @@
         position: relative;
         width: 50%;
         margin:auto;
+        border-radius: 50%;
     }
 
-    .profile-image img {
+    /* .model-button {
         position: relative;
-        width: 50%;
-        border-radius: 100%;
-        margin:auto;
-    }
+    } */
 
     .details {
         padding: 10px;
