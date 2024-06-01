@@ -30,13 +30,13 @@
                 class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                 href="#/login"
             >
-                <Button class="text-black bg-gray-200" depressed block>Log In</Button>
+                <Button class="text-primary-text-light bg-gray-200" depressed block>Log In</Button>
             </a>
             <a
                 class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                 href="#/signup"
             >
-                <Button class="text-black bg-gradient-to-r from-green-300 to-green-600" depressed block>Sign Up</Button>
+                <Button class="text-primary-text-light bg-gradient-to-r from-green-300 to-green-600" depressed block>Sign Up</Button>
             </a>
         </div>
         <div class="w-full p-4 border-2 rounded-md border-green-500 mt-2">
