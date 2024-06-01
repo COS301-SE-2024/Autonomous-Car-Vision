@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.orm import relationship
 import os
 from dotenv import load_dotenv
 
@@ -36,3 +36,11 @@ class Otp(Base):
     creation_date = Column(DateTime, default=datetime.utcnow)
     expiry_date = Column(DateTime, nullable=False)
     user = relationship('User')
+    
+class Token(Base):
+    __tablename__ = 'tokens'
+    id = Column(Integer, primary_key=True)
+    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
+    token = Column(String(40), unique=True, nullable=False)
+    creation_date = Column(DateTime, default=datetime.utcnow)
+    user = relationship('User')    
