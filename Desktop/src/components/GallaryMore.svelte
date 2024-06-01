@@ -1,9 +1,11 @@
 <script>
     import { writable } from 'svelte/store';
+    import EditVideoModal from './EditVideoModal.svelte';
 
     const currentTab = writable('original');
     
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
+    let showEditModal = false;
 
     function switchTab(tab) {
         currentTab.set(tab);
@@ -11,6 +13,7 @@
 
     function edit() {
         // Edit functionality
+        showEditModal = true;
     }
 
     function process() {
@@ -23,6 +26,15 @@
 
     function model() {
         // Model functionality
+    }
+
+    function handleCancel() {
+        showEditModal = false;
+    }
+
+    function handleEditSave() {
+        // Logic to save the edited video length
+        showEditModal = false;
     }
 </script>
 
@@ -38,11 +50,13 @@
             src={imgSource} alt="video thumbnail"/>
         </div>
         <div class="details">
-            <p>Video Title</p>
-            <p>Length: 3:45</p>
+            <p>Details here</p>
         </div>
         <div class="button-cluster">
-            <button on:click={edit}>Edit</button>
+            <button on:click={edit} >Edit</button>
+            {#if showEditModal}
+                    <EditVideoModal on:cancel={handleCancel} on:save={handleEditSave} />
+                {/if}
             <button on:click={process}>Process</button>
             <button on:click={deleteItem}>Delete</button>
             <button class="model" on:click={model}><div class="profile-image">
@@ -102,24 +116,16 @@
 
     .image-container {
         position: relative;
-
+    
     }
 
     .image-container img {
         position: relative;
         width: 50%;
+        margin: auto;
     }
 
-    .profile-image {
-        position: relative;
-        width: 10%;
-    }
-
-    .profile-image img {
-        position: center;
-        width: 100%;
-        border-radius: 100%;
-    }
+    
     .button-cluster {
         margin-top: 10px;
     }
@@ -133,15 +139,31 @@
         border-radius: 4px;
         cursor: pointer;
     }
-    .button-cluster button.model {
+
+    
+    .button-cluster .model {
         margin: 5px;
         padding: 10px;
         background-color: #4b8dd3;
         border: none;
         color: white;
-        border-radius: 4px;
         cursor: pointer;
-        /* width: 10%; */
+        width: 50%;
+        height: 40%;
+    }
+
+    
+    .profile-image {
+        position: relative;
+        width: 50%;
+        margin:auto;
+    }
+
+    .profile-image img {
+        position: relative;
+        width: 50%;
+        border-radius: 100%;
+        margin:auto;
     }
 
     .details {

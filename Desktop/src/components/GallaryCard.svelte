@@ -1,7 +1,7 @@
 
 
 <script>
-    import EditVideoModal from './EditVideoModal.svelte';
+    
     import GallaryMore from './GallaryCard.svelte';
 
     let showMoreModal = false;
@@ -18,20 +18,7 @@
        showMoreModal = true;
     
     }
-    // let showEditModal = false;
-
-    // function openEditModal() {
-    //     showEditModal = true;
-    // }
-
-    // function handleCancel() {
-    //     showEditModal = false;
-    // }
-
-    // function handleEditSave() {
-    //     // Logic to save the edited video length
-    //     showEditModal = false;
-    // }
+   
 </script>
 
 <div class="gallery-card">
