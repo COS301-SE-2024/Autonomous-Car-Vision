@@ -11,6 +11,7 @@ function createWindow() {
   });
 
   mainWindow.loadFile('public/index.html');
+  mainWindow.webContents.openDevTools();
 }
 
 app.on('ready', createWindow);
@@ -26,3 +27,7 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+try {
+  require('electron-reloader')(module)
+} catch (_) { }
