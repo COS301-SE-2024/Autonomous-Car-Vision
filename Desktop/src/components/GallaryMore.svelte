@@ -4,6 +4,9 @@
     import DeleteModal from './DeleteModal.svelte';
     import ModelList from './ModelList.svelte';
     import ViewVideoModal from './ViewVideoModal.svelte';
+    import { createEventDispatcher } from 'svelte';
+
+    const dispatch = createEventDispatcher();
 
     const currentTab = writable('original');
     const showModelList = writable(false);
@@ -13,6 +16,12 @@
     let showEditModal = false;
     let showViewModal = false;
     let showDeleteModal = false;
+
+    function back() {
+        // const event = new CustomEvent('close');
+        // dispatchEvent(event);
+        dispatch('close');
+    }
 
     function switchTab(tab) {
         currentTab.set(tab);
@@ -77,6 +86,9 @@
 </script>
 
 <div class="modal">
+    <div>
+        <button  class="back-button bg-green-600" on:click={back}>Back</button>
+    </div>
     <div class="tabs">
         <div class="tab { $currentTab === 'original' ? 'active' : '' }" on:click={() => switchTab('original')}>Original</div>
         <div class="tab { $currentTab === 'processed' ? 'active' : '' }" on:click={() => switchTab('processed')}>Processed</div>
@@ -151,6 +163,16 @@
         width: 80%;
         /* max-width: 800px; */
         border-radius: 8px;
+    }
+
+    .back-button  {
+        margin: 0 10px;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 2px;
+        cursor: pointer;
+        font-size: 10px;
     }
 
     .tabs {

@@ -2,7 +2,7 @@
 
 <script>
     
-    import GallaryMore from './GallaryCard.svelte';
+    import GallaryMore from './GallaryMore.svelte';
 
     let showMoreModal = false;
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
@@ -18,6 +18,11 @@
        showMoreModal = true;
     
     }
+
+    function handleBack() {
+            // Logic for the back button
+            showMoreModal = false;
+        }
    
 </script>
 
@@ -27,13 +32,7 @@
             src={imgSource} alt="video preview"/>
             <div class="button-container">
                 {#if isDownloaded}
-                    <button class="more" on:click={handleMore}>More</button>    
-                    <div>
-                        {#if showMoreModal}
-                    <GallaryMore/>
-                {/if}
-            </div>
-                    
+                    <button class="more"  on:click={handleMore}>More</button>      
                 {:else}
                     <button class="download" on:click={handleDownload}>Download</button>
                 {/if}
@@ -42,6 +41,11 @@
     
     <div class="details">
         <p class="details-link"> Details here...</p>
+    </div>
+    <div>
+        {#if showMoreModal}
+          <GallaryMore on:close={handleBack}/>
+         {/if}
     </div>
 </div>
 
@@ -95,64 +99,7 @@
         border-radius: 2px;
         font-size: 8px;
     }
-    /*
-    .gallery-card .details {
-        margin: 4px 0;
-    }
-    .gallery-card .details   p{
-            font-size: 10px;
-        }
-    .gallery-card .length {
-        font-size: 10px;
-        color: #555;
-    }
-    .gallery-card .buttons {
-        display: flex;
-        justify-content: space-between;
-    }
-    .gallery-card .buttons button {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 4px 6px;
-        border-radius: 2px;
-        cursor: pointer;
-        font-size: 8px;
-    }
    
-
-    .button-cluster {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .image-container:hover .button-cluster {
-        opacity: 1;
-    }
-
-    .button-cluster button {
-        margin: 0 5px;
-        padding: 4px 6px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        background-color: #007bff;
-        color: #fff;
-        border-radius: 2px;
-        font-size: 8px;
-    }
-    .button-cluster button.delete {
-        background-color: #dc3545;
-    } */
     .details {
         padding: 10px;
         background-color: #f9f9f9;
