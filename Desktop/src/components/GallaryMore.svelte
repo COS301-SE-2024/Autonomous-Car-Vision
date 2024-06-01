@@ -3,6 +3,7 @@
     import EditVideoModal from './EditVideoModal.svelte';
     import DeleteModal from './DeleteModal.svelte';
     import ModelList from './ModelList.svelte';
+    import ViewVideoModal from './ViewVideoModal.svelte';
 
     const currentTab = writable('original');
     const showModelList = writable(false);
@@ -10,6 +11,7 @@
     
     let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
     let showEditModal = false;
+    let showViewModal = false;
     let showDeleteModal = false;
 
     function switchTab(tab) {
@@ -23,6 +25,11 @@
 
     function process() {
         // Process functionality
+    }
+
+    function reProcess()
+    {
+        //re-process functionality
     }
 
     function deleteItem() {
@@ -57,6 +64,16 @@
         selectedModel = event.detail;
         showModelList.set(false);
     }
+
+    function toggleViewModal(){
+        showViewModal = true;
+    }
+
+    function handleViewDone()
+    {
+        showViewModal = false;
+    }
+
 </script>
 
 <div class="modal">
@@ -101,7 +118,21 @@
 
     <div class="content { $currentTab === 'processed' ? 'active' : '' }">
         <!-- Processed tab content goes here -->
-        <p>Processed content will be displayed here.</p>
+
+        <div class="image-container">
+            <img  
+            src={imgSource} alt="video thumbnail"/>
+        </div>
+        <div class="details">
+            <p>Details here</p>
+        </div>
+        <div class="button-cluster">
+            <button on:click={toggleViewModal} >View</button>
+                {#if showViewModal}
+                  <ViewVideoModal on:save={handleViewDone} />   <!-- on:play={handleControl}  -->
+                {/if}
+            <button on:click={reProcess}>Re-Process</button>
+        </div>
     </div>
 </div>
 
