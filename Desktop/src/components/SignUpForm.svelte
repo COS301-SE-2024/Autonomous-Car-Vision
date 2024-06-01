@@ -23,7 +23,7 @@
     let showConfirm = false;
 </script>
 
-<div class="w-10/12 mx-auto py-4 my-4">
+<div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
     <MaterialApp>
         <div class="flex flex-row gap-2">
             <a
