@@ -3,6 +3,8 @@ module.exports = {
     darkMode: false,
     theme: {
       extend: {},
+      font:
+      {},
       colors: {
         'theme-green': {
           light:'#343434', //Timber wolf
