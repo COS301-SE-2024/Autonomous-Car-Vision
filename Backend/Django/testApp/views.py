@@ -154,9 +154,10 @@ def manage_token(request, pk=None):
     
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def signup(request):
+def signup(request):    
     data = request.data      
-    salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+    # salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+    salt = data['salt']
     hashed_password = data['password']
     uid = random.randint(0, 999999999)
     user_data = {
@@ -175,7 +176,6 @@ def signup(request):
         auth_serializer = AuthSerializer(data=userPassword)
         if auth_serializer.is_valid():
             auth_serializer.save()
-            
             
         expiry_date = datetime.now() + timedelta(minutes=10) 
         otp_code = ''.join(random.choices(string.digits, k=6))
@@ -334,7 +334,10 @@ def signin(request):
         return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        user = User.objects.get(uemail=uemail)
+        if User.objects.filter(uemail=uemail).exists():
+            user = User.objects.get(uemail=uemail)
+        else:
+            user = User.objects.get(uname=uemail)        
         auth = Auth.objects.get(uid=user.uid)
         if auth.hash == password:
             token = ''
