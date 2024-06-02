@@ -27,8 +27,8 @@ module.exports = {
         'theme-red': {
           light:'#343434', //Timber wolf
           dark:'#D3D3D3', //Jet
-          primary: '#9A0000',
-          secondary: '#730D0D',
+          primary: '#730D0D',
+          secondary: '#9B1D1D',
         },
         'theme-purple': {
           light:'#343434', //Timber wolf
