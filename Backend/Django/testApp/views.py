@@ -156,7 +156,6 @@ def manage_token(request, pk=None):
 @permission_classes([AllowAny])
 def signup(request):    
     data = request.data      
-    # salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
     salt = data['salt']
     hashed_password = data['password']
     uid = random.randint(0, 999999999)
@@ -198,15 +197,8 @@ def signup(request):
 @api_view(['POST'])
 def verifyOTP(request):
     data = request.data
-    uname = data.get('uname')
-    uid = 0
-    try:
-        uid = User.objects.get(uname=uname)
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+    uid = data.get('uid')
     otp_code = data.get('otp')
-    
-    uid = uid.uid
     
     if not uid or not otp_code:
         return Response({'error': 'UID and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -271,15 +263,7 @@ def send_otp_email(to_email, otp_code, expiry_date):
 @api_view(['POST'])
 def otpRegenerate(request):
     data = request.data
-    uname = data.get('uname')
-    uid = 0
-    try:
-        uid = User.objects.get(uname=uname)
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    uid = uid.uid
-    
+    uid = data.get('uid')
     uemail = data.get('uemail')
     
     if not uid:
@@ -309,14 +293,13 @@ def hvstat(request):
 @permission_classes([AllowAny])
 def getSalt(request):
     data = request.data
-    uname = data.get('uname')
+    uid = data.get('uid')
     
-    if not uname:
+    if not uid:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        user = User.objects.get(uname=uname)
-        auth = Auth.objects.get(uid=user.uid)
+        auth = Auth.objects.get(uid=uid)
         return Response({'salt': auth.salt}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
@@ -391,26 +374,25 @@ def signout(request):
 @permission_classes([AllowAny])    
 def getToken(request):
     data = request.data
-    uname = data.get('uname')
+    uid = data.get('uid')
     password = data.get('password')
     
-    if not uname or not password:
+    if not uid or not password:
         return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        user = User.objects.get(uname=uname)
-        auth = Auth.objects.get(uid=user.uid)
+        auth = Auth.objects.get(uid=uid)
         if auth.hash == password:
             token = ''
             for i in range(40):
                 token += random.choice(string.ascii_letters + string.digits)
             print(token)
             token_data = {
-                'uid': user.uid,
+                'uid': uid,
                 'token': token
             }
             try:
-                token_entry = Token.objects.get(uid=user.uid)
+                token_entry = Token.objects.get(uid=uid)
                 token_entry.token = token
                 token_entry.save()
             except Token.DoesNotExist:
@@ -427,3 +409,26 @@ def getToken(request):
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
     except Auth.DoesNotExist:
         return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def changePassword(request):
+    data = request.data
+    uid = data.get('uid')
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    
+    if not uid or not old_password or not new_password:
+        return Response({'error': 'Username, old password and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        auth = Auth.objects.get(uid=uid)
+        if auth.hash == old_password:
+            auth.hash = new_password
+            auth.save()
+            return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+    except Auth.DoesNotExist:
+        return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)    
