@@ -24,7 +24,8 @@
 
 # Deployment:
 
-- docker-compose up -d --build
-- docker-compose exec web alembic revision --autogenerate -m "Initial migration"
-- docker-compose exec web alembic upgrade head
-- docker-compose down
+docker-compose up -d --build
+docker-compose exec web alembic upgrade head
+docker-compose exec web alembic revision --autogenerate -m "Initial migration"
+docker-compose exec web alembic upgrade head
+docker-compose down

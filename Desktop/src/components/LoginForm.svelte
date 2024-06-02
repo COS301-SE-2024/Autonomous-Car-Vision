@@ -1,15 +1,28 @@
 <script>
     import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
     import { mdiEyeOff, mdiEye } from "@mdi/js";
+    import axios from 'axios';
 
-    let username_Email = '';
-    let password = ''
+    let nToken = '';
+    let pToken = ''
 
-    const onSubmit = () => {
+    const onSubmit = async () => {
         console.log("Login");
-        console.log(username_Email);
-        console.log(password);
+        console.log(nToken);
+        console.log(pToken);
+
+        try {
+            // const response = await axios.post('http://localhost:8000/signin/', {
+            //     "uname": nToken,
+            //     ""
+            // });
+            // console.log('Login Successful:', response.data);\
+            console.log('Hello')
+        } catch (error) {
+            console.error('Login Failed:', error);
+        }
     };
+
 
     let show = false;
 </script>
@@ -37,9 +50,9 @@
             </div>
             <div id="form" class="flex flex-col gap-1 py-2">
                 <!-- <label for="uName-Email">Username or Email</label> -->
-                <TextField bind:value={username_Email} outlined>Username/Email</TextField>
+                <TextField bind:value={nToken} outlined>Username/Email</TextField>
                 <!-- <label for="uName-Email">Password</label> -->
-                <TextField bind:value={password} outlined type={show ? "text" : "password"}>
+                <TextField bind:value={pToken} outlined type={show ? "text" : "password"}>
                     Password
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div

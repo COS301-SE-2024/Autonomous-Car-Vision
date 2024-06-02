@@ -1,22 +1,41 @@
 <script>
-    import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
-    import { mdiEyeOff, mdiEye } from "@mdi/js";
+    import {Button, TextField, Icon, MaterialApp} from "svelte-materialify";
+    import {mdiEyeOff, mdiEye} from "@mdi/js";
+    import axios from 'axios';
+    import {push} from "svelte-spa-router";
 
     function handleEnterdown(e) {
-        if(e.key == "Enter"){
+        if (e.key == "Enter") {
             onSubmit();
         }
-	}
+    }
 
-    let username_Email = '';
-    let password = ''
-    let confirmPassword = ''
+    let nToken = '';
+    let eToken = '';
+    let pToken = '';
+    let ppToken = '';
 
-    const onSubmit = () => {
-        console.log("Login");
-        console.log(username_Email);
-        console.log(password);
-        console.log(confirmPassword);
+    const onSubmit = async () => {
+        console.log("Sign-up");
+        console.log(eToken);
+        console.log(pToken);
+
+        try {
+            const response = await axios.post('http://localhost:8000/signup/', {
+                "uname": nToken,
+                "uemail": eToken,
+                "password": pToken,
+            });
+            console.log(response)
+            console.log('Login Successful:', response.data);
+            localStorage.setItem('userData', JSON.stringify(response.data));
+
+            push("/otp")
+
+
+        } catch (error) {
+            console.error('Login Failed:', error);
+        }
     };
 
     let show = false;
@@ -27,14 +46,14 @@
     <MaterialApp>
         <div class="flex flex-row gap-2">
             <a
-                class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-                href="#/login"
+                    class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+                    href="#/login"
             >
                 <Button class="text-primary-text-light bg-gray-light" depressed block>Log In</Button>
             </a>
             <a
-                class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-                href="#/signup"
+                    class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+                    href="#/signup"
             >
                 <Button class="text-primary-text-light bg-primary-green-light" depressed block>Sign Up</Button>
             </a>
@@ -46,35 +65,37 @@
             </div>
             <div on:keydown={handleEnterdown} id="form" class="flex flex-col gap-1 py-2">
                 <!-- <label for="uName-Email">Username or Email</label> -->
-                <TextField bind:value={username_Email} outlined>Username/Email</TextField>
+                <TextField bind:value={eToken} outlined>Email</TextField>
+                <TextField bind:value={nToken} outlined>Username</TextField>
                 <!-- <label for="uName-Email">Password</label> -->
-                <TextField bind:value={password} outlined type={show ? "text" : "password"}>
+                <TextField bind:value={pToken} outlined type={show ? "text" : "password"}>
                     Password
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        slot="append"
-                        on:click={() => {
+                            slot="append"
+                            on:click={() => {
                             show = !show;
                         }}
                     >
-                        <Icon path={show ? mdiEyeOff : mdiEye} />
+                        <Icon path={show ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
-                <TextField bind:value={confirmPassword} outlined type={showConfirm ? "text" : "password"}>
+                <TextField bind:value={ppToken} outlined type={showConfirm ? "text" : "password"}>
                     Confirm password
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
-                        slot="append"
-                        on:click={() => {
+                            slot="append"
+                            on:click={() => {
                             showConfirm = !showConfirm;
                         }}
                     >
-                        <Icon path={showConfirm ? mdiEyeOff : mdiEye} />
+                        <Icon path={showConfirm ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
             </div>
             <Button class="bg-primary-green-light" on:click={onSubmit} rounded block
-                >Sign up</Button
+            >Sign up
+            </Button
             >
         </div>
     </MaterialApp>
