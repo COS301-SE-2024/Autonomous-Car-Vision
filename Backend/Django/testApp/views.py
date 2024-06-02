@@ -481,14 +481,29 @@ def upload_success(request):
 @permission_classes([AllowAny])
 def getMedia(request):
     data = request.data
-    uid = data.get('uid')
-    media_name = data.get('media_name')
+    mid = data.get('mid')
     
-    if not uid:
+    if not mid:
         return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
     try:
-        media = Media.objects.get(uid=uid, media_name=media_name)
+        media = Media.objects.get(mid=mid)
         serializer = MediaSerializer(media)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Media.DoesNotExist:
         return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def getGalleryWithUid(request):
+    data = request.data
+    uid = data.get('uid')
+    
+    if not uid:
+        return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        media = Media.objects.filter(uid=uid)
+        serializer = MediaSerializer(media, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Media.DoesNotExist:
+        return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)    
