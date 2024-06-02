@@ -4,6 +4,7 @@
   
     function verifyCode() {
       alert(`Verifying code: ${code}`);
+      console.log("Code: " + code)
     }
   
     function updateCode(index, value) {

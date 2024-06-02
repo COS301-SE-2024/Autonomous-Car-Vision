@@ -18,7 +18,8 @@
   
     function saveChanges() {
       // Function to handle saving other changes (username, email)
-      alert("Changes saved!");
+      console.log("Username: " + username)
+      console.log("email: " + email)
     }
   
     onMount(() => {
