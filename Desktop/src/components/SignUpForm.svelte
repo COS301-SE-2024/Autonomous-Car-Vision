@@ -28,7 +28,7 @@
             });
             console.log(response)
             console.log('Login Successful:', response.data);
-            localStorage.setItem('userData', JSON.stringify(response.data));
+            localStorage.setItem('userData', JSON.stringify({'uid': response.data.uid}));
 
             push("/otp")
 
@@ -43,7 +43,7 @@
 </script>
 
 <div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
-    <MaterialApp>
+    <MaterialApp>k
         <div class="flex flex-row gap-2">
             <a
                     class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
