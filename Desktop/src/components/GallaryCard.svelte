@@ -1,121 +1,132 @@
-
-
 <script>
-    
-    import GallaryMore from './GallaryMore.svelte';
+  import { createEventDispatcher, onMount } from "svelte";
 
-    let showMoreModal = false;
-    let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
-    let isDownloaded = false;
+  const dispatch = createEventDispatcher();
 
-    function handleDownload() {
-        // Logic to download the video
-        isDownloaded = true;
-    }
+  import GallaryMore from "./GallaryMore.svelte";
 
-    function handleMore() {
-        // Logic for the more button
-       showMoreModal = true;
-    
-    }
+  export let VideoSource;
 
-    function handleBack() {
-            // Logic for the back button
-            showMoreModal = false;
-        }
-   
+  let showMoreModal = false;
+  let firstFrameURL = "";
+  let isDownloaded = false;
+
+  function handleDownload() {
+    // Logic to download the video
+    isDownloaded = true;
+  }
+
+  function handleMore() {
+    // Logic for the more button
+    showMoreModal = true;
+  }
+
+  function handleBack() {
+    // Logic for the back button
+    showMoreModal = false;
+  }
+
+  function captureSpecificFrame(frameNumber) {
+    const videoElement = document.createElement('video');
+    videoElement.src = VideoSource;
+    videoElement.crossOrigin = 'anonymous'; // Ensure CORS is handled
+
+    videoElement.addEventListener('loadedmetadata', () => {
+      const fps = 30; // Assuming the video has 30 frames per second
+      const targetTime = frameNumber / fps;
+
+      videoElement.currentTime = targetTime;
+    });
+
+    videoElement.addEventListener('seeked', () => {
+      if (videoElement.readyState >= 2) { // Ensure the video is loaded
+        const canvas = document.createElement('canvas');
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        firstFrameURL = canvas.toDataURL('image/png');
+        // Remove the video element from the DOM
+        videoElement.remove();
+      } else {
+        console.error('Video is not ready to capture the frame.');
+      }
+    });
+
+    videoElement.addEventListener('error', (e) => {
+      console.error('Error loading video: ', e);
+    });
+
+    // Add the video element to the DOM to trigger loading
+    document.body.appendChild(videoElement);
+  }
+
+  onMount(() => {
+    captureSpecificFrame(10); // Specify the frame to get
+  });
 </script>
 
-<div class="gallery-card">
-    {#if isDownloaded}
-    
-        <div class="image-container">
-                <img  
-                src={imgSource} alt="video preview"/>
-                <div class="button-container">
-                        <button class="more"  on:click={handleMore}>More</button> 
-                   
-                </div>
-        </div>
-    
-        <div class="details">
-            <p class="details-link"> Details here...</p>
-        </div>
- {:else}
-        <div class="image-container" style={"filter:grayscale(100%)"}>
-                <img  
-                src={imgSource} alt="video preview"/>
-                <div class="button-container">
-                    <button class="download" on:click={handleDownload}>Download</button>
-                </div>
-        </div>
-            <div class="details">
-                <p class="details-link"> Details here...</p>
-            </div>
-     
-     {/if}
-    <div>
-        {#if showMoreModal}
-          <GallaryMore on:close={handleBack}/>
-         {/if}
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+
+{#if isDownloaded}
+  <div
+    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
+    on:click={handleMore}
+  >
+    <div class="image-container relative">
+      <img
+        src={firstFrameURL}
+        alt="video preview"
+        class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+      />
+      <div
+        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
+      >
+        <button
+          class="more bg-blue text-white border-none px-2 py-1 rounded text-xs"
+          on:click={handleMore}>More</button
+        >
+      </div>
     </div>
-</div>
+    <div class="details p-2">
+      <p class="details-link">Details here...</p>
+    </div>
+    <div>
+      {#if showMoreModal}
+        <GallaryMore on:close={handleBack} />
+      {/if}
+    </div>
+  </div>
+{:else}
+  <div
+    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
+    on:click={handleMore}
+  >
+    <div class="image-container relative filter grayscale">
+      <img
+        src={firstFrameURL}
+        alt="video preview"
+        class="w-full rounded-lg transition-filter duration-300 ease-in-out"
+      />
+      <div
+        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
+      >
+        <button
+          class="download bg-blue text-white border-none px-2 py-1 rounded text-xs"
+          on:click={handleDownload}>Download</button
+        >
+      </div>
+    </div>
+    <div class="details p-2">
+      <p class="details-link">Details here...</p>
+    </div>
+    <div>
+      {#if showMoreModal}
+        <GallaryMore on:close={handleBack} imgSource={firstFrameURL} videoSource={VideoSource}/>
+      {/if}
+    </div>
+  </div>
+{/if}
 
-
-
-
-  <style>
-    .gallery-card {
-        position: relative;
-        overflow: hidden;
-        border: 2px solid #007bff;
-        border-radius: 4px;
-        padding: 8px;
-        width: 200px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        margin: 8px;
-        transition: all 0.3s ease;
-    }
-     .img-container {
-        
-        position: relative;
-    }
-
-   .img-container img{
-        width: 100%;
-        border-radius: 4px;
-        transition: filter 0.3s ease;
-    }
-
-     .image-container:hover img{
-        filter: blur(4px);
-    }
-
-    .button-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -150%); 
-        display: none; 
-    }
-
-    .gallery-card:hover .button-container {
-        display: block;
-    }
-
-    .button-container button {
-        cursor: pointer;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        padding: 4px 6px;
-        border-radius: 2px;
-        font-size: 8px;
-    }
-   
-    .details {
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-top: 1px solid #ccc;
-    }
+<style>
 </style>

@@ -1,14 +1,14 @@
 <script>
   import Dropzone from "svelte-file-dropzone";
-  import FileItem from "../components/FileItem.svelte";
 
-  let files = {
-    accepted: [],
-  };
+  export let videoSource;
 
   function handleFilesSelect(e) {
     const { acceptedFiles, fileRejections } = e.detail;
-    files.accepted = [...files.accepted, ...acceptedFiles];
+    
+    if (acceptedFiles.length > 0) {
+      videoSource = URL.createObjectURL(acceptedFiles[0]);
+    }
 
     // Alert for rejected files
     fileRejections.forEach((rejection) => {
@@ -18,23 +18,27 @@
     });
   }
 
-  function removeFile(file) {
-    files.accepted = files.accepted.filter((f) => f !== file);
+  function saveVideo() {
+    // Add logic to save the video or perform any action on save
+    alert('Video saved!');
   }
 </script>
 
-<div class="flex flex-col items-center">
-  <Dropzone
-    on:drop={handleFilesSelect}
-    accept="video/*"
-    maxSize={100 * 1024 * 1024}
-    minSize={1 * 1024 * 1024}
-    containerStyles="border-color: #8492a6; color: black"
-  />
-  <h2>Files to be uploaded</h2>
-  <ol>
-    {#each files.accepted as item}
-      <FileItem file={item} onRemove={removeFile} />
-    {/each}
-  </ol>
+<div class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5">
+  {#if videoSource === ""}
+    <Dropzone
+      on:drop={handleFilesSelect}
+      accept="video/*"
+      containerStyles="border-color: #8492a6; color: black"
+      multiple={false}
+    />
+  {:else}
+    <video class="video-preview w-full mt-4" src={videoSource} controls>
+      <track kind="captions">
+    </video>
+  {/if}
+  <div class="w-full flex items-center mt-4">
+    <span class="flex-grow"></span>
+    <button class="bg-blue text-white font-bold py-2 px-4 rounded hover:bg-gary-dark" on:click={saveVideo}>Save</button>
+  </div>
 </div>
