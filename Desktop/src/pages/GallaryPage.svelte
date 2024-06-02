@@ -1,5 +1,5 @@
 <script>
-    import GallaryCard from '.././components/GallaryCard.svelte';
+    import GallaryCard from '../components/GallaryCard.svelte';
 
     
   </script>

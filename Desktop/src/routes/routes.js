@@ -11,6 +11,7 @@ const routes = {
     '/signup': SignUp,
     '/otp': OTP,
     '/gallary':Gallary,
+
 };
 
 export default routes;

@@ -17,6 +17,7 @@
     "autoprefixer": "^10.0.0",
     "bcryptjs": "^2.4.3",
     "electron": "^30.0.8",
+    "@rollup/plugin-url": "^8.0.2",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",
     "postcss": "^8.0.0",
