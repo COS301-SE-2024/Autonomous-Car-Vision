@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Auth, OTP, Token
+from .models import User, Auth, OTP, Token, Video
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -20,3 +20,8 @@ class TokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = ['token']
+
+class MediaForm(forms.ModelForm):
+    class Meta:
+        model = Video
+        fields = ['media_name', 'media_url']        

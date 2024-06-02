@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Auth, OTP, Token
+from .models import User, Auth, OTP, Token, Media
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +19,10 @@ class OTPSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Token
-        fields = ['uid', 'token']        
+        fields = ['id', 'uid', 'token']        
+        
+class MediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = ['id', 'uid', 'mid', 'media_name', 'media_url']
+        

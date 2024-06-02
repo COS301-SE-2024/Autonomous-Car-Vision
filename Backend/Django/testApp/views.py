@@ -1,9 +1,10 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import TokenSerializer, UserSerializer, AuthSerializer, OTPSerializer
-from .models import User, Auth, OTP, Token
+from .serializers import TokenSerializer, UserSerializer, AuthSerializer, OTPSerializer, MediaSerializer
+from .models import User, Auth, OTP, Token, Media
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,7 +16,6 @@ from rest_framework.decorators import permission_classes
 from datetime import datetime, timedelta, timezone
 import smtplib
 from dotenv import load_dotenv
-import uuid
 
 load_dotenv()
 
@@ -37,7 +37,11 @@ class OTPViewSet(viewsets.ModelViewSet):
 class TokenViewSet(viewsets.ModelViewSet):
     queryset = Token.objects.all()
     serializer_class = TokenSerializer
-    permission_classes = [IsAuthenticated]    
+    permission_classes = [IsAuthenticated] 
+class MediaViewSet(viewsets.ModelViewSet):
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
+    permission_classes = [IsAuthenticated]
     
 @api_view(['POST', 'PUT', 'DELETE'])
 def manage_user(request, pk=None):
@@ -452,3 +456,29 @@ def changeUserDetails(request):
         return Response({'message': 'User details updated successfully'}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+   
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def upload_video(request):
+    if request.method == 'POST':
+        data = request.data
+        mid = random.randint(0, 999999999)
+        data['mid'] = mid
+        print(data)
+        
+        serializer = MediaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def list_videos(request):
+    videos = Media.objects.all()
+    return render(request, 'list_videos.html', {'videos': videos}) 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def upload_success(request):
+    return render(request, 'upload_success.html')
