@@ -19,22 +19,28 @@
         console.log("Sign-up");
         console.log(eToken);
         console.log(pToken);
-
+        if (pToken !== ppToken) {
+            alert('Passwords do not match');
+            return;
+        }
         try {
+            const {hash, salt} = await window.electronAPI.hashPassword(pToken);
+            console.log(hash);
+            console.log(salt);
+
             const response = await axios.post('http://localhost:8000/signup/', {
                 "uname": nToken,
                 "uemail": eToken,
-                "password": pToken,
+                "password": hash,
+                "salt": salt,
             });
-            console.log(response)
+            console.log(response);
             console.log('Login Successful:', response.data);
-            localStorage.setItem('userData', JSON.stringify({'uid': response.data.uid}));
+            localStorage.setItem('uid', JSON.stringify(response.data.uid));
 
-            push("/otp")
-
-
+            push("/otp");
         } catch (error) {
-            console.error('Login Failed:', error);
+            console.error('Sign-up Failed:', error);
         }
     };
 
@@ -43,18 +49,12 @@
 </script>
 
 <div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
-    <MaterialApp>k
+    <MaterialApp>
         <div class="flex flex-row gap-2">
-            <a
-                    class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-                    href="#/login"
-            >
+            <a class="w-full h-14 flex flex-col flex-wrap justify-center items-center" href="#/login">
                 <Button class="text-primary-text-light bg-gray-light" depressed block>Log In</Button>
             </a>
-            <a
-                    class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-                    href="#/signup"
-            >
+            <a class="w-full h-14 flex flex-col flex-wrap justify-center items-center" href="#/signup">
                 <Button class="text-primary-text-light bg-primary-green-light" depressed block>Sign Up</Button>
             </a>
         </div>
@@ -64,39 +64,22 @@
                 <p>Please enter your information to sign up.</p>
             </div>
             <div on:keydown={handleEnterdown} id="form" class="flex flex-col gap-1 py-2">
-                <!-- <label for="uName-Email">Username or Email</label> -->
                 <TextField bind:value={eToken} outlined>Email</TextField>
                 <TextField bind:value={nToken} outlined>Username</TextField>
-                <!-- <label for="uName-Email">Password</label> -->
                 <TextField bind:value={pToken} outlined type={show ? "text" : "password"}>
                     Password
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <div
-                            slot="append"
-                            on:click={() => {
-                            show = !show;
-                        }}
-                    >
+                    <div slot="append" on:click={() => { show = !show; }}>
                         <Icon path={show ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
                 <TextField bind:value={ppToken} outlined type={showConfirm ? "text" : "password"}>
                     Confirm password
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <div
-                            slot="append"
-                            on:click={() => {
-                            showConfirm = !showConfirm;
-                        }}
-                    >
+                    <div slot="append" on:click={() => { showConfirm = !showConfirm; }}>
                         <Icon path={showConfirm ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
             </div>
-            <Button class="bg-primary-green-light" on:click={onSubmit} rounded block
-            >Sign up
-            </Button
-            >
+            <Button class="bg-primary-green-light" on:click={onSubmit} rounded block>Sign up</Button>
         </div>
     </MaterialApp>
 </div>

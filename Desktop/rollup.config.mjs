@@ -5,6 +5,7 @@ import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
+import json from '@rollup/plugin-json';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -36,6 +37,7 @@ export default {
       dedupe: ['svelte']
     }),
     commonjs(),
+      json(),
     production && terser()
   ],
   watch: {

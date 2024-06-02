@@ -5,13 +5,17 @@
   "type": "commonjs",
   "scripts": {
     "start": "yarn run rollup -c -w & electron .",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "rebuild": "electron-rebuild -f -w bcrypt"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
+    "@node-rs/bcrypt": "^1.10.4",
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "autoprefixer": "^10.0.0",
+    "bcryptjs": "^2.4.3",
     "electron": "^30.0.8",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",
@@ -32,6 +36,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@testing-library/svelte": "^3.0.0",
     "babel-jest": "^27.0.0",
+    "electron-rebuild": "^3.2.9",
     "jest": "^27.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-terser": "^7.0.2",
