@@ -1,9 +1,10 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from django.shortcuts import render
 from rest_framework import viewsets
-from .serializers import TokenSerializer, UserSerializer, AuthSerializer, OTPSerializer
-from .models import User, Auth, OTP, Token
+from .serializers import TokenSerializer, UserSerializer, AuthSerializer, OTPSerializer, MediaSerializer
+from .models import User, Auth, OTP, Token, Media
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -15,7 +16,6 @@ from rest_framework.decorators import permission_classes
 from datetime import datetime, timedelta, timezone
 import smtplib
 from dotenv import load_dotenv
-import uuid
 
 load_dotenv()
 
@@ -37,7 +37,11 @@ class OTPViewSet(viewsets.ModelViewSet):
 class TokenViewSet(viewsets.ModelViewSet):
     queryset = Token.objects.all()
     serializer_class = TokenSerializer
-    permission_classes = [IsAuthenticated]    
+    permission_classes = [IsAuthenticated] 
+class MediaViewSet(viewsets.ModelViewSet):
+    queryset = Media.objects.all()
+    serializer_class = MediaSerializer
+    permission_classes = [IsAuthenticated]
     
 @api_view(['POST', 'PUT', 'DELETE'])
 def manage_user(request, pk=None):
@@ -154,9 +158,9 @@ def manage_token(request, pk=None):
     
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def signup(request):
+def signup(request):    
     data = request.data      
-    salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+    salt = data['salt']
     hashed_password = data['password']
     uid = random.randint(0, 999999999)
     user_data = {
@@ -175,7 +179,6 @@ def signup(request):
         auth_serializer = AuthSerializer(data=userPassword)
         if auth_serializer.is_valid():
             auth_serializer.save()
-            
             
         expiry_date = datetime.now() + timedelta(minutes=10) 
         otp_code = ''.join(random.choices(string.digits, k=6))
@@ -198,15 +201,8 @@ def signup(request):
 @api_view(['POST'])
 def verifyOTP(request):
     data = request.data
-    uname = data.get('uname')
-    uid = 0
-    try:
-        uid = User.objects.get(uname=uname)
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+    uid = data.get('uid')
     otp_code = data.get('otp')
-    
-    uid = uid.uid
     
     if not uid or not otp_code:
         return Response({'error': 'UID and OTP are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -216,7 +212,7 @@ def verifyOTP(request):
     except OTP.DoesNotExist:
         return Response({'error': 'Invalid UID or OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if otp_entry.expiry_date < datetime.now(timezone.utc):
+    if otp_entry.expiry_date < datetime.now():
         return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     token = ''
@@ -271,15 +267,7 @@ def send_otp_email(to_email, otp_code, expiry_date):
 @api_view(['POST'])
 def otpRegenerate(request):
     data = request.data
-    uname = data.get('uname')
-    uid = 0
-    try:
-        uid = User.objects.get(uname=uname)
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    uid = uid.uid
-    
+    uid = data.get('uid')
     uemail = data.get('uemail')
     
     if not uid:
@@ -309,60 +297,38 @@ def hvstat(request):
 @permission_classes([AllowAny])
 def getSalt(request):
     data = request.data
-    uname = data.get('uname')
+    uemail = data.get('uemail')  
     
-    if not uname:
+    if not uemail:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
     
+    print(uemail)
+    
+    if User.objects.filter(uemail=uemail).exists():
+        user = User.objects.get(uemail=uemail)
+    else:
+        user = User.objects.get(uname=uemail)   
+        
+    uid = user.uid
+    salt = Auth.objects.get(uid=uid).salt 
+       
     try:
-        user = User.objects.get(uname=uname)
-        auth = Auth.objects.get(uid=user.uid)
-        return Response({'salt': auth.salt}, status=status.HTTP_200_OK)
+        return Response({'salt': salt, 'uid': uid}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
-    except Auth.DoesNotExist:
-        return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signin(request):
     data = request.data
-    uemail = data.get('uemail')
+    uid = data.get('uid')
     password = data.get('password')
     
-    if not uemail or not password:
-        return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        user = User.objects.get(uemail=uemail)
-        auth = Auth.objects.get(uid=user.uid)
-        if auth.hash == password:
-            token = ''
-            for i in range(40):
-                token += random.choice(string.ascii_letters + string.digits)
-            print(token)
-            token_data = {
-                'uid': user.uid,
-                'token': token
-            }
-            try:
-                token_entry = Token.objects.get(uid=user.uid)
-                token_entry.token = token
-                token_entry.save()
-            except Token.DoesNotExist:
-                tokenSerializer = TokenSerializer(data=token_data)
-            if tokenSerializer.is_valid():
-                tokenSerializer.save()
-            else:
-                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-            return Response({'token': token}, status=status.HTTP_200_OK)
-            
-        return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
-    except User.DoesNotExist:
-        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
-    except Auth.DoesNotExist:
-        return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)
+    hash = Auth.objects.get(uid=uid).hash
+         
+    if hash == password:          
+        return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)   
+    return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -388,26 +354,25 @@ def signout(request):
 @permission_classes([AllowAny])    
 def getToken(request):
     data = request.data
-    uname = data.get('uname')
+    uid = data.get('uid')
     password = data.get('password')
     
-    if not uname or not password:
+    if not uid or not password:
         return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
-        user = User.objects.get(uname=uname)
-        auth = Auth.objects.get(uid=user.uid)
+        auth = Auth.objects.get(uid=uid)
         if auth.hash == password:
             token = ''
             for i in range(40):
                 token += random.choice(string.ascii_letters + string.digits)
             print(token)
             token_data = {
-                'uid': user.uid,
+                'uid': uid,
                 'token': token
             }
             try:
-                token_entry = Token.objects.get(uid=user.uid)
+                token_entry = Token.objects.get(uid=uid)
                 token_entry.token = token
                 token_entry.save()
             except Token.DoesNotExist:
@@ -424,3 +389,88 @@ def getToken(request):
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
     except Auth.DoesNotExist:
         return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def changePassword(request):
+    data = request.data
+    uid = data.get('uid')
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
+    
+    if not uid or not old_password or not new_password:
+        return Response({'error': 'Username, old password and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        auth = Auth.objects.get(uid=uid)
+        if auth.hash == old_password:
+            auth.hash = new_password
+            auth.save()
+            return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+    except Auth.DoesNotExist:
+        return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def changeUserDetails(request):
+    data = request.data
+    uid = data.get('uid')
+    uname = data.get('uname')
+    uemail = data.get('uemail')
+    
+    if not uid:
+        return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(uid=uid)
+        user.uname = uname
+        user.uemail = uemail
+        user.save()
+        return Response({'message': 'User details updated successfully'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+   
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def upload_video(request):
+    if request.method == 'POST':
+        data = request.data
+        mid = random.randint(0, 999999999)
+        data['mid'] = mid
+        print(data)
+        
+        serializer = MediaSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def list_videos(request):
+    videos = Media.objects.all()
+    return render(request, 'list_videos.html', {'videos': videos}) 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def upload_success(request):
+    return render(request, 'upload_success.html')
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def lookup(request):
+    data = request.data
+    uid = data.get('uid')
+    
+    if not uid:
+        return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        media = Media.objects.filter(uid=uid)
+        serializer = MediaSerializer(media, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Media.DoesNotExist:
+        return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)    

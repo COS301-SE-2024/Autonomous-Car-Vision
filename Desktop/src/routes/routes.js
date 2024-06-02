@@ -2,13 +2,16 @@
 import Home from './Home.svelte';
 import LogIn from './LogIn.svelte';
 import SignUp from './SignUp.svelte';
-import Models from './Models.svelte'
+import OTP from './OTP.svelte';
+import Gallary from '../pages/GallaryPage.svelte';
 
 const routes = {
     '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
-    '/models': Models,
+    '/otp': OTP,
+    '/gallary':Gallary,
+
 };
 
 export default routes;

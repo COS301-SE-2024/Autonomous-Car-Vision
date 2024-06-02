@@ -8,4 +8,9 @@ window.addEventListener('DOMContentLoaded', () => {
       replaceText(`${type}-version`, process.versions[type]);
     }
   });
-  
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
+    hashPasswordSalt: (password,salt) => ipcRenderer.invoke('hash-password-salt', password, salt)
+});

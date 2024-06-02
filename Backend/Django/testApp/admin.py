@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import User, Auth, OTP, Token
+from .models import User, Auth, OTP, Token, Media
 
 admin.site.register(User)
 admin.site.register(Auth)
 admin.site.register(OTP)
 admin.site.register(Token)
+admin.site.register(Media)
 
