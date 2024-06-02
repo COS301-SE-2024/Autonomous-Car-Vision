@@ -5,11 +5,11 @@
 
     // Placeholder list of models with profile images
     let models = [
-        { id: 1, label: 'Mod.1' ,profileImg: 'C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Donatello.png' },
-        { id: 2, label: 'Mod.2' ,profileImg: 'C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Dawie.jpeg' },
-        { id: 3, label: 'Mod.3' ,profileImg: 'C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Kea.png' },
-        { id: 4, label: 'Mod.4' ,profileImg: 'C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/keith.jpg' },
-        { id: 5, label: 'Mod.5' ,profileImg: 'C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Jordan.png' },
+        { id: 1, label: 'Mod.1', profileImg: 'https://placekitten.com/300/300' },
+        { id: 2, label: 'Mod.2', profileImg: 'https://placekitten.com/300/300' },
+        { id: 3, label: 'Mod.3', profileImg: 'https://placekitten.com/300/300' },
+        { id: 4, label: 'Mod.4', profileImg: 'https://placekitten.com/300/300' },
+        { id: 5, label: 'Mod.5', profileImg: 'https://placekitten.com/300/300' },
     ];
 
     function selectModel(model) {
@@ -17,39 +17,12 @@
     }
 </script>
 
-
-<div class="model-list">
+<div class="absolute top-0 right-0 bg-theme-keith-primary border border-gray-300 shadow-lg p-4 z-50 flex flex-col rounded-lg">
     {#each models as model}
-        <div class="model-item" on:click={() => selectModel(model)}>
-            <img src={model.profileImg} alt="Model Profile">
-            <p style="font-size:8px;"> {model.label} </p>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <div class="mb-2 cursor-pointer flex items-center border-b border-theme-keith-accenttwo" on:click={() => selectModel(model)}>
+            <img src={model.profileImg} alt="Model Profile" class="w-12 h-12 rounded-full mr-2">
+            <p class="text-xs">{model.label}</p>
         </div>
     {/each}
 </div>
-
-<style>
-    .model-list {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 0;
-        right: 5px;
-        background-color: white;
-        border: 1px solid #ccc;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        padding: 10px;
-    }
-
-    .model-item {
-        margin-bottom: 10px;
-        cursor: pointer;
-    }
-
-    .model-item img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-    }
-</style>
-

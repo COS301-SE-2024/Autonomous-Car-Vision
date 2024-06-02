@@ -1,7 +1,7 @@
 <script>
   import Dropzone from "svelte-file-dropzone";
 
-  export let videoSource = "";
+  export let videoSource;
 
   function handleFilesSelect(e) {
     const { acceptedFiles, fileRejections } = e.detail;

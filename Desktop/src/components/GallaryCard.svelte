@@ -5,7 +5,7 @@
 
   import GallaryMore from "./GallaryMore.svelte";
 
-  export let VideoSource = "";
+  export let VideoSource;
 
   let showMoreModal = false;
   let firstFrameURL = "";
@@ -70,7 +70,7 @@
 
 {#if isDownloaded}
   <div
-    class="gallery-card relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-green m-2 transition-all duration-300 ease-in-out"
+    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
     on:click={handleMore}
   >
     <div class="image-container relative">
@@ -88,8 +88,8 @@
         >
       </div>
     </div>
-    <div class="details p-2 border-t border-gray">
-      <p class="details-link text-black">Details here...</p>
+    <div class="details p-2">
+      <p class="details-link">Details here...</p>
     </div>
     <div>
       {#if showMoreModal}
@@ -99,7 +99,7 @@
   </div>
 {:else}
   <div
-    class="gallery-card relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-green m-2 transition-all duration-300 ease-in-out"
+    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
     on:click={handleMore}
   >
     <div class="image-container relative filter grayscale">
@@ -117,12 +117,12 @@
         >
       </div>
     </div>
-    <div class="details p-2 border-t border-gray">
-      <p class="details-link text-black">Details here...</p>
+    <div class="details p-2">
+      <p class="details-link">Details here...</p>
     </div>
     <div>
       {#if showMoreModal}
-        <GallaryMore on:close={handleDownload} imgSource={firstFrameURL} videoSource={VideoSource}/>
+        <GallaryMore on:close={handleBack} imgSource={firstFrameURL} videoSource={VideoSource}/>
       {/if}
     </div>
   </div>

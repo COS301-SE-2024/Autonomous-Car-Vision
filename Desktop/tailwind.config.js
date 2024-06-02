@@ -45,7 +45,8 @@ module.exports = {
           primary: '#400F65',
           secondary: '#83468F',
         },
-        'white': '#FFFF'
+        'white': '#FFFF',
+        'black': '#0000',
       },
     },
     variants: {
