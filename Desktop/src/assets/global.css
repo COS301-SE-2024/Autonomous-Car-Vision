@@ -1,0 +1,82 @@
+/* src/global.css */
+
+/* Font-face declarations */
+@font-face {
+    font-family: 'Pterra';
+    src: url('./Fonts/PterraRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'ElectraBold';
+    src: url('./Fonts/ElectraDisplay.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Electra';
+    src: url('./Fonts/ElectraDisplay.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Burma';
+    src: url('./Fonts/BurmaSoftRegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'CourierARegular';
+    src: url('./Fonts/CourierARegular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'CourierALight';
+    src: url('./Fonts/CourierARegular.ttf') format('truetype');
+    font-weight: light;
+    font-style: normal;
+  }
+  
+ 
+  
+  /* Base styles to apply fonts globally using CSS variables */
+  :root {
+    --font-custom: 'Pterra';
+    --font-heading: 'ElectraBold';
+    --font-special: 'Electra';
+    --font-body: 'Burma';
+    --font-light: 'CourierARegular';
+    --font-light-light: 'CourierALight';
+  }
+  
+  body {
+    font-family: var(--font-body);
+  }
+  
+  /* Example classes for other fonts */
+  .font-custom{
+    font-family: var(--font-custom);
+  }
+  
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  
+  .font-light {
+    font-family: var(--font-light);
+  }
+
+  .font-lighter {
+    font-family: var(--font-light-light);
+  }
+
+  .font-special{
+    font-family: var(--font-special);
+  }
+  
