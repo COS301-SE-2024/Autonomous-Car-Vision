@@ -1,5 +1,4 @@
 <script>
-    import { each } from "svelte/internal";
     import ModelsCard from "../components/ModelsCard.svelte";
 
     let Models = [
@@ -25,7 +24,7 @@
             description: 'Testing the Description of AI Model#3',
             status: 'red',
             gif: 'https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif',
-            img: ''
+            img: 'https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
         }
     ];
 

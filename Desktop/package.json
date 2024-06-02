@@ -11,6 +11,7 @@
     "@mdi/js": "^7.4.47",
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-url": "^8.0.2",
     "autoprefixer": "^10.0.0",
     "electron": "^30.0.9",
     "electron-reloader": "^1.2.3",
