@@ -26,3 +26,9 @@ class MediaSerializer(serializers.ModelSerializer):
         model = Media
         fields = ['id', 'uid', 'mid', 'media_name', 'media_url']
         
+    def get_media_url(self, obj):
+        request = self.context.get('request')
+        if obj.media_url:
+            return request.build_absolute_uri(obj.media_url)
+        return None                                         
+        
