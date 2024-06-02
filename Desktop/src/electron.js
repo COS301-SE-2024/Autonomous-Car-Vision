@@ -8,7 +8,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
-    autoHideMenuBar: true,
+    // autoHideMenuBar: true,
     icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
   });
 

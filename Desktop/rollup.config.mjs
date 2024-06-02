@@ -1,5 +1,6 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
+import url from '@rollup/plugin-url';
 import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
@@ -31,6 +32,12 @@ export default {
         autoprefixer,
       ]
     }),
+    // url({
+    //   include: ['**/*.svg', '**/*.png', '**/*.jpg', '**/*.gif'],
+    //   limit: 8192,
+    //   emitFiles: true,
+    //   fileName: 'assets/[name][hash][extname]',
+    // }),
     resolve({
       browser: true,
       dedupe: ['svelte']
