@@ -240,7 +240,7 @@ def verifyOTP(request):
         else:
             return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         
-        return Response({'message': 'OTP is valid'}, status=status.HTTP_200_OK)
+        return Response({'token': token}, status=status.HTTP_200_OK)
     
     return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -300,6 +300,11 @@ def otpRegenerate(request):
     
     return Response({'message': 'OTP regenerated successfully'}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def hvstat(request):
+    return Response({'message': 'Server is running'}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def getSalt(request):
@@ -351,14 +356,36 @@ def signin(request):
             else:
                 return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-            return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)
+            return Response({'token': token}, status=status.HTTP_200_OK)
             
         return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
     except Auth.DoesNotExist:
         return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signout(request):
+    data = request.data
+    token = data.get('token')
     
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    databaseToken = Token.objects.get(token=token)
+    if not databaseToken:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        token_entry = Token.objects.get(token=token)
+        token_entry.delete()
+        return Response({'message': 'User signed out successfully'}, status=status.HTTP_200_OK)
+    except Token.DoesNotExist:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)    
+  
+@api_view(['POST'])
+@permission_classes([AllowAny])    
 def getToken(request):
     data = request.data
     uname = data.get('uname')

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, AuthViewSet, OTPViewSet, TokenViewSet, manage_auth, manage_token, manage_user, manage_otp, signup, verifyOTP, otpRegenerate, getSalt, signin
+from .views import UserViewSet, AuthViewSet, OTPViewSet, TokenViewSet, manage_auth, manage_token, manage_user, manage_otp, signup, verifyOTP, otpRegenerate, getSalt, signin, signout, hvstat
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
@@ -20,9 +20,11 @@ urlpatterns = [
     path('otp/<int:pk>/', manage_otp, name='update_delete_otp'),
     path('token/', manage_token, name='create_token'),
     path('token/<int:pk>/', manage_token, name='update_delete_token'),
+    path('hvstat/', hvstat),
     path('signup/', signup),
     path('verifyOTP/', verifyOTP),
     path('otpRegenerate/', otpRegenerate),
     path('getSalt/', getSalt),
     path('signin/', signin),
+    path('signout/', signout),
 ]
