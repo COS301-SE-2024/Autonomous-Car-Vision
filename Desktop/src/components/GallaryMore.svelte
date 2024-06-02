@@ -12,7 +12,8 @@
     const showModelList = writable(false);
     let selectedModel = null;
     
-    let imgSource ='C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png';
+    export let imgSource;
+    export let videoSource;
     let showEditModal = false;
     let showViewModal = false;
     let showDeleteModal = false;
@@ -90,7 +91,9 @@
         <button  class="back-button bg-green-600" on:click={back}>Back</button>
     </div>
     <div class="tabs">
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div class="tab { $currentTab === 'original' ? 'active' : '' }" on:click={() => switchTab('original')}>Original</div>
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
         <div class="tab { $currentTab === 'processed' ? 'active' : '' }" on:click={() => switchTab('processed')}>Processed</div>
     </div>
     
@@ -141,7 +144,7 @@
         <div class="button-cluster">
             <button on:click={toggleViewModal} >View</button>
                 {#if showViewModal}
-                  <ViewVideoModal on:save={handleViewDone} />   <!-- on:play={handleControl}  -->
+                  <ViewVideoModal on:save={handleViewDone} videoSource={videoSource}/>   <!-- on:play={handleControl}  -->
                 {/if}
             <button on:click={reProcess}>Re-Process</button>
         </div>

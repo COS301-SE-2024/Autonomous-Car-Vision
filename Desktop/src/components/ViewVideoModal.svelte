@@ -3,23 +3,22 @@
 
     const dispatch = createEventDispatcher();
 
-    let imgSource= "C:/Users/NTOLO LOGISTICS/OneDrive/Documents/GitHub/Autonomous-Car-Vision/Documentation/Images/Temp/poster.png";
+    let videoSource="https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
 
-
+    // let imgSource= "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
     function save() {
         dispatch('save');
     }
 </script>
 
 
-<div class="overlay mx-autorounded-xl rounded-lg"></div>
-<div class="modal mx-autorounded-lg">
-    <!-- <video class="video-preview" src={videoSrc} controls></video> -->
-     <img src={imgSource} alt="video preview"/>
-    <input type="range" min="0" max="100" class="timeline" /> <!--edt this please-->
+<div class="overlay mx-autorounded-xl bg-gray"></div>
+<div class="mx-autorounded-lg bg-gray-dark">
+    <video class="video-preview" src={videoSource} controls>
+        <track kind="captions">
+    </video>
     <div class="buttons">
-        <button class="cancel bg-blue-600" >Pause/Play</button>  <!-- on:click={cancel} -->
-         <button on:click={save} class="save bg-green-600">Done </button> <!--on:click={save} -->
+         <button on:click={save} class="save text-gray-light text-bold">Done </button>
     </div>
 </div>
 
