@@ -3,42 +3,42 @@
 /* Font-face declarations */
 @font-face {
     font-family: 'Pterra';
-    src: url('./Fonts/PterraRegular.ttf') format('ttf');
+    src: url('./Fonts/PterraRegular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
   
   @font-face {
     font-family: 'ElectraBold';
-    src: url('./Fonts/ElectraDisplay.otf') format('otf');
+    src: url('./Fonts/ElectraDisplay.otf') format('opentype');
     font-weight: bold;
     font-style: normal;
   }
 
   @font-face {
     font-family: 'Electra';
-    src: url('./Fonts/ElectraDisplay.otf') format('otf');
+    src: url('./Fonts/ElectraDisplay.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
   }
 
   @font-face {
     font-family: 'Burma';
-    src: url('./Fonts/BurmaSoftRegular.ttf') format('ttf');
+    src: url('./Fonts/BurmaSoftRegular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
 
   @font-face {
     font-family: 'CourierARegular';
-    src: url('./Fonts/CourierARegular.ttf') format('ttf');
+    src: url('./Fonts/CourierARegular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
   }
 
   @font-face {
     font-family: 'CourierALight';
-    src: url('./Fonts/CourierARegular.ttf') format('ttf');
+    src: url('./Fonts/CourierARegular.ttf') format('truetype');
     font-weight: light;
     font-style: normal;
   }

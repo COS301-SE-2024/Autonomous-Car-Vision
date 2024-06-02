@@ -3,8 +3,14 @@ module.exports = {
     darkMode: false,
     theme: {
       extend: {},
-      font:
-      {},
+      fontFamily: {
+        custom: ['var(--font-custom)', 'sans-serif'],
+        heading: ['var(--font-heading)', 'sans-serif'],
+        special: ['var(--font-special)', 'sans-serif'],
+        body: ['var(--font-body)', 'sans-serif'],
+        light: ['var(--font-light)', 'sans-serif'],
+        lighter: ['var(--font-light-light)', 'sans-serif'],
+      },
       colors: {
         'theme-green': {
           light:'#343434', //Timber wolf
