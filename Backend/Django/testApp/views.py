@@ -432,3 +432,23 @@ def changePassword(request):
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
     except Auth.DoesNotExist:
         return Response({'error': 'Auth entry not found for user'}, status=status.HTTP_400_BAD_REQUEST)    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def changeUserDetails(request):
+    data = request.data
+    uid = data.get('uid')
+    uname = data.get('uname')
+    uemail = data.get('uemail')
+    
+    if not uid:
+        return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(uid=uid)
+        user.uname = uname
+        user.uemail = uemail
+        user.save()
+        return Response({'message': 'User details updated successfully'}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
