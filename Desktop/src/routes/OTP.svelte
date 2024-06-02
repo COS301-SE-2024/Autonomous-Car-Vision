@@ -1,32 +1,49 @@
 <script>
+    import axios from 'axios';
+    import {push} from "svelte-spa-router";
+
     let email = "";
-    export let code = "";
-  
-    function verifyCode() {
-      alert(`Verifying code: ${code}`);
-      console.log("Code: " + code)
+    let code = Array(6).fill("");
+
+    const verifyCode = async () => {
+        const otp = code.join('');
+        console.log("Code: " + otp);
+        console.log(localStorage.getItem('uid'))
+        try {
+            const response = await axios.post('http://localhost:8000/verifyOTP/', {
+                'uid': localStorage.getItem('uid'),
+                'otp': otp,
+            });
+            console.log(response);
+            localStorage.setItem('token', JSON.stringify(response.data.token));
+            push('/gallary');
+
+
+        } catch (error) {
+            console.error(error);
+        }
     }
-  
+
     function updateCode(index, value) {
-      code = code.substring(0, index) + value + code.substring(index + 1);
+        code[index] = value;
     }
-  
+
     function handleInput(e, index) {
-      const value = e.target.value;
-      const key = e.key;
-  
-      if (key === "Backspace") {
-        if (value === "" && index > 0) {
-          const previousInput = document.querySelector(`#input-${index - 1}`);
-          previousInput.focus();
+        const value = e.target.value;
+        const key = e.key;
+
+        if (key === "Backspace") {
+            if (value === "" && index > 0) {
+                const previousInput = document.querySelector(`#input-${index - 1}`);
+                previousInput.focus();
+            }
+        } else {
+            updateCode(index, value);
+            if (value && index < 5) {
+                const nextInput = document.querySelector(`#input-${index + 1}`);
+                nextInput.focus();
+            }
         }
-      } else {
-        updateCode(index, value);
-        if (value && index < 5) {
-          const nextInput = document.querySelector(`#input-${index + 1}`);
-          nextInput.focus();
-        }
-      }
     }
   </script>
   
@@ -60,9 +77,9 @@
       >
         Verify
       </button>
+
     </div>
-  </div>
-  
-  <style>
-  </style>
-  
+</div>
+
+<style>
+</style>

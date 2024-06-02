@@ -1,3 +1,11 @@
-FROM postgres:13
+FROM python:3.9-slim
 
-COPY init.sql /docker-entrypoint-initdb.d/init.sql
+WORKDIR /app
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+COPY . .
+
+# Use a command that keeps the container running
+CMD ["tail", "-f", "/dev/null"]

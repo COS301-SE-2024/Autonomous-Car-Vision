@@ -1,18 +1,39 @@
-version: '3.8'
-
 services:
   db:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./pg_conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./pg_conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
     environment:
-      POSTGRES_DB: $POSTGRES_DB
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "61000:5432"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+    env_file:
+      - .env
+
+  web:
+    build: .
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
 volumes:
   postgres_data:
