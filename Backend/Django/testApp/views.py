@@ -326,26 +326,8 @@ def signin(request):
     
     hash = Auth.objects.get(uid=uid).hash
          
-    if hash == password:
-        token = ''
-        for i in range(40):
-            token += random.choice(string.ascii_letters + string.digits)
-        print(token)
-        token_data = {
-            'uid': uid,
-            'token': token
-        }
-        try:
-            token_entry = Token.objects.get(uid=uid)
-            token_entry.token = token
-            token_entry.save()
-        except Token.DoesNotExist:
-            tokenSerializer = TokenSerializer(data=token_data)
-        if tokenSerializer.is_valid():
-            tokenSerializer.save()
-        else:
-            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)           
-        return Response({'token': token}, status=status.HTTP_200_OK)    
+    if hash == password:          
+        return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)   
     return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -476,25 +458,10 @@ def list_videos(request):
 @permission_classes([AllowAny])
 def upload_success(request):
     return render(request, 'upload_success.html')
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def getMedia(request):
-    data = request.data
-    mid = data.get('mid')
-    
-    if not mid:
-        return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
-    try:
-        media = Media.objects.get(mid=mid)
-        serializer = MediaSerializer(media)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Media.DoesNotExist:
-        return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def getGalleryWithUid(request):
+def lookup(request):
     data = request.data
     uid = data.get('uid')
     
