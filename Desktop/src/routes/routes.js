@@ -5,9 +5,11 @@ import SignUp from './SignUp.svelte';
 import GallaryPage from "../pages/GallaryPage.svelte"
 import ViewVideoModal from "../components/ViewVideoModal.svelte"
 import Upload from "./Upload.svelte"
+import OTP from "./OTP.svelte"
+import AccountSettings from "./AccountSettings.svelte"
 
 const routes = {
-    '/': Upload,
+    '/': GallaryPage,
     '/login': LogIn,
     '/signup': SignUp,
 };
