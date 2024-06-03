@@ -17,6 +17,7 @@
     "@rollup/pluginutils": "^5.1.0",
     "@types/bcryptjs": "^2.4.6",
     "autoprefixer": "^10.0.0",
+    "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "electron": "^30.0.9",
     "electron-reloader": "^1.2.3",

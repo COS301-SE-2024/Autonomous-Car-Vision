@@ -63,7 +63,7 @@
             id={"input-" + index}
             type="text"
             maxlength="1"
-            class="w-10 h-10 ring-1 ring-theme-keith-primary focus:ring-theme-keith-highlight focus:outline-1 focus:outline-none text-black text-xl rounded-lg text-center"
+            class="w-10 h-10 ring-1 ring-theme-keith-primary focus:ring-theme-keith-highlight focus:outline-1 focus:outline-none text-theme-keith-accentone text-xl rounded-lg text-center"
             bind:value={code[index]}
             on:input={(e) => handleInput(e, index)}
             on:keydown={(e) => handleInput(e, index)}

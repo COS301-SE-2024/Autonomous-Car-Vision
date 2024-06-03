@@ -1,8 +1,5 @@
 <script>
   import { createEventDispatcher, onMount } from "svelte";
-
-  const dispatch = createEventDispatcher();
-
   import GallaryMore from "./GallaryMore.svelte";
 
   export let VideoSource;
@@ -10,6 +7,7 @@
   let showMoreModal = false;
   let firstFrameURL = "";
   let isDownloaded = false;
+  const dispatch = createEventDispatcher();
 
   function handleDownload() {
     // Logic to download the video
@@ -17,12 +15,13 @@
   }
 
   function handleMore() {
-    // Logic for the more button
+    console.log('More button clicked');
     showMoreModal = true;
   }
 
-  function handleBack() {
-    // Logic for the back button
+  function handleBack(event) {
+    console.log('Back button clicked');
+    event.stopPropagation(); // Stop event propagation
     showMoreModal = false;
   }
 
@@ -67,7 +66,6 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-
 {#if isDownloaded}
   <div
     class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
@@ -84,8 +82,7 @@
       >
         <button
           class="more bg-blue text-white border-none px-2 py-1 rounded text-xs"
-          on:click={handleMore}>More</button
-        >
+          on:click={handleMore}>More</button>
       </div>
     </div>
     <div class="details p-2">
@@ -113,8 +110,7 @@
       >
         <button
           class="download bg-blue text-white border-none px-2 py-1 rounded text-xs"
-          on:click={handleDownload}>Download</button
-        >
+          on:click={handleDownload}>Download</button>
       </div>
     </div>
     <div class="details p-2">
