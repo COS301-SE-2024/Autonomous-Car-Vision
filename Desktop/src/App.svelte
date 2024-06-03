@@ -8,13 +8,16 @@
     { name: "Upload", route: "#/upload", iconPath: mdiUpload },
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
   ];
+  const ttoken = localStorage.getItem("token");
   
 </script>
 
 <div class="flex">
-  <!-- <div class="w-1/5">
+  {#if ttoken}
+  <div class="w-1/5">
     <Sidebar items={sidebarItems} />
-  </div> -->
+  </div>
+  {/if}
   <div class="flex-1 items-center p-4">
     <Router {routes} />
   </div>

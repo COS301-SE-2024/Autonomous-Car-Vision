@@ -2,15 +2,6 @@
   import Dropzone from "svelte-file-dropzone";
   import {push} from "svelte-spa-router";
 
-  const sidebarItems = [
-    { name: "Gallery", route: "#/gallary", iconPath: mdiViewGallery },
-    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
-    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
-  ];
-
-  import Sidebar from '../components/Sidebar.svelte';
-  import { mdiViewGallery, mdiUpload, mdiCloudPrintOutline } from '@mdi/js';
-
   export let videoSource = "";
   let filename = "";
   let file;
@@ -82,11 +73,8 @@
   };
 </script>
 
-<div class="w-1/5">
-  <Sidebar items={sidebarItems} />
-</div>
 <div
-        class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5  w-4/5 ml-auto"
+        class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 "
 >
   {#if videoSource}
     <video class="video-preview w-full mt-4" src={videoSource} controls>
