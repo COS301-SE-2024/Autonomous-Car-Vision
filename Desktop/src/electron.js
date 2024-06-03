@@ -55,7 +55,15 @@ ipcMain.handle('hash-password-salt', async (event, password, salt) => {
     const hash = crypto.scryptSync(password, salt, 64).toString('hex');
     return {hash};
 });
-
+ipcMain.handle('insert-data', async (event, record) => {
+    try {
+        const result = await LookupTable.create(record);
+        return { success: true, data: result };
+    } catch (error) {
+        console.error('Failed to insert data:', error);
+        return { success: false, error: error.message };
+    }
+});
 // IPC handler for selecting data by mname
 ipcMain.handle('select-data', async (event, mname) => {
     try {
