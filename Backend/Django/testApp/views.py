@@ -463,10 +463,8 @@ def upload_video(request):
     if request.method == 'POST':
         data = request.data
         uid = data.get('uid')
-        mid = random.randint(0, 999999999)
-        data['mid'] = mid
-        print(data)
         token = data.get('token')
+        print(data)
         
         if not token:
             return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -482,7 +480,8 @@ def upload_video(request):
         serializer = MediaSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
+            server_url = serializer.data['media_url']
+            return Response({'server_url': server_url}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
