@@ -9,9 +9,10 @@ import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
 import Gallary from '../pages/GallaryPage.svelte';
+import ChangePassword from "../routes/ChangePassword.svelte"
 
 const routes = {
-    '/': Home,
+    '/': ChangePassword,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
