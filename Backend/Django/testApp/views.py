@@ -326,7 +326,21 @@ def signin(request):
     
     hash = Auth.objects.get(uid=uid).hash
          
-    if hash == password:          
+    if hash == password:   
+        expiry_date = datetime.now() + timedelta(minutes=10) 
+        otp_code = ''.join(random.choices(string.digits, k=6))
+        otp_data = {
+            'uid': uid,
+            'otp': otp_code,
+            'expiry_date': expiry_date.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        otp_serializer = OTPSerializer(data=otp_data)
+        if otp_serializer.is_valid():
+            otp_serializer.save()
+            
+        send_otp_email(data['uemail'], otp_code, expiry_date)
+               
         return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)   
     return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
