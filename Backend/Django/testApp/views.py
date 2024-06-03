@@ -231,10 +231,10 @@ def verifyOTP(request):
             token_entry.save()
         except Token.DoesNotExist:
             tokenSerializer = TokenSerializer(data=token_data)
-        if tokenSerializer.is_valid():
-            tokenSerializer.save()
-        else:
-            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+            if tokenSerializer.is_valid():
+                tokenSerializer.save()
+            else:
+                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         
         return Response({'token': token}, status=status.HTTP_200_OK)
     
