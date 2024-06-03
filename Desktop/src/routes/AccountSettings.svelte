@@ -2,6 +2,8 @@
   import { TextField, Button, Avatar, Icon } from "svelte-materialify";
   import { onMount } from "svelte";
   import axios from "axios";
+  import Sidebar from '../components/Sidebar.svelte';
+  import { mdiViewGallery, mdiUpload, mdiCloudPrintOutline } from '@mdi/js';
   import { mdiAccount } from "@mdi/js/mdi";
   import { push } from "svelte-spa-router";
 
@@ -48,8 +50,18 @@
       firstInput.focus();
     }
   });
+
+  const sidebarItems = [
+    { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
+    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
+    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
+  ];
+  
 </script>
 
+<div class="w-1/5">
+  <Sidebar items={sidebarItems} />
+</div>
 <div class="flex flex-col items-center justify-center min-h-screen">
   <div
     class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentont space-y-3"

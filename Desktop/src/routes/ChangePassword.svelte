@@ -1,6 +1,15 @@
 <script>
     import { TextField, Button } from "svelte-materialify";
     import { onMount } from "svelte";
+
+    import Sidebar from '../components/Sidebar.svelte';
+  import { mdiViewGallery, mdiUpload, mdiCloudPrintOutline } from '@mdi/js';
+
+  const sidebarItems = [
+    { name: "Gallery", route: "#/gallary", iconPath: mdiViewGallery },
+    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
+    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
+  ];
   
     let oldPassword = "";
     let newPassword = "";
@@ -61,6 +70,10 @@
     });
   </script>
   
+
+  <div class="w-1/5">
+    <Sidebar items={sidebarItems} />
+  </div>
   <div class="flex flex-col items-center justify-center min-h-screen">
     <div
       class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentone space-y-3"
