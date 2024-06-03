@@ -52,13 +52,13 @@
     <MaterialApp>
         <div class="flex flex-row gap-2">
             <a class="w-full h-14 flex flex-col flex-wrap justify-center items-center" href="#/login">
-                <Button class="text-primary-text-light bg-gray-light" depressed block>Log In</Button>
+                <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Log In</Button>
             </a>
             <a class="w-full h-14 flex flex-col flex-wrap justify-center items-center" href="#/signup">
-                <Button class="text-primary-text-light bg-primary-green-light" depressed block>Sign Up</Button>
+                <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Sign Up</Button>
             </a>
         </div>
-        <div class="w-full p-4 border-2 rounded-md border-green-500 mt-2">
+        <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
             <div class="text-left">
                 <h1 class="text-2xl">Welcome!</h1>
                 <p>Please enter your information to sign up.</p>
@@ -68,18 +68,20 @@
                 <TextField bind:value={nToken} outlined>Username</TextField>
                 <TextField bind:value={pToken} outlined type={show ? "text" : "password"}>
                     Password
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div slot="append" on:click={() => { show = !show; }}>
                         <Icon path={show ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
                 <TextField bind:value={ppToken} outlined type={showConfirm ? "text" : "password"}>
                     Confirm password
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div slot="append" on:click={() => { showConfirm = !showConfirm; }}>
                         <Icon path={showConfirm ? mdiEyeOff : mdiEye}/>
                     </div>
                 </TextField>
             </div>
-            <Button class="bg-primary-green-light" on:click={onSubmit} rounded block>Sign up</Button>
+            <Button class="bg-theme-keith-accentone text-theme-keith-jet" on:click={onSubmit} rounded block>Sign up</Button>
         </div>
     </MaterialApp>
 </div>
