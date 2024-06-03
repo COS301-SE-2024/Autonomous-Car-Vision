@@ -11,13 +11,47 @@
       passwordsMatch = newPassword === confirmPassword;
     }
   
-    function changePassword() {
-      checkPasswordsMatch();
-      if (passwordsMatch) {
-        // Handle password change logic here
-        alert("Password changed successfully!");
+    const changePassword = async () => {
+    checkPasswordsMatch();
+    if (passwordsMatch) {
+      try {
+        const response = await axios.post("http://localhost:8000/getSalt/", {
+          uemail: localStorage.getItem("uemail"),
+        });
+        uid = response.data.uid;
+        sString = response.data.salt;
+      } catch (error) {
+        console.error("Failed to retrieve salt and UID:", error);
       }
+
+      try {
+        const { hashOld } = await window.electronAPI.hashPasswordSalt(
+          oldPassword,
+          sString
+        );
+
+        const { hashNew } = await window.electronAPI.hashPasswordSalt(
+          newPassword,
+          sString
+        );
+
+        const response = await axios.post(
+          "http://localhost:8000/changePassword/",
+          {
+            uid: localStorage.getItem("uid"),
+            oldPassword: hashOld,
+            newPassword: hashNew,
+            token: localStorage.getItem("token"),
+          }
+        );
+        console.log("Password Changed:", response.data);
+      } catch (error) {
+        console.error("Login Failed:", error);
+      }
+    } else {
+      alert("Passwords do not match");
     }
+  };
   
     onMount(() => {
       const firstInput = document.querySelector("#oldPassword");

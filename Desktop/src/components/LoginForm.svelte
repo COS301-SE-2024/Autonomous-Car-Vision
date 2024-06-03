@@ -14,6 +14,7 @@
     const onSubmitUsername = async () => {
         console.log("Username/Email Step");
         console.log(nToken);
+        localStorage.setItem('uemail', nToken);
 
         try {
             const response = await axios.post('http://localhost:8000/getSalt/', {
