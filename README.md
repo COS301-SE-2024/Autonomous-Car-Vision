@@ -19,14 +19,15 @@
 
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
 
-## Demo Videos
+## Demo Presentations
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
 - **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1bhapjd8wDtabWWb_AEo8rIxxPd-gfZOM/view?usp=sharing>)
 - **Design Specification:** [View DRS](<https://drive.google.com/file/d/1bZZQaBq7FIXqjst2A2y2xmyoVP715Edx/view?usp=sharing>)
+- **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1GHAieep9AIpLuKAqaFwaMQBW2bEQLIQW/view?usp=sharing>)
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
-- **Contract Doc:** [View API Smart Contracts](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
+- **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/1RgeIPDWVPLAodiI0t6hK5uDr90-0ssG5/view?usp=sharing>)
 
 <h2 align="center"> Meet The Team </h2>
 
