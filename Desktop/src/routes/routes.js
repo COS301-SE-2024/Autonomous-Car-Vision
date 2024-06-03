@@ -17,6 +17,8 @@ const routes = {
     '/otp': OTP,
     '/gallary':Gallary,
     '/upload':Upload,
+    '/accountsettings' : AccountSettings
+    // 'changePassword': ChangePassword
 };
 
 export default routes;

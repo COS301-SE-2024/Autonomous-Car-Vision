@@ -15,7 +15,7 @@
       route: "#/accountsettings",
       iconPath: mdiAccountCog,
     },
-    { name: "Log out", route: "#/", iconPath: mdiLogout },
+    { name: "Log out", route: "#/", iconPath: mdiLogout,  },
   ];
 
   let showAccountPopup = false;

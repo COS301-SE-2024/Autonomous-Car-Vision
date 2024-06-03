@@ -212,7 +212,7 @@ def verifyOTP(request):
     except OTP.DoesNotExist:
         return Response({'error': 'Invalid UID or OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if otp_entry.expiry_date < datetime.now():
+    if otp_entry.expiry_date < datetime.now(timezone.utc):
         return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     token = ''
