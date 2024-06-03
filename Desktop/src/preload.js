@@ -17,4 +17,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectData: (mname) => ipcRenderer.invoke('select-data', mname),
     updateData: (mid, updates) => ipcRenderer.invoke('ureq', mid, updates),
     uploadFile: (filePath, mid, uid, token, mediaName) => ipcRenderer.invoke('upload-file', filePath, mid, uid, token, mediaName),
+    openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+    fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
 });

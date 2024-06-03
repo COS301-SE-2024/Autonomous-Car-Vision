@@ -1,19 +1,25 @@
 <script>
-    import GallaryCard from '.././components/GallaryCard.svelte';
+  import GallaryCard from '../components/GallaryCard.svelte';
 
-    let videoURLs = ["https://sveltejs.github.io/assets/caminandes-llamigos.mp4", "https://sveltejs.github.io/assets/caminandes-llamigos.mp4","https://sveltejs.github.io/assets/caminandes-llamigos.mp4"]
+  let videoURLs = [];
 
-    
-  </script>
-  
-  <div class="items-center w-full">
-    <div>
-      <div class="text-xl font-heading text-theme-keith-accentone text-center rounded">Video Gallery</div>
-      <div class="grid grid-flow-row-dense grid-cols-3 items-center"> 
+  // Fetch the video records from the database
+  window.electronAPI.fetchVideos().then(response => {
+    if (response.success) {
+      videoURLs = response.data.map(record => record.dataValues.localurl);
+    } else {
+      console.error('Failed to fetch video records:', response.error);
+    }
+  });
+</script>
+
+<div class="items-center w-full">
+  <div>
+    <div class="text-xl font-heading text-theme-keith-accentone text-center rounded">Video Gallery</div>
+    <div class="grid grid-flow-row-dense grid-cols-3 items-center">
       {#each videoURLs as url}
         <GallaryCard VideoSource={url}/>
       {/each}
     </div>
-    </div>
   </div>
-  
+</div>

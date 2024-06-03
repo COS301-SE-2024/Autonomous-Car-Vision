@@ -1,5 +1,6 @@
 <script>
   import Dropzone from "svelte-file-dropzone";
+  import {push} from "svelte-spa-router";
 
   export let videoSource = "";
   let filename = "";
@@ -31,35 +32,38 @@
     try {
       // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
-      console.log(response1);
+      console.log("resp1",response1);
 
       // Select the record from the database
       const response2 = await window.electronAPI.selectData(filename);
-      console.log(response2);
+      console.log("resp2",response2);
 
       if (response2.success) {
-        const mid = response2.data.mid;
+        const mid = response2.data.dataValues.mid;
         const uid = localStorage.getItem("uid");
         const token = localStorage.getItem("token");
 
-        // Upload the file using the new IPC method
-        const uploadResponse = await window.electronAPI.uploadFile(file.path, mid, uid, token, filename);
-        console.log(uploadResponse);
+        console.log(videoSource, mid, uid, token, filename)
+        push('/gallary');
 
-        if (uploadResponse.success) {
-          console.log("success upload");
-          const updateresp = await window.electronAPI.ureq(mid, {
-            serverurl: uploadResponse.data.server_url,
-          });
-          console.log(updateresp);
-          if (updateresp.success) {
-            console.log("all stages completed, file uploaded");
-          } else {
-            console.error("Update failed:", updateresp.error);
-          }
-        } else {
-          console.error("Upload failed:", uploadResponse.error);
-        }
+        // Upload the file using the new IPC method
+        // const uploadResponse = await window.electronAPI.uploadFile(filePath, mid, uid, token, filename);
+        // console.log("respu",uploadResponse);
+        //
+        // if (uploadResponse.success) {
+        //   console.log("success upload");
+        //   const updateresp = await window.electronAPI.ureq(mid, {
+        //     serverurl: uploadResponse.data.server_url,
+        //   });
+        //   console.log(updateresp);
+        //   if (updateresp.success) {
+        //     console.log("all stages completed, file uploaded");
+        //   } else {
+        //     console.error("Update failed:", updateresp.error);
+        //   }
+        // } else {
+        //   console.error("Upload failed:", uploadResponse.error);
+        // }
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }

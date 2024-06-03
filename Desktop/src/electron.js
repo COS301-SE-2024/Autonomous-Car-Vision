@@ -1,10 +1,11 @@
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog} = require('electron');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
 const { LookupTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
+const { Sequelize } = require('sequelize');
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -37,9 +38,9 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) {}
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) {}
 
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
@@ -91,6 +92,8 @@ ipcMain.handle('ureq', async (event, mid, updates) => {
 });
 ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName) => {
     try {
+        console.log('Uploading file from path:', filePath); // Log file path for debugging
+
         const formData = new FormData();
         formData.append('media_url', fs.createReadStream(filePath));
         formData.append('mid', mid);
@@ -104,9 +107,33 @@ ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName
             },
         });
 
+        console.log('Upload response:', response.data); // Log response for debugging
         return { success: true, data: response.data };
     } catch (error) {
         console.error('Failed to upload file:', error);
+        return { success: false, error: error.message };
+    }
+});
+ipcMain.handle('open-file-dialog', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [
+            { name: 'Videos', extensions: ['mkv', 'avi', 'mp4', 'mov'] }
+        ]
+    });
+
+    if (result.canceled) {
+        return { canceled: true };
+    } else {
+        return { canceled: false, filePath: result.filePaths[0] };
+    }
+});
+ipcMain.handle('fetch-videos', async () => {
+    try {
+        const records = await LookupTable.findAll({ where: { localurl: { [Sequelize.Op.not]: null } } });
+        return { success: true, data: records };
+    } catch (error) {
+        console.error('Failed to fetch videos:', error);
         return { success: false, error: error.message };
     }
 });

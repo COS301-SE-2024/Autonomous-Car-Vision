@@ -15,7 +15,7 @@
                 'otp': otp,
             });
             console.log(response);
-            localStorage.setItem('token', JSON.stringify(response.data.token));
+            localStorage.setItem('token', response.data.token);
             push('/gallary');
 
 
