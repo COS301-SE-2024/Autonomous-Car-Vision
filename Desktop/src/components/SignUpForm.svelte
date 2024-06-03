@@ -55,7 +55,7 @@
                 <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Log In</Button>
             </a>
             <a class="w-full h-14 flex flex-col flex-wrap justify-center items-center" href="#/signup">
-                <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Sign Up</Button>
+                <Button class="text-theme-keith-jet bg-theme-keith-accenttwo" depressed block>Sign Up</Button>
             </a>
         </div>
         <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
@@ -85,3 +85,9 @@
         </div>
     </MaterialApp>
 </div>
+
+<style>
+div.s-input.s-text-field.primary-text {
+    color: #ff5722 !important; /* Change this to your desired color */
+  }
+</style>
