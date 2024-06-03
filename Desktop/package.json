@@ -17,6 +17,7 @@
     "@rollup/plugin-url": "^8.0.2",
     "@rollup/pluginutils": "^5.1.0",
     "@types/bcryptjs": "^2.4.6",
+    "@vitest/ui": "^1.6.0",
     "autoprefixer": "^10.0.0",
     "bcryptjs": "^2.4.3",
     "electron": "^30.0.9",
