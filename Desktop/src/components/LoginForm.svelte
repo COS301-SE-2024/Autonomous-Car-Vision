@@ -56,16 +56,16 @@
                     class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                     href="#/login"
             >
-                <Button class="text-primary-text-light bg-primary-green-light" depressed block>Log In</Button>
+                <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Log In</Button>
             </a>
             <a
                     class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
                     href="#/signup"
             >
-                <Button class="text-primary-text-light bg-gray-light" depressed block>Sign Up</Button>
+                <Button class="text-theme-keith-jet bg-theme-keith-accentone" depressed block>Sign Up</Button>
             </a>
         </div>
-        <div class="w-full p-4 border-2 rounded-md border-green-500 mt-2">
+        <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
             <div class="text-left">
                 <h1 class="text-2xl">Welcome back!</h1>
                 <p>Please enter your information.</p>
@@ -73,7 +73,7 @@
             {#if step === 1}
                 <div id="form" class="flex flex-col gap-1 py-2">
                     <TextField bind:value={nToken} outlined>Username/Email</TextField>
-                    <Button class="bg-primary-green-light" on:click={onSubmitUsername} rounded block>Next</Button>
+                    <Button class="bg-theme-keith-accentone text-theme-keith-jet" on:click={onSubmitUsername} rounded block>Next</Button>
                 </div>
             {/if}
             {#if step === 2}
@@ -90,7 +90,7 @@
                             <Icon path={show ? mdiEyeOff : mdiEye}/>
                         </div>
                     </TextField>
-                    <Button class="bg-primary-green-light" on:click={onSubmitPassword} rounded block>Log in</Button>
+                    <Button class="bg-theme-keith-accentone text-theme-keith-jet" on:click={onSubmitPassword} rounded block>Log in</Button>
                 </div>
             {/if}
         </div>
