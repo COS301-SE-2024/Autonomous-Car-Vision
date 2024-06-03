@@ -4,8 +4,8 @@
 	<a href="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision">
 		<img alt="Coverage" src="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP">
 	</a>
-	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml">
-		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml/badge.svg">
+	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
+		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml/badge.svg">
 	</a>
 	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
 		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
