@@ -15,7 +15,7 @@
   }
 
   function changePassword() {
-    // push("/changePassword");
+    push("/changePassword");
   }
 
   const saveChanges = async () => {

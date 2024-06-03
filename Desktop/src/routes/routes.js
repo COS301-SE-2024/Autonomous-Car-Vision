@@ -12,14 +12,14 @@ import Gallary from '../pages/GallaryPage.svelte';
 import ChangePassword from "../routes/ChangePassword.svelte"
 
 const routes = {
-    '/': ChangePassword,
+    '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
     '/gallary':Gallary,
     '/upload':Upload,
-    '/accountsettings' : AccountSettings
-    // 'changePassword': ChangePassword
+    '/accountsettings' : AccountSettings,
+    '/changePassword': ChangePassword
 };
 
 export default routes;
