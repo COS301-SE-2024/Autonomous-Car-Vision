@@ -11,12 +11,12 @@ import AccountSettings from "./AccountSettings.svelte"
 import Gallary from '../pages/GallaryPage.svelte';
 
 const routes = {
-    '/': GallaryPage,
+    '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
     '/gallary':Gallary,
-
+    '/upload':Upload,
 };
 
 export default routes;

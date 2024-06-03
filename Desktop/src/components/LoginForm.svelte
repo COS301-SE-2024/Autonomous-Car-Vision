@@ -22,6 +22,7 @@
             uid = response.data.uid;
             sString = response.data.salt
             console.log(sString)
+            console.log('uid from resp:',uid)
             step = 2;
         } catch (error) {
             console.error('Failed to retrieve salt and UID:', error);
@@ -41,7 +42,7 @@
                 "password": hash,
             });
             console.log(response);
-            localStorage.setItem('uid', JSON.stringify(response.data.uid));
+            localStorage.setItem('uid', uid);
             push("/otp")
         } catch (error) {
             console.error('Login Failed:', error);
