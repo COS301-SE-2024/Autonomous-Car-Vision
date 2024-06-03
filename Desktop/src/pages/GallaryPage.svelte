@@ -1,5 +1,5 @@
 <script>
-    import GallaryCard from '../components/GallaryCard.svelte';
+    import GallaryCard from '.././components/GallaryCard.svelte';
 
     let videoURLs = ["https://sveltejs.github.io/assets/caminandes-llamigos.mp4", "https://sveltejs.github.io/assets/caminandes-llamigos.mp4","https://sveltejs.github.io/assets/caminandes-llamigos.mp4"]
 
