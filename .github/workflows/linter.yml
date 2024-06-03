@@ -1,0 +1,39 @@
+name: Linter
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+  workflow_dispatch:
+  
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        working-directory: ./Desktop
+        run: npm install --force
+      - name: Lint Svelte
+        working-directory: ./Desktop
+        run: npm run lint:svelte
+      # - name: Upload Svelte Lint results
+      #   if: always()
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: lint-svelte-results
+      #     path: lint-results-svelte.xml
+      - name: Lint Electron
+        working-directory: ./Desktop
+        run: npm run lint:electron
+      # - name: Upload Electron Lint results
+      #   if: always()
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: lint-electron-results
+      #     path: lint-results-electron.xml

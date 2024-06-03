@@ -1,0 +1,9 @@
+.yarn
+node_modules
+build
+backendVenv
+.idea
+.env
+.env.local
+Desktop/.yarnrc.yml
+.sqlite

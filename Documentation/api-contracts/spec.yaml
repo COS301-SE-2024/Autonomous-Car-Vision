@@ -1,0 +1,286 @@
+openapi: 3.0.1
+info:
+  title: HVStore API
+  description: API for High-Viz
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/
+paths:
+  /hvstat/:
+    get:
+      summary: Server status check
+      responses:
+        '200':
+          description: Server is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server is running
+  /signup/:
+    post:
+      summary: User signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uname:
+                  type: string
+                uemail:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /verifyOTP/:
+    post:
+      summary: Verify OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uname:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Invalid UID or OTP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /otpRegenerate/:
+    post:
+      summary: Regenerate OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uname:
+                  type: string
+                uemail:
+                  type: string
+      responses:
+        '200':
+          description: OTP regenerated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OTP regenerated successfully
+        '400':
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /getSalt/:
+    post:
+      summary: Get user salt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uname:
+                  type: string
+      responses:
+        '200':
+          description: Salt retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  salt:
+                    type: string
+        '400':
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /signin/:
+    post:
+      summary: User sign-in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uemail:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User signed in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /signout/:
+    post:
+      summary: User sign-out
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: User signed out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User signed out successfully
+        '400':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        uid:
+          type: integer
+        uname:
+          type: string
+        uemail:
+          type: string
+      required:
+        - uid
+        - uname
+        - uemail
+    Auth:
+      type: object
+      properties:
+        id:
+          type: integer
+        uid:
+          type: integer
+        hash:
+          type: string
+        salt:
+          type: string
+      required:
+        - id
+        - uid
+        - hash
+        - salt
+    Otp:
+      type: object
+      properties:
+        id:
+          type: integer
+        uid:
+          type: integer
+        otp:
+          type: string
+          maxLength: 6
+        creation_date:
+          type: string
+          format: date-time
+        expiry_date:
+          type: string
+          format: date-time
+      required:
+        - id
+        - uid
+        - otp
+        - expiry_date
+    Token:
+      type: object
+      properties:
+        id:
+          type: integer
+        uid:
+          type: integer
+        token:
+          type: string
+          maxLength: 40
+        creation_date:
+          type: string
+          format: date-time
+      required:
+        - id
+        - uid
+        - token

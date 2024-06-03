@@ -1,10 +1,26 @@
 <h1 align="center"> Autonamous Car Vision </h1>
 
+<p align="center"> 
+	<a href="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision">
+		<img alt="Coverage" src="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP">
+	</a>
+	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
+		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml/badge.svg">
+	</a>
+	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
+		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
+	</a>	
+	<a https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision>
+		<img src="https://img.shields.io/github/issues-closed/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub closed issues">
+	</a>
+</p>
+
 ## Project Information
 
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
 
-## Demo Presentations
+
+## Demo Videos
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
@@ -55,7 +71,8 @@ The aim of this project is to provide and implement a comprehensive suite of AI 
 				<img alt="" src="https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=whit">
 			</a>
       <br>
-			<a href="https://www.linkedin.com/in/donatello-grahame-carboni-a00421262/">
+
+			<a href="https://www.linkedin.com/in/donatello-grahame-carboni/">
 				<img alt="" src="https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white">
 			</a>
 		</td>
@@ -101,15 +118,26 @@ The aim of this project is to provide and implement a comprehensive suite of AI 
   <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB">
   <img src="https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white">
   <img src="https://img.shields.io/badge/nVIDIA-%2376B900.svg?style=for-the-badge&logo=nVIDIA&logoColor=white">
+
+</p>
+<p align="center">
+
   <img src="https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white">
   <img src="https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB">
   <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white">
   <img src="https://img.shields.io/badge/svelte-%23f1413d.svg?style=for-the-badge&logo=svelte&logoColor=white">
   <img src="https://img.shields.io/badge/RollupJS-ef3335?style=for-the-badge&logo=rollup.js&logoColor=white">
+
+</p>
+<p align="center">
   <img src="https://img.shields.io/badge/-jest-%23C21325?style=for-the-badge&logo=jest&logoColor=white">
   <img src="https://img.shields.io/badge/pytest-20555A?style=for-the-badge&logo=pytest">
   <img src="https://img.shields.io/badge/playwright-20555A?style=for-the-badge&logo=playwright">
+</p>
+<p align="center">
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white">
   <img src="https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white">
+</p>
+<p align="center">
   <img src="https://img.shields.io/badge/ros-%230A0FF9.svg?style=for-the-badge&logo=ros&logoColor=white">
 </p>
