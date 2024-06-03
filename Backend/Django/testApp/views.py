@@ -397,6 +397,18 @@ def changePassword(request):
     uid = data.get('uid')
     old_password = data.get('old_password')
     new_password = data.get('new_password')
+    token = data.get('token')
+    
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     
     if not uid or not old_password or not new_password:
         return Response({'error': 'Username, old password and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -420,6 +432,18 @@ def changeUserDetails(request):
     uid = data.get('uid')
     uname = data.get('uname')
     uemail = data.get('uemail')
+    token = data.get('token')
+    
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     
     if not uid:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -438,14 +462,26 @@ def changeUserDetails(request):
 def upload_video(request):
     if request.method == 'POST':
         data = request.data
-        mid = random.randint(0, 999999999)
-        data['mid'] = mid
+        uid = data.get('uid')
+        token = data.get('token')
         print(data)
+        
+        if not token:
+            return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        try:    
+            dataToken = Token.objects.get(uid=uid)
+        except Token.DoesNotExist:
+            return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+        if dataToken.token != token:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = MediaSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
+            server_url = serializer.data['media_url']
+            return Response({'server_url': server_url}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -464,6 +500,18 @@ def upload_success(request):
 def lookup(request):
     data = request.data
     uid = data.get('uid')
+    token = data.get('token')
+    
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:    
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)   
     
     if not uid:
         return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -474,3 +522,15 @@ def lookup(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Media.DoesNotExist:
         return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)    
+    
+def verifyToken(uid, token):
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:    
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
