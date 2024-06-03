@@ -212,7 +212,7 @@ def verifyOTP(request):
     except OTP.DoesNotExist:
         return Response({'error': 'Invalid UID or OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if otp_entry.expiry_date < datetime.now():
+    if otp_entry.expiry_date < datetime.now(timezone.utc):
         return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     token = ''
@@ -231,10 +231,10 @@ def verifyOTP(request):
             token_entry.save()
         except Token.DoesNotExist:
             tokenSerializer = TokenSerializer(data=token_data)
-        if tokenSerializer.is_valid():
-            tokenSerializer.save()
-        else:
-            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+            if tokenSerializer.is_valid():
+                tokenSerializer.save()
+            else:
+                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         
         return Response({'token': token}, status=status.HTTP_200_OK)
     
@@ -323,10 +323,25 @@ def signin(request):
     data = request.data
     uid = data.get('uid')
     password = data.get('password')
+    uemail = User.objects.get(uid=uid).uemail
     
     hash = Auth.objects.get(uid=uid).hash
          
-    if hash == password:          
+    if hash == password:   
+        expiry_date = datetime.now() + timedelta(minutes=10) 
+        otp_code = ''.join(random.choices(string.digits, k=6))
+        otp_data = {
+            'uid': uid,
+            'otp': otp_code,
+            'expiry_date': expiry_date.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        otp_serializer = OTPSerializer(data=otp_data)
+        if otp_serializer.is_valid():
+            otp_serializer.save()
+            
+        send_otp_email(uemail, otp_code, expiry_date)
+               
         return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)   
     return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 

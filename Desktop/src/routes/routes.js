@@ -9,14 +9,17 @@ import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
 import Gallary from '../pages/GallaryPage.svelte';
+import ChangePassword from "../routes/ChangePassword.svelte"
 
 const routes = {
-    '/': GallaryPage,
+    '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
     '/gallary':Gallary,
-
+    '/upload':Upload,
+    '/accountsettings' : AccountSettings,
+    '/changePassword': ChangePassword
 };
 
 export default routes;

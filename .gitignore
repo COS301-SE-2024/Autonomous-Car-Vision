@@ -6,3 +6,4 @@ backendVenv
 .env
 .env.local
 Desktop/.yarnrc.yml
+.sqlite
