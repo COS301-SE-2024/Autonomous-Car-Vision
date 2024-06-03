@@ -24,7 +24,7 @@
 
 
 <style>
-    .modal {
+    /* .modal {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -38,7 +38,7 @@
         border: 1px solid #ccc;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
-    }
+    } */
 
     .overlay {
         position: fixed;
@@ -69,8 +69,8 @@
         height: auto;
     }
 
-    .timeline {
+    /* .timeline {
         margin-top: 10px;
         width: 100%;
-    }
+    } */
 </style>
