@@ -4,12 +4,15 @@
 	<a href="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision">
 		<img alt="Coverage" src="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP">
 	</a>
-	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml">
-		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml/badge.svg">
+	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
+		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml/badge.svg">
 	</a>
-<!-- 	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
-	    <img alt="Github issues" src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision/">
-	</a> -->	
+	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
+		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
+	</a>	
+	<a https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision>
+		<img src="https://img.shields.io/github/issues-closed/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub closed issues">
+	</a>
 </p>
 
 ## Project Information
@@ -17,13 +20,13 @@
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
 
 ## Demo Videos
-- **Demo1:** [MP11-Demo1](<>)
+- **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
-- **Requirement Specification (SRS):** [View SRS](<https://docs.google.com/document/d/1RneKYxdZ6Puh0oDMYznyLlH7IyLYlZNr96-eTJLRfFM/edit?usp=sharing>)
-- **Design Specification:** [View DRS](<https://docs.google.com/document/d/1CSEkUonx3BWCphiJutNxLYvaYaXjCjlZtbQ8ylQ3tLA/edit?usp=sharing>)
+- **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1bhapjd8wDtabWWb_AEo8rIxxPd-gfZOM/view?usp=sharing>)
+- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1bZZQaBq7FIXqjst2A2y2xmyoVP715Edx/view?usp=sharing>)
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
-- **Git Standards:** [View Git Standards] (<https://drive.google.com/file/d/15JxWbp9tIwMUwO4pRSRfW2hGdMKYE4wI/view?usp=sharing>)
+- **Contract Doc:** [View API Smart Contracts](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
 
 <h2 align="center"> Meet The Team </h2>
 
