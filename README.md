@@ -7,9 +7,12 @@
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml">
 		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/linter.yml/badge.svg">
 	</a>
-<!-- 	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
-	    <img alt="Github issues" src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision/">
-	</a> -->	
+	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
+		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
+	</a>	
+	<a https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision>
+		<img src="https://img.shields.io/github/issues-closed/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub closed issues">
+	</a>
 </p>
 
 ## Project Information
