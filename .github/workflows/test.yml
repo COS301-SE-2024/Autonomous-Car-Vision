@@ -1,0 +1,15 @@
+name: Automated Testing
+on:
+  push:
+    branches: [ "master", "develop" ]
+  pull_request:
+    branches: [ "master", "develop" ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Running Tests on Python Django
+        working-directory: ./Backend/Django
+        run: pip install django dotenv && python manage.py test
