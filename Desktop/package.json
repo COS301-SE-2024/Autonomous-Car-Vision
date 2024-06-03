@@ -27,6 +27,8 @@
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-postcss": "^4.0.0",
     "rollup-plugin-svelte": "^7.0.0",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7",
     "svelte": "^3.0.0",
     "svelte-file-dropzone": "^2.0.7",
     "svelte-materialify": "^0.3.11",
