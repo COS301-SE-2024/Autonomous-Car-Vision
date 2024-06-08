@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import axios from "axios";
   import { push } from "svelte-spa-router";
+  import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
 
   let oldPassword = "";
   let newPassword = "";
@@ -40,12 +41,12 @@
       try {
         const { hash: hashOld } = await window.electronAPI.hashPasswordSalt(
           oldPassword,
-          sString
+          sString,
         );
 
         const { hash: hashNew } = await window.electronAPI.hashPasswordSalt(
           newPassword,
-          sString
+          sString,
         );
 
         console.log("Hashed Passwords:", hashOld, hashNew);
@@ -59,7 +60,7 @@
             old_password: hashOld,
             new_password: hashNew,
             token: localStorage.getItem("token"),
-          }
+          },
         );
         console.log("Password Changed:", response.data);
 
@@ -84,68 +85,74 @@
   });
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen">
-  <div
-    class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentone space-y-3"
-  >
-    <h2 class="text-2xl font-bold mb-4 text-center text-theme-keith-accentone">
-      Change Password
-    </h2>
-
-    <!-- Old Password -->
-    <div class="mb-4">
-      <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
-        >Old Password</label
-      >
-      <TextField
-        id="oldPassword"
-        type="password"
-        bind:value={oldPassword}
-        class="w-full p-2 border border-green rounded"
-      />
-    </div>
-
-    <!-- New Password -->
-    <div class="mb-4">
-      <label for="newPassword" class="block text-theme-keith-accentone mb-1"
-        >New Password</label
-      >
-      <TextField
-        id="newPassword"
-        type="password"
-        bind:value={newPassword}
-        class="w-full p-2 border border--theme-keith-accentone rounded"
-      />
-    </div>
-
-    <!-- Confirm New Password -->
-    <div class="mb-4">
-      <label for="confirmPassword" class="block text-theme-keith-accentone mb-1"
-        >Confirm New Password</label
-      >
-      <TextField
-        id="confirmPassword"
-        type="password"
-        bind:value={confirmPassword}
-        on:input={checkPasswordsMatch}
-        class="w-full p-2 border border--theme-keith-accentone rounded"
-      />
-      {#if !passwordsMatch}
-        <p class="text-theme-keith-highlight mt-1">
-          The passwords do not match
-        </p>
-      {/if}
-    </div>
-
-    <!-- return button -->
-    <Button
-      class="shadow-none rounded"
-      on:click={() => push("/accountSettings")}>Return?</Button
+<ProtectedRoutes>
+  <div class="flex flex-col items-center justify-center min-h-screen">
+    <div
+      class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentone space-y-3"
     >
+      <h2
+        class="text-2xl font-bold mb-4 text-center text-theme-keith-accentone"
+      >
+        Change Password
+      </h2>
 
-    <!-- Change Password Button -->
-    <Button class="bg-theme-keith-accentone rounded" on:click={changePassword}
-      >Change Password</Button
-    >
+      <!-- Old Password -->
+      <div class="mb-4">
+        <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
+          >Old Password</label
+        >
+        <TextField
+          id="oldPassword"
+          type="password"
+          bind:value={oldPassword}
+          class="w-full p-2 border border-green rounded"
+        />
+      </div>
+
+      <!-- New Password -->
+      <div class="mb-4">
+        <label for="newPassword" class="block text-theme-keith-accentone mb-1"
+          >New Password</label
+        >
+        <TextField
+          id="newPassword"
+          type="password"
+          bind:value={newPassword}
+          class="w-full p-2 border border--theme-keith-accentone rounded"
+        />
+      </div>
+
+      <!-- Confirm New Password -->
+      <div class="mb-4">
+        <label
+          for="confirmPassword"
+          class="block text-theme-keith-accentone mb-1"
+          >Confirm New Password</label
+        >
+        <TextField
+          id="confirmPassword"
+          type="password"
+          bind:value={confirmPassword}
+          on:input={checkPasswordsMatch}
+          class="w-full p-2 border border--theme-keith-accentone rounded"
+        />
+        {#if !passwordsMatch}
+          <p class="text-theme-keith-highlight mt-1">
+            The passwords do not match
+          </p>
+        {/if}
+      </div>
+
+      <!-- return button -->
+      <Button
+        class="shadow-none rounded"
+        on:click={() => push("/accountSettings")}>Return?</Button
+      >
+
+      <!-- Change Password Button -->
+      <Button class="bg-theme-keith-accentone rounded" on:click={changePassword}
+        >Change Password</Button
+      >
+    </div>
   </div>
-</div>
+</ProtectedRoutes>

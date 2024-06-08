@@ -4,6 +4,7 @@
   import axios from "axios";
   import { mdiAccount } from "@mdi/js/mdi";
   import { push } from "svelte-spa-router";
+  import ProtectedRoutes from "./ProtectedRoutes.svelte";
 
   let username = "";
   let email = "";
@@ -58,6 +59,7 @@
   });
 </script>
 
+<ProtectedRoutes>
 <div class="flex flex-col items-center justify-center min-h-screen">
   <div
     class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentont space-y-3"
@@ -122,6 +124,8 @@
     </div>
   {/if}
 </div>
+</ProtectedRoutes>
+
 
 <style>
   .text-black-important {
