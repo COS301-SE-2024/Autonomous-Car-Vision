@@ -2,11 +2,14 @@
   import { TextField, Button } from "svelte-materialify";
   import { onMount } from "svelte";
   import axios from "axios";
+  import { push } from "svelte-spa-router";
 
   let oldPassword = "";
   let newPassword = "";
   let confirmPassword = "";
   let passwordsMatch = true;
+  let notification = "";
+  let notificationType = "";
 
   function checkPasswordsMatch() {
     passwordsMatch = newPassword === confirmPassword;
@@ -59,6 +62,12 @@
           }
         );
         console.log("Password Changed:", response.data);
+
+        if (response.data.status === "200") {
+          notification = "Password changed successfully!";
+          notificationType = "success";
+          push("/accountSettings");
+        }
       } catch (error) {
         console.error("Password change failed:", error);
       }
@@ -127,6 +136,12 @@
         </p>
       {/if}
     </div>
+
+    <!-- return button -->
+    <Button
+      class="shadow-none rounded"
+      on:click={() => push("/accountSettings")}>Return?</Button
+    >
 
     <!-- Change Password Button -->
     <Button class="bg-theme-keith-accentone rounded" on:click={changePassword}

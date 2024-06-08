@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { Button, MaterialApp } from "svelte-materialify";
   import axios from "axios";
+  import { push } from "svelte-spa-router";
 
   onMount(() => {
     localStorage.clear();
@@ -16,6 +17,8 @@
       console.log("Developer Login Response:", response.data);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("uid", response.data.uid);
+      localStorage.setItem("uname", response.data.uname);
+      localStorage.setItem("uemail", response.data.uemail);
     } catch (error) {
       console.error("Failed to login as developer:", error);
       return;
@@ -32,7 +35,7 @@
       console.error("Failed to login as developer");
       return;
     }
-    window.location.href = "#/gallary";
+    push("/gallary");
   };
 </script>
 

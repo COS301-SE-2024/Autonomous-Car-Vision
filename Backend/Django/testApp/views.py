@@ -434,7 +434,7 @@ def changePassword(request):
         if auth.hash == old_password:
             auth.hash = new_password
             auth.save()
-            return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Password changed successfully', 'status': '200'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
@@ -469,7 +469,7 @@ def changeUserDetails(request):
         user.uname = uname
         user.uemail = uemail
         user.save()
-        return Response({'message': 'User details updated successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'User details updated successfully', 'status': "200"}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
    
@@ -560,6 +560,9 @@ def devLogin(request):
     uid = User.objects.get(uname=uname).uid
     hash = Auth.objects.get(uid=uid).hash
     
+    uemail = User.objects.get(uid=uid).uemail
+    uname = User.objects.get(uid=uid).uname
+    
     token = ''
     for i in range(40):
         token += random.choice(string.ascii_letters + string.digits)
@@ -581,4 +584,4 @@ def devLogin(request):
         else:
             return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    return Response({'token': token, 'uid': uid}, status=status.HTTP_200_OK)
+    return Response({'token': token, 'uid': uid, 'uemail': uemail, uname: 'uname'}, status=status.HTTP_200_OK)
