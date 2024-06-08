@@ -393,12 +393,12 @@ def getToken(request):
                 token_entry.save()
             except Token.DoesNotExist:
                 tokenSerializer = TokenSerializer(data=token_data)
-            if tokenSerializer.is_valid():
-                tokenSerializer.save()
-            else:
-                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+                if tokenSerializer.is_valid():
+                    tokenSerializer.save()
+                else:
+                    return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
             
-            return Response({'message': 'Token generated successfully'}, status=status.HTTP_200_OK)
+            return Response({'token': token}, status=status.HTTP_200_OK)
             
         return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
@@ -550,3 +550,35 @@ def verifyToken(uid, token):
     
     if dataToken.token != token:
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])    
+def devLogin(request):
+    uname = request.data.get('uname')
+    print(uname)
+    
+    uid = User.objects.get(uname=uname).uid
+    hash = Auth.objects.get(uid=uid).hash
+    
+    token = ''
+    for i in range(40):
+        token += random.choice(string.ascii_letters + string.digits)
+    print(token)
+    
+    token_data = {
+        'uid': uid,
+        'token': token
+    }
+    
+    try:
+        token_entry = Token.objects.get(uid=uid)
+        token_entry.token = token
+        token_entry.save()
+    except Token.DoesNotExist:
+        tokenSerializer = TokenSerializer(data=token_data)
+        if tokenSerializer.is_valid():
+            tokenSerializer.save()
+        else:
+            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    return Response({'token': token, 'uid': uid}, status=status.HTTP_200_OK)
