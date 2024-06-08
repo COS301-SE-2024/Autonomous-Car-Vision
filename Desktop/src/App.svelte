@@ -8,16 +8,24 @@
     { name: "Upload", route: "#/upload", iconPath: mdiUpload },
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
   ];
-  const ttoken = localStorage.getItem("token");
+    
+  // const ttoken = localStorage.getItem("token");
+  window.electronAPI.getToken();
+  let ttoken;
+  if(window.electronAPI.getToken() != ''){
+    ttoken = window.electronAPI.getToken();
+  }
+
+  console.log(window.electronAPI.getToken());
   
 </script>
 
 <div class="flex">
-  {#if ttoken}
+  <!-- {#if ttoken} -->
   <div class="w-1/5">
     <Sidebar items={sidebarItems} />
   </div>
-  {/if}
+  <!-- {/if} -->
   <div class="flex-1 items-center p-4">
     <Router {routes} />
   </div>

@@ -11,6 +11,8 @@ window.addEventListener('DOMContentLoaded', () => {
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    storeToken: (token) => ipcRenderer.send('store-token', token),
+    getToken: () => ipcRenderer.sendSync('get-token'),
     hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
     hashPasswordSalt: (password,salt) => ipcRenderer.invoke('hash-password-salt', password, salt),
     insertData: (record) => ipcRenderer.invoke('insert-data', record),

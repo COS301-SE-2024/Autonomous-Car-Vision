@@ -39,7 +39,7 @@
 </script>
 
 <div
-    class="grid grid-cols-2 gap-2 h-screen overflow-y-scroll py-4 px-4"
+    class="grid grid-cols-2 gap-6 h-screen py-4 px-4"
 >
     {#each Models as Model,key}
         <ModelsCard {Model} {key} />
