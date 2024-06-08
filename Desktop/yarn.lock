@@ -8742,6 +8742,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-toast@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "svelte-toast@npm:1.0.0"
+  checksum: 10c0/1533ec70e9181ebae62653e4f72331f6f576427e30c9cc95164669b5ab290c16295622e3fb304f3e2b4a43443779e06468fd94d8f3d40758cd62406616892d91
+  languageName: node
+  linkType: hard
+
+"svelte-toasts@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "svelte-toasts@npm:1.1.2"
+  checksum: 10c0/3de01b71628d1865933999e7e51ee238c77e5724c3d10290c5722c10695a71f7d47510abe886902648fb6dc6bf14c7a43ef1076c3261e5eaf96cca9e28378429
+  languageName: node
+  linkType: hard
+
 "svelte@npm:^3.0.0":
   version: 3.59.2
   resolution: "svelte@npm:3.59.2"
@@ -9601,6 +9615,8 @@ __metadata:
     svelte-materialify: "npm:^0.3.11"
     svelte-preprocess: "npm:^5.1.4"
     svelte-spa-router: "npm:^4.0.1"
+    svelte-toast: "npm:^1.0.0"
+    svelte-toasts: "npm:^1.1.2"
     tailwindcss: "npm:^2.0.0"
   languageName: unknown
   linkType: soft

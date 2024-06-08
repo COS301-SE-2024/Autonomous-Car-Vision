@@ -7,8 +7,9 @@
 
   let username = "";
   let email = "";
-
   let profilePicture = "";
+  let notification = "";
+  let notificationType = "";
 
   function updateProfilePicture() {
     // Function to handle profile picture update
@@ -36,9 +37,16 @@
           token: localStorage.getItem("token"),
         }
       );
-      console.log(response);
+
+      if (response.data.status == "200") {
+        notification = "Changes saved successfully!";
+        notificationType = "success";
+      } else {
+        notification = "Failed to save changes!";
+        notificationType = "error";
+      }
     } catch (error) {
-      console.error("Failed to update user:", error);
+      console.error("Failed to save changes:", error);
     }
   };
 
@@ -48,7 +56,6 @@
       firstInput.focus();
     }
   });
-  
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen">
@@ -108,10 +115,32 @@
       >Save Changes</Button
     >
   </div>
+
+  {#if notification}
+    <div class={`notification ${notificationType}`}>
+      {notification}
+    </div>
+  {/if}
 </div>
 
 <style>
   .text-black-important {
     color: black !important;
+  }
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+  }
+  .notification.success {
+    background-color: green;
+  }
+  .notification.error {
+    background-color: red;
   }
 </style>

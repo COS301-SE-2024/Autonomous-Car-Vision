@@ -35,6 +35,8 @@
     "svelte-materialify": "^0.3.11",
     "svelte-preprocess": "^5.1.4",
     "svelte-spa-router": "^4.0.1",
+    "svelte-toast": "^1.0.0",
+    "svelte-toasts": "^1.1.2",
     "tailwindcss": "^2.0.0"
   },
   "devDependencies": {

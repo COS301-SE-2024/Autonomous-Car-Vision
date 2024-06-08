@@ -5,5 +5,5 @@ backendVenv
 .idea
 .env
 .env.local
-Desktop/.yarnrc.yml
+*.yarnrc.yml
 .sqlite
