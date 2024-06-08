@@ -212,7 +212,7 @@ def verifyOTP(request):
     except OTP.DoesNotExist:
         return Response({'error': 'Invalid UID or OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if otp_entry.expiry_date < datetime.now():
+    if otp_entry.expiry_date < datetime.now(timezone.utc):
         return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     token = ''
@@ -298,16 +298,17 @@ def hvstat(request):
 def getSalt(request):
     data = request.data
     uemail = data.get('uemail')  
+
+    print(uemail)    
     
     if not uemail:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
     
-    print(uemail)
     
     if User.objects.filter(uemail=uemail).exists():
         user = User.objects.get(uemail=uemail)
     else:
-        user = User.objects.get(uname=uemail)   
+        user = User.objects.get(uname=uemail) 
         
     uid = user.uid
     salt = Auth.objects.get(uid=uid).salt 
@@ -413,7 +414,7 @@ def changePassword(request):
     old_password = data.get('old_password')
     new_password = data.get('new_password')
     token = data.get('token')
-    
+        
     if not token:
         return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
     
