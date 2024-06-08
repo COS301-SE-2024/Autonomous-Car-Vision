@@ -1,7 +1,6 @@
 <script>
   import axios from "axios";
   import { push } from "svelte-spa-router";
-  import { token } from "../stores/auth";
 
   let email = "";
   let code = Array(6).fill("");
