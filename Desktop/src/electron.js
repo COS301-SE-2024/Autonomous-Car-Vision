@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -7,7 +7,13 @@ const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
 
-function createWindow() {
+async function loadElectronStore() {
+    const { default: Store } = await import('electron-store');
+    return new Store();
+}
+
+
+async function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -22,6 +28,8 @@ function createWindow() {
 
     mainWindow.loadFile('public/index.html');
     // mainWindow.webContents.openDevTools();
+    // Initialize the store after the window is created
+    store = await loadElectronStore();
 }
 
 app.on('ready', createWindow);
@@ -42,11 +50,26 @@ app.on('activate', () => {
 //     require('electron-reloader')(module)
 // } catch (_) {}
 
+// handler for token storing
+
+let store;
+
+ipcMain.on('store-token', (event, token) => {
+    store.set('authToken', token);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-token', (event) => {
+    const token = store.get('authToken');
+    event.returnValue = token;
+});
+
+
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
     const salt = crypto.randomBytes(16).toString('hex');
     const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-    return {hash, salt};
+    return { hash, salt };
 });
 
 ipcMain.handle('hash-password-salt', async (event, password, salt) => {
@@ -54,7 +77,7 @@ ipcMain.handle('hash-password-salt', async (event, password, salt) => {
         throw new TypeError('The "salt" argument must be of type string.');
     }
     const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-    return {hash};
+    return { hash };
 });
 ipcMain.handle('insert-data', async (event, record) => {
     try {

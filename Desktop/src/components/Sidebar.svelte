@@ -5,9 +5,17 @@
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
 
+  import { mdiViewGallery, mdiUpload, mdiCloudPrintOutline } from "@mdi/js";
+
   import AccountPopup from "./AccountPopup.svelte";
 
-  export let items = [];
+  const items = [
+    { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
+    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
+    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
+  ];
+
+  // export let items = [];
 
   const accountPopupItems = [
     {

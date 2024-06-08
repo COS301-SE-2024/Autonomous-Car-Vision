@@ -2,8 +2,9 @@
 node_modules
 build
 backendVenv
+*.pyc
 .idea
 .env
 .env.local
-*.yarnrc.yml
+.yarnrc.yml
 .sqlite

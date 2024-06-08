@@ -13,7 +13,7 @@
   });
 </script>
 
-<div class="items-center w-full">
+<div class="items-center">
   <div>
     <div class="text-xl font-heading text-theme-keith-accentone text-center rounded">Video Gallery</div>
     <div class="grid grid-flow-row-dense grid-cols-3 items-center">
