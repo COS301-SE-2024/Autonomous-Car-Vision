@@ -11,9 +11,7 @@
 
   const developerLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/devLogin/", {
-        uname: "admin",
-      });
+      const response = await axios.get("http://localhost:8000/devLogin/", {});
       console.log("Developer Login Response:", response.data);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("uid", response.data.uid);
@@ -35,7 +33,7 @@
       console.error("Failed to login as developer");
       return;
     }
-    push("/gallary");
+    push("/gallery");
   };
 </script>
 
