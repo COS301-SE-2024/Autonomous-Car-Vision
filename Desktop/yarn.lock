@@ -8798,6 +8798,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-french-toast@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "svelte-french-toast@npm:1.2.0"
+  dependencies:
+    svelte-writable-derived: "npm:^3.1.0"
+  peerDependencies:
+    svelte: ^3.57.0 || ^4.0.0
+  checksum: 10c0/ea0346ef28d43f7fc2e6413effbcc863f9d3c688ba175c56b0654e7c11f2630d2c5acb55b04de47dabb74541233123e8f167af63b661fa3c1f905150963d92f3
+  languageName: node
+  linkType: hard
+
 "svelte-jester@npm:^1.0.0":
   version: 1.8.2
   resolution: "svelte-jester@npm:1.8.2"
@@ -8886,6 +8897,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svelte-writable-derived@npm:^3.1.0":
+  version: 3.1.1
+  resolution: "svelte-writable-derived@npm:3.1.1"
+  peerDependencies:
+    svelte: ^3.2.1 || ^4.0.0-next.1 || ^5.0.0-next.94
+  checksum: 10c0/3b8f2092c4ee38ace6a998c7602310ce90e993292b7f6aca55d7c3675e6b7b46a4451a6fcb6d701c9e76e41660669c3295f68faee76e904249005344d9c8c182
+  languageName: node
+  linkType: hard
+
 "svelte@npm:^3.0.0":
   version: 3.59.2
   resolution: "svelte@npm:3.59.2"
@@ -8907,6 +8927,13 @@ __metadata:
   bin:
     svgo: bin/svgo
   checksum: 10c0/0741f5d5cad63111a90a0ce7a1a5a9013f6d293e871b75efe39addb57f29a263e45294e485a4d2ff9cc260a5d142c8b5937b2234b4ef05efdd2706fb2d360ecc
+  languageName: node
+  linkType: hard
+
+"svrollbar@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "svrollbar@npm:0.12.0"
+  checksum: 10c0/323f5ca31d96dc11f34b47bf964215163a637b8323dd08283527db57f68f12e400d6ca77dd1831ef17c53e15f23629e40edb4691fcfe9e5d4c94c9c77699c00c
   languageName: node
   linkType: hard
 
@@ -9759,12 +9786,14 @@ __metadata:
     sqlite3: "npm:^5.1.7"
     svelte: "npm:^3.0.0"
     svelte-file-dropzone: "npm:^2.0.7"
+    svelte-french-toast: "npm:^1.2.0"
     svelte-jester: "npm:^1.0.0"
     svelte-materialify: "npm:^0.3.11"
     svelte-preprocess: "npm:^5.1.4"
     svelte-spa-router: "npm:^4.0.1"
     svelte-toast: "npm:^1.0.0"
     svelte-toasts: "npm:^1.1.2"
+    svrollbar: "npm:^0.12.0"
     tailwindcss: "npm:^2.0.0"
   languageName: unknown
   linkType: soft

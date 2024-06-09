@@ -2,10 +2,14 @@
   import Dropzone from "svelte-file-dropzone";
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
+  import toast, { Toaster } from "svelte-french-toast";
+  import { onMount } from "svelte";
 
   export let videoSource = "";
   let filename = "";
   let file;
+
+  onMount(() => {});
 
   function handleFilesSelect(e) {
     const { acceptedFiles, fileRejections } = e.detail;
@@ -19,12 +23,21 @@
     // Alert for rejected files
     fileRejections.forEach((rejection) => {
       alert(
-        `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`,
+        `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`
       );
     });
   }
 
   const saveVideo = async () => {
+    if (!videoSource) {
+      toast.error("Upload a video file to get started", {
+        duration: 5000,
+        position: "top-center",
+      });
+
+      return;
+    }
+
     let record = {
       mname: filename,
       localurl: videoSource,
@@ -39,13 +52,21 @@
       const response2 = await window.electronAPI.selectData(filename);
       console.log("resp2", response2);
 
+      toast.success("Video uploaded successfully", {
+        duration: 5000,
+        position: "top-center",
+      });
+
+      // sleep for 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
         const uid = localStorage.getItem("uid");
         const token = localStorage.getItem("token");
 
         console.log(videoSource, mid, uid, token, filename);
-        push("/gallary");
+        push("/gallery");
 
         // Upload the file using the new IPC method
         // const uploadResponse = await window.electronAPI.uploadFile(filePath, mid, uid, token, filename);
@@ -75,6 +96,7 @@
 </script>
 
 <ProtectedRoutes>
+  <Toaster />
   <div
     class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5"
   >

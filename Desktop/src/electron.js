@@ -54,6 +54,7 @@ app.on('activate', () => {
 
 let store;
 
+//! token
 ipcMain.on('store-token', (event, token) => {
     store.set('authToken', token);
     event.returnValue = true;
@@ -66,6 +67,54 @@ ipcMain.on('get-token', (event) => {
 
 ipcMain.on('clear-token', (event) => {
     store.delete('authToken');
+    event.returnValue = true;
+});
+
+//! uname
+ipcMain.on('store-uname', (event, uname) => {
+    store.set('uname', uname);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uname', (event) => {
+    const uname = store.get('uname');
+    event.returnValue = uname;
+});
+
+ipcMain.on('clear-uname', (event) => {
+    store.delete('uname');
+    event.returnValue = true;
+});
+
+//! uid
+ipcMain.on('store-uid', (event, uid) => {
+    store.set('uid', uid);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uid', (event) => {
+    const uid = store.get('uid');
+    event.returnValue = uid;
+});
+
+ipcMain.on('clear-uid', (event) => {
+    store.delete('uid');
+    event.returnValue = true;
+});
+
+//! uemail
+ipcMain.on('store-uemail', (event, uemail) => {
+    store.set('uemail', uemail);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uemail', (event) => {
+    const uemail = store.get('uemail');
+    event.returnValue = uemail;
+});
+
+ipcMain.on('clear-uemail', (event) => {
+    store.delete('uemail');
     event.returnValue = true;
 });
 

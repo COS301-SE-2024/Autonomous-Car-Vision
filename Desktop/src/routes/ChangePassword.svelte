@@ -4,13 +4,12 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
+  import toast, { Toaster } from "svelte-french-toast";
 
   let oldPassword = "";
   let newPassword = "";
   let confirmPassword = "";
   let passwordsMatch = true;
-  let notification = "";
-  let notificationType = "";
 
   function checkPasswordsMatch() {
     passwordsMatch = newPassword === confirmPassword;
@@ -41,17 +40,17 @@
       try {
         const { hash: hashOld } = await window.electronAPI.hashPasswordSalt(
           oldPassword,
-          sString,
+          sString
         );
 
         const { hash: hashNew } = await window.electronAPI.hashPasswordSalt(
           newPassword,
-          sString,
+          sString
         );
 
         console.log("Hashed Passwords:", hashOld, hashNew);
         console.log("UID:", uid);
-        console.log("Token:", localStorage.getItem("token"));
+        console.log("Token:", window.electronAPI.getToken());
 
         const response = await axios.post(
           "http://localhost:8000/changePassword/",
@@ -59,18 +58,24 @@
             uid: localStorage.getItem("uid"),
             old_password: hashOld,
             new_password: hashNew,
-            token: localStorage.getItem("token"),
-          },
+            token: window.electronAPI.getToken(),
+          }
         );
         console.log("Password Changed:", response.data);
 
         if (response.data.status === "200") {
-          notification = "Password changed successfully!";
-          notificationType = "success";
+          toast.success("Password changed successfully!", {
+            duration: 5000,
+            position: "top-center",
+          });
           push("/accountSettings");
         }
       } catch (error) {
         console.error("Password change failed:", error);
+        toast.error("Failed to change password", {
+          duration: 5000,
+          position: "top-center",
+        });
       }
     } else {
       alert("Passwords do not match");
@@ -86,6 +91,7 @@
 </script>
 
 <ProtectedRoutes>
+  <Toaster />
   <div class="flex flex-col items-center justify-center min-h-screen">
     <div
       class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentone space-y-3"

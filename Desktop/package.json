@@ -33,11 +33,13 @@
     "sqlite3": "^5.1.7",
     "svelte": "^3.0.0",
     "svelte-file-dropzone": "^2.0.7",
+    "svelte-french-toast": "^1.2.0",
     "svelte-materialify": "^0.3.11",
     "svelte-preprocess": "^5.1.4",
     "svelte-spa-router": "^4.0.1",
     "svelte-toast": "^1.0.0",
     "svelte-toasts": "^1.1.2",
+    "svrollbar": "^0.12.0",
     "tailwindcss": "^2.0.0"
   },
   "devDependencies": {
