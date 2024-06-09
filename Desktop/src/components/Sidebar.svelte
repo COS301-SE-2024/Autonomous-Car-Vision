@@ -92,7 +92,7 @@
     </nav>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
-      class="flex justify-start gap-4 items-center py-2 px-2 mt-2 transition hover:bg-theme-keith-accenttwo hover:border-theme-keith-accentone hover:rounded-lg rounded-lg"
+      class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-keith-accenttwo border-theme-keith-secondary cursor-pointer avatar-container"
       on:click={toggleAccountPopup}
     >
       <Avatar class="bg-gray p-2 rounded-full">
@@ -104,7 +104,7 @@
       </div>
       {#if showAccountPopup}
         <div
-          class="absolute top-0 right-0 transform translate-x-full -translate-y-2/3 mt-2 account-popup-content"
+          class="absolute top-0 right-0 transform translate-x-full -translate-y-1/3 mt-2 account-popup-content"
         >
           <AccountPopup
             items={accountPopupItems}
