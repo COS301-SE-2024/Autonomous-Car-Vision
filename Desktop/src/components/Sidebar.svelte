@@ -15,6 +15,9 @@
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
   ];
 
+  let username = "Username";
+  let Name = "User Name";
+
   // export let items = [];
 
   const accountPopupItems = [
@@ -75,7 +78,7 @@
           <li class="border-b border-theme-keith-accenttwo rounded-lg">
             <a
               href={route}
-              class="flex items-center py-2 transition hover:bg-theme-keith-accenttwo hover:border-theme-keith-accentone hover:rounded-lg {currentRoute ===
+              class="flex justify-start gap-4 items-center py-2 px-2 transition hover:bg-theme-keith-accenttwo hover:border-theme-keith-accentone hover:rounded-lg rounded-lg {currentRoute ===
               route
                 ? 'bg-theme-keith-accenttwo border-theme-keith-accentone rounded-lg'
                 : ''}"
@@ -89,15 +92,19 @@
     </nav>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
-      class="relative flex justify-center items-center py-4 border-theme-keith-secondary cursor-pointer avatar-container"
+      class="flex justify-start gap-4 items-center py-2 px-2 mt-2 transition hover:bg-theme-keith-accenttwo hover:border-theme-keith-accentone hover:rounded-lg rounded-lg"
       on:click={toggleAccountPopup}
     >
       <Avatar class="bg-gray p-2 rounded-full">
         <Icon path={mdiAccountCircle} />
       </Avatar>
+      <div class="flex flex-col">
+        <span class="text-sm font-bold">{username}</span>
+        <span class="text-sm">{Name}</span>
+      </div>
       {#if showAccountPopup}
         <div
-          class="absolute top-0 right-0 transform translate-x-full -translate-y-full mt-2 account-popup-content"
+          class="absolute top-0 right-0 transform translate-x-full -translate-y-2/3 mt-2 account-popup-content"
         >
           <AccountPopup
             items={accountPopupItems}
