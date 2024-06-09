@@ -64,6 +64,10 @@ ipcMain.on('get-token', (event) => {
     event.returnValue = token;
 });
 
+ipcMain.on('clear-token', (event) => {
+    store.delete('authToken');
+    event.returnValue = true;
+});
 
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {

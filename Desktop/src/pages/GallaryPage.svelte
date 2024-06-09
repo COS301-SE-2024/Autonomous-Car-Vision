@@ -12,6 +12,7 @@
       console.error("Failed to fetch video records:", response.error);
     }
   });
+  console.log("At gallery page");
 </script>
 
 <ProtectedRoutes>
