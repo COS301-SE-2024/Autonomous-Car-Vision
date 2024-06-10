@@ -7,17 +7,11 @@
 
   const verifyCode = async () => {
     const otp = code.join("");
-    console.log("Code: " + otp);
-    console.log(localStorage.getItem("uid"));
     try {
       const response = await axios.post("http://localhost:8000/verifyOTP/", {
-        uid: localStorage.getItem("uid"),
+        uid: window.electronAPI.getUid(),
         otp: otp,
       });
-      console.log(response);
-      // localStorage.setItem('token', response.data.token);
-      // Save token in Electron store
-      // ipcRenderer.send("save-token", response.data.token);
       window.electronAPI.storeToken(response.data.token);
       console.log("token: ");
       console.log(window.electronAPI.getToken());

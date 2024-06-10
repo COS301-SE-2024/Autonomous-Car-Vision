@@ -25,25 +25,19 @@
     }
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
-      console.log(hash);
-      console.log(salt);
-
       const response = await axios.post("http://localhost:8000/signup/", {
         uname: nToken,
         uemail: eToken,
         password: hash,
         salt: salt,
       });
-      console.log(response);
-      console.log("Login Successful:", response.data);
-      localStorage.setItem("uid", JSON.stringify(response.data.uid));
+      window.electronAPI.storeUid(JSON.stringify(response.data.uid));
 
       push("/otp");
     } catch (error) {
       console.error("Sign-up Failed:", error);
     }
   };
-
   let show = false;
   let showConfirm = false;
 </script>

@@ -7,7 +7,9 @@
 
   onMount(() => {
     window.electronAPI.clearToken();
-    console.log(window.electronAPI.getToken());
+    window.electronAPI.clearUid();
+    window.electronAPI.clearUname();
+    window.electronAPI.clearUemail();
   });
 
   const developerLogin = async () => {
@@ -15,28 +17,18 @@
       const response = await axios.get("http://localhost:8000/devLogin/", {});
       console.log("Developer Login Response:", response.data);
       window.electronAPI.storeToken(response.data.token);
-      // $token = response.data.token;
-      localStorage.setItem("uid", response.data.uid);
-      localStorage.setItem("uname", response.data.uname);
-      localStorage.setItem("uemail", response.data.uemail);
+      window.electronAPI.storeUid(response.data.uid);
+      window.electronAPI.storeUname(response.data.uname);
+      window.electronAPI.storeUemail(response.data.uemail);
+
+      console.log("Token:", window.electronAPI.getToken());
+      console.log("UID:", window.electronAPI.getUid());
+      console.log("UName:", window.electronAPI.getUname());
+      console.log("UEmail:", window.electronAPI.getUemail());
     } catch (error) {
       console.error("Failed to login as developer:", error);
       return;
     }
-
-    console.log("Developer Login Successful");
-    console.log("Token:", window.electronAPI.getToken());
-    console.log("UID:", localStorage.getItem("uid"));
-
-    // if (
-    //   localStorage.getItem("token") === null ||
-    //   localStorage.getItem("uid") === null
-    // ) {
-    //   console.error("Failed to login as developer");
-    //   return;
-    // }
-
-    console.log(window.electronAPI.getToken());
     push("/gallery");
   };
 </script>

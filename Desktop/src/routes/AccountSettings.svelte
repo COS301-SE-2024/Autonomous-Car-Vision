@@ -33,7 +33,7 @@
       const response = await axios.post(
         "http://127.0.0.1:8000/changeUserDetails/",
         {
-          uid: localStorage.getItem("uid"),
+          uid: window.electronAPI.getUid(),
           uname: username,
           uemail: email,
           token: window.electronAPI.getToken(),
@@ -48,8 +48,8 @@
           position: "top-center",
         });
 
-        localStorage.setItem("uemail", email);
-        localStorage.setItem("uname", username);
+        window.electronAPI.storeUname(username);
+        window.electronAPI.storeUemail(email);
       } else {
         toast.error("Failed to save changes", {
           duration: 5000,

@@ -22,20 +22,17 @@
     if (passwordsMatch) {
       try {
         const response = await axios.post("http://localhost:8000/getSalt/", {
-          uemail: localStorage.getItem("uemail"),
+          uemail: window.electronAPI.getUemail(),
         });
         console.log("Salt and UID retrieved:", response.data);
 
         uid = response.data.uid;
-        localStorage.setItem("uid", uid);
+        window.electronAPI.storeUid(uid);
         sString = response.data.salt;
       } catch (error) {
         console.error("Failed to retrieve salt and UID:", error);
         return;
       }
-
-      console.log("Old password:", oldPassword);
-      console.log("New password:", newPassword);
 
       try {
         const { hash: hashOld } = await window.electronAPI.hashPasswordSalt(
@@ -55,7 +52,7 @@
         const response = await axios.post(
           "http://localhost:8000/changePassword/",
           {
-            uid: localStorage.getItem("uid"),
+            uid: window.electronAPI.getUid(),
             old_password: hashOld,
             new_password: hashNew,
             token: window.electronAPI.getToken(),

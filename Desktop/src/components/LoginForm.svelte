@@ -12,10 +12,7 @@
   let uid = 0;
 
   const onSubmitUsername = async () => {
-    console.log("Username/Email Step");
-    console.log(nToken);
-    localStorage.setItem("uemail", nToken);
-
+    window.electronAPI.storeUemail(nToken);
     try {
       const response = await axios.post("http://localhost:8000/getSalt/", {
         uemail: nToken,
@@ -44,8 +41,7 @@
         uid: uid,
         password: hash,
       });
-      console.log(response);
-      localStorage.setItem("uid", uid);
+      window.electronAPI.storeUid(uid);
       push("/otp");
     } catch (error) {
       console.error("Login Failed:", error);

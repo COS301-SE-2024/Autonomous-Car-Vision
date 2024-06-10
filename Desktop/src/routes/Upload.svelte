@@ -62,30 +62,10 @@
 
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
-        const uid = localStorage.getItem("uid");
-        const token = localStorage.getItem("token");
+        const uid = window.electronAPI.getUid();
+        const token = window.electronAPI.getToken();
 
-        console.log(videoSource, mid, uid, token, filename);
         push("/gallery");
-
-        // Upload the file using the new IPC method
-        // const uploadResponse = await window.electronAPI.uploadFile(filePath, mid, uid, token, filename);
-        // console.log("respu",uploadResponse);
-        //
-        // if (uploadResponse.success) {
-        //   console.log("success upload");
-        //   const updateresp = await window.electronAPI.ureq(mid, {
-        //     serverurl: uploadResponse.data.server_url,
-        //   });
-        //   console.log(updateresp);
-        //   if (updateresp.success) {
-        //     console.log("all stages completed, file uploaded");
-        //   } else {
-        //     console.error("Update failed:", updateresp.error);
-        //   }
-        // } else {
-        //   console.error("Upload failed:", uploadResponse.error);
-        // }
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }

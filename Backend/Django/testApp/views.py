@@ -605,4 +605,4 @@ def devLogin(request):
         else:
             return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    return Response({'token': token, 'uid': uid, 'uemail': uemail, uname: 'uname'}, status=status.HTTP_200_OK)
+    return Response({'token': token, 'uid': uid, 'uemail': uemail, 'uname': uname}, status=status.HTTP_200_OK)

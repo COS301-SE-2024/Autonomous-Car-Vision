@@ -9,7 +9,6 @@
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
   ];
 
-  // const ttoken = localStorage.getItem("token");
   window.electronAPI.getToken();
   let ttoken;
   if (window.electronAPI.getToken() != "") {
