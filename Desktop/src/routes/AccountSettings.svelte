@@ -32,9 +32,9 @@
   
   <div class="flex flex-col items-center justify-center min-h-screen">
     <div
-      class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-gray-dark space-y-3"
+      class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentont space-y-3"
     >
-      <h2 class="text-2xl font-bold mb-4 text-center text-black">
+      <h2 class="text-2xl font-bold mb-4 text-center">
         Account Settings
       </h2>
   
@@ -45,34 +45,34 @@
               <img src={profilePicture} alt="Avatar" />
           </Avatar>
         {:else}
-          <Avatar size="15rem" class="bg-gray">
+          <Avatar size="15rem" class="bg-theme-keith-jet">
             <Icon path={mdiAccount} />
           </Avatar>
         {/if}
         <Button
-          class="shadow-none text-blue text-transform-none"
+          class="shadow-none text-theme-keith-secondary text-transform-none"
           on:click={updateProfilePicture}>Edit</Button
         >
       </div>
   
       <!-- Edit Username -->
       <div class="mb-4">
-        <label for="username" class="block text-green mb-1">Username</label>
+        <label for="username" class="block text-theme-keith-secondary mb-1">Username</label>
         <TextField
           id="username"
           bind:value={username}
-          class="w-full p-2 border border-green rounded red-text"
+          class="text-black-important w-full p-2 border border-theme-keith-accenttwo rounded text-black-important"
         />
       </div>
   
       <!-- Edit Email -->
       <div class="mb-4 text-black">
-        <label for="email" class="block text-green mb-1">Email</label>
+        <label for="email" class="block text-theme-keith-secondary mb-1">Email</label>
         <TextField
           id="email"
           type="email"
           bind:value={email}
-          class="w-full p-2 border border-green rounded"
+          class="text-black-important w-full p-2 border border-theme-keith-accenttwo rounded"
         />
       </div>
   
@@ -81,11 +81,14 @@
       >
   
       <!-- Save Changes -->
-      <Button class="bg-green rounded" on:click={saveChanges}>Save Changes</Button
+      <Button class="bg-theme-keith-accentone rounded" on:click={saveChanges}>Save Changes</Button
       >
     </div>
   </div>
   
   <style>
+    .text-black-important {
+    color: black !important;
+  }
   </style>
   

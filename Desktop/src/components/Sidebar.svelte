@@ -5,7 +5,7 @@
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
 
-  import AccountPopup from "./AccountPopup.svelte";
+  // import AccountPopup from "./AccountPopup.svelte";
 
   export let items = [];
 
@@ -41,28 +41,28 @@
   }
 </script>
 
-<div class="fixed h-screen w-1/5 bg-gray-dark p-4 flex flex-col justify-end text-gray-light z-50">
+<div class="fixed h-screen w-1/5 bg-theme-keith-accentone p-4 flex flex-col justify-end z-50">
   <aside>
     <nav>
-      <ul class="flex flex-col space-y-2">
+      <ul class="flex flex-col space-y-2 list-none">
         {#each items as { name, route, iconPath }}
-          <li class="border-b border-gray-light">
-            <a href={route} class="flex items-center py-2 hover:bg-gray transition">
-              <Icon path={iconPath} />
-              <span class="ml-2">{name}</span>
+          <li class="border-b border-theme-keith-accenttwo rounded-lg">
+            <a href={route} class="flex items-center py-2 hover:bg-theme-keith-accenttwo transition hover:border-theme-keith-acccentone hover:rounded-lg">
+              <Icon path={iconPath}/>
+              <span class="ml-2 ">{name}</span>
             </a>
           </li>
         {/each}
       </ul>
     </nav>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="relative flex justify-center items-center py-4 border-gray cursor-pointer avatar-container" on:click={toggleAccountPopup}>
+    <div class="relative flex justify-center items-center py-4 border-theme-keith-secondary cursor-pointer avatar-container" on:click={toggleAccountPopup}>
       <Avatar class="bg-gray p-2 rounded-full">
         <Icon path={mdiAccountCircle} />
       </Avatar>
       {#if showAccountPopup}
         <div class="absolute top-0 right-0 transform translate-x-full -translate-y-full mt-2 account-popup-content">
-          <AccountPopup items={accountPopupItems} on:close={closeAccountPopup}/>
+          <!-- <AccountPopup items={accountPopupItems} on:close={closeAccountPopup}/> -->
         </div>
       {/if}
     </div>
