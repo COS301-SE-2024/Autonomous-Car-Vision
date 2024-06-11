@@ -15,7 +15,7 @@ def send_file(ip, port, filepath):
         s.sendall(b'1234') 
         
         s.sendall(b'SEND')
-        s.sendall(filename.encode() + b'\0')  # Send filename followed by a null byte
+        s.sendall(filename.encode() + b'\0')
         
         with open(filepath, 'rb') as f:
             print(f"Sending file {filename}")
@@ -39,7 +39,7 @@ def receive_file(ip, port, filename):
         s.sendall(b'1234')
         
         s.sendall(b'RETR')
-        s.sendall(filename.encode() + b'\0')  # Send filename followed by a null byte
+        s.sendall(filename.encode() + b'\0')
         
         filepath = "./" + filename
         with open(filepath, 'wb') as f:
@@ -54,13 +54,13 @@ def receive_file(ip, port, filename):
 if __name__ == "__main__":
     ip = "10.32.130.218"
     port = 8002
-    filepath = "../../Documentation/Images/Temp/video.mp4"
+    filepath = "../../Documentation/Images/Donatello.png"
     
     # To send a file
-    send_file(ip, port, filepath)
+    # send_file(ip, port, filepath)
     
     # To receive a file
-    receive_file(ip, port, "video.mp4")
+    receive_file(ip, port, "Donatello.png")
     
     # move file to new dir
     # os.rename("test.txt", "../../Documentation/Images/Temp/test.txt")
