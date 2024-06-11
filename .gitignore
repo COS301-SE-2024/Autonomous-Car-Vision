@@ -8,3 +8,4 @@ backendVenv
 .env.local
 .yarnrc.yml
 .sqlite
+agentVenv
