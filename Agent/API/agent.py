@@ -103,7 +103,7 @@ def startServer(ip, port):
                         print(f"File {filename} sent successfully.")
                     else:
                         print(f"File {filename} does not exist.")
-                
+    s.close()            
     return "Operation completed successfully."     
                 
 @app.get("/register/")
