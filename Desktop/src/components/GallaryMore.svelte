@@ -8,7 +8,6 @@
     import { push } from 'svelte-spa-router';
   
     const dispatch = createEventDispatcher();
-  
     const currentTab = writable('original');
     const showModelList = writable(false);
     let selectedModel = null;
@@ -20,7 +19,8 @@
     let showViewModal = false;
     let showDeleteModal = false;
   
-    function back() {
+    function back(event) {
+        event.stopPropagation(); // Stop event propagation
         dispatch('close');
     }
   
@@ -82,14 +82,14 @@
   </script>
   
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fixed inset-0 flex items-center justify-center z-50">
+  <div class="fixed inset-0 flex items-center justify-center z-50" on:click|stopPropagation={back}>
       <div class="relative bg-theme-keith-secondary p-8 rounded-lg shadow-lg w-full max-w-2xl border border-theme-keith-primary">
           <div>
               <button class="text-white border-none p-2 rounded cursor-pointer text-xs" on:click={back}>Back</button>
           </div>
           <div class="flex justify-between border-b mb-4">
               <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <div class="py-2 px-4 cursor-pointer { $currentTab === 'original' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('original')}>Original</div>
+              <div class="py-2 px-4 cursor-pointer text-white { $currentTab === 'original' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('original')}>Original</div>
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div class="py-2 px-4 cursor-pointer { $currentTab === 'processed' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('processed')}>Processed</div>
           </div>

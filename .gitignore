@@ -2,7 +2,9 @@
 node_modules
 build
 backendVenv
+.pyc
 .idea
 .env
 .env.local
-Desktop/.yarnrc.yml
+.yarnrc.yml
+.sqlite

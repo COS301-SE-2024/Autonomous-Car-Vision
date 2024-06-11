@@ -41,7 +41,7 @@
 
 <div
   {key}
-  class="flex flex-col items-start border-2 border-black rounded-xl lg:w-full w-10/12 mx-auto"
+  class="flex flex-col items-start border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
 >
   <div
     id="header"
@@ -67,7 +67,7 @@
         </svg>
       {/if}
       <div class="flex flex-col">
-        <p class="w-fit text-black text-xl font-medium">{Model.name}</p>
+        <p class="w-fit text-theme-blue-light text-xl font-medium">{Model.name}</p>
         <p class="w-40 text-gray text-md font-normal">
           {Model.category}
         </p>

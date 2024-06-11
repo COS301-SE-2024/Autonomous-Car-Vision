@@ -212,7 +212,7 @@ def verifyOTP(request):
     except OTP.DoesNotExist:
         return Response({'error': 'Invalid UID or OTP'}, status=status.HTTP_400_BAD_REQUEST)
     
-    if otp_entry.expiry_date < datetime.now():
+    if otp_entry.expiry_date < datetime.now(timezone.utc):
         return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
     
     token = ''
@@ -231,10 +231,10 @@ def verifyOTP(request):
             token_entry.save()
         except Token.DoesNotExist:
             tokenSerializer = TokenSerializer(data=token_data)
-        if tokenSerializer.is_valid():
-            tokenSerializer.save()
-        else:
-            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+            if tokenSerializer.is_valid():
+                tokenSerializer.save()
+            else:
+                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
         
         return Response({'token': token}, status=status.HTTP_200_OK)
     
@@ -298,16 +298,17 @@ def hvstat(request):
 def getSalt(request):
     data = request.data
     uemail = data.get('uemail')  
+
+    print(uemail)    
     
     if not uemail:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
     
-    print(uemail)
     
     if User.objects.filter(uemail=uemail).exists():
         user = User.objects.get(uemail=uemail)
     else:
-        user = User.objects.get(uname=uemail)   
+        user = User.objects.get(uname=uemail) 
         
     uid = user.uid
     salt = Auth.objects.get(uid=uid).salt 
@@ -323,10 +324,25 @@ def signin(request):
     data = request.data
     uid = data.get('uid')
     password = data.get('password')
+    uemail = User.objects.get(uid=uid).uemail
     
     hash = Auth.objects.get(uid=uid).hash
          
-    if hash == password:          
+    if hash == password:   
+        expiry_date = datetime.now() + timedelta(minutes=10) 
+        otp_code = ''.join(random.choices(string.digits, k=6))
+        otp_data = {
+            'uid': uid,
+            'otp': otp_code,
+            'expiry_date': expiry_date.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        otp_serializer = OTPSerializer(data=otp_data)
+        if otp_serializer.is_valid():
+            otp_serializer.save()
+            
+        send_otp_email(uemail, otp_code, expiry_date)
+               
         return Response({'message': 'User signed in successfully'}, status=status.HTTP_200_OK)   
     return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -377,12 +393,12 @@ def getToken(request):
                 token_entry.save()
             except Token.DoesNotExist:
                 tokenSerializer = TokenSerializer(data=token_data)
-            if tokenSerializer.is_valid():
-                tokenSerializer.save()
-            else:
-                return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+                if tokenSerializer.is_valid():
+                    tokenSerializer.save()
+                else:
+                    return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST) 
             
-            return Response({'message': 'Token generated successfully'}, status=status.HTTP_200_OK)
+            return Response({'token': token}, status=status.HTTP_200_OK)
             
         return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
@@ -397,6 +413,18 @@ def changePassword(request):
     uid = data.get('uid')
     old_password = data.get('old_password')
     new_password = data.get('new_password')
+    token = data.get('token')
+        
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     
     if not uid or not old_password or not new_password:
         return Response({'error': 'Username, old password and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -406,7 +434,7 @@ def changePassword(request):
         if auth.hash == old_password:
             auth.hash = new_password
             auth.save()
-            return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Password changed successfully', 'status': '200'}, status=status.HTTP_200_OK)
         return Response({'error': 'Invalid password'}, status=status.HTTP_400_BAD_REQUEST)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
@@ -420,6 +448,18 @@ def changeUserDetails(request):
     uid = data.get('uid')
     uname = data.get('uname')
     uemail = data.get('uemail')
+    token = data.get('token')
+    
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     
     if not uid:
         return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -429,7 +469,7 @@ def changeUserDetails(request):
         user.uname = uname
         user.uemail = uemail
         user.save()
-        return Response({'message': 'User details updated successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'User details updated successfully', 'status': "200"}, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
    
@@ -438,14 +478,26 @@ def changeUserDetails(request):
 def upload_video(request):
     if request.method == 'POST':
         data = request.data
-        mid = random.randint(0, 999999999)
-        data['mid'] = mid
+        uid = data.get('uid')
+        token = data.get('token')
         print(data)
+        
+        if not token:
+            return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        try:    
+            dataToken = Token.objects.get(uid=uid)
+        except Token.DoesNotExist:
+            return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+        if dataToken.token != token:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = MediaSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'Video uploaded successfully'}, status=status.HTTP_201_CREATED)
+            server_url = serializer.data['media_url']
+            return Response({'server_url': server_url}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -464,6 +516,18 @@ def upload_success(request):
 def lookup(request):
     data = request.data
     uid = data.get('uid')
+    token = data.get('token')
+    
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:    
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)   
     
     if not uid:
         return Response({'error': 'UID is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -474,3 +538,71 @@ def lookup(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Media.DoesNotExist:
         return Response({'error': 'Media not found'}, status=status.HTTP_404_NOT_FOUND)    
+    
+def verifyToken(uid, token):
+    if not token:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:    
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+    if dataToken.token != token:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET'])
+@permission_classes([AllowAny])    
+def devLogin(request):    
+    uname = 'dev'
+    uemail = 'dev@gmail.com'
+    
+    if not User.objects.filter(uname=uname).exists():
+        uid = random.randint(0, 999999999)
+        user_data = {
+            'uid': uid,
+            'uname': "dev",
+            'uemail': 'dev@gmail.com'
+        }
+        
+        user_serializer = UserSerializer(data=user_data)
+        if(user_serializer.is_valid()):
+            user_serializer.save()
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+    
+        uid = User.objects.get(uname=uname).uid
+
+        salt = "a30855d328c251efd440ddd9103be85c"
+        hash = "271139b6f8ce1ffe656b77703f664e838673a9a4cfcb145496135cf1616ed6a316ad47b538dbebd61e442ed43abf5dd6b211da3fde1a62d5e4ed527275bd6d05"
+        
+        auth_serializer = AuthSerializer(data={'uid': uid, 'hash': hash, 'salt': salt})
+        if(auth_serializer.is_valid()):
+            auth_serializer.save()
+        else:
+            return Response(auth_serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+    
+    uid = User.objects.get(uname=uname).uid
+    
+    token = ''
+    for i in range(40):
+        token += random.choice(string.ascii_letters + string.digits)
+    print(token)
+    
+    token_data = {
+        'uid': uid,
+        'token': token
+    }
+    
+    try:
+        token_entry = Token.objects.get(uid=uid)
+        token_entry.token = token
+        token_entry.save()
+    except Token.DoesNotExist:
+        tokenSerializer = TokenSerializer(data=token_data)
+        if tokenSerializer.is_valid():
+            tokenSerializer.save()
+        else:
+            return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    return Response({'token': token, 'uid': uid, 'uemail': uemail, 'uname': uname}, status=status.HTTP_200_OK)
