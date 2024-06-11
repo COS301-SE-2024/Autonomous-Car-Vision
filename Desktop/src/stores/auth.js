@@ -7,4 +7,4 @@ import { writable } from 'svelte/store';
 //   isAuthenticated.set(!!token); // Set to true if token exists, false otherwise
 // }
 
-export const token = writable(null);
+export const token = writable(window.electronAPI.getToken());
