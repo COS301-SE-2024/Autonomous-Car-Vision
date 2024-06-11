@@ -7,6 +7,13 @@ def send_file(ip, port, filepath):
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
+
+        s.sendall(b'UID1')
+        s.sendall(b'MID1')   
+        s.sendall(b'MNAM')
+        
+        s.sendall(b'1234') 
+        
         s.sendall(b'SEND')
         s.sendall(filename.encode() + b'\0')  # Send filename followed by a null byte
         
@@ -24,6 +31,13 @@ def receive_file(ip, port, filename):
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
+
+        s.sendall(b'UID1')
+        s.sendall(b'MID1')    
+        s.sendall(b'MNAM')
+        
+        s.sendall(b'1234')
+        
         s.sendall(b'RETR')
         s.sendall(filename.encode() + b'\0')  # Send filename followed by a null byte
         
@@ -39,14 +53,14 @@ def receive_file(ip, port, filename):
 
 if __name__ == "__main__":
     ip = "10.32.130.218"
-    port = 8001
+    port = 8002
     filepath = "../../Documentation/Images/Temp/video.mp4"
     
     # To send a file
     send_file(ip, port, filepath)
     
     # To receive a file
-    receive_file(ip, port, "test.txt")
+    receive_file(ip, port, "video.mp4")
     
     # move file to new dir
-    os.rename("test.txt", "../../Documentation/Images/Temp/test.txt")
+    # os.rename("test.txt", "../../Documentation/Images/Temp/test.txt")

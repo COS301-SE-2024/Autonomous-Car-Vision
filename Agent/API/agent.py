@@ -26,20 +26,32 @@ def findOpenPort():
     return ip, port
 
 def startServer(ip, port):
-    directory = "./serverData"
-    os.makedirs(directory, exist_ok=True)
-    print(f"Directory {directory} created to store information.")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
         print(f"Server started and listening on {ip}:{port}")
         
+        
         while True:
             conn, addr = s.accept()
             with conn:
-                print(f'Connected by {addr}')
+                uid = conn.recv(4).decode()
+                mid = conn.recv(4).decode()
+                mname = conn.recv(4).decode()
+                print(f"UID: {uid}, MID: {mid}, MNAME: {mname}")
                 
+                otp = conn.recv(4).decode()
+                print(f"OTP: {otp}")
+                if not verifyOTP(otp):
+                    print("Invalid OTP.")
+                    break
+                
+                directory = f"./serverData/{uid}/"
+                os.makedirs(directory, exist_ok=True)
+                print(f"Directory {directory} created to store information.")
+                
+                print(f'Connected by {addr}')
                 command = conn.recv(4).decode()
                 print(f"Command: {command}")
                 
@@ -97,7 +109,7 @@ def startServer(ip, port):
 @app.get("/register/")
 def register(backgroundTasks: BackgroundTasks):
     ip, port = findOpenPort()
-    backgroundTasks.add_task(startServer, ip, port)
+    # backgroundTasks.add_task(startServer, ip, port)
     return {"ip": ip, "port": port}
 
 @app.get("/startup/")
@@ -106,3 +118,7 @@ def startup(backgroundTasks: BackgroundTasks):
     ip, port = findOpenPort()
     backgroundTasks.add_task(startServer, ip, port)
     return {"ip": ip, "port": port}
+
+def verifyOTP(otp):
+    if otp == "1234":
+        return True
