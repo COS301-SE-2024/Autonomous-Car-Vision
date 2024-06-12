@@ -1,6 +1,7 @@
 from fastapi import FastAPI, BackgroundTasks
 import socket
 import os
+import requests
 
 app = FastAPI()
 
@@ -14,8 +15,8 @@ def read_item(item_id: int, q: str = None):
 
 def findOpenPort():
     port = 8002
-    # ip = "127.0.0.1"
-    ip = socket.gethostbyname(socket.gethostname())
+    ip = "127.0.0.1"
+    # ip = socket.gethostbyname(socket.gethostname())
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
@@ -26,12 +27,10 @@ def findOpenPort():
     return ip, port
 
 def startServer(ip, port):
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
         print(f"Server started and listening on {ip}:{port}")
-        
         
         while True:
             conn, addr = s.accept()
@@ -110,7 +109,15 @@ def startServer(ip, port):
 def register(backgroundTasks: BackgroundTasks):
     ip, port = findOpenPort()
     # backgroundTasks.add_task(startServer, ip, port)
+    url = "http://127.0.0.1:8000/register/"
+    data = {
+        "ip": ip,
+        "port": port
+    }
+    response = requests.post(url, json=data)
+    print(response.json())
     return {"ip": ip, "port": port}
+    
 
 @app.get("/startup/")
 def startup(backgroundTasks: BackgroundTasks):
@@ -119,6 +126,7 @@ def startup(backgroundTasks: BackgroundTasks):
     backgroundTasks.add_task(startServer, ip, port)
     return {"ip": ip, "port": port}
 
-def verifyOTP(otp):
+def verifyOTP():
+    otp = "1234"
     if otp == "1234":
         return True
