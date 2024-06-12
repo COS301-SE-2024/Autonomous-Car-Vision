@@ -10,6 +10,7 @@
   import AccountPopup from "./AccountPopup.svelte";
 
   const items = [
+    { name: "View Video", route: "#/viewvideo", iconPath: mdiViewGallery },
     { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
     { name: "Upload", route: "#/upload", iconPath: mdiUpload },
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },

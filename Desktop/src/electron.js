@@ -6,6 +6,9 @@ const { LookupTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
+const extractFrames = require('ffmpeg-extract-frames')
+const ffmpeg = require('ffmpeg-static')
+const ffmpegFluent = require('fluent-ffmpeg');
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -211,5 +214,81 @@ ipcMain.handle('fetch-videos', async () => {
     } catch (error) {
         console.error('Failed to fetch videos:', error);
         return { success: false, error: error.message };
+    }
+});
+
+
+// Function to get video duration
+function getVideoDuration(videoPath) {
+    return new Promise((resolve, reject) => {
+        ffmpegFluent.ffprobe(videoPath, (err, metadata) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(metadata.format.duration);
+            }
+        });
+    });
+}
+
+// Function to ensure directory exists
+function ensureDirectoryExistence(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        console.log(`Creating directory: ${dirPath}`);
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
+
+// IPC handler to extract the frames of a video
+
+ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
+    console.log(videoPath);
+    try {
+        const videoName = path.basename(videoPath, path.extname(videoPath));
+        console.log(videoName);
+        
+        const outputDir = path.join(__dirname, 'assets', 'frames', videoName);
+        console.log("output directory inside handler: ", outputDir);
+
+        const duration = await getVideoDuration(videoPath);
+        console.log('Video duration:', duration);
+        
+        if (!fs.existsSync(outputDir)) {
+            ensureDirectoryExistence(outputDir);
+
+            ffmpegFluent(videoPath)
+                .outputOptions('-vf', `fps=1/${interval}`)
+                .output(path.join(outputDir, 'frame-%d.jpg'))
+                .on('start', (commandLine) => {
+                    console.log(`Spawned ffmpeg with command: ${commandLine}`);
+                })
+                .on('stderr', (stderrLine) => {
+                    console.error(`ffmpeg stderr: ${stderrLine}`);
+                })
+                .on('error', (err) => {
+                    console.error('ffmpeg error:', err);
+                })
+                .on('end', () => {
+                    console.log('ffmpeg process finished');
+                })
+                .run();
+
+            // await extractFrames({
+            //     input: videoPath,
+            //     output: path.join(outputDir, 'frame-%d.jpg'),
+            //     ffmpegPath: ffmpeg,
+            //     offsets: Array.from({ length: Math.floor(duration / interval) }, (_, i) => i * interval * 1000),
+            // });
+
+            // Send the paths of the extracted frames back to the frontend
+        }
+        const framePaths = Array.from({ length: Math.floor(duration / interval) }, (_, i) =>
+            path.join(outputDir, `frame-${i + 1}.jpg`)
+        );
+        return framePaths;
+    } catch (error) {
+        console.error('Error extracting frames:', error);
+        throw error;
     }
 });
