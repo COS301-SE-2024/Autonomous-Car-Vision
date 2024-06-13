@@ -32,6 +32,17 @@
             e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
         const { left, right } = this.getBoundingClientRect();
         time = (duration * (clientX - left)) / (right - left);
+
+        // Find the frame index that corresponds to the current time
+        const frameIndex = Math.floor(time / interval);
+        const frameElement =
+            document.querySelectorAll(".thumbnail")[frameIndex];
+        if (frameElement) {
+            frameElement.scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+            });
+        }
     }
 
     function handleMousedown(e) {
@@ -46,10 +57,9 @@
     }
 
     let thumbnailBar;
-    let interval = 20; // Extract a frame every 20 seconds
+    let interval = 10; // Extract a frame every 10 seconds
     let frames = [];
     let videoPath = "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
-
 
     async function extractFrames() {
         try {
@@ -68,8 +78,18 @@
 
     function seekToFrame(framePath) {
         const index = frames.indexOf(framePath);
-        currentTime = index * 10; // Adjust according to the interval
+        time = index * 10; // Adjust according to the interval
         console.log("Seek to frame:", framePath);
+
+        // Scroll the clicked frame into the center of the thumbnail bar
+        const frameElement = document.querySelectorAll(".thumbnail")[index];
+        if (frameElement) {
+            frameElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
+        }
     }
 </script>
 
@@ -84,6 +104,7 @@
         bind:currentTime={time}
         bind:duration
         bind:paused
+        class="w-full"
     >
         <track kind="captions" />
     </video>
@@ -101,21 +122,38 @@
 <div bind:this={thumbnailBar} class="thumbnail-bar">
     {#each frames as frame}
         <div
-            class="thumbnail"
+            class="thumbnail hover:cursor-pointer"
             style="background-image: url({frame})"
             on:click={() => seekToFrame(frame)}
-            on:keydown
+            on:keypress
         ></div>
     {/each}
 </div>
 
 <style>
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
     .thumbnail-bar {
         display: flex;
-        /* overflow-x: scroll; */
-        /* overflow-y: hidden; */
+        overflow-x: scroll;
+        overflow-y: hidden;
         height: 100px;
-        width: 100%;
     }
 
     .thumbnail {
