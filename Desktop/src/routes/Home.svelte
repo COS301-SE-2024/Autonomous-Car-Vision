@@ -1,9 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import { Button, MaterialApp } from "svelte-materialify";
+  import { MaterialApp } from "svelte-materialify";
   import axios from "axios";
   import { push } from "svelte-spa-router";
-  import { token } from "../stores/auth";
 
   onMount(() => {
     window.electronAPI.clearToken();
@@ -13,23 +12,23 @@
   });
 
   const developerLogin = async () => {
-    try {
-      const response = await axios.get("http://localhost:8000/devLogin/", {});
-      console.log("Developer Login Response:", response.data);
-      window.electronAPI.storeToken(response.data.token);
-      window.electronAPI.storeUid(response.data.uid);
-      window.electronAPI.storeUname(response.data.uname);
-      window.electronAPI.storeUemail(response.data.uemail);
+    // try {
+    //   const response = await axios.get("http://localhost:8000/devLogin/", {});
+    //   console.log("Developer Login Response:", response.data);
+    //   window.electronAPI.storeToken(response.data.token);
+    //   window.electronAPI.storeUid(response.data.uid);
+    //   window.electronAPI.storeUname(response.data.uname);
+    //   window.electronAPI.storeUemail(response.data.uemail);
 
-      console.log("Token:", window.electronAPI.getToken());
-      console.log("UID:", window.electronAPI.getUid());
-      console.log("UName:", window.electronAPI.getUname());
-      console.log("UEmail:", window.electronAPI.getUemail());
-    } catch (error) {
-      console.error("Failed to login as developer:", error);
-      return;
-    }
-    push("/gallery");
+    //   console.log("Token:", window.electronAPI.getToken());
+    //   console.log("UID:", window.electronAPI.getUid());
+    //   console.log("UName:", window.electronAPI.getUname());
+    //   console.log("UEmail:", window.electronAPI.getUemail());
+    // } catch (error) {
+    //   console.error("Failed to login as developer:", error);
+    //   return;
+    // }
+    // push("/gallery");
   };
 </script>
 

@@ -8,3 +8,7 @@ backendVenv
 .env.local
 .yarnrc.yml
 .sqlite
+frames
+.pnp.*
+Desktop/html
+.svelte-kit
