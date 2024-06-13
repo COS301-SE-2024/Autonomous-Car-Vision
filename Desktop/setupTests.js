@@ -1,6 +1,17 @@
 // setupTests.js
-// import '@testing-library/jest-dom';
-// import { vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
+// Mock axios for tests
+const mock = new MockAdapter(axios);
+mock.onGet("http://localhost:8000/devLogin/").reply(200, {
+  token: 'mock-token',
+  uid: 'mock-uid',
+  uname: 'mock-uname',
+  uemail: 'mock-uemail'
+});
 
 global.window = {
   electronAPI: {

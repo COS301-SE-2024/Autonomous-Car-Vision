@@ -15,6 +15,7 @@
     // On component mount, check the authentication state
     onMount(() => {
         if (!authToken) {
+            console.log(authToken);
             // Redirect to the login page if the user is not authenticated
             navigate("#login"); // Change this to your login route
         }
