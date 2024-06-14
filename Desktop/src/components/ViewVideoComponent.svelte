@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
 
     let time = 0;
+    let volume = 0;
     let duration;
     let paused = true;
 
@@ -63,10 +64,11 @@
 
     async function extractFrames() {
         try {
-            frames = await window.electronAPI.extractFrames(
+            const framePaths = await window.electronAPI.extractFrames(
                 videoPath,
-                interval,
+                interval
             );
+            frames = framePaths.map(framePath => framePath.replace(/\\/g, '/')); // Convert backslashes to slashes for URLs
         } catch (error) {
             console.error("Error extracting frames:", error);
         }
@@ -78,7 +80,7 @@
 
     function seekToFrame(framePath) {
         const index = frames.indexOf(framePath);
-        time = index * 10; // Adjust according to the interval
+        time = index * interval; // Adjust according to the interval
         console.log("Seek to frame:", framePath);
 
         // Scroll the clicked frame into the center of the thumbnail bar
@@ -91,6 +93,12 @@
             });
         }
     }
+
+    function pause() {
+        paused = !paused;
+        console.log(frames);
+    }
+
 </script>
 
 <div>
@@ -104,19 +112,24 @@
         bind:currentTime={time}
         bind:duration
         bind:paused
+        bind:volume={volume}
         class="w-full"
     >
         <track kind="captions" />
     </video>
     <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
-        <progress value={time / duration || 0} />
+        <progress class="TimelineProgress" value={time / duration || 0} />
+        <button class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold" on:click={pause}>
+            {paused ? "Play" : "Pause"} 
+            <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
+        </button>
         <div class="info">
             <span class="time">{format(time)}</span>
-            <span
-                >click anywhere to {paused ? "play" : "pause"} / drag to seek</span
-            >
+            <span>:</span>
+            <!-- <span>click anywhere to {paused ? "play" : "pause"} / drag to seek</span> -->
             <span class="time">{format(duration)}</span>
         </div>
+
     </div>
 </div>
 <div bind:this={thumbnailBar} class="thumbnail-bar">
@@ -162,6 +175,12 @@
         height: 100px;
         background-size: cover;
         background-position: center;
+        cursor: pointer;
+    }
+
+    .thumbnail:hover {
+        transform: scale(1.1);
+        transition: linear 0.2s;
     }
 
     div {
@@ -169,20 +188,33 @@
     }
 
     .controls {
+        display: flex;
+        flex-direction: row;
+        justify-content: start;
+        align-items: center;
         position: absolute;
         bottom: 0;
+        gap: 2rem;
         width: 100%;
-        transition: opacity 1s;
+        transition: opacity 0.5s;
+    }
+
+    .TimelineProgress {
+        position: absolute;
+        bottom: 40px;
+        left: 0;
+        width: 100%;
+        height: 5px;
     }
 
     .info {
         display: flex;
-        width: 100%;
-        justify-content: space-between;
+        width: fit-content;
+        justify-content: center;
     }
 
     span {
-        padding: 0.2em 0.5em;
+        padding: 0.2em 0.2em;
         color: white;
         text-shadow: 0 0 8px black;
         font-size: 1.4em;
@@ -190,11 +222,7 @@
     }
 
     .time {
-        width: 3em;
-    }
-
-    .time:last-child {
-        text-align: right;
+        width: fit-content;
     }
 
     progress {
@@ -208,11 +236,11 @@
     }
 
     progress::-webkit-progress-bar {
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: rgb(255, 255, 255);
     }
 
     progress::-webkit-progress-value {
-        background-color: rgba(255, 255, 255, 0.6);
+        background-color: #ff1f1fb2;
     }
 
     video {

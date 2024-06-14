@@ -1507,6 +1507,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"JSONStream@npm:^1.3.5":
+  version: 1.3.5
+  resolution: "JSONStream@npm:1.3.5"
+  dependencies:
+    jsonparse: "npm:^1.2.0"
+    through: "npm:>=2.2.7 <3"
+  bin:
+    JSONStream: ./bin.js
+  checksum: 10c0/0f54694da32224d57b715385d4a6b668d2117379d1f3223dc758459246cca58fdc4c628b83e8a8883334e454a0a30aa198ede77c788b55537c1844f686a751f2
+  languageName: node
+  linkType: hard
+
 "abab@npm:^2.0.3, abab@npm:^2.0.5":
   version: 2.0.6
   resolution: "abab@npm:2.0.6"
@@ -3093,6 +3105,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deferential@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "deferential@npm:1.0.0"
+  dependencies:
+    native-promise-only: "npm:^0.8.1"
+  checksum: 10c0/1498d9b376686745b8e3c1fa094f988e9a95c3a388d62c16dddf04301902b48f484fd0ec88ac73fe7373ea61858a8dc31e6caddec16abbc3ddc720b9ab13f9ac
+  languageName: node
+  linkType: hard
+
 "deferred-leveldown@npm:~0.2.0":
   version: 0.2.0
   resolution: "deferred-leveldown@npm:0.2.0"
@@ -3822,6 +3843,33 @@ __metadata:
     https-proxy-agent: "npm:^5.0.0"
     progress: "npm:^2.0.3"
   checksum: 10c0/ac5126fc1391533476232682df593c88f49707878a392cce118576320cc33a1fc33a2d8c918f7d6ac7fa6472fb9d8a67f6c1d3e3842a760644dfcb73f7d10b46
+  languageName: node
+  linkType: hard
+
+"ffmpeg@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "ffmpeg@npm:0.0.4"
+  dependencies:
+    when: "npm:>= 0.0.1"
+  checksum: 10c0/14d829a38a2f34ade8318525c8170904f16a1e5f0a5337c766d8f9dff3ab2e625fea965a7d59a5645ea1e81e14a25e12b70f9b3be951ece32984982763cb03cd
+  languageName: node
+  linkType: hard
+
+"ffprobe-static@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "ffprobe-static@npm:3.1.0"
+  checksum: 10c0/4c20acf651a8f7310ec9e8fceaf1db76c827469636a6a38ece1c32da17d29d6db23a5b551cec1bb50d2a03c2880a18980efbaa030df08df9b0f41a5dd76a4a12
+  languageName: node
+  linkType: hard
+
+"ffprobe@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "ffprobe@npm:1.1.2"
+  dependencies:
+    JSONStream: "npm:^1.3.5"
+    bl: "npm:^4.0.3"
+    deferential: "npm:^1.0.0"
+  checksum: 10c0/20f4cf42e5f1ffa5ce2b6ee70bbf230b55566ff4d9cf1a6aa27bec419238371b449c50cbad001e7e6c5d3366519648f404be6b3afde254563d293ce612e59383
   languageName: node
   linkType: hard
 
@@ -5739,6 +5787,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonparse@npm:^1.2.0":
+  version: 1.3.1
+  resolution: "jsonparse@npm:1.3.1"
+  checksum: 10c0/89bc68080cd0a0e276d4b5ab1b79cacd68f562467008d176dc23e16e97d4efec9e21741d92ba5087a8433526a45a7e6a9d5ef25408696c402ca1cfbc01a90bf0
+  languageName: node
+  linkType: hard
+
 "keyv@npm:^4.0.0":
   version: 4.5.4
   resolution: "keyv@npm:4.5.4"
@@ -6532,6 +6587,13 @@ __metadata:
   version: 1.0.2
   resolution: "napi-build-utils@npm:1.0.2"
   checksum: 10c0/37fd2cd0ff2ad20073ce78d83fd718a740d568b225924e753ae51cb69d68f330c80544d487e5e5bd18e28702ed2ca469c2424ad948becd1862c1b0209542b2e9
+  languageName: node
+  linkType: hard
+
+"native-promise-only@npm:^0.8.1":
+  version: 0.8.1
+  resolution: "native-promise-only@npm:0.8.1"
+  checksum: 10c0/c1b41128ca9806818e12d0b84f7c71e88b1fa00f0f4857767d96206dbdd0af6755305103f55c583b045533185ffca863b0c34116ade507ff7ba2e417e076a5ac
   languageName: node
   linkType: hard
 
@@ -9270,6 +9332,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"through@npm:>=2.2.7 <3":
+  version: 2.3.8
+  resolution: "through@npm:2.3.8"
+  checksum: 10c0/4b09f3774099de0d4df26d95c5821a62faee32c7e96fb1f4ebd54a2d7c11c57fe88b0a0d49cf375de5fee5ae6bf4eb56dbbf29d07366864e2ee805349970d3cc
+  languageName: node
+  linkType: hard
+
 "time-zone@npm:^1.0.0":
   version: 1.0.0
   resolution: "time-zone@npm:1.0.0"
@@ -9673,6 +9742,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"when@npm:>= 0.0.1":
+  version: 3.7.8
+  resolution: "when@npm:3.7.8"
+  checksum: 10c0/de42359a40d93d00890be87e6955928c247c026572e5b9ab141e1c62369bfe2832770c1dab00429d5823bc63850d1432de0aa0be963e95f0ca03c03f9a76022d
+  languageName: node
+  linkType: hard
+
 "which-boxed-primitive@npm:^1.0.2":
   version: 1.0.2
   resolution: "which-boxed-primitive@npm:1.0.2"
@@ -9983,8 +10059,11 @@ __metadata:
     electron-rebuild: "npm:^3.2.9"
     electron-reloader: "npm:^1.2.3"
     electron-store: "npm:^9.0.0"
+    ffmpeg: "npm:^0.0.4"
     ffmpeg-extract-frames: "npm:^2.0.2"
     ffmpeg-static: "npm:^5.2.0"
+    ffprobe: "npm:^1.1.2"
+    ffprobe-static: "npm:^3.1.0"
     fluent-ffmpeg: "npm:^2.1.3"
     jest: "npm:^27.0.0"
     postcss: "npm:^8.0.0"

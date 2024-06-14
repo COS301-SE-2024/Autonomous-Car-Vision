@@ -6,9 +6,10 @@ const { LookupTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
-const extractFrames = require('ffmpeg-extract-frames')
-const ffmpeg = require('ffmpeg-static')
 const ffmpegFluent = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+const ffprobePath = require('ffprobe-static').path;
+
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -218,18 +219,21 @@ ipcMain.handle('fetch-videos', async () => {
 });
 
 
-// Function to get video duration
+// Get video duration using ffprobe
 function getVideoDuration(videoPath) {
     return new Promise((resolve, reject) => {
-        ffmpegFluent.ffprobe(videoPath, (err, metadata) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(metadata.format.duration);
-            }
-        });
+        ffmpegFluent(videoPath)
+            .setFfprobePath(ffprobePath)
+            .ffprobe((err, metadata) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(metadata.format.duration);
+                }
+            });
     });
 }
+
 
 // Function to ensure directory exists
 function ensureDirectoryExistence(dirPath) {
@@ -240,24 +244,33 @@ function ensureDirectoryExistence(dirPath) {
 }
 
 
-// IPC handler to extract the frames of a video
-
+// IPC handler to extract frames from a video
 ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
-    console.log(videoPath);
     try {
         const videoName = path.basename(videoPath, path.extname(videoPath));
-        console.log(videoName);
-        
         const outputDir = path.join(__dirname, 'assets', 'frames', videoName);
-        console.log("output directory inside handler: ", outputDir);
+
+        ensureDirectoryExistence(outputDir);
 
         const duration = await getVideoDuration(videoPath);
         console.log('Video duration:', duration);
-        
-        if (!fs.existsSync(outputDir)) {
-            ensureDirectoryExistence(outputDir);
 
+        const frameCount = Math.floor(duration / interval);
+        const framePaths = Array.from({ length: frameCount }, (_, i) =>
+            path.join(outputDir, `frame-${i + 1}.jpg`)
+        );
+
+        // Check if all frames exist
+        const framesExist = framePaths.every(framePath => fs.existsSync(framePath));
+        if (framesExist) {
+            console.log('Frames already exist for:', videoName);
+            return framePaths;
+        }
+
+        await new Promise((resolve, reject) => {
             ffmpegFluent(videoPath)
+                .setFfmpegPath(ffmpegPath)
+                .setFfprobePath(ffprobePath)
                 .outputOptions('-vf', `fps=1/${interval}`)
                 .output(path.join(outputDir, 'frame-%d.jpg'))
                 .on('start', (commandLine) => {
@@ -268,27 +281,20 @@ ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
                 })
                 .on('error', (err) => {
                     console.error('ffmpeg error:', err);
+                    reject(err);
                 })
                 .on('end', () => {
                     console.log('ffmpeg process finished');
+                    resolve();
                 })
                 .run();
+        });
 
-            // await extractFrames({
-            //     input: videoPath,
-            //     output: path.join(outputDir, 'frame-%d.jpg'),
-            //     ffmpegPath: ffmpeg,
-            //     offsets: Array.from({ length: Math.floor(duration / interval) }, (_, i) => i * interval * 1000),
-            // });
-
-            // Send the paths of the extracted frames back to the frontend
-        }
-        const framePaths = Array.from({ length: Math.floor(duration / interval) }, (_, i) =>
-            path.join(outputDir, `frame-${i + 1}.jpg`)
-        );
         return framePaths;
     } catch (error) {
         console.error('Error extracting frames:', error);
         throw error;
     }
 });
+
+
