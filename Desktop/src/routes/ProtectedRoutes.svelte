@@ -4,6 +4,14 @@
     import { onMount } from "svelte";
     import { navigate } from "@sveltejs/kit/navigation"; // If using SvelteKit for navigation
     import Sidebar from "../components/Sidebar.svelte";
+    
+    import { writable  }from 'svelte/store';
+    import loader from '../components/Loader.svelte';
+    // let loading = writable(false);
+
+    // setInterval(() => {
+	// 	loading.update(n => !n);
+	// }, 3000);
 
     let authToken;
 
