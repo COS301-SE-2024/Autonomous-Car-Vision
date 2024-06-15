@@ -8,3 +8,6 @@ backendVenv
 .env.local
 .yarnrc.yml
 .sqlite
+frames
+.pnp.cjs
+.pnp.loader.mjs

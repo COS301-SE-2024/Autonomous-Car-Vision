@@ -31,4 +31,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     uploadFile: (filePath, mid, uid, token, mediaName) => ipcRenderer.invoke('upload-file', filePath, mid, uid, token, mediaName),
     openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
     fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
+    extractFrames: (videoPath, interval) => ipcRenderer.invoke('extract-frames', videoPath, interval),
 });
