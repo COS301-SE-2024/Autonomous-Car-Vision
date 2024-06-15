@@ -1,7 +1,8 @@
 <script>
     import { onMount } from "svelte";
 
-    export const videoPath = "";
+    export let videoPath = "";
+    videoPath = "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
 
     let time = 0;
     let volume = 0;
@@ -47,6 +48,7 @@
         if (frameElement) {
             frameElement.scrollIntoView({
                 behavior: "smooth",
+                block: "nearest",
                 inline: "center",
             });
         }
@@ -102,47 +104,48 @@
     }
 
 </script>
-
 <div>
-    <!-- poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg" -->
-    <video
-        src={videoPath}
-        on:mousemove={handleMove}
-        on:touchmove|preventDefault={handleMove}
-        on:mousedown={handleMousedown}
-        on:mouseup={handleMouseup}
-        bind:currentTime={time}
-        bind:duration
-        bind:paused
-        bind:volume={volume}
-        class="w-full"
-    >
-        <track kind="captions" />
-    </video>
-    <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
-        <progress class="TimelineProgress" value={time / duration || 0} />
-        <button class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold" on:click={pause}>
-            {paused ? "Play" : "Pause"} 
-            <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
-        </button>
-        <div class="info">
-            <span class="time">{format(time)}</span>
-            <span>:</span>
-            <!-- <span>click anywhere to {paused ? "play" : "pause"} / drag to seek</span> -->
-            <span class="time">{format(duration)}</span>
-        </div>
+    <div>
+        <!-- poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg" -->
+        <video
+            src={videoPath}
+            on:mousemove={handleMove}
+            on:touchmove|preventDefault={handleMove}
+            on:mousedown={handleMousedown}
+            on:mouseup={handleMouseup}
+            bind:currentTime={time}
+            bind:duration
+            bind:paused
+            bind:volume={volume}
+            class="w-full"
+        >
+            <track kind="captions" />
+        </video>
+        <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
+            <progress class="TimelineProgress" value={time / duration || 0} />
+            <button class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold" on:click={pause}>
+                {paused ? "Play" : "Pause"} 
+                <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
+            </button>
+            <div class="info">
+                <span class="time">{format(time)}</span>
+                <span>:</span>
+                <!-- <span>click anywhere to {paused ? "play" : "pause"} / drag to seek</span> -->
+                <span class="time">{format(duration)}</span>
+            </div>
 
+        </div>
     </div>
-</div>
-<div bind:this={thumbnailBar} class="thumbnail-bar">
-    {#each frames as frame}
-        <div
-            class="thumbnail hover:cursor-pointer"
-            style="background-image: url({frame})"
-            on:click={() => seekToFrame(frame)}
-            on:keypress
-        ></div>
-    {/each}
+    <div bind:this={thumbnailBar} class="thumbnail-bar">
+        {#each frames as frame}
+            <div
+                class="thumbnail hover:cursor-pointer"
+                style="background-image: url({frame})"
+                on:click={() => seekToFrame(frame)}
+                on:keypress
+            ></div>
+        {/each}
+    </div>
 </div>
 
 <style>

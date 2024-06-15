@@ -100,7 +100,6 @@
                   <p class="mt-4">Details here</p>
               </div>
               <div class="flex space-x-4">
-                  <button class="text-white p-2 rounded" on:click={edit}>Edit</button>
                   <button class="text-white p-2 rounded" on:click={process}>Process</button>
                   <button class="text-white p-2 rounded" on:click={deleteItem}>Delete</button>
                   {#if showDeleteModal}
