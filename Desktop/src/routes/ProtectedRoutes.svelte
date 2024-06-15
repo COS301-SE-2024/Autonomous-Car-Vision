@@ -26,7 +26,7 @@
     <div class="w-1/5">
         <Sidebar />
     </div>
-    <div class="flex-1 items-center p-4">
+    <div class="flex-1 items-center p-4 w-4/5 left-0 relative">
         <slot />
     </div>
 </div>
