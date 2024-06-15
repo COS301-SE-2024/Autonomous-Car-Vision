@@ -10,7 +10,6 @@ import Gallary from '../pages/GallaryPage.svelte';
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './Video.svelte'
-import ViewVideo from './ViewVideo.svelte'
 
 const routes = {
     '/': Home,
@@ -22,8 +21,7 @@ const routes = {
     '/models': ModelPage,
     '/accountsettings' : AccountSettings,
     '/changePassword': ChangePassword,
-    '/Video' :VideoPage
-    '/viewvideo' : ViewVideo
+    '/video' :VideoPage,
 };
 
 export default routes;
