@@ -1,7 +1,8 @@
 <script>
     import { onMount } from "svelte";
 
-    export let videoPath = "";
+    export let videoPath;
+    console.log(videoPath);
     videoPath = "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
 
     let time = 0;
@@ -106,8 +107,8 @@
 </script>
 <div>
     <div>
-        <!-- poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg" -->
         <video
+            poster={frames[1]}
             src={videoPath}
             on:mousemove={handleMove}
             on:touchmove|preventDefault={handleMove}
@@ -241,7 +242,7 @@
     }
 
     progress::-webkit-progress-bar {
-        background-color: rgb(255, 255, 255);
+        background-color: rgb(90, 90, 90);
     }
 
     progress::-webkit-progress-value {
