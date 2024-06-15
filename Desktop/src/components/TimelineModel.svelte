@@ -11,6 +11,7 @@
 </script>
 
 <div class="timeline-component">
+    <!-- svelte-ignore a11y-img-redundant-alt -->
     <img src={Model.profileImage} alt="Profile Image" class="profile-image" />
     <div class="details">
       <span class="model-name">{Model.modelName}</span>
