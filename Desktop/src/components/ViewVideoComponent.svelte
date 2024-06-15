@@ -1,6 +1,8 @@
 <script>
     import { onMount } from "svelte";
 
+    export const videoPath = "";
+
     let time = 0;
     let volume = 0;
     let duration;
@@ -8,6 +10,10 @@
 
     let showControls = true;
     let showControlsTimeout;
+
+    let thumbnailBar;
+    let interval = 10; // Extract a frame every 10 seconds
+    let frames = [];
 
     function format(seconds) {
         if (isNaN(seconds)) return "...";
@@ -57,11 +63,6 @@
         }
     }
 
-    let thumbnailBar;
-    let interval = 10; // Extract a frame every 10 seconds
-    let frames = [];
-    let videoPath = "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
-
     async function extractFrames() {
         try {
             const framePaths = await window.electronAPI.extractFrames(
@@ -82,6 +83,7 @@
         const index = frames.indexOf(framePath);
         time = index * interval; // Adjust according to the interval
         console.log("Seek to frame:", framePath);
+        showControls = true;
 
         // Scroll the clicked frame into the center of the thumbnail bar
         const frameElement = document.querySelectorAll(".thumbnail")[index];
@@ -102,8 +104,8 @@
 </script>
 
 <div>
+    <!-- poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg" -->
     <video
-        poster="https://sveltejs.github.io/assets/caminandes-llamigos.jpg"
         src={videoPath}
         on:mousemove={handleMove}
         on:touchmove|preventDefault={handleMove}
