@@ -2,6 +2,10 @@
   import GallaryCard from "../components/GallaryCard.svelte";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
 
+  import { isGalLoading } from "../stores/galleryLoading";
+  import PingLoader from "../components/PingLoader.svelte";
+
+  isGalLoading.set(true);
   let videoURLs = [];
 
   // Fetch the video records from the database
@@ -11,6 +15,9 @@
     } else {
       console.error("Failed to fetch video records:", response.error);
     }
+    setTimeout(() => {
+      isGalLoading.set(false);
+    }, 4000);
   });
   console.log("At gallery page");
 </script>
@@ -25,7 +32,12 @@
       </div>
       <div class="grid grid-flow-row-dense grid-cols-3 items-center">
         {#each videoURLs as url}
-          <GallaryCard VideoSource={url} />
+          {#if $isGalLoading}
+            <PingLoader />
+          {/if}
+          {#if !$isGalLoading}
+            <GallaryCard VideoSource={url} />
+          {/if}
         {/each}
       </div>
     </div>

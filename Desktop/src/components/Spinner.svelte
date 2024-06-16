@@ -1,97 +1,207 @@
 <script>
-	import { fade } from 'svelte/transition'
+  import { fade } from "svelte/transition";
 </script>
 
-<div class="wrapper" transition:fade>
-	<h1>
-		Loading data...
-		<div class="loader"/>
-	</h1>
+<div class="wrapper" >
+  <div class="container">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
 </div>
 
 <style>
-	.wrapper {
-		display: flex;
-		flex-direction: column;
-		align-items:center;
-		justify-content: center;
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
-		color: rebeccapurple;
-		background: rgb(255 255 255 / .9)
-	}
-	
-/* spinner from https://projects.lukehaas.me/css-loaders/ */
-.loader {
-  color: rebeccapurple;
-  font-size: 10px;
-  margin: 3rem auto 0;
-  width: 1em;
-  height: 1em;
-  border-radius: 50%;
-  position: relative;
-  text-indent: -9999em;
-  -webkit-animation: load4 1.3s infinite linear;
-  animation: load4 1.3s infinite linear;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-}
-@-webkit-keyframes load4 {
-  0%,
-  100% {
-    box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
+  .wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: #f0f0f0;
   }
-  12.5% {
-    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+
+  .container {
+    --uib-size: 120px;
+    --uib-color: rgb(74, 255, 114);
+    --uib-speed: 1s;
+    --uib-dot-size: calc(var(--uib-size) * 0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: calc(var(--uib-size) * 0.64);
+    width: calc(var(--uib-size) * 0.64);
   }
-  25% {
-    box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+
+  @keyframes jump {
+    0%,
+    100% {
+      transform: translateY(120%);
+    }
+
+    50% {
+      transform: translateY(-120%);
+    }
   }
-  37.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+
+  .dot {
+    --uib-d1: -0.48;
+    --uib-d2: -0.4;
+    --uib-d3: -0.32;
+    --uib-d4: -0.24;
+    --uib-d5: -0.16;
+    --uib-d6: -0.08;
+    --uib-d7: -0;
+    position: absolute;
+    bottom: calc(var(--uib-bottom) + var(--uib-dot-size) / 2);
+    right: calc(var(--uib-right) + var(--uib-dot-size) / 2);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: var(--uib-dot-size);
+    width: var(--uib-dot-size);
+    animation: jump var(--uib-speed) ease-in-out infinite;
+    opacity: var(--uib-scale);
+    will-change: transform;
+    backface-visibility: hidden;
   }
-  50% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+
+  .dot::before {
+    content: '';
+    height: 100%;
+    width: 100%;
+    background-color: var(--uib-color);
+    border-radius: 50%;
+    transform: scale(var(--uib-scale));
+    transition: background-color 0.3s ease;
   }
-  62.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+
+  .dot:nth-child(1) {
+    --uib-bottom: 24%;
+    --uib-right: -35%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d1));
   }
-  75% {
-    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+  .dot:nth-child(2) {
+    --uib-bottom: 16%;
+    --uib-right: -6%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d2));
   }
-  87.5% {
-    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
+  .dot:nth-child(3) {
+    --uib-bottom: 8%;
+    --uib-right: 23%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d3));
   }
-}
-@keyframes load4 {
-  0%,
-  100% {
-    box-shadow: 0 -3em 0 0.2em, 2em -2em 0 0em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 0;
+  .dot:nth-child(4) {
+    --uib-bottom: -1%;
+    --uib-right: 51%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d4));
   }
-  12.5% {
-    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+  .dot:nth-child(5) {
+    --uib-bottom: 38%;
+    --uib-right: -17.5%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d2));
   }
-  25% {
-    box-shadow: 0 -3em 0 -0.5em, 2em -2em 0 0, 3em 0 0 0.2em, 2em 2em 0 0, 0 3em 0 -1em, -2em 2em 0 -1em, -3em 0 0 -1em, -2em -2em 0 -1em;
+  .dot:nth-child(6) {
+    --uib-bottom: 30%;
+    --uib-right: 10%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d3));
   }
-  37.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+  .dot:nth-child(7) {
+    --uib-bottom: 22%;
+    --uib-right: 39%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d4));
   }
-  50% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+  .dot:nth-child(8) {
+    --uib-bottom: 14%;
+    --uib-right: 67%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d5));
   }
-  62.5% {
-    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+  .dot:nth-child(9) {
+    --uib-bottom: 53%;
+    --uib-right: -0.8%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d3));
   }
-  75% {
-    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+  .dot:nth-child(10) {
+    --uib-bottom: 44.5%;
+    --uib-right: 27%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d4));
   }
-  87.5% {
-    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
+  .dot:nth-child(11) {
+    --uib-bottom: 36%;
+    --uib-right: 55.7%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d5));
   }
-}
+  .dot:nth-child(12) {
+    --uib-bottom: 28.7%;
+    --uib-right: 84.3%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d6));
+  }
+  .dot:nth-child(13) {
+    --uib-bottom: 66.8%;
+    --uib-right: 15%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d4));
+  }
+  .dot:nth-child(14) {
+    --uib-bottom: 58.8%;
+    --uib-right: 43%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d5));
+  }
+  .dot:nth-child(15) {
+    --uib-bottom: 50%;
+    --uib-right: 72%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d6));
+  }
+  .dot:nth-child(16) {
+    --uib-bottom: 42%;
+    --uib-right: 100%;
+    animation-delay: calc(var(--uib-speed) * var(--uib-d7));
+  }
+
+  .dot:nth-child(3) {
+    --uib-scale: 0.98;
+  }
+  .dot:nth-child(2),
+  .dot:nth-child(8) {
+    --uib-scale: 0.96;
+  }
+  .dot:nth-child(1),
+  .dot:nth-child(7) {
+    --uib-scale: 0.94;
+  }
+  .dot:nth-child(6),
+  .dot:nth-child(12) {
+    --uib-scale: 0.92;
+  }
+  .dot:nth-child(5),
+  .dot:nth-child(11) {
+    --uib-scale: 0.9;
+  }
+  .dot:nth-child(10),
+  .dot:nth-child(16) {
+    --uib-scale: 0.88;
+  }
+  .dot:nth-child(9),
+  .dot:nth-child(15) {
+    --uib-scale: 0.86;
+  }
+  .dot:nth-child(14) {
+    --uib-scale: 0.84;
+  }
+  .dot:nth-child(13) {
+    --uib-scale: 0.82;
+  }
+
 </style>
