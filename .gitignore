@@ -9,3 +9,6 @@ backendVenv
 .yarnrc.yml
 .sqlite
 agentVenv
+brokerVenv
+.pem
+.enc

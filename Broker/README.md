@@ -1,10 +1,10 @@
 # Create the virtual enviroment
 
-python -m venv agentVenv
+python -m venv brokerVenv
 
 ## Activate venv
 
-agentVenv\Scripts\activate
+brokerVenv\Scripts\activate
 
 ## Deactivate venv
 
@@ -12,12 +12,12 @@ deactivate
 
 ## Install Dependencies:
 
-pip install -r Agent\requirements.txt
+pip install -r Broker\requirements.txt
 pip list (To verify)
 
 ## Run ASGI SERVER
-cd Agent/API
-uvicorn agent:app --reload --port 8001
+cd Broker/API
+uvicorn agent:app --reload --port 8002
 
 
 ## To test via postman
@@ -47,4 +47,4 @@ Secure your API with authentication and authorization.
 
 ## include dependencies in requirments file
 
-pip freeze > Agent/requirements.txt
+pip freeze > Broker/requirements.txt
