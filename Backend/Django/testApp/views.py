@@ -551,17 +551,38 @@ def verifyToken(uid, token):
     if dataToken.token != token:
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([AllowAny])    
-def devLogin(request):
-    uname = request.data.get('uname')
-    print(uname)
+def devLogin(request):    
+    uname = 'dev'
+    uemail = 'dev@gmail.com'
+    
+    if not User.objects.filter(uname=uname).exists():
+        uid = random.randint(0, 999999999)
+        user_data = {
+            'uid': uid,
+            'uname': "dev",
+            'uemail': 'dev@gmail.com'
+        }
+        
+        user_serializer = UserSerializer(data=user_data)
+        if(user_serializer.is_valid()):
+            user_serializer.save()
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+    
+        uid = User.objects.get(uname=uname).uid
+
+        salt = "a30855d328c251efd440ddd9103be85c"
+        hash = "271139b6f8ce1ffe656b77703f664e838673a9a4cfcb145496135cf1616ed6a316ad47b538dbebd61e442ed43abf5dd6b211da3fde1a62d5e4ed527275bd6d05"
+        
+        auth_serializer = AuthSerializer(data={'uid': uid, 'hash': hash, 'salt': salt})
+        if(auth_serializer.is_valid()):
+            auth_serializer.save()
+        else:
+            return Response(auth_serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
     
     uid = User.objects.get(uname=uname).uid
-    hash = Auth.objects.get(uid=uid).hash
-    
-    uemail = User.objects.get(uid=uid).uemail
-    uname = User.objects.get(uid=uid).uname
     
     token = ''
     for i in range(40):
@@ -584,4 +605,4 @@ def devLogin(request):
         else:
             return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-    return Response({'token': token, 'uid': uid, 'uemail': uemail, uname: 'uname'}, status=status.HTTP_200_OK)
+    return Response({'token': token, 'uid': uid, 'uemail': uemail, 'uname': uname}, status=status.HTTP_200_OK)

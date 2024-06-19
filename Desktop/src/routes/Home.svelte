@@ -3,39 +3,34 @@
   import { Button, MaterialApp } from "svelte-materialify";
   import axios from "axios";
   import { push } from "svelte-spa-router";
+  import { token } from "../stores/auth";
 
   onMount(() => {
-    localStorage.clear();
-    console.log("Cleared Local Storage");
+    window.electronAPI.clearToken();
+    window.electronAPI.clearUid();
+    window.electronAPI.clearUname();
+    window.electronAPI.clearUemail();
   });
 
   const developerLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:8000/devLogin/", {
-        uname: "admin",
-      });
+      const response = await axios.get("http://localhost:8000/devLogin/", {});
       console.log("Developer Login Response:", response.data);
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("uid", response.data.uid);
-      localStorage.setItem("uname", response.data.uname);
-      localStorage.setItem("uemail", response.data.uemail);
+      token.set(response.data.token);
+      window.electronAPI.storeToken(response.data.token);
+      window.electronAPI.storeUid(response.data.uid);
+      window.electronAPI.storeUname(response.data.uname);
+      window.electronAPI.storeUemail(response.data.uemail);
+
+      console.log("Token:", window.electronAPI.getToken());
+      console.log("UID:", window.electronAPI.getUid());
+      console.log("UName:", window.electronAPI.getUname());
+      console.log("UEmail:", window.electronAPI.getUemail());
     } catch (error) {
       console.error("Failed to login as developer:", error);
       return;
     }
-
-    console.log("Developer Login Successful");
-    console.log("Token:", localStorage.getItem("token"));
-    console.log("UID:", localStorage.getItem("uid"));
-
-    if (
-      localStorage.getItem("token") === null ||
-      localStorage.getItem("uid") === null
-    ) {
-      console.error("Failed to login as developer");
-      return;
-    }
-    push("/gallary");
+    push("/gallery");
   };
 </script>
 

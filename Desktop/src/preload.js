@@ -13,6 +13,16 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
     storeToken: (token) => ipcRenderer.send('store-token', token),
     getToken: () => ipcRenderer.sendSync('get-token'),
+    clearToken: () => ipcRenderer.sendSync('clear-token'),
+    storeUname: (uname) => ipcRenderer.send('store-uname', uname),
+    getUname: () => ipcRenderer.sendSync('get-uname'),
+    clearUname: () => ipcRenderer.sendSync('clear-uname'),
+    storeUid: (uid) => ipcRenderer.send('store-uid', uid),
+    getUid: () => ipcRenderer.sendSync('get-uid'),
+    clearUid: () => ipcRenderer.sendSync('clear-uid'),
+    storeUemail: (uemail) => ipcRenderer.send('store-uemail', uemail),
+    getUemail: () => ipcRenderer.sendSync('get-uemail'),
+    clearUemail: () => ipcRenderer.sendSync('clear-uemail'),
     hashPassword: (password) => ipcRenderer.invoke('hash-password', password),
     hashPasswordSalt: (password,salt) => ipcRenderer.invoke('hash-password-salt', password, salt),
     insertData: (record) => ipcRenderer.invoke('insert-data', record),
@@ -21,4 +31,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     uploadFile: (filePath, mid, uid, token, mediaName) => ipcRenderer.invoke('upload-file', filePath, mid, uid, token, mediaName),
     openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
     fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
+    extractFrames: (videoPath, interval) => ipcRenderer.invoke('extract-frames', videoPath, interval),
 });

@@ -89,7 +89,7 @@
           </div>
           <div class="flex justify-between border-b mb-4">
               <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <div class="py-2 px-4 cursor-pointer { $currentTab === 'original' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('original')}>Original</div>
+              <div class="py-2 px-4 cursor-pointer text-white { $currentTab === 'original' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('original')}>Original</div>
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div class="py-2 px-4 cursor-pointer { $currentTab === 'processed' ? 'border-b-2 font-bold' : '' }" on:click={() => switchTab('processed')}>Processed</div>
           </div>
@@ -100,7 +100,6 @@
                   <p class="mt-4">Details here</p>
               </div>
               <div class="flex space-x-4">
-                  <button class="text-white p-2 rounded" on:click={edit}>Edit</button>
                   <button class="text-white p-2 rounded" on:click={process}>Process</button>
                   <button class="text-white p-2 rounded" on:click={deleteItem}>Delete</button>
                   {#if showDeleteModal}

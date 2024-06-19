@@ -2,10 +2,13 @@
 node_modules
 build
 backendVenv
-*.pyc
+.pyc
 .idea
 .env
 .env.local
 .yarnrc.yml
 .sqlite
 agentVenv
+frames
+.pnp.cjs
+.pnp.loader.mjs

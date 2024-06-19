@@ -6,6 +6,10 @@ const { LookupTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
+const ffmpegFluent = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+const ffprobePath = require('ffprobe-static').path;
+
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -54,6 +58,7 @@ app.on('activate', () => {
 
 let store;
 
+//! token
 ipcMain.on('store-token', (event, token) => {
     store.set('authToken', token);
     event.returnValue = true;
@@ -64,6 +69,58 @@ ipcMain.on('get-token', (event) => {
     event.returnValue = token;
 });
 
+ipcMain.on('clear-token', (event) => {
+    store.delete('authToken');
+    event.returnValue = true;
+});
+
+//! uname
+ipcMain.on('store-uname', (event, uname) => {
+    store.set('uname', uname);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uname', (event) => {
+    const uname = store.get('uname');
+    event.returnValue = uname;
+});
+
+ipcMain.on('clear-uname', (event) => {
+    store.delete('uname');
+    event.returnValue = true;
+});
+
+//! uid
+ipcMain.on('store-uid', (event, uid) => {
+    store.set('uid', uid);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uid', (event) => {
+    const uid = store.get('uid');
+    event.returnValue = uid;
+});
+
+ipcMain.on('clear-uid', (event) => {
+    store.delete('uid');
+    event.returnValue = true;
+});
+
+//! uemail
+ipcMain.on('store-uemail', (event, uemail) => {
+    store.set('uemail', uemail);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-uemail', (event) => {
+    const uemail = store.get('uemail');
+    event.returnValue = uemail;
+});
+
+ipcMain.on('clear-uemail', (event) => {
+    store.delete('uemail');
+    event.returnValue = true;
+});
 
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
@@ -160,3 +217,84 @@ ipcMain.handle('fetch-videos', async () => {
         return { success: false, error: error.message };
     }
 });
+
+
+// Get video duration using ffprobe
+function getVideoDuration(videoPath) {
+    return new Promise((resolve, reject) => {
+        ffmpegFluent(videoPath)
+            .setFfprobePath(ffprobePath)
+            .ffprobe((err, metadata) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(metadata.format.duration);
+                }
+            });
+    });
+}
+
+
+// Function to ensure directory exists
+function ensureDirectoryExistence(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        console.log(`Creating directory: ${dirPath}`);
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
+
+// IPC handler to extract frames from a video
+ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
+    try {
+        const videoName = path.basename(videoPath, path.extname(videoPath));
+        const outputDir = path.join(__dirname, 'assets', 'frames', videoName);
+
+        ensureDirectoryExistence(outputDir);
+
+        const duration = await getVideoDuration(videoPath);
+        console.log('Video duration:', duration);
+
+        const frameCount = Math.floor(duration / interval);
+        const framePaths = Array.from({ length: frameCount }, (_, i) =>
+            path.join(outputDir, `frame-${i + 1}.jpg`)
+        );
+
+        // Check if all frames exist
+        const framesExist = framePaths.every(framePath => fs.existsSync(framePath));
+        if (framesExist) {
+            console.log('Frames already exist for:', videoName);
+            return framePaths;
+        }
+
+        await new Promise((resolve, reject) => {
+            ffmpegFluent(videoPath)
+                .setFfmpegPath(ffmpegPath)
+                .setFfprobePath(ffprobePath)
+                .outputOptions('-vf', `fps=1/${interval}`)
+                .output(path.join(outputDir, 'frame-%d.jpg'))
+                .on('start', (commandLine) => {
+                    console.log(`Spawned ffmpeg with command: ${commandLine}`);
+                })
+                .on('stderr', (stderrLine) => {
+                    console.error(`ffmpeg stderr: ${stderrLine}`);
+                })
+                .on('error', (err) => {
+                    console.error('ffmpeg error:', err);
+                    reject(err);
+                })
+                .on('end', () => {
+                    console.log('ffmpeg process finished');
+                    resolve();
+                })
+                .run();
+        });
+
+        return framePaths;
+    } catch (error) {
+        console.error('Error extracting frames:', error);
+        throw error;
+    }
+});
+
+
