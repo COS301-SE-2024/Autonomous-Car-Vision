@@ -5,16 +5,18 @@ module.exports = {
       extend: {
         colors: {
           'theme-dark': {
-            offBlack: '#181818', // background
-            techBlue: '#0099ff', // primary
-            techBlueDark: '#007acc', // secondary
-            errorRed: '#ff0000', // error
+            lightText: '#FFFFFF', // white
+            background: '#181818', // offBlack
+            primary: '#0099ff', // techBlue
+            secondary: '#007acc', // techBlueDark
+            error: '#ff0000', // error
           },
           'theme-light': {
-            timberwolf: '#d9d9d9', // Timberwolf background
-            techGreen: '#28a745', // primary
-            techGreenDark: '#218838', // secondary
-            errorRed: '#ff0000', // error
+            lightText: '#FFFFFF',
+            background: '#d9d9d9', // Timberwolf background
+            primary: '#28a745', // primary
+            secondary: '#218838', // secondary
+            error: '#ff0000', // error
           },
         },
         boxShadow: {

@@ -18,6 +18,6 @@
   console.log(window.electronAPI.getToken());
 </script>
 
-<div>
+<div class=bg-theme-dark-background>
   <Router {routes} />
 </div>

@@ -49,40 +49,40 @@
   };
 </script>
 
-<div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
-  <MaterialApp>
-    <div class="flex flex-row gap-2">
+<div class="min-h-screen lg:w-4/12 w-6/12 mx-auto py-4 my-4 bg-theme-dark-background">
+  <MaterialApp class="bg-theme-dark-background">
+    <div class="flex flex-row gap-2 bg-theme-dark-background">
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center bg-theme-dark-background"
         href="#/login"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-lightText bg-theme-dark-primary hover:bg-theme-dark-secondary transition-colors"
           depressed
           block>Log In</Button
         >
       </a>
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center bg-theme-dark-background"
         href="#/signup"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-lightText bg-theme-dark-primary hover:bg-theme-dark-secondary transition-colors"
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
-      <div class="text-left">
+    <div class="w-full p-4 border-2 rounded-md border-theme-dark-secondary mt-2 bg-theme-dark-background shadow-tech-blue">
+      <div class="text-left text-theme-dark-primary">
         <h1 class="text-2xl">Welcome back!</h1>
-        <p>Please enter your information.</p>
+        <p class="text-theme-dark-secondary">Please enter your information.</p>
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-1 py-2">
-          <TextField bind:value={nToken} outlined>Username/Email</TextField>
+          <TextField bind:value={nToken} outlined class="outline-theme-dark-primary">Username/Email</TextField>
           <Button
-            class="bg-theme-keith-accentone text-theme-keith-jet"
+            class="bg-theme-dark-secondary text-theme-dark-lightText"
             on:click={onSubmitUsername}
             rounded
             block>Next</Button
