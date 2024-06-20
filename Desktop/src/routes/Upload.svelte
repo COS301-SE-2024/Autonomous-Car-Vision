@@ -5,11 +5,20 @@
   import toast, { Toaster } from "svelte-french-toast";
   import { onMount } from "svelte";
 
+  import { isLoading } from "../stores/loading";
+  import Spinner from "../components/Spinner.svelte";
+
   export let videoSource = "";
   let filename = "";
   let file;
 
-  onMount(() => {});
+  // For loading screen purposes
+  onMount(() => {
+    isLoading.set(true);
+    setTimeout(() => {
+      isLoading.set(false);
+    }, 1500);
+  });
 
   function handleFilesSelect(e) {
     const { acceptedFiles, fileRejections } = e.detail;
@@ -76,29 +85,35 @@
 </script>
 
 <ProtectedRoutes>
-  <Toaster />
-  <div
-    class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5"
-  >
-    {#if videoSource}
-      <video class="video-preview w-full mt-4" src={videoSource} controls>
-        <track kind="captions" />
-      </video>
-    {:else}
-      <Dropzone
-        on:drop={handleFilesSelect}
-        accept="video/*"
-        containerStyles="border-color: #8492a6; color: black"
-        multiple={false}
-      />
-    {/if}
-    <div class="w-full flex items-center mt-4">
-      <span class="flex-grow"></span>
-      <button
-        class="bg-theme-keith-accentone text-white font-bold py-2 px-4 rounded hover:bg-theme-keith-accenttwo"
-        on:click={saveVideo}
-        >Save
-      </button>
+  {#if $isLoading}
+    <div class="flex justify-center">
+      <Spinner />
     </div>
-  </div>
+  {:else}
+    <Toaster />
+    <div
+      class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5"
+    >
+      {#if videoSource}
+        <video class="video-preview w-full mt-4" src={videoSource} controls>
+          <track kind="captions" />
+        </video>
+      {:else}
+        <Dropzone
+          on:drop={handleFilesSelect}
+          accept="video/*"
+          containerStyles="border-color: #8492a6; color: black"
+          multiple={false}
+        />
+      {/if}
+      <div class="w-full flex items-center mt-4">
+        <span class="flex-grow"></span>
+        <button
+          class="bg-theme-keith-accentone text-white font-bold py-2 px-4 rounded hover:bg-theme-keith-accenttwo"
+          on:click={saveVideo}
+          >Save
+        </button>
+      </div>
+    </div>
+  {/if}
 </ProtectedRoutes>

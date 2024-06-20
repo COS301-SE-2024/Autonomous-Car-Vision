@@ -4,6 +4,10 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
 
+  // Loading screen imports
+  import { isLoading } from "../stores/loading";
+  import Spinner from "../components/Spinner.svelte";
+
   let nToken = "";
   let pToken = "";
   let step = 1;

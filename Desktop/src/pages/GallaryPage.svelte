@@ -12,11 +12,11 @@
 
   let data = null;
 
-  isGalLoading.set(true);
   let videoURLs = [];
-
+  
   // Fetch the video records from the database
   onMount(async () => {
+    isGalLoading.set(true);
     isLoading.set(true);
     try {
       // Simulate data fetching with a delay
