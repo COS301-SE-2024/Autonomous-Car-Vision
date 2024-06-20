@@ -10,6 +10,9 @@ const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
 
+const os = require('os');
+const { Worker, isMainThread } = require('worker_threads');
+
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -218,23 +221,6 @@ ipcMain.handle('fetch-videos', async () => {
     }
 });
 
-
-// Get video duration using ffprobe
-function getVideoDuration(videoPath) {
-    return new Promise((resolve, reject) => {
-        ffmpegFluent(videoPath)
-            .setFfprobePath(ffprobePath)
-            .ffprobe((err, metadata) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(metadata.format.duration);
-                }
-            });
-    });
-}
-
-
 // Function to ensure directory exists
 function ensureDirectoryExistence(dirPath) {
     if (!fs.existsSync(dirPath)) {
@@ -243,53 +229,79 @@ function ensureDirectoryExistence(dirPath) {
     }
 }
 
-
-// IPC handler to extract frames from a video
-ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
+// Extract frames handler
+ipcMain.handle('extract-frames', async (event, videoPath) => {
     try {
-        const videoName = path.basename(videoPath, path.extname(videoPath));
-        const outputDir = path.join(__dirname, 'assets', 'frames', videoName);
-
-        ensureDirectoryExistence(outputDir);
-
-        const duration = await getVideoDuration(videoPath);
-        console.log('Video duration:', duration);
-
-        const frameCount = Math.floor(duration / interval);
-        const framePaths = Array.from({ length: frameCount }, (_, i) =>
-            path.join(outputDir, `frame-${i + 1}.jpg`)
-        );
-
-        // Check if all frames exist
-        const framesExist = framePaths.every(framePath => fs.existsSync(framePath));
-        if (framesExist) {
-            console.log('Frames already exist for:', videoName);
-            return framePaths;
-        }
-
-        await new Promise((resolve, reject) => {
+        const { format } = await new Promise((resolve, reject) => {
             ffmpegFluent(videoPath)
-                .setFfmpegPath(ffmpegPath)
                 .setFfprobePath(ffprobePath)
-                .outputOptions('-vf', `fps=1/${interval}`)
-                .output(path.join(outputDir, 'frame-%d.jpg'))
-                .on('start', (commandLine) => {
-                    console.log(`Spawned ffmpeg with command: ${commandLine}`);
-                })
-                .on('stderr', (stderrLine) => {
-                    console.error(`ffmpeg stderr: ${stderrLine}`);
-                })
-                .on('error', (err) => {
-                    console.error('ffmpeg error:', err);
-                    reject(err);
-                })
-                .on('end', () => {
-                    console.log('ffmpeg process finished');
-                    resolve();
-                })
-                .run();
+                .ffprobe((err, metadata) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(metadata);
+                    }
+                });
         });
 
+        
+        const duration = format.duration;
+        const outputDir = path.join(path.dirname(videoPath), 'frames');
+        
+        // Check if all frames exist
+        const framesExist = fs.readdirSync(outputDir).map(file => path.join(outputDir, file));
+        if (framesExist) {
+            console.log('Frames already exist for:', videoPath);
+            return framesExist;
+        }
+
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        console.log('output directory: ', outputDir);
+
+        const MAX_FRAMES = 100;
+        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.15));
+        const frameRate = maxFrameCount / duration;
+
+        const threadCount = Math.min(os.cpus().length, maxFrameCount);
+        const chunkDuration = duration / threadCount;
+
+        const promises = [];
+        for (let i = 0; i < threadCount; i++) {
+            const startTime = i * chunkDuration;
+            const worker = new Worker(path.join(__dirname, 'frameExtractorWorker.js'), {
+                workerData: {
+                    videoPath,
+                    outputDir,
+                    startTime,
+                    duration: chunkDuration,
+                    frameRate,
+                    threadIndex: i + 1
+                }
+            });
+
+            promises.push(new Promise((resolve, reject) => {
+                worker.on('message', (msg) => {
+                    if (msg.error) {
+                        reject(new Error(msg.error));
+                    } else {
+                        resolve();
+                    }
+                });
+                worker.on('error', reject);
+                worker.on('exit', (code) => {
+                    if (code !== 0) {
+                        reject(new Error(`Worker stopped with exit code ${code}`));
+                    }
+                });
+            }));
+        }
+
+        await Promise.all(promises);
+
+        const framePaths = fs.readdirSync(outputDir).map(file => path.join(outputDir, file));
         return framePaths;
     } catch (error) {
         console.error('Error extracting frames:', error);
@@ -298,3 +310,25 @@ ipcMain.handle('extract-frames', async (event, videoPath, interval) => {
 });
 
 
+// IPC handler to save the file and return the file path
+ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
+    const appDataPath = app.getPath('userData');
+    const downloadsPath = path.join(appDataPath, 'Downloads');
+
+    if (!fs.existsSync(downloadsPath)) {
+        fs.mkdirSync(downloadsPath);
+    }
+
+    const destinationPath = path.join(downloadsPath, fileName);
+
+    return new Promise((resolve, reject) => {
+        const readStream = fs.createReadStream(sourcePath);
+        const writeStream = fs.createWriteStream(destinationPath);
+
+        readStream.on('error', reject);
+        writeStream.on('error', reject);
+        writeStream.on('finish', () => resolve(destinationPath));
+
+        readStream.pipe(writeStream);
+    });
+});

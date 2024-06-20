@@ -1,8 +1,6 @@
 <script>
   import {location} from 'svelte-spa-router'
 
-  console.log($location);
-
   import { writable } from "svelte/store";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";

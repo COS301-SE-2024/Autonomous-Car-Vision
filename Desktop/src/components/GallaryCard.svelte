@@ -119,7 +119,7 @@
 
 {#if showMoreModal}
 <div>
-  <GallaryMore imgSource={firstFrameURL} on:close={handleBack} />
+  <GallaryMore imgSource={firstFrameURL} videoSource={VideoSource} on:close={handleBack} />
 </div>
 {/if}
 

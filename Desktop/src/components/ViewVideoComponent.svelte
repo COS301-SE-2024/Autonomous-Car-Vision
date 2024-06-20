@@ -2,9 +2,8 @@
     import { onMount } from "svelte";
 
     export let videoPath;
-    console.log(videoPath);
-    videoPath = "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
-
+    videoPath = videoPath.replace('%', ' ');
+    
     let time = 0;
     let volume = 0;
     let duration;
@@ -14,17 +13,16 @@
     let showControlsTimeout;
 
     let thumbnailBar;
-    let interval = 10; // Extract a frame every 10 seconds
     let frames = [];
 
     function format(seconds) {
         if (isNaN(seconds)) return "...";
-
-        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
         seconds = Math.floor(seconds % 60);
         if (seconds < 10) seconds = "0" + seconds;
 
-        return `${minutes}:${seconds}`;
+        return `${hours}:${minutes}:${seconds}`;
     }
 
     let lastMouseDown;
@@ -43,7 +41,7 @@
         time = (duration * (clientX - left)) / (right - left);
 
         // Find the frame index that corresponds to the current time
-        const frameIndex = Math.floor(time / interval);
+        const frameIndex = Math.floor(time / duration * frames.length);
         const frameElement =
             document.querySelectorAll(".thumbnail")[frameIndex];
         if (frameElement) {
@@ -68,23 +66,26 @@
 
     async function extractFrames() {
         try {
-            const framePaths = await window.electronAPI.extractFrames(
-                videoPath,
-                interval
-            );
+            const framePaths = await window.electronAPI.extractFrames(videoPath);
             frames = framePaths.map(framePath => framePath.replace(/\\/g, '/')); // Convert backslashes to slashes for URLs
+            console.log("Frames extracted:", frames.length);
         } catch (error) {
             console.error("Error extracting frames:", error);
         }
     }
 
     onMount(() => {
+        console.log("video Path: ", videoPath);
+        // Extract path after the first '/' character
+        videoPath = videoPath.substring('/video/'.length);
+        videoPath = videoPath.replace(/\\/g, "/");
+        console.log("video Path: ", videoPath);
         extractFrames();
     });
 
     function seekToFrame(framePath) {
         const index = frames.indexOf(framePath);
-        time = index * interval; // Adjust according to the interval
+        time = index * (duration/frames.length); // Adjust according to the interval
         console.log("Seek to frame:", framePath);
         showControls = true;
 
