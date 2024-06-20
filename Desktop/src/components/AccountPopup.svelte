@@ -12,13 +12,13 @@
 </script>
 
 <div
-  class="bg-theme-keith-jet text-theme-green-timber border border-theme-keith-timber border-opacity-10 rounded-lg p-2 w-64 flex flex-col z-50"
+  class="bg-theme-dark-background text-theme-dark-primary border border-theme-dark-primary border-opacity-10 rounded-lg p-2 w-64 flex flex-col z-50 shadow-tech-blue"
 >
   <nav>
     <ul class="list-none p-0 m-0">
       {#each items as { name, route, iconPath }}
         <li
-          class="p-2 border-b border-opacity-10 border-theme-keith-secondary rounded-md hover:bg-theme-keith-secondary transition"
+          class="p-2 border-b border-opacity-10 border-theme-dark-secondary rounded-md hover:bg-theme-dark-highlight transition"
         >
           <a href={route} class="flex items-center text-inherit no-underline">
             <Icon path={iconPath} />

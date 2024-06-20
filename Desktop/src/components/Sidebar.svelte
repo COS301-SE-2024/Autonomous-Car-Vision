@@ -70,18 +70,18 @@
 </script>
 
 <div
-  class="fixed h-screen w-1/5 bg-theme-keith-accentone p-4 flex flex-col justify-end z-50"
+  class="fixed h-screen w-1/5 bg-theme-dark-primary p-4 flex flex-col justify-end z-50 border-r-2 border-theme-dark-secondary shadow-tech-blue "
 >
   <aside>
     <nav>
       <ul class="flex flex-col space-y-2 list-none">
         {#each items as { name, route, iconPath }}
-          <li class="border-b border-theme-keith-accenttwo rounded-lg">
+          <li class="border-b border-theme-dark-secondary rounded-lg">
             <a
               href={route}
-              class="flex justify-start gap-4 items-center py-2 px-2 transition hover:bg-theme-keith-accenttwo hover:border-theme-keith-accentone hover:rounded-lg rounded-lg {currentRoute ===
+              class="flex justify-start gap-4 items-center py-2 px-2 transition hover:bg-theme-dark-highlight hover:border-theme-dark-primary hover:rounded-lg rounded-lg {currentRoute ===
               route
-                ? 'bg-theme-keith-accenttwo border-theme-keith-accentone rounded-lg'
+                ? 'bg-theme-dark-primary border-theme-dark-lightText rounded-lg'
                 : ''}"
             >
               <Icon path={iconPath} />
@@ -93,7 +93,7 @@
     </nav>
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div
-      class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-keith-accenttwo border-theme-keith-secondary cursor-pointer avatar-container"
+      class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-dark-highlight border-theme-dark-primary cursor-pointer avatar-container"
       on:click={toggleAccountPopup}
     >
       <Avatar class="bg-gray p-2 rounded-full">

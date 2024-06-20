@@ -9,6 +9,7 @@ module.exports = {
             background: '#181818', // offBlack
             primary: '#0099ff', // techBlue
             secondary: '#007acc', // techBlueDark
+            highlight: '#0066cc', // highlight
             error: '#ff0000', // error
           },
           'theme-light': {

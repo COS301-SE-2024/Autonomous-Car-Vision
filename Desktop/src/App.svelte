@@ -19,5 +19,6 @@
 </script>
 
 <div class=bg-theme-dark-background>
+  <Sidebar {sidebarItems} />
   <Router {routes} />
 </div>
