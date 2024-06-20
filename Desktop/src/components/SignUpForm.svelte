@@ -44,13 +44,13 @@
 
 <div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
   <MaterialApp>
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2 bg-theme-dark-background">
       <a
         class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
         href="#/login"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-lightText bg-theme-dark-primary"
           depressed
           block>Log In</Button
         >
@@ -60,16 +60,16 @@
         href="#/signup"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accenttwo"
+          class="text-theme-dark-lightText bg-theme-dark-secondary"
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
+    <div class="w-full p-4 border-2 rounded-md bg-theme-dark-background border-theme-dark-primary shadow-tech-blue mt-2">
       <div class="text-left">
-        <h1 class="text-2xl">Welcome!</h1>
-        <p>Please enter your information to sign up.</p>
+        <h1 class="text-2xl text-theme-dark-primary">Welcome!</h1>
+        <p class="text-theme-dark-primary">Please enter your information to sign up.</p>
       </div>
       <div
         on:keydown={handleEnterdown}
@@ -112,7 +112,7 @@
         </TextField>
       </div>
       <Button
-        class="bg-theme-keith-accentone text-theme-keith-jet"
+        class="bg-theme-dark-primary text-theme-dark-lightText"
         on:click={onSubmit}
         rounded
         block>Sign up</Button

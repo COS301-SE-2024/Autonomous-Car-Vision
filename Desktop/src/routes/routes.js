@@ -12,7 +12,7 @@ import ModelPage from './Models.svelte'
 import VideoPage from './Video.svelte'
 
 const routes = {
-    '/': LogIn,
+    '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,

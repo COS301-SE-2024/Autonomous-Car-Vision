@@ -57,7 +57,7 @@
         href="#/login"
       >
         <Button
-          class="text-theme-dark-lightText bg-theme-dark-primary hover:bg-theme-dark-secondary transition-colors"
+          class="text-theme-dark-lightText bg-theme-dark-secondary hover:bg-theme-dark-secondary transition-colors"
           depressed
           block>Log In</Button
         >
