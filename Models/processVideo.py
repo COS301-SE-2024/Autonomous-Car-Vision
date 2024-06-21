@@ -1,3 +1,4 @@
+import sys
 import cv2
 import os
 from ultralytics import YOLO
@@ -41,6 +42,11 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
     # Release the video capture and writer objects
     cap.release()
     out.release()
-
+    
 if __name__ == "__main__":
-    process_video("testVid.mp4", "outputs/annotated_testVid.mp4")
+    if len(sys.argv) != 4:
+        sys.exit(1)
+    input_video_path = sys.argv[1]
+    output_video_path = sys.argv[2]
+    model_path = sys.argv[3]
+    process_video(input_video_path, output_video_path, model_path)
