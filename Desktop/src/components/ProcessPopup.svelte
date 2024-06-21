@@ -18,8 +18,8 @@
     on:click|self={() => dialog.close()}
     on:keypress
 >
-    <div class="flex flex-col p-8">
-        <button class="bg-black text-white text-center rounded-xl flex justify-center w-3/12 cursor-pointer" on:click={close}>
+    <div class="flex flex-col p-8 boder-1 border-theme-dark-backgroundBlue">
+        <button class="bg-theme-dark-primary text-white text-center rounded-xl flex justify-center w-3/12 cursor-pointer" on:click={close}>
             <p class="text-center">
                 Close
             </p>

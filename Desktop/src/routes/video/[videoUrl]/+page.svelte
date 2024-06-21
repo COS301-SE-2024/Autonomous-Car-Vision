@@ -91,13 +91,13 @@
   <div class="grid grid-cols-5">
     <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
       <ViewVideoComponent videoPath={$location} />
-      <div class="flex space-x-4 align-center p-2 bg-black">
+      <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
-          class="text-white p-2 h-10 rounded bg-theme-keith-primary hover:bg-theme-green-primary"
+          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
           on:click={() => (showProcessPopup = true)}>Process</button
         >
         <button
-          class="text-white p-2 h-10 rounded bg-theme-keith-primary hover:bg-theme-green-primary"
+          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
           on:click={deleteItem}>Delete</button
         >
         {#if showDeleteModal}
@@ -105,7 +105,7 @@
         {/if}
         <div>
           <button
-            class="text-white p-0.5 rounded-full bg-theme-keith-primary hover:bg-theme-green-primary"
+            class="text-white p-0.5 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
             on:click={toggleModelList}
           >
             {#if selectedModel}
@@ -130,8 +130,8 @@
       <ProcessPopup bind:showProcessPopup>
         <div slot="body">
           <h1>Are you sure you want to process this video?</h1>
-          <button class="bg-black text-white rounded-xl w-20" on:click={process}>Yes</button>
-          <button class="bg-red text-white rounded-xl w-20" on:click={() => (showProcessPopup = false)}>No</button>
+          <button class="bg-theme-dark-primary text-white rounded-xl w-20" on:click={process}>Yes</button>
+          <button class="bg-theme-dark-error text-white rounded-xl w-20" on:click={() => (showProcessPopup = false)}>No</button>
         </div>
       </ProcessPopup>
     </div>
