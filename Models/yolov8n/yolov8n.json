@@ -1,0 +1,8 @@
+{
+    "description": {
+        "description": "The YOLOv8 Nano model is a lightweight version of the YOLOv8 object detection model. It is designed for resource-constrained devices. Despite its smaller size, the YOLOv8 Nano model maintains a good balance between accuracy and speed. It uses a grid-based approach for object detection and has reduced layers and parameters compared to the original YOLOv8 model, resulting in faster inference times and lower memory requirements."
+    },
+    "version": {
+        "version": "v1.0"
+    }
+}
