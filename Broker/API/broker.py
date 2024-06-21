@@ -17,8 +17,9 @@ def agent():
     # A person is burried with a gold coin. The soul takes its gold coin, offers it to charon,
     # who then ferries the soul across the river Styx. In this case. It bundles the agent...
     response = charon.obol()
-
+    print("result of obol:\n", response)
     # TODO agent packaging...
+    # TODO part of agent packaging is to persist aid to an env and pem_pub to a .pem
 
     return response
 

@@ -55,12 +55,13 @@ async def install():
         server_ecdh2 = load_pem_public_key(server_ecdh.encode('utf-8'))
 
         # TODO persist your own pem files and the server's ecdh key.
-        session = cerberus.get_session(agent_private, server_ecdh2)
-        message = cerberus.elyptic_encryptor(session, "hello")
-        response3 = await client.post('http://127.0.0.1:8006/message',
-                                      json={"aid": response.json()['aid'], "message": message})
-        if response3.status_code != 200:
-            raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
-        print("Response:", response3.json())
-        print(server_ecdh)
+        # This simmulates message passing
+        # session = cerberus.get_session(agent_private, server_ecdh2)
+        # message = cerberus.elyptic_encryptor(session, "hello")
+        # response3 = await client.post('http://127.0.0.1:8006/message',
+        #                               json={"aid": response.json()['aid'], "message": message})
+        # if response3.status_code != 200:
+        #     raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
+        # print("Response:", response3.json())
+        # print(server_ecdh)
         return {'message': "success"}
