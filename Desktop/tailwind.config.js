@@ -2,7 +2,29 @@ module.exports = {
     purge: ['./src/**/*.svelte'],
     darkMode: false,
     theme: {
-      extend: {},
+      extend: {
+        colors: {
+          'theme-dark': {
+            lightText: '#FFFFFF', // white
+            background: '#181818', // offBlack
+            primary: '#0099ff', // techBlue
+            secondary: '#007acc', // techBlueDark
+            highlight: '#0066cc', // highlight
+            error: '#ff0000', // error
+          },
+          'theme-light': {
+            lightText: '#FFFFFF',
+            background: '#d9d9d9', // Timberwolf background
+            primary: '#28a745', // primary
+            secondary: '#218838', // secondary
+            error: '#ff0000', // error
+          },
+        },
+        boxShadow: {
+          'tech-blue': '0 4px 8px rgba(0, 153, 255, 0.2), 0 6px 20px rgba(0, 153, 255, 0.19)', // shadow-blue
+          'tech-green': '0 10px 20px #218838, 0 6px 20px #218838', // shadow-green
+        },
+      },
       fontFamily: {
         custom: ['var(--font-custom)', 'sans-serif'],
         heading: ['var(--font-heading)', 'sans-serif'],
