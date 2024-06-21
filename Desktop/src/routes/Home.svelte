@@ -34,30 +34,30 @@
   };
 </script>
 
-<MaterialApp>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+<MaterialApp> 
+  <div class="min-h-screen flex items-center justify-center bg-theme-dark-background">
     <div
-      class="bg-white p-8 rounded-lg shadow-xl w-80 border border-theme-keith-primary"
+      class="bg-white p-8 rounded-lg shadow-tech-blue w-80 border border-theme-dark-secondary text-theme-dark-primary bg-theme-dark-background"
     >
-      <h1 class="text-4xl text-center mb-6 text-bold">Welcome to High-Viz</h1>
+      <h1 class="text-4xl text-center mb-6 text-bold text-theme-dark-primary">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
           <button
-            class="w-full py-2 bg-theme-keith-accentone text-theme-keith-jet rounded-lg hover:bg-theme-keith-accenttwo transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
           >
             Log In
           </button>
         </a>
         <a href="#/signup" class="w-full">
           <button
-            class="w-full py-2 bg-theme-keith-accentone text-theme-keith-jet rounded-lg hover:bg-theme-keith-accenttwo transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
           >
             Sign Up
           </button>
         </a>
         <a href="#/" class="w-full" on:click={developerLogin}>
           <button
-            class="w-full py-2 bg-theme-keith-accentone text-theme-keith-jet rounded-lg hover:bg-theme-keith-accenttwo transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
           >
             Developer
           </button>
