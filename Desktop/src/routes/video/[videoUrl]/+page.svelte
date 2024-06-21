@@ -3,6 +3,8 @@
 
   import { writable } from "svelte/store";
 
+  import { VideoURL } from "../../../stores/video";
+
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
   import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
@@ -16,9 +18,35 @@
 
   const showModelList = writable(false);
 
+  let scriptPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/processVideo.py";
+  let videoPath;
+  let videoName;
+  let outputVideoPath;
+  let modelsPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/yolov8n/yolov8n.pt";
+
+  function getFileName(filePath) {
+    const parts = filePath.split(/[/\\]/);
+    return parts[parts.length - 1];
+  }
+
+  VideoURL.subscribe(value => {
+    videoPath = value;
+    videoName = getFileName(videoPath);
+    outputVideoPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Desktop/outputVideos/" + videoName;
+  });
+
   let processed = false; // Check if the video has been processed
 
   function process() {
+    window.electronAPI.runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
+      .then(result => {
+      output = result;
+      console.log("Python Script Output:", output);
+    })
+      .catch(error => {
+      output = error.message;
+      console.error("Python Script Error:", output);
+    });
     processed = true;
     console.log("Processing video", showProcessPopup);
   }
