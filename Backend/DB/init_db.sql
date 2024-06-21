@@ -52,5 +52,6 @@ CREATE TABLE keystore
     initkey_validation BOOLEAN DEFAULT FALSE,
     pem_priv           TEXT,
     pem_pub            TEXT,
+    agent_pem_pub      TEXT,
     PRIMARY KEY (aid, keyid)
 );
