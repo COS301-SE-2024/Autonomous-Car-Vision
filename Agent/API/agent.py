@@ -1,10 +1,13 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request
+from fastapi.responses import JSONResponse
 import httpx
 import cerberus
 import socket
 import os
+import subprocess
+import shutil
 
 app = FastAPI()
 
@@ -13,10 +16,24 @@ app = FastAPI()
 def status():
     return {"status": "online"}
 
+def getHardwareInfo():
+    try:
+        if shutil.which('nvidia-smi') is not None:
+            result = subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+            if "NVIDIA-SMI" in result.stdout:        
+                if shutil.which('nvcc') is not None:
+                    result = subprocess.run(['nvcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+                    if "release" in result.stdout:
+                        return True
+    except:
+        pass                    
+
+    return False
+
 
 @app.get("/install")
 async def install():
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as client:        
         # get my agent details
         response = await client.get('http://127.0.0.1:8006/agent')
         if response.status_code != 200:
@@ -81,7 +98,7 @@ def findOpenPort():
                 break
     return ip, port
 
-def startServer(ip, port):
+def startFTP(ip, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
@@ -161,7 +178,7 @@ def startServer(ip, port):
 # @app.get("/register/")
 # def register(backgroundTasks: BackgroundTasks):
 #     ip, port = findOpenPort()
-#     # backgroundTasks.add_task(startServer, ip, port)
+#     # backgroundTasks.add_task(startFTP, ip, port)
 #     url = "http://127.0.0.1:8000/register/"
 #     data = {
 #         "ip": ip,
@@ -175,10 +192,32 @@ def startServer(ip, port):
 def startup(backgroundTasks: BackgroundTasks):
     # Verify OTP
     ip, port = findOpenPort()
-    backgroundTasks.add_task(startServer, ip, port)
+    backgroundTasks.add_task(startFTP, ip, port)
     return {"ip": ip, "port": port}
+
+@app.post("/process/")
+async def process(request: Request):
+    # gets the name from the request
+    try:
+        body = await request.json()
+        uid = body['uid']
+        mid = body['mid']
+        token = body['token']
+        
+        # fetch the file url
+        
+        # process the file
+        if(getHardwareInfo()):
+            return JSONResponse(status_code=200, content={"message": "Success"})
+        # subprocess.run(['makensis', './package/setup.nsi'])
+        
+    except:
+        return JSONResponse(status_code=400, content={"message": "Invalid request"})
+    
 
 def verifyOTP(otp):
     otp = "1234"
     if otp == "1234":
         return True
+    else:
+        return False
