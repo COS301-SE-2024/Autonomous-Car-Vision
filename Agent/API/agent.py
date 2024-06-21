@@ -1,4 +1,3 @@
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from fastapi import FastAPI, HTTPException
@@ -54,6 +53,8 @@ async def install():
         server_ecdh = cerberus.decrypt_ecdh_key_with_rsa(agent_rsa_private, response2.json()['encrypted_ecdh'])
         print("server ecdh decoded", server_ecdh)
         server_ecdh2 = load_pem_public_key(server_ecdh.encode('utf-8'))
+
+        # TODO persist your own pem files and the server's ecdh key.
         session = cerberus.get_session(agent_private, server_ecdh2)
         message = cerberus.elyptic_encryptor(session, "hello")
         response3 = await client.post('http://127.0.0.1:8006/message',
