@@ -47,13 +47,19 @@
       return;
     }
 
-    let record = {
-      mname: filename,
-      localurl: videoSource,
-    };
-
+    
     try {
+      // add loader here
+
+      // Save the file using the main process
+      videoSource = await window.electronAPI.saveFile(file.path, filename);
+      let record = {
+        mname: filename,
+        localurl: videoSource,
+      };
+      
       // Insert the record into the database
+      
       const response1 = await window.electronAPI.insertData(record);
       console.log("resp1", response1);
 
