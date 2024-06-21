@@ -6,10 +6,10 @@ import SignUp from './SignUp.svelte';
 import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
-import Gallary from '../pages/GallaryPage.svelte';
+import Gallary from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
-import VideoPage from './Video.svelte'
+import VideoPage from './video/[videoUrl]/+page.svelte'
 
 const routes = {
     '/': Home,
@@ -21,7 +21,7 @@ const routes = {
     '/models': ModelPage,
     '/accountsettings' : AccountSettings,
     '/changePassword': ChangePassword,
-    '/video' :VideoPage,
+    '/video/:VideoUrl': VideoPage,
 };
 
 export default routes;

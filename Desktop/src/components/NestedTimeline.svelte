@@ -70,7 +70,9 @@
         <p class="text-xs">{model.name}</p>
         <p class="text-xs">{model.TimeStamp}</p>
       </div>
-      <p class="text-xs relative bottom-0 right-0 w-min">{model.Version}</p>
+      <div class="relative h-8">
+        <p class="text-xs w-min absolute bottom-0 right-0">{model.Version}</p>
+      </div>
     </div>
   {/each}
 </div>
