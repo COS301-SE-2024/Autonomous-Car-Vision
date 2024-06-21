@@ -47,6 +47,7 @@ module.exports = {
         },
         'white': '#FFFF',
         'black': '#000',
+        'red' : '#AA4A44',
       },
     },
     variants: {

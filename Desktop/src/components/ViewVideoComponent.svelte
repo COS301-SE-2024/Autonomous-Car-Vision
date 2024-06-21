@@ -144,21 +144,24 @@
             <div class="info">
                 <span class="time">{format(time)}</span>
                 <span>:</span>
-                <!-- <span>click anywhere to {paused ? "play" : "pause"} / drag to seek</span> -->
                 <span class="time">{format(duration)}</span>
             </div>
         </div>
     </div>
-    <div bind:this={thumbnailBar} class="thumbnail-bar">
-        {#each frames as frame}
-            <div
-                class="thumbnail hover:cursor-pointer"
-                style="background-image: url({frame})"
-                on:click={() => seekToFrame(frame)}
-                on:keypress
-            ></div>
-        {/each}
-    </div>
+    {#if frames.length > 0}
+        <div bind:this={thumbnailBar} class="thumbnail-bar">
+            {#each frames as frame}
+                <div
+                    class="thumbnail hover:cursor-pointer"
+                    style="background-image: url({frame})"
+                    on:click={() => seekToFrame(frame)}
+                    on:keypress
+                >
+                <img src={frame} width="120px" alt={frame}>
+            </div>
+            {/each}
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -190,7 +193,7 @@
     .thumbnail {
         flex: 0 0 auto;
         width: 120px;
-        height: 100px;
+        height: min-content;
         background-size: cover;
         background-position: center;
         cursor: pointer;

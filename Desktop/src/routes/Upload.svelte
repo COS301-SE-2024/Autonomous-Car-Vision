@@ -8,6 +8,9 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
+  import { isUploadLoading } from "../stores/uploadLoading";
+  import RingLoader from "../components/RingLoader.svelte";
+
   export let videoSource = "";
   let filename = "";
   let file;
@@ -17,7 +20,7 @@
     isLoading.set(true);
     setTimeout(() => {
       isLoading.set(false);
-    }, 1500);
+    }, 1000);
   });
 
   function handleFilesSelect(e) {
@@ -39,6 +42,7 @@
 
   const saveVideo = async () => {
     if (!videoSource) {
+      isUploadLoading.set(true);
       toast.error("Upload a video file to get started", {
         duration: 5000,
         position: "top-center",
@@ -49,7 +53,6 @@
 
     
     try {
-      // add loader here
 
       // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
@@ -74,6 +77,8 @@
 
       // sleep for 1 second
       await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      isUploadLoading.set(false);
 
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
@@ -120,6 +125,11 @@
           >Save
         </button>
       </div>
+      {#if $isUploadLoading}
+        <div class="flex justify-center">
+          <RingLoader />
+        </div>
+      {/if}
     </div>
   {/if}
 </ProtectedRoutes>

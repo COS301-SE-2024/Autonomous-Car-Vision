@@ -28,7 +28,7 @@
         }
         setTimeout(() => {
           isGalLoading.set(false);
-        }, 4000);
+        }, 1000);
       });
       await new Promise((resolve) => setTimeout(resolve, 3000));
       data = await fetchData();
