@@ -8,6 +8,7 @@
   window.electronAPI.fetchVideos().then((response) => {
     if (response.success) {
       videoURLs = response.data.map((record) => record.dataValues.localurl);
+      console.log(videoURLs);
     } else {
       console.error("Failed to fetch video records:", response.error);
     }
