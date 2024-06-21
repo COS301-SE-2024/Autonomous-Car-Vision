@@ -27,7 +27,7 @@
 <style>
   .container {
     --uib-size: 40px;
-    --uib-color: black;
+    --uib-color: #0C003C;
     --uib-speed: 2s;
     --uib-bg-opacity: 0;
     height: var(--uib-size);

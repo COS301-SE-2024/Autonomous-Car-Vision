@@ -2,7 +2,11 @@
   import { createEventDispatcher, onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
 
+  import { isDownloading } from "../stores/loading";
+  import RingLoader from "./RingLoader.svelte";
+
   export let VideoSource;
+  export let VideoName;
 
   let showMoreModal = false;
   let firstFrameURL = "";
@@ -10,8 +14,14 @@
   const dispatch = createEventDispatcher();
 
   function handleDownload() {
+    isDownloading.set(true);
     // Logic to download the video
-    isDownloaded = true;
+    setTimeout(() => {
+      isDownloading.set(false);
+      showMoreModal = false;
+      isDownloaded = true;
+    }, 5000);
+    console.log("DOWNLOAD BUTTON");
   }
 
   function handleMore() {
@@ -54,10 +64,6 @@
       }
     });
 
-    videoElement.addEventListener("error", (e) => {
-      console.error("Error loading video: ", e);
-    });
-
     // Add the video element to the DOM to trigger loading
     document.body.appendChild(videoElement);
   }
@@ -68,61 +74,47 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-{#if isDownloaded}
-  <div
-    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
-    on:click={handleMore}
-  >
-    <div class="image-container relative">
-      <img
-        src={firstFrameURL}
-        alt="video preview"
-        class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-      />
-      <div
-        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
-      >
+<div
+  class="{isDownloaded
+    ? 'cursor-pointer'
+    : 'cursor-default'} relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+  on:click={handleMore}
+>
+  <div class="image-container relative">
+    <img
+      src={firstFrameURL}
+      alt="video preview"
+      class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+    />
+    <div
+      class="{isDownloaded
+        ? 'hover:block'
+        : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    >
+      {#if !$isDownloading && !isDownloaded}
         <button
-          class="more bg-blue text-white border-none px-2 py-1 rounded text-xs"
-          on:click={handleMore}>More</button
-        >
-      </div>
-    </div>
-    <div class="details p-2">
-      <p class="details-link">Details here...</p>
-    </div>
-  </div>
-{:else}
-  <div
-    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
-    on:click={handleMore}
-  >
-    <div class="image-container relative filter grayscale">
-      <img
-        src={firstFrameURL}
-        alt="video preview"
-        class="w-full rounded-lg transition-filter duration-300 ease-in-out"
-      />
-      <div
-        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
-      >
-        <button
-          class="download bg-blue text-white border-none px-2 py-1 rounded text-xs"
+          class="more bg-theme-dark-background text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
           on:click={handleDownload}>Download</button
         >
-      </div>
-    </div>
-    <div class="details p-2">
-      <p class="details-link">Details here...</p>
+      {:else if !isDownloaded}
+        <div class="flex justify-center">
+          <RingLoader />
+        </div>
+      {/if}
     </div>
   </div>
-{/if}
-
-{#if showMoreModal}
-<div>
-  <GallaryMore imgSource={firstFrameURL} videoSource={VideoSource} on:close={handleBack} />
+  <div class="details p-2">
+    <p class="details-link text-wrap overflow-hidden">{VideoName}</p>
+  </div>
 </div>
-{/if}
 
-<style>
-</style>
+{#if showMoreModal && isDownloaded}
+  <div>
+    <GallaryMore
+      imgSource={firstFrameURL}
+      videoSource={VideoSource}
+      videoName={VideoName}
+      on:close={handleBack}
+    />
+  </div>
+{/if}

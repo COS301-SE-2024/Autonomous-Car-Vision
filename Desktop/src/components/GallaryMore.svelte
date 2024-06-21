@@ -12,6 +12,7 @@
 
   export let imgSource;
   export let videoSource;
+  export let videoName;
 
   onMount(() => {
     VideoURL.set(videoSource);
@@ -50,7 +51,7 @@
         class="w-4/5 cursor-pointer"
         on:click={view(videoSource)}
       />
-      <p class="mt-4">Details here</p>
+      <p class="mt-4">{videoName}</p>
     </div>
   </div>
 </div>

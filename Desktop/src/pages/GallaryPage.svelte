@@ -13,7 +13,8 @@
   let data = null;
 
   let videoURLs = [];
-  
+  let videoNames = []; 
+
   // Fetch the video records from the database
   onMount(async () => {
     isGalLoading.set(true);
@@ -23,6 +24,8 @@
       window.electronAPI.fetchVideos().then((response) => {
         if (response.success) {
           videoURLs = response.data.map((record) => record.dataValues.localurl);
+          videoNames = response.data.map((record) => record.dataValues.mname);
+          console.log(videoNames);
         } else {
           console.error("Failed to fetch video records:", response.error);
         }
@@ -56,19 +59,19 @@
     <div class="items-center">
       <div>
         <div
-          class="text-xl font-heading text-theme-keith-accentone text-center rounded"
+          class="text-4xl font-heading text-theme-dark-bgHover text-center rounded"
         >
-          Video Gallery
+          Gallery
         </div>
         <div class="grid grid-flow-row-dense grid-cols-3 items-center">
-          {#each videoURLs as url}
+          {#each videoURLs as url,index}
             {#if $isGalLoading}
             <div class="flex justify-center">
               <PingLoader />
             </div>
             {/if}
             {#if !$isGalLoading}
-              <GallaryCard VideoSource={url} />
+              <GallaryCard VideoSource={url} VideoName={videoNames[index]}/>
             {/if}
           {/each}
         </div>

@@ -7,6 +7,8 @@ module.exports = {
           'theme-dark': {
             lightText: '#FFFFFF', // white
             background: '#181818', // offBlack
+            backgroundBlue: '#0C003C',
+            bgHover: '#1C008D',
             primary: '#0099ff', // techBlue
             secondary: '#007acc', // techBlueDark
             highlight: '#0066cc', // highlight
@@ -70,6 +72,8 @@ module.exports = {
         'white': '#FFFF',
         'black': '#000',
         'red' : '#AA4A44',
+        'green-80' : '#37FF8B80',
+        'greeen' : '#37FF8B'
       },
     },
     variants: {
