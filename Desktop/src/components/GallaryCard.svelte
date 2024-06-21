@@ -77,7 +77,7 @@
 <div
   class="{isDownloaded
     ? 'cursor-pointer'
-    : 'cursor-default'} relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={handleMore}
 >
   <div class="image-container relative">

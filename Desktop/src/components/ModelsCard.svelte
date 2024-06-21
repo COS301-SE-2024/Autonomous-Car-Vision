@@ -41,7 +41,7 @@
 
 <div
   {key}
-  class="flex flex-col items-start border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
+  class="shadow-card-blue flex flex-col items-start border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
 >
   <div
     id="header"

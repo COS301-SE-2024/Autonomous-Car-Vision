@@ -50,7 +50,7 @@
         href="#/login"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-white bg-theme-dark-primary"
           depressed
           block>Log In</Button
         >
@@ -60,23 +60,23 @@
         href="#/signup"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accenttwo"
+          class="text-theme-dark-white bg-theme-dark-highlight"
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
+    <div class="w-full p-4 border-2 rounded-md border-theme-dark-backgroundBlue mt-2 bg-theme-dark-backgroundBlue shadow-tech-blue">
       <div class="text-left">
-        <h1 class="text-2xl">Welcome!</h1>
-        <p>Please enter your information to sign up.</p>
+        <h1 class="text-2xl text-theme-dark-primary">Welcome!</h1>
+        <p class="text-theme-dark-primary">Please enter your information to sign up.</p>
       </div>
       <div
         on:keydown={handleEnterdown}
         id="form"
         class="flex flex-col gap-1 py-2"
       >
-        <TextField bind:value={eToken} outlined>Email</TextField>
+        <TextField bind:value={eToken} outlined class="text-theme-dark-white">Email</TextField>
         <TextField bind:value={nToken} outlined>Username</TextField>
         <TextField
           bind:value={pToken}
@@ -91,7 +91,7 @@
               show = !show;
             }}
           >
-            <Icon path={show ? mdiEyeOff : mdiEye} />
+            <Icon path={show ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
           </div>
         </TextField>
         <TextField
@@ -107,12 +107,12 @@
               showConfirm = !showConfirm;
             }}
           >
-            <Icon path={showConfirm ? mdiEyeOff : mdiEye} />
+            <Icon path={showConfirm ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
           </div>
         </TextField>
       </div>
       <Button
-        class="bg-theme-keith-accentone text-theme-keith-jet"
+        class="bg-theme-dark-primary text-theme-dark-white"
         on:click={onSubmit}
         rounded
         block>Sign up</Button
@@ -122,7 +122,8 @@
 </div>
 
 <style>
-  div.s-input.s-text-field.primary-text {
-    color: #ff5722 !important; /* Change this to your desired color */
+
+  .custom-text-field input {
+    color: #f56565; /* Tailwind CSS red-500 color */
   }
 </style>

@@ -89,9 +89,9 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="flex flex-col items-center justify-center min-h-screen border-theme-dark-backgroundBlue shadow-tech-blue">
       <div
-        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentont space-y-3"
+        class="flex flex-col items-center justify-center p-8 shadow-tech-blue rounded-lg w-96 border border-theme-keith-accentont space-y-3"
       >
         <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
@@ -142,7 +142,7 @@
         >
 
         <!-- Save Changes -->
-        <Button class="bg-theme-keith-accentone rounded" on:click={saveChanges}
+        <Button class="bg-theme-dark-backgroundBlue text-theme-dark-white rounded" on:click={saveChanges}
           >Save Changes</Button
         >
       </div>

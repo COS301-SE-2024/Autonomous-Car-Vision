@@ -61,7 +61,7 @@
         href="#/login"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-white bg-theme-dark-highlight"
           depressed
           block>Log In</Button
         >
@@ -71,22 +71,22 @@
         href="#/signup"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-white bg-theme-dark-primary"
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
+    <div class="w-full p-4 border-2 rounded-md border-theme-dark-backgroundBlue mt-2 bg-theme-dark-backgroundBlue shadow-tech-blue">
       <div class="text-left">
-        <h1 class="text-2xl">Welcome back!</h1>
-        <p>Please enter your information.</p>
+        <h1 class="text-2xl text-theme-dark-primary">Welcome back!</h1>
+        <p class="text-theme-dark-primary">Please enter your information.</p>
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-1 py-2">
           <TextField bind:value={nToken} outlined>Username/Email</TextField>
           <Button
-            class="bg-theme-keith-accentone text-theme-keith-jet"
+            class="bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitUsername}
             rounded
             block>Next</Button
@@ -112,7 +112,7 @@
             </div>
           </TextField>
           <Button
-            class="bg-theme-keith-accentone text-theme-keith-jet"
+            class="bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitPassword}
             rounded
             block>Log in</Button
