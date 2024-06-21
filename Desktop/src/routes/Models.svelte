@@ -2,6 +2,10 @@
     import ModelsCard from "../components/ModelsCard.svelte";
     import ProtectedRoutes from "./ProtectedRoutes.svelte";
 
+    import { isLoading } from "../stores/loading";
+    import Spinner from "../components/Spinner.svelte";
+    import { onMount } from "svelte";
+
     let Models = [
         {
             name: "AI Model#1",
@@ -37,12 +41,31 @@
     //     svg: "",
     //     img: "",
     // };
+
+    onMount(async () => {
+        isLoading.set(true);
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+        } catch (error) {
+            console.error("Failed to fetch data", error);
+        } finally {
+            isLoading.set(false);
+        }
+    
+    });
+
 </script>
 
 <ProtectedRoutes>
-    <div class="grid grid-cols-2 gap-6 h-screen py-4 px-4">
-        {#each Models as Model, key}
-            <ModelsCard {Model} {key} />
-        {/each}
-    </div>
+    {#if $isLoading}
+        <div class="flex justify-center">
+            <Spinner />
+        </div>
+    {:else}
+        <div class="grid grid-cols-2 gap-6 h-screen py-4 px-4">
+            {#each Models as Model, key}
+                <ModelsCard {Model} {key} />
+            {/each}
+        </div>
+    {/if}
 </ProtectedRoutes>
