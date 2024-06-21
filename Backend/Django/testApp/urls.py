@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, AuthViewSet, OTPViewSet, TokenViewSet, manage_auth, manage_token, manage_user, manage_otp, signup, verifyOTP, otpRegenerate, getSalt, signin, signout, hvstat, changePassword,changeUserDetails, upload_success, upload_video, list_videos, lookup, getToken, devLogin
+from .views import UserViewSet, AuthViewSet, OTPViewSet, TokenViewSet, manage_auth, manage_token, manage_user, manage_otp, signup, verifyOTP, otpRegenerate, getSalt, signin, signout, hvstat, changePassword,changeUserDetails, upload_success, upload_video, list_videos, lookup, getToken, devLogin, download
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -32,4 +32,5 @@ urlpatterns = [
     path('videos/', list_videos, name='list_videos'),
     path('lookup/', lookup, name='lookup'),
     path('devLogin/', devLogin),
+    path('download/', download),
 ]

@@ -585,3 +585,6 @@ def devLogin(request):
             return Response(tokenSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     return Response({'token': token, 'uid': uid, 'uemail': uemail, uname: 'uname'}, status=status.HTTP_200_OK)
+
+def download(request):
+    return render(request, './download.html')

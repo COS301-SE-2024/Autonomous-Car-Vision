@@ -1,5 +1,7 @@
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+import subprocess
 # import setup
 import charon
 
@@ -20,9 +22,19 @@ def agent():
     print("result of obol:\n", response)
     # TODO agent packaging...
     # TODO part of agent packaging is to persist aid to an env and pem_pub to a .pem
-
-    return response
-
+    
+    aid = response['aid']
+    public = response['public']
+    
+    # make env file
+    with open('./package/.env', 'w') as f:
+        f.write(f"AID={aid}\n")
+        f.write(f"PUBLIC={public}")
+        
+    subprocess.run(['makensis', './package/setup.nsi'])
+    
+    filePath = './package/MyFastAPIAppSetup.exe'
+    return FileResponse(filePath,  filename='MyFastAPIAppSetup.exe')
 
 @app.post("/test")
 async def test(request: Request):
@@ -33,9 +45,7 @@ async def test(request: Request):
     charon.storeAgentECDH(mresp['aid'], mresp['public']['ecd_key'])
     print(">>> Generating broker ecdh key")
     eresp = charon.generate_broker_ecdh_keys(message['aid'], mresp['public']['rsa_key'])
-
     return {'encrypted_ecdh': eresp['ecdh_public_encrypted']}
-
 
 @app.post("/message")
 async def test(request: Request):
