@@ -1,9 +1,7 @@
 <script>
+  import { onMount } from "svelte";
   import { writable } from "svelte/store";
-  import EditVideoModal from "./EditVideoModal.svelte";
-  import DeleteModal from "./DeleteModal.svelte";
-  import ModelList from "./ModelList.svelte";
-  import ViewVideoModal from "./ViewVideoModal.svelte";
+  import { VideoURL } from "../stores/video";
   import { createEventDispatcher } from "svelte";
   import { push } from "svelte-spa-router";
 
@@ -15,17 +13,19 @@
   export let imgSource;
   export let videoSource;
 
+  onMount(() => {
+    VideoURL.set(videoSource);
+  })
+
   function back(event) {
     event.stopPropagation(); // Stop event propagation
     dispatch("close");
   }
 
-  function switchTab(tab) {
-    currentTab.set(tab);
-  }
-
   function view(videoSource) {
-    push(`/video/${videoSource}`);
+    console.log("TESTING", videoSource);
+    const encodedPath = encodeURIComponent(videoSource);
+    push(`/video/${encodedPath}`);
   }
 </script>
 
@@ -44,9 +44,13 @@
       >
     </div>
     <div class="flex flex-col items-center mb-4">
-        <img src={imgSource} alt="video thumbnail" class="w-4/5 cursor-pointer" on:click={view(videoSource)} />
+      <img
+        src={imgSource}
+        alt="video thumbnail"
+        class="w-4/5 cursor-pointer"
+        on:click={view(videoSource)}
+      />
       <p class="mt-4">Details here</p>
     </div>
-
   </div>
 </div>

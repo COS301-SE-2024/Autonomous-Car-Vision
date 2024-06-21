@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, View } = require('electron');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -221,17 +221,11 @@ ipcMain.handle('fetch-videos', async () => {
     }
 });
 
-// Function to ensure directory exists
-function ensureDirectoryExistence(dirPath) {
-    if (!fs.existsSync(dirPath)) {
-        console.log(`Creating directory: ${dirPath}`);
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-}
-
 // Extract frames handler
 ipcMain.handle('extract-frames', async (event, videoPath) => {
     try {
+        console.log("VIDEO PATH:", videoPath);
+
         const { format } = await new Promise((resolve, reject) => {
             ffmpegFluent(videoPath)
                 .setFfprobePath(ffprobePath)
@@ -246,17 +240,21 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 
         
         const duration = format.duration;
-        const outputDir = path.join(path.dirname(videoPath), 'frames');
-        
-        // Check if all frames exist
-        const framesExist = fs.readdirSync(outputDir).map(file => path.join(outputDir, file));
-        if (framesExist) {
-            console.log('Frames already exist for:', videoPath);
-            return framesExist;
-        }
+        const videoName = path.basename(videoPath, path.extname(videoPath));
+        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+
+        // checks if output directory exists
 
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
+        }
+        
+        // Checking if the frames are already generated
+        const frameFiles = fs.readdirSync(outputDir);
+        if (frameFiles.length > 0) {
+            console.log('Frames already exist for:', videoPath);
+            const framePaths = frameFiles.map(file => path.join(outputDir, file));
+            return framePaths;
         }
 
         console.log('output directory: ', outputDir);

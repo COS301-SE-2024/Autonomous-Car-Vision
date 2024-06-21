@@ -17,6 +17,7 @@
   function handleMore() {
     console.log("More button clicked");
     showMoreModal = true;
+    console.log(VideoSource);
   }
 
   function handleBack(event) {

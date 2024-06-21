@@ -1,9 +1,10 @@
 <script>
     import { onMount } from "svelte";
+    import { VideoURL } from "../stores/video";
 
     export let videoPath;
-    videoPath = videoPath.replace('%', ' ');
-    
+    videoPath = videoPath.replace("%", " ");
+
     let time = 0;
     let volume = 0;
     let duration;
@@ -41,7 +42,7 @@
         time = (duration * (clientX - left)) / (right - left);
 
         // Find the frame index that corresponds to the current time
-        const frameIndex = Math.floor(time / duration * frames.length);
+        const frameIndex = Math.floor((time / duration) * frames.length);
         const frameElement =
             document.querySelectorAll(".thumbnail")[frameIndex];
         if (frameElement) {
@@ -66,26 +67,31 @@
 
     async function extractFrames() {
         try {
-            const framePaths = await window.electronAPI.extractFrames(videoPath);
-            frames = framePaths.map(framePath => framePath.replace(/\\/g, '/')); // Convert backslashes to slashes for URLs
+            const framePaths =
+                await window.electronAPI.extractFrames(videoPath);
+            frames = framePaths.map((framePath) =>
+                framePath.replace(/\\/g, "/"),
+            ); // Convert backslashes to slashes for URLs
             console.log("Frames extracted:", frames.length);
+            console.log("FRAMES ARRAY: ", frames);
         } catch (error) {
             console.error("Error extracting frames:", error);
         }
     }
 
+    // Subscribe to the videoURL store to get the clicked video
+    $: VideoURL.subscribe((value) => {
+        videoPath = value;
+    });
+
     onMount(() => {
-        console.log("video Path: ", videoPath);
-        // Extract path after the first '/' character
-        videoPath = videoPath.substring('/video/'.length);
-        videoPath = videoPath.replace(/\\/g, "/");
-        console.log("video Path: ", videoPath);
+        console.log(videoPath);
         extractFrames();
     });
 
     function seekToFrame(framePath) {
         const index = frames.indexOf(framePath);
-        time = index * (duration/frames.length); // Adjust according to the interval
+        time = index * (duration / frames.length); // Adjust according to the interval
         console.log("Seek to frame:", framePath);
         showControls = true;
 
@@ -104,8 +110,8 @@
         paused = !paused;
         console.log(frames);
     }
-
 </script>
+
 <div>
     <div>
         <video
@@ -118,15 +124,21 @@
             bind:currentTime={time}
             bind:duration
             bind:paused
-            bind:volume={volume}
+            bind:volume
             class="w-full"
         >
             <track kind="captions" />
         </video>
-        <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
+        <div
+            class="controls"
+            style="opacity: {duration && showControls ? 1 : 0}"
+        >
             <progress class="TimelineProgress" value={time / duration || 0} />
-            <button class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold" on:click={pause}>
-                {paused ? "Play" : "Pause"} 
+            <button
+                class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold"
+                on:click={pause}
+            >
+                {paused ? "Play" : "Pause"}
                 <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
             </button>
             <div class="info">
@@ -135,7 +147,6 @@
                 <!-- <span>click anywhere to {paused ? "play" : "pause"} / drag to seek</span> -->
                 <span class="time">{format(duration)}</span>
             </div>
-
         </div>
     </div>
     <div bind:this={thumbnailBar} class="thumbnail-bar">
