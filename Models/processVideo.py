@@ -3,8 +3,7 @@ import os
 from ultralytics import YOLO
 
 def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov8n.pt'):
-    # Load the YOLOv8 model
-    model = YOLO(model_path)  # Ensure the path to your YOLOv8 model is correct
+    model = YOLO(model_path) 
 
     # Create the output directory if it doesn't exist
     output_dir = os.path.dirname(output_video_path)
@@ -35,22 +34,13 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
 
             # Write the annotated frame to the output video
             out.write(annotated_frame)
-
-            # Display the annotated frame
-            cv2.imshow("YOLOv8 Tracking", annotated_frame)
-
-            # Break the loop if 'q' is pressed
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
         else:
             # Break the loop if the end of the video is reached
             break
 
-    # Release the video capture and writer objects and close the display window
+    # Release the video capture and writer objects
     cap.release()
     out.release()
-    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    # Example usage
     process_video("testVid.mp4", "outputs/annotated_testVid.mp4")
