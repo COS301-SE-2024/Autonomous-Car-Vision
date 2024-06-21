@@ -36,9 +36,7 @@ def startServer(ip, port):
             conn, addr = s.accept()
             with conn:
                 uid = conn.recv(4).decode()
-                mid = conn.recv(4).decode()
-                mname = conn.recv(4).decode()
-                print(f"UID: {uid}, MID: {mid}, MNAME: {mname}")
+                print(f"UID: {uid}")
                 
                 otp = conn.recv(4).decode()
                 print(f"OTP: {otp}")
@@ -46,7 +44,7 @@ def startServer(ip, port):
                     print("Invalid OTP.")
                     break
                 
-                directory = f"./serverData/{uid}/"
+                directory = f"./Download/{uid}/"
                 os.makedirs(directory, exist_ok=True)
                 print(f"Directory {directory} created to store information.")
                 
@@ -126,7 +124,7 @@ def startup(backgroundTasks: BackgroundTasks):
     backgroundTasks.add_task(startServer, ip, port)
     return {"ip": ip, "port": port}
 
-def verifyOTP():
+def verifyOTP(otp):
     otp = "1234"
     if otp == "1234":
         return True

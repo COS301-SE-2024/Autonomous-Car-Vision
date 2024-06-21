@@ -23,7 +23,7 @@
     // Alert for rejected files
     fileRejections.forEach((rejection) => {
       alert(
-        `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`
+        File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}
       );
     });
   }
@@ -34,6 +34,11 @@
         duration: 5000,
         position: "top-center",
       });
+
+
+      // call a fastapi 
+      
+
 
       return;
     }
