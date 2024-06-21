@@ -330,3 +330,30 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
         readStream.pipe(writeStream);
     });
 });
+
+// IPC handler to run a python script with set parameters
+ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]);
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
+    });
+});
