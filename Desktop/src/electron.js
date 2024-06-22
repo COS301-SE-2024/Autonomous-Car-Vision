@@ -66,6 +66,19 @@ ipcMain.handle('get-app-path', () => {
     return app.getAppPath();
   });
 
+  // Read directory handler
+  ipcMain.handle('read-directory', async (event, directoryPath) => {
+    return new Promise((resolve, reject) => {
+      fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(files);
+        }
+      });
+    });
+  });
+
 //! token
 ipcMain.on('store-token', (event, token) => {
     store.set('authToken', token);
