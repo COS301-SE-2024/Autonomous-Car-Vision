@@ -14,6 +14,7 @@ module.exports = {
             secondary: '#007acc', // techBlueDark
             highlight: '#0066cc', // highlight
             error: '#ff0000', // error
+            download: "#181818e0"
           },
           'theme-light': {
             lightText: '#FFFFFF',
@@ -71,6 +72,7 @@ module.exports = {
           primary: '#400F65',
           secondary: '#83468F',
         },
+        'modal': '#0000009f',
         'white': '#FFFF',
         'black': '#000',
         'red' : '#AA4A44',
