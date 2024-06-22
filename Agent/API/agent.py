@@ -11,6 +11,7 @@ import socket
 import os
 import subprocess
 import shutil
+import json
 
 app = FastAPI()
 
@@ -101,7 +102,16 @@ def findOpenPort():
                 break
     return ip, port
 
-def startFTP(ip, port):
+def startFTP(ip, port, old_uid, old_mid, old_size, old_token):
+    def receive_until_null(conn):
+        data = b''
+        while True:
+            byte = conn.recv(1)
+            if byte == b'\0':
+                break
+            data += byte
+        return data.decode()
+    
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
@@ -110,31 +120,26 @@ def startFTP(ip, port):
         while True:
             conn, addr = s.accept()
             with conn:
-                uid = conn.recv(4).decode()
-                print(f"UID: {uid}")
-
-                otp = conn.recv(4).decode()
-                print(f"OTP: {otp}")
-                if not verifyOTP(otp):
-                    print("Invalid OTP.")
-                    break
+                # Receive UID
+                data = receive_until_null(conn)
+                # make data json
+                data = json.loads(data)
+                print(f"DATA: {data}")
+                
+                uid = data.get("uid")
+                mid = data['mid']
+                size = data['size']
+                token = data['token']
+                command = data['command']
 
                 directory = f"./Download/{uid}/"
                 os.makedirs(directory, exist_ok=True)
                 print(f"Directory {directory} created to store information.")
 
                 print(f'Connected by {addr}')
-                command = conn.recv(4).decode()
-                print(f"Command: {command}")
 
                 if command == "SEND":
-                    filename_bytes = b''
-                    while True:
-                        byte = conn.recv(1)
-                        if byte == b'\0':
-                            break
-                        filename_bytes += byte
-                    filename = filename_bytes.decode()
+                    filename = receive_until_null(conn)
                     print(f"File name: {filename}")
 
                     if not filename:
@@ -151,13 +156,7 @@ def startFTP(ip, port):
                     print(f"File {filename} received and saved to {filepath}")
 
                 elif command == "RETR":
-                    filename_bytes = b''
-                    while True:
-                        byte = conn.recv(1)
-                        if byte == b'\0':
-                            break
-                        filename_bytes += byte
-                    filename = filename_bytes.decode()
+                    filename = receive_until_null(conn)
                     print(f"File name: {filename}")
 
                     if not filename:
@@ -175,27 +174,20 @@ def startFTP(ip, port):
                         print(f"File {filename} sent successfully.")
                     else:
                         print(f"File {filename} does not exist.")
+                        
     s.close()
     return "Operation completed successfully."
 
-# @app.get("/register/")
-# def register(backgroundTasks: BackgroundTasks):
-#     ip, port = findOpenPort()
-#     # backgroundTasks.add_task(startFTP, ip, port)
-#     url = "http://127.0.0.1:8000/register/"
-#     data = {
-#         "ip": ip,
-#         "port": port
-#     }
-#     response = requests.post(url, json=data)
-#     print(response.json())
-#     return {"ip": ip, "port": port}
 
-@app.get("/startup/")
-def startup(backgroundTasks: BackgroundTasks):
-    # Verify OTP
+@app.post("/startupFTPListener/")
+async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
     ip, port = findOpenPort()
-    backgroundTasks.add_task(startFTP, ip, port)
+    body = await request.json()
+    uid = body['uid']
+    mid = body['mid']
+    size = body['size']
+    token = body['token']
+    backgroundTasks.add_task(startFTP, ip, port, uid, mid, size, token)
     return {"ip": ip, "port": port}
 
 @app.post("/process/")

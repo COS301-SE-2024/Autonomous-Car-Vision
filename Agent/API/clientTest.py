@@ -1,6 +1,7 @@
 import socket
 import os
 import requests # type: ignore
+import json
 
 def send_file(ip, port, filepath):
     filename = os.path.basename(filepath)
@@ -8,10 +9,18 @@ def send_file(ip, port, filepath):
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
-
-        s.sendall(b'UID1')        
-        s.sendall(b'1234') 
-        s.sendall(b'SEND')
+         
+         # make data above json
+        data = {
+            'uid': '1234',
+            'mid': '5678',
+            'size': '1',
+            'token': 'HELLO',
+            'command': 'SEND'
+        }
+        
+        data = json.dumps(data)
+        s.sendall(data.encode() + b'\0')
         s.sendall(filename.encode() + b'\0')
         
         with open(filepath, 'rb') as f:
@@ -22,20 +31,27 @@ def send_file(ip, port, filepath):
                     break
                 s.sendall(data)
         print(f"File {filename} sent successfully.")
-    # socket.close()
 
 def receive_file(ip, port, filename):
     print("File name: ", filename)
     
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
-
-        s.sendall(b'UID1')        
-        s.sendall(b'1234')
-        s.sendall(b'RETR')
+       
+        # make data above json
+        data = {
+            'uid': '1234',
+            'mid': '5678',
+            'size': '1',
+            'token': 'HELLO',
+            'command': 'RETR'
+        }
+        
+        data = json.dumps(data)
+        s.sendall(data.encode() + b'\0')
+        filepath = "./" + filename
         s.sendall(filename.encode() + b'\0')
         
-        filepath = "./" + filename
         with open(filepath, 'wb') as f:
             print(f"Receiving file {filename}...")
             while True:
@@ -44,13 +60,24 @@ def receive_file(ip, port, filename):
                     break
                 f.write(data)
         print(f"File {filename} received and saved to {filepath}")
-    # socket.close()    
 
 if __name__ == "__main__":
-    url = "http://localhost:8001/startup/"
+    url = "http://localhost:8001/startupFTPListener/"
+    
+    headers = {
+    "Content-Type": "application/json",
+    }
+
+# Define the body
+    body = {
+        "uid": "value1\n",
+        "mid": "value2\n",
+        "size": "HELLO\n",
+        "token": "TOEdwadKN\n"
+    }
     
     # Get IP and Port
-    response = requests.get(url)
+    response = requests.post(url, headers=headers, json=body)
     data = response.json()
     ip = data["ip"]
     port = data["port"]

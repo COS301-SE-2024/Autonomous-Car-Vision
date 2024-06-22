@@ -1,3 +1,5 @@
+; -- NSIS script for FastAPI application --
+
 !define APPNAME "MyFastAPIApp"
 !define APPVERSION "1.0"
 !define INSTALLDIR "$PROGRAMFILES64\${APPNAME}"
@@ -82,7 +84,28 @@ Function AgentTypeLeave
   ${EndIf}
 FunctionEnd
 
+; Function to check if Python 3.12.4 is installed
+Function CheckPython
+  ExecWait 'cmd /c python --version' $0
+  ${If} $0 != 0
+    Goto InstallPython
+  ${Else}
+    ReadRegStr $0 HKLM "SOFTWARE\Python\PythonCore\3.12\InstallPath" ""
+    StrCmp $0 "" InstallPython
+  ${EndIf}
+  Return
+
+  InstallPython:
+    ; Install Python 3.12.4
+    File /oname=$TEMP\python-3.12.4-amd64.exe "python-3.12.4-amd64.exe"
+    ExecWait '$TEMP\python-3.12.4-amd64.exe /quiet InstallAllUsers=1 PrependPath=1'
+    Delete $TEMP\python-3.12.4-amd64.exe
+FunctionEnd
+
 Section "MainSection" SEC01
+  ; Check for Python and install if necessary
+  Call CheckPython
+
   SetOutPath "$INSTDIR"
   File "app.py"
   File "requirements.txt"
@@ -102,7 +125,7 @@ Section "MainSection" SEC01
   CreateShortcut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\start.bat"
 
   ; Create a shortcut on the desktop
-  CreateShortcut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\start.bat"
+  CreateShortcut "$DESKTOP\${APPNAME}.lnk" \quiet "$INSTDIR\start.bat"
 
   ; Uninstall information
   WriteUninstaller "$INSTDIR\uninstall.exe"
