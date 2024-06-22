@@ -1,6 +1,7 @@
 import json
 
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
+from cryptography.hazmat.primitives import serialization
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import subprocess
@@ -32,7 +33,11 @@ def agent():
     # make env file
     with open('./package/.env', 'w') as f:
         f.write(f"AID={aid}\n")
-        f.write(f"PUBLIC={public}")
+     
+    with open("./package/public_key.pem", "wb") as public_key_file:
+        public_key_file.write(
+            public
+        )  
 
     subprocess.run(['makensis', './package/setup.nsi'])
 
