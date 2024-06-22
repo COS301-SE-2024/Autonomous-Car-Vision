@@ -74,6 +74,7 @@
             ); // Convert backslashes to slashes for URLs
             console.log("Frames extracted:", frames.length);
             console.log("FRAMES ARRAY: ", frames);
+            console.log("Video Path: ", videoPath);
         } catch (error) {
             console.error("Error extracting frames:", error);
         }
@@ -82,6 +83,7 @@
     // Subscribe to the videoURL store to get the clicked video
     $: VideoURL.subscribe((value) => {
         videoPath = value;
+        extractFrames();
     });
 
     onMount(() => {

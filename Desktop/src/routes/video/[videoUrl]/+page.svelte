@@ -72,18 +72,23 @@
     }];
 
     // Add processed videos
-    const processedFiles = files.map((file, index) => {
-      // Extract the model name from the file name (assuming the model name is part of the file name)
-      const modelNameMatch = file.match(/_processed_(\w+)\./);
-      const modelName = modelNameMatch ? modelNameMatch[1] : "unknown";
+    const processedFiles = files
+      .map((file, index) => {
+        // Extract the model name from the file name (assuming the model name is part of the file name)
+        const modelNameMatch = file.match(/_processed_(\w+)\./);
+        if (!modelNameMatch) {
+          return null; // Skip files that do not match the pattern
+        }
+        const modelName = modelNameMatch[1];
 
-      return {
-        id: index + 1,
-        label: modelName,
-        profileImgURL: "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        videoURL: `${outputDir}/${file}`
-      };
-    });
+        return {
+          id: index + 1,
+          label: modelName,
+          profileImgURL: "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          videoURL: `${outputDir}/${file}`
+        };
+      })
+      .filter(file => file !== null); // Remove null values from the array
 
     // Combine original and processed videos
     outputFiles = outputFiles.concat(processedFiles);
