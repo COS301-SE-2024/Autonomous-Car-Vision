@@ -17,10 +17,10 @@
 
   // For loading screen purposes
   onMount(() => {
-    isLoading.set(true);
-    setTimeout(() => {
-      isLoading.set(false);
-    }, 1000);
+    // isLoading.set(true);
+    // setTimeout(() => {
+    //   isLoading.set(false);
+    // }, 1000);
   });
 
   function handleFilesSelect(e) {
@@ -85,6 +85,7 @@
         const uid = window.electronAPI.getUid();
         const token = window.electronAPI.getToken();
 
+        console.log(location);
         push("/gallery");
       } else {
         console.error("Failed to retrieve the record:", response2.error);

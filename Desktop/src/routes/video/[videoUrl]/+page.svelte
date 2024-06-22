@@ -1,5 +1,5 @@
 <script>
-  import { location } from "svelte-spa-router";
+  import { location, push } from "svelte-spa-router";
 
   import { writable } from "svelte/store";
 
@@ -68,13 +68,13 @@
     showDeleteModal = false;
   }
 
-  function deleteItem() {
-    showDeleteModal = true;
-  }
-
   function handleDeleteSave() {
     // Logic to delete the video
     showDeleteModal = false;
+  }
+
+  function deleteItem() {
+    showDeleteModal = true;
   }
 
   function toggleModelList() {
@@ -101,7 +101,7 @@
           on:click={deleteItem}>Delete</button
         >
         {#if showDeleteModal}
-          <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} />
+          <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} videoPath={videoPath} />
         {/if}
         <div>
           <button

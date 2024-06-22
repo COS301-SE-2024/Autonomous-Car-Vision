@@ -34,4 +34,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     extractFrames: (videoPath) => ipcRenderer.invoke('extract-frames', videoPath),
     saveFile: (fileBuffer, fileName) => ipcRenderer.invoke('save-file', fileBuffer, fileName),
     runPythonScript: (scriptPath, args) => ipcRenderer.invoke('run-python-script', scriptPath, args),
-});
+    checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
+    deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file',filePath),
+    getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
+  });

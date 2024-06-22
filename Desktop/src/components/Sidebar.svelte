@@ -69,7 +69,7 @@
 </script>
 
 <div
-  class="fixed h-screen w-1/5 bg-theme-dark-backgroundBlue border-r-2 rounded-r-2xl shadow-tech-blue p-4 flex flex-col justify-end z-50 text-white"
+  class="fixed h-screen w-1/5 bg-theme-dark-backgroundBlue rounded-r-2xl shadow-tech-blue p-4 flex flex-col justify-end z-50 text-white"
 >
   <aside>
     <nav>

@@ -1,23 +1,25 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
 
-  import { isDownloading } from "../stores/loading";
+  // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
 
   export let VideoSource;
   export let VideoName;
+  export let isDownloaded;
 
   let showMoreModal = false;
   let firstFrameURL = "";
-  let isDownloaded = false;
-  const dispatch = createEventDispatcher();
+  let isDownloading = false;
 
   function handleDownload() {
-    isDownloading.set(true);
-    // Logic to download the video
+    // isDownloading.set(true);
+    isDownloading = true;
+
     setTimeout(() => {
-      isDownloading.set(false);
+      // isDownloading.set(false);
+      isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
     }, 5000);
@@ -68,8 +70,19 @@
     document.body.appendChild(videoElement);
   }
 
-  onMount(() => {
+  onMount(async () => {
     captureSpecificFrame(10); // Specify the frame to get
+    console.log("Video Source Path", VideoSource, "Video Name: ",VideoName);
+    if(!isDownloaded) {
+      try {
+        const response = await window.electronAPI.getVideoFrame(VideoSource, VideoName);
+        let videoPaths = response;
+        firstFrameURL = videoPaths[0];
+        console.log(firstFrameURL);
+      } catch (error) {
+
+      }
+    }
   });
 </script>
 
@@ -91,7 +104,7 @@
         ? 'hover:block'
         : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
     >
-      {#if !$isDownloading && !isDownloaded}
+      {#if !isDownloading && !isDownloaded}
         <button
           class="more bg-theme-dark-background text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
           on:click={handleDownload}>Download</button
@@ -104,7 +117,7 @@
     </div>
   </div>
   <div class="details p-2">
-    <p class="details-link text-wrap overflow-hidden">{VideoName}</p>
+    <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
   </div>
 </div>
 

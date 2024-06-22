@@ -55,7 +55,7 @@ app.on('activate', () => {
 
 try {
     require('electron-reloader')(module)
-} catch (_) {}
+} catch (_) { }
 
 // handler for token storing
 
@@ -238,7 +238,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
                 });
         });
 
-        
+
         const duration = format.duration;
         const videoName = path.basename(videoPath, path.extname(videoPath));
         const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
@@ -248,7 +248,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
-        
+
         // Checking if the frames are already generated
         const frameFiles = fs.readdirSync(outputDir);
         if (frameFiles.length > 0) {
@@ -357,3 +357,65 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
         });
     });
 });
+
+// IPC handler to check if a video file exists
+ipcMain.handle('check-file-existence', async (event, filePath) => {
+    try {
+        if (fs.existsSync(filePath)) {
+            return { success: true, exists: true };
+        } else {
+            return { success: true, exists: false };
+        }
+    } catch (error) {
+        console.error('Error checking file existence:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// IPC handler to delete a video file
+ipcMain.handle('delete-video-file', async (event, filePath) => {
+    try {
+        // Delete the video file
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        } else {
+            return { success: false, error: 'File does not exist' };
+        }
+
+        // Determine the frames directory path
+        const framesDir = path.join(path.dirname(filePath), 'frames', path.basename(filePath, path.extname(filePath)));
+
+        // Check if frames directory exists
+        if (fs.existsSync(framesDir)) {
+            const files = fs.readdirSync(framesDir);
+
+            // Keep the first frame and delete the rest
+            for (let i = 1; i < files.length; i++) {
+                const framePath = path.join(framesDir, files[i]);
+                if (fs.existsSync(framePath)) {
+                    fs.unlinkSync(framePath);
+                }
+            }
+        } else {
+            console.warn(`Frames directory does not exist: ${framesDir}`);
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting file or frames:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('get-video-frame', async (event, videoPath) => {
+    const videoName = path.basename(videoPath, path.extname(videoPath));
+        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+
+        // Checking if the frames are already generated
+        const frameFiles = fs.readdirSync(outputDir);
+        if (frameFiles.length > 0) {
+            console.log('Frames already exist for:', videoPath);
+            const framePaths = frameFiles.map(file => path.join(outputDir, file));
+            return framePaths;
+        }
+})
