@@ -48,7 +48,7 @@
   <div
     {key}
     class="flex flex-col items-start  border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
-    on:click={flipCard}>
+    on:mouseover={flipCard} on:mouseout={flipCard}>
   <div class="card-inner {isFlipped ? 'flipped' : '' }  rounded-xl ">
 
     <div class="card-front   rounded-xl  "> 
@@ -112,16 +112,16 @@
     {/if}
     <div id="content" class="flex flex-col gap-4 w-full p-4">
       <div id="withcontent" class="flex flex-col items-start gap-0">
-        <h1 class="text-lg font-medium">{Model.name}</h1>
-        <p class="font-light h-fit">
+        <h1 class="text-lg font-medium">{Model.description}</h1>
+        <!--p class="font-light h-fit">
           {Model.description}
-        </p>
+        </p-->
       </div>
     </div>
     </div>
     <div class="card-back rounded-xl">
      <div class="flex flex-row items-center justify-between px-6 py-4 w-full">
-       <p> {Model.moreDetails} </p>
+       <p class="font-light h-fit"> {Model.moreDetails} </p>
     </div>
    
        </div>
