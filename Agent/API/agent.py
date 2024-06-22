@@ -1,6 +1,8 @@
+import json
+
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 import httpx
 import cerberus
 
@@ -56,12 +58,19 @@ async def install():
 
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
-        # session = cerberus.get_session(agent_private, server_ecdh2)
-        # message = cerberus.elyptic_encryptor(session, "hello")
-        # response3 = await client.post('http://127.0.0.1:8006/message',
-        #                               json={"aid": response.json()['aid'], "message": message})
-        # if response3.status_code != 200:
-        #     raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
-        # print("Response:", response3.json())
-        # print(server_ecdh)
+        session = cerberus.get_session(agent_private, server_ecdh2)
+        message = cerberus.elyptic_encryptor(session, json.dumps({'aip': '0.0.0.2', 'aport': 69420, 'capacity': 'dual', 'storage': 290.4,
+                                                       'identifier': "ACDC"}))
+        response3 = await client.post('http://127.0.0.1:8006/handshake',
+                                      json={"aid": response.json()['aid'], "message": message})
+        if response3.status_code != 200:
+            raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
+        print("Response:", response3.json())
+        print(server_ecdh)
         return {'message': "success"}
+
+@app.post("/listen")
+async def listen(request: Request):
+    message = await request.json()
+    print(message)
+    return {'message': "ill start listening thanks"}

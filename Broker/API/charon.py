@@ -1,3 +1,5 @@
+from http import client
+
 from cryptography.hazmat.primitives.asymmetric import ec, rsa, padding
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives import serialization, hashes
@@ -9,6 +11,9 @@ import json
 import os
 import base64
 import psycopg2
+import httpx
+from fastapi import HTTPException
+
 
 def obol():
     # Time to ferry a Soul
@@ -415,3 +420,29 @@ def storeAgentECDH(aid, ecdh):
 
     cursor.close()
     conn.close()
+
+
+async def ping(aip, aport):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f'http://{aip}:{aport}/')
+        if response.status_code != 200:
+            return False
+        return True
+    except httpx.RequestError as exc:
+        print(f"An error occurred while requesting {exc.request.url!r}: {exc}")
+        return False
+
+import httpx
+
+async def transmit(aip, aport, emessage):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f'http://{aip}:{aport}/listen', json=emessage)
+        if response.status_code != 200:
+            return False
+        return response.json()
+    except httpx.RequestError as exc:
+        print(f"An error occurred while posting to agent {exc.request.url!r}: {exc}")
+        return False
+
