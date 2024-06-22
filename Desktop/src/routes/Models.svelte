@@ -10,8 +10,8 @@
         {
             name: "AI Model#1",
             category: "Pedestrian Detection",
-            description: "Testing the Description of AI Model#1",
-            moreDetails: "Testing the MORE Description of AI Model#1 ioascb dvjhzcyauosphiJXNK ",
+            version: "Version 1.1",
+            moreDetails: "Haike! ke tsona diDetails tsa the AI Model tsona tse. Ke ngola heela ha ke tsebe hore ke batla ho ngwala eng. Empa bo telle ba mongolo ona o tlameile o be motelele.",
             status: "green",
             gif: "",
             img: "",
@@ -19,7 +19,7 @@
         {
             name: "AI Model#2",
             category: "Pothole Detection",
-            description: "Testing the Description of AI Model#2",
+            version: " Version 2",
             moreDetails: "HHHHHHEOEJFIHDHBCAJKNSCIABC ",
             status: "orange",
             gif: "",
@@ -28,7 +28,7 @@
         {
             name: "AI Model#3",
             category: "Lane Change Model",
-            description: "Testing the Description of AI Model#3",
+            version: "Version 3.4",
             moreDetails: "HHHHHHEOEJFIHDHBCAJKNSCABC ",
             status: "red",
             gif: "https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif",
@@ -39,7 +39,7 @@
     // let Model = {
     //     name: "AI Model#1",
     //     category: "Object Detection",
-    //     description: "Testing the Description of AI Model#1",
+    //     version: "Testing the Version of AI Model#1",
     //     status: "green",
     //     svg: "",
     //     img: "",
