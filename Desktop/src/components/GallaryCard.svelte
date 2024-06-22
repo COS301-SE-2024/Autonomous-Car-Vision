@@ -106,7 +106,7 @@
     >
       {#if !isDownloading && !isDownloaded}
         <button
-          class="more bg-theme-dark-background text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
+          class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
           on:click={handleDownload}>Download</button
         >
       {:else if !isDownloaded}

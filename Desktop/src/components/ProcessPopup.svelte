@@ -17,21 +17,21 @@
 </script>
 
 <div
-    class="fixed inset-0 flex items-center justify-center bg-theme-dark-background bg-opacity-50 z-50"
+    class="fixed inset-0 flex items-center justify-center bg-modal z-50"
 >
     <div
-        class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary"
+        class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
     >
-        <div class="flex flex-col p-8 boder-1 border-theme-dark-backgroundBlue">
-            <h1>Are you sure you want to process this video?</h1>
+        <div class="flex flex-col boder-1 border-theme-dark-backgroundBlue">
+            <p class="text-md">Are you sure you want to process this video?</p>
             <div class="flex mt-4 space-x-4 justify-start">
+                <button
+                class="bg-theme-dark-error text-white px-4 py-2 rounded"
+                on:click={closePopup}>No</button
+                >
                 <button
                     class="bg-theme-dark-primary px-4 py-2 text-white rounded"
                     on:click={processVideo}>Yes</button
-                >
-                <button
-                    class="bg-theme-dark-error text-white px-4 py-2 rounded"
-                    on:click={closePopup}>No</button
                 >
             </div>
         </div>
