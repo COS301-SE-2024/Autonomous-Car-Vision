@@ -53,15 +53,16 @@
   };
 </script>
 
+<!-- TODO: add error messages -->
 <div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
   <MaterialApp>
     <div class="flex flex-row gap-2">
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center border border-theme-dark-primary rounded-md"
         href="#/login"
       >
         <Button
-          class="text-theme-dark-white bg-theme-dark-highlight"
+          class="text-black bg-theme-dark-white "
           depressed
           block>Log In</Button
         >
@@ -77,10 +78,10 @@
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-dark-backgroundBlue mt-2 bg-theme-dark-backgroundBlue shadow-tech-blue">
+    <div class="w-full p-4 rounded-md mt-2 bg-theme-dark-white shadow-card-blue">
       <div class="text-left">
-        <h1 class="text-2xl text-theme-dark-primary">Welcome back!</h1>
-        <p class="text-theme-dark-primary">Please enter your information.</p>
+        <h1 class="text-2xl text-black">Welcome back!</h1>
+        <p class="text-black">Please enter your information.</p>
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-1 py-2">

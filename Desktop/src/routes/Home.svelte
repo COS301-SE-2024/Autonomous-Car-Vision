@@ -37,9 +37,9 @@
 <MaterialApp> 
   <div class="min-h-screen flex items-center justify-center bg-theme-dark-white">
     <div
-      class="p-8 rounded-lg shadow-tech-blue w-80 border border-theme-dark-backgroundBlue text-theme-dark-primary bg-theme-dark-backgroundBlue"
+      class="p-8 rounded-lg shadow-card-blue w-80 text-theme-dark-primary bg-theme-dark-white"
     >
-      <h1 class="text-4xl text-center mb-6 text-bold text-theme-dark-primary">Welcome to High-Viz</h1>
+      <h1 class="text-4xl text-center mb-6 text-bold text-black">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
           <button

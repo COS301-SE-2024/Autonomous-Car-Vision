@@ -25,7 +25,7 @@ module.exports = {
         },
         boxShadow: {
           'tech-blue': '0 10px 20px #0C003C, 0 6px 20px #0C003C', // shadow-blue
-          'card-blue': '0 2px 10px rgba(0, 0, 148, 0.63), 0 0px 23px rgba(0, 0, 148, 0.63)', // shadow-card
+          'card-blue': '6px 6px 10px rgba(0.15, 40, 145, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)', // shadow-card
           'tech-green': '0 10px 20px #218838, 0 6px 20px #218838', // shadow-green
         },
       },
