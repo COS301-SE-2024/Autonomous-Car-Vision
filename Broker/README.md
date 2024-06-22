@@ -17,7 +17,7 @@ pip list (To verify)
 
 ## Run ASGI SERVER
 cd Broker/API
-uvicorn agent:app --reload --port 8002
+uvicorn broker:app --reload --port 8006
 
 
 ## To test via postman
