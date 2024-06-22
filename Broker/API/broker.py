@@ -115,4 +115,4 @@ async def brokerStore(request: Request):
     emessage = charon.elyptic_encryptor(sesion, json.dumps(message_to_encrypt))
     print("Encrypted message: ", emessage)
     tranmit = await charon.transmit(avail['aip'], avail['aport'], emessage)
-    return {"error": "Transmission to agent failed."} if not tranmit else tranmitm
+    return {"error": "Transmission to agent failed."} if not tranmit else tranmit
