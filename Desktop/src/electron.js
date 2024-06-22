@@ -256,7 +256,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 
         // Checking if the frames are already generated
         const frameFiles = fs.readdirSync(outputDir);
-        if (frameFiles.length > 0) {
+        if (frameFiles.length > 1) {
             console.log('Frames already exist for:', videoPath);
             const framePaths = frameFiles.map(file => path.join(outputDir, file));
             return framePaths;

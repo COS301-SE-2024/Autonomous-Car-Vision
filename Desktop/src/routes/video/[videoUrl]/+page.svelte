@@ -45,7 +45,8 @@
 
   let processed = false; // Check if the video has been processed
 
-  function process() {
+  function processVideo() {
+    showProcessPopup = false;
     window.electronAPI
       .runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
       .then((result) => {
@@ -66,14 +67,16 @@
   }
 
   let selectedModel = null;
-  let showEditModal = false;
   let showDeleteModal = false;
 
   let modalDefault =
     "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
+  function closeProcessPopup() {
+    showProcessPopup = false;
+  }
+
   function handleCancel() {
-    showEditModal = false;
     showDeleteModal = false;
   }
 
@@ -140,19 +143,12 @@
           {/if}
         </div>
       </div>
-      <ProcessPopup bind:showProcessPopup>
-        <div slot="body">
-          <h1>Are you sure you want to process this video?</h1>
-          <button
-            class="bg-theme-dark-primary text-white rounded-xl w-20"
-            on:click={process}>Yes</button
-          >
-          <button
-            class="bg-theme-dark-error text-white rounded-xl w-20"
-            on:click={() => (showProcessPopup = false)}>No</button
-          >
-        </div>
-      </ProcessPopup>
+      {#if showProcessPopup}
+        <ProcessPopup
+        on:closePopup={closeProcessPopup}
+        on:ProcessVideo={processVideo}
+        showProcessPopup={showProcessPopup}/>
+      {/if}
     </div>
 
     <!--Put video and editor and buttons-->

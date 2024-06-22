@@ -1,75 +1,39 @@
 <script>
+    import { push } from "svelte-spa-router";
+    import { createEventDispatcher } from "svelte";
+
     export let showProcessPopup;
 
-    let dialog; // HTMLDialogElement
+    const dispatch = createEventDispatcher();
 
-    $: if (dialog && showProcessPopup) dialog.showModal();
+    function closePopup() {
+        dispatch("closePopup");
+    }
 
-    function close() {
-        dialog.close();
-        showProcessPopup = false;
+    function processVideo() {
+        dispatch("processVideo");
+        console.log("Processing video", showProcessPopup);
     }
 </script>
 
-<dialog
-    class="slot"
-    bind:this={dialog}
-    on:close={() => (showProcessPopup = false)}
-    on:click|self={() => dialog.close()}
-    on:keypress
+<div
+    class="fixed inset-0 flex items-center justify-center bg-theme-dark-background bg-opacity-50 z-50"
 >
-    <div class="flex flex-col p-8 boder-1 border-theme-dark-backgroundBlue">
-        <button class="bg-theme-dark-primary text-white text-center rounded-xl flex justify-center w-3/12 cursor-pointer" on:click={close}>
-            <p class="text-center">
-                Close
-            </p>
-        </button>
-        <slot name="body" />
+    <div
+        class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary"
+    >
+        <div class="flex flex-col p-8 boder-1 border-theme-dark-backgroundBlue">
+            <h1>Are you sure you want to process this video?</h1>
+            <div class="flex mt-4 space-x-4 justify-start">
+                <button
+                    class="bg-theme-dark-primary px-4 py-2 text-white rounded"
+                    on:click={processVideo}>Yes</button
+                >
+                <button
+                    class="bg-theme-dark-error text-white px-4 py-2 rounded"
+                    on:click={closePopup}>No</button
+                >
+            </div>
+        </div>
     </div>
-</dialog>
-
-<style>
-    .slot {
-        position: relative;
-        top: 50%;
-        margin-right: auto;
-        margin-left: auto;
-        border-radius: 20px;
-    }
-
-    button:hover {
-        cursor: pointer;
-    }
-
-    dialog {
-        max-width: 32em;
-        border-radius: 0.2em;
-        border: none;
-        padding: 0;
-    }
-    dialog::backdrop {
-        background: rgba(0, 0, 0, 0.3);
-    }
-    dialog[open] {
-        animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    @keyframes zoom {
-        from {
-            transform: scale(0.95);
-        }
-        to {
-            transform: scale(1);
-        }
-    }
-    dialog[open]::backdrop {
-        animation: fade 0.2s ease-out;
-    }
-    @keyframes fade {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-</style>
+</div>
