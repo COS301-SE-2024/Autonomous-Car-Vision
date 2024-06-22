@@ -11,6 +11,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    getAppPath: async () => await ipcRenderer.invoke('get-app-path'),
     storeToken: (token) => ipcRenderer.send('store-token', token),
     getToken: () => ipcRenderer.sendSync('get-token'),
     clearToken: () => ipcRenderer.sendSync('clear-token'),

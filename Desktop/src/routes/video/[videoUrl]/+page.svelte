@@ -5,6 +5,8 @@
 
   import { VideoURL } from "../../../stores/video";
 
+  import { onMount } from 'svelte';
+
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
   import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
@@ -16,37 +18,44 @@
 
   // TODO: Styling and conditional formatting
 
+  let appPath = "";
+
+  onMount(async () => {
+    appPath = await window.electron.getAppPath();
+  });
+
   const showModelList = writable(false);
 
-  let scriptPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/processVideo.py";
+  let scriptPath = appPath + "/Models/processVideo.py";
   let videoPath;
   let videoName;
   let outputVideoPath;
-  let modelsPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/yolov8n/yolov8n.pt";
+  let modelsPath = appPath + "/Models/yolov8n/yolov8n.pt";
 
   function getFileName(filePath) {
     const parts = filePath.split(/[/\\]/);
     return parts[parts.length - 1];
   }
 
-  VideoURL.subscribe(value => {
+  VideoURL.subscribe((value) => {
     videoPath = value;
     videoName = getFileName(videoPath);
-    outputVideoPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Desktop/outputVideos/" + videoName;
+    outputVideoPath = appPath + "/Desktop/outputVideos/" + videoName;
   });
 
   let processed = false; // Check if the video has been processed
 
   function process() {
-    window.electronAPI.runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
-      .then(result => {
-      output = result;
-      console.log("Python Script Output:", output);
-    })
-      .catch(error => {
-      output = error.message;
-      console.error("Python Script Error:", output);
-    });
+    window.electronAPI
+      .runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
+      .then((result) => {
+        output = result;
+        console.log("Python Script Output:", output);
+      })
+      .catch((error) => {
+        output = error.message;
+        console.error("Python Script Error:", output);
+      });
     processed = true;
     console.log("Processing video", showProcessPopup);
   }
@@ -101,7 +110,11 @@
           on:click={deleteItem}>Delete</button
         >
         {#if showDeleteModal}
-          <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} videoPath={videoPath} />
+          <DeleteModal
+            on:cancel={handleCancel}
+            on:save={handleDeleteSave}
+            {videoPath}
+          />
         {/if}
         <div>
           <button
@@ -130,8 +143,14 @@
       <ProcessPopup bind:showProcessPopup>
         <div slot="body">
           <h1>Are you sure you want to process this video?</h1>
-          <button class="bg-theme-dark-primary text-white rounded-xl w-20" on:click={process}>Yes</button>
-          <button class="bg-theme-dark-error text-white rounded-xl w-20" on:click={() => (showProcessPopup = false)}>No</button>
+          <button
+            class="bg-theme-dark-primary text-white rounded-xl w-20"
+            on:click={process}>Yes</button
+          >
+          <button
+            class="bg-theme-dark-error text-white rounded-xl w-20"
+            on:click={() => (showProcessPopup = false)}>No</button
+          >
         </div>
       </ProcessPopup>
     </div>

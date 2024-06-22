@@ -61,6 +61,11 @@ try {
 
 let store;
 
+// Get app path
+ipcMain.handle('get-app-path', () => {
+    return app.getAppPath();
+  });
+
 //! token
 ipcMain.on('store-token', (event, token) => {
     store.set('authToken', token);
