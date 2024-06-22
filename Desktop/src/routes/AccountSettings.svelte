@@ -89,7 +89,7 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen border-theme-dark-backgroundBlue shadow-tech-blue">
+    <div class="flex flex-col items-center justify-center min-h-screen border-theme-dark-backgroundBlue">
       <div
         class="flex flex-col items-center justify-center p-8 shadow-tech-blue rounded-lg w-96 border border-theme-keith-accentont space-y-3"
       >
