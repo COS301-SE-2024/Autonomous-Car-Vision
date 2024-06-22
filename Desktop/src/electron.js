@@ -363,6 +363,10 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
     });
 });
 
+ipcMain.handle('resolve-path', (event, ...segments) => {
+    return path.resolve(...segments);
+  });
+
 // IPC handler to check if a video file exists
 ipcMain.handle('check-file-existence', async (event, filePath) => {
     try {

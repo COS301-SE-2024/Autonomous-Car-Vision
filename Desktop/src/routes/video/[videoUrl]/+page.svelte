@@ -5,7 +5,7 @@
 
   import { VideoURL } from "../../../stores/video";
 
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
@@ -18,46 +18,75 @@
 
   // TODO: Styling and conditional formatting
 
-  let appPath = "";
-
-  onMount(async () => {
-    appPath = await window.electron.getAppPath();
-  });
-
   const showModelList = writable(false);
 
-  let scriptPath = appPath + "/Models/processVideo.py";
+  let appPath = "";
+  let scriptPath = "";
   let videoPath;
   let videoName;
   let outputVideoPath;
-  let modelsPath = appPath + "/Models/yolov8n/yolov8n.pt";
+  let modelName = "yolov8n"
+  let modelsPath = "";
+  let videoNameExtract = '';
+  let extention = '';
+
+  let processed = false; // Check if the video has been processed
+  let output = ""; // Store the output of the Python script
+
+  // onMount(async () => {
+  //   appPath = await window.electron.getAppPath();
+  //   scriptPath = `${appPath}/Models/processVideo.py`;
+  //   modelsPath = `${appPath}/Models/yolov8n/yolov8n.pt`;
+  // });
 
   function getFileName(filePath) {
     const parts = filePath.split(/[/\\]/);
     return parts[parts.length - 1];
   }
 
-  VideoURL.subscribe((value) => {
-    videoPath = value;
-    videoName = getFileName(videoPath);
-    outputVideoPath = appPath + "/Desktop/outputVideos/" + videoName;
-  });
+  // VideoURL.subscribe(async (value) => {
+  //   appPath = await window.electron.getAppPath();
+  //   videoPath = value;
+  //   videoName = getFileName(videoPath);
+  //   outputVideoPath = `${appPath}/Desktop/outputVideos/${videoName}`;
+  // });
 
-  let processed = false; // Check if the video has been processed
+  async function getVideoDetails() {
+    return new Promise((resolve) => {
+      VideoURL.subscribe(async (value) => {
+        appPath = await window.electronAPI.getAppPath();
+        videoPath = value;
+        videoName = await getFileName(videoPath);
+        //extract video name from video name without the extention
+        videoNameExtract = videoName.split(".")[0];
+        extention = videoName.split(".")[1];
+        outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+        const appDirectory = await window.electronAPI.resolvePath(appPath, '..');
+        scriptPath = `${appDirectory}/Models/processVideo.py`;
+        modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
+        resolve();
+      })();
+    });
+  }
 
-  function process() {
-    window.electronAPI
-      .runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
-      .then((result) => {
-        output = result;
-        console.log("Python Script Output:", output);
-      })
-      .catch((error) => {
-        output = error.message;
-        console.error("Python Script Error:", output);
-      });
+  async function process() {
+    try {
+      await getVideoDetails();
+
+      console.log("Video Path:", scriptPath);
+
+      output = await window.electronAPI.runPythonScript(scriptPath, [
+        videoPath,
+        outputVideoPath,
+        modelsPath,
+      ]);
+      console.log("Python Script Output:", output);
+    } catch (error) {
+      output = error.message;
+      console.error("Python Script Error:", output);
+    }
     processed = true;
-    console.log("Processing video", showProcessPopup);
+    console.log("Processing video");
   }
 
   function re_process() {
