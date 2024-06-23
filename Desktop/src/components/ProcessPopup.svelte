@@ -1,8 +1,11 @@
 <script>
     import { push } from "svelte-spa-router";
     import { createEventDispatcher } from "svelte";
+    import { onMount } from "svelte";
 
     export let showProcessPopup;
+    export let models = [];
+    export let selectedModelName;
 
     const dispatch = createEventDispatcher();
 
@@ -11,8 +14,12 @@
     }
 
     function processVideo() {
-        dispatch("processVideo");
+        dispatch("processVideo", { modelName: selectedModelName });
         console.log("Processing video", showProcessPopup);
+    }
+
+    function handleModelChange(event) {
+        selectedModelName = event.target.value;
     }
 </script>
 
@@ -24,6 +31,11 @@
     >
         <div class="flex flex-col boder border-theme-dark-backgroundBlue">
             <p class="text-md">Are you sure you want to process this video?</p>
+            <select on:change={handleModelChange} bind:value={selectedModelName} class="mt-2 p-2 border rounded">
+                {#each models as model}
+                    <option value={model.model_name}>{model.model_name}</option>
+                {/each}
+            </select>
             <div class="flex mt-4 space-x-4 justify-start">
                 <button
                 class="bg-theme-dark-error font-medium text-white px-4 py-2 rounded"

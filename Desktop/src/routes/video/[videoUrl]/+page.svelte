@@ -26,10 +26,12 @@
   let videoPath;
   let videoName;
   let outputVideoPath;
-  let modelName = "yolov8n"
+  let modelName = "yolov8n";
   let modelsPath = "";
-  let videoNameExtract = '';
-  let extention = '';
+  let videoNameExtract = "";
+  let extention = "";
+  let models = [];
+  let selectedModelName = "yolov8n";
 
   let output = ""; // Store the output of the Python script
   let outputFiles = []; // Store the output files
@@ -42,7 +44,6 @@
   async function getVideoDetails() {
     return new Promise((resolve) => {
       VideoURL.subscribe(async (value) => {
-        
         appPath = await window.electronAPI.getAppPath();
         videoPath = value;
         videoName = await getFileName(videoPath);
@@ -50,7 +51,10 @@
         videoNameExtract = videoName.split(".")[0];
         extention = videoName.split(".")[1];
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
-        const appDirectory = await window.electronAPI.resolvePath(appPath, '..');
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          ".."
+        );
         scriptPath = `${appDirectory}/Models/processVideo.py`;
         modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
         resolve();
@@ -59,59 +63,80 @@
   }
 
   async function getOutputFiles() {
-  try {
-    const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
-    const files = await window.electronAPI.readDirectory(outputDir);
+    try {
+      const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
+      const files = await window.electronAPI.readDirectory(outputDir);
 
-    // Start with the original video
-    outputFiles = [{
-      id: 0,
-      label: "Original",
-      profileImgURL: "https://placekitten.com/300/300",
-      videoURL: videoPath
-    }];
+      // Start with the original video
+      outputFiles = [
+        {
+          id: 0,
+          label: "Original",
+          profileImgURL: "https://placekitten.com/300/300",
+          videoURL: videoPath,
+        },
+      ];
 
-    // Add processed videos
-    const processedFiles = files
-      .map((file, index) => {
-        // Extract the model name from the file name (assuming the model name is part of the file name)
-        const modelNameMatch = file.match(/_processed_(\w+)\./);
-        if (!modelNameMatch) {
-          return null; // Skip files that do not match the pattern
-        }
-        const modelName = modelNameMatch[1];
+      // Add processed videos
+      const processedFiles = files
+        .map((file, index) => {
+          // Extract the model name from the file name (assuming the model name is part of the file name)
+          const modelNameMatch = file.match(/_processed_(\w+)\./);
+          if (!modelNameMatch) {
+            return null; // Skip files that do not match the pattern
+          }
+          const modelName = modelNameMatch[1];
 
-        return {
-          id: index + 1,
-          label: modelName,
-          profileImgURL: "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          videoURL: `${outputDir}/${file}`
-        };
-      })
-      .filter(file => file !== null); // Remove null values from the array
+          return {
+            id: index + 1,
+            label: modelName,
+            profileImgURL:
+              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            videoURL: `${outputDir}/${file}`,
+          };
+        })
+        .filter((file) => file !== null); // Remove null values from the array
 
-    // Combine original and processed videos
-    outputFiles = outputFiles.concat(processedFiles);
+      // Combine original and processed videos
+      outputFiles = outputFiles.concat(processedFiles);
 
-    console.log("Output files:", outputFiles);
-  } catch (error) {
-    console.error("Error reading output directory:", error);
+      console.log("Output files:", outputFiles);
+    } catch (error) {
+      console.error("Error reading output directory:", error);
+    }
   }
-}
+
+  async function fetchModels() {
+    try {
+      const result = await window.electronAPI.getAIModels();
+      if (result.success) {
+        models = result.data;
+        if (models.length > 0) {
+          selectedModelName = models[0].model_name;
+        }
+      } else {
+        console.error("Failed to fetch AI models:", result.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch models", error);
+    }
+  }
 
   onMount(async () => {
+    await fetchModels();
     await getVideoDetails();
     await getOutputFiles();
 
     if (outputFiles.length > 1) {
       showModelList.set(true);
     }
-    console.log($location)
+    console.log($location);
   });
 
   let processed = false; // Check if the video has been processed
 
-  async function processVideo() {
+  async function processVideo(event) {
+    modelName = event.detail.modelName;
     showProcessPopup = false;
     try {
       await getVideoDetails();
@@ -211,7 +236,10 @@
             {/if}
           </button>
           {#if $showModelList}
-            <ModelList on:select={handleModelSelect} processedVideos={outputFiles}/>
+            <ModelList
+              on:select={handleModelSelect}
+              processedVideos={outputFiles}
+            />
           {/if}
         </div>
       </div>
@@ -219,7 +247,10 @@
         <ProcessPopup
         on:closePopup={closeProcessPopup}
         on:processVideo={processVideo}
-        showProcessPopup={showProcessPopup}/>
+        showProcessPopup={showProcessPopup}
+        models={models}
+        selectedModelName={selectedModelName}
+        />
       {/if}
     </div>
 

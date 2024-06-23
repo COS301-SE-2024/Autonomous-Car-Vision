@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, View } = require('electron');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
-const { LookupTable } = require('./database');
+const { LookupTable, AIModels } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
@@ -475,8 +475,8 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
 
 ipcMain.handle('get-ai-models', async () => {
     try {
-        const response = await axios.get('http://127.0.0.1:5000/ai_models');
-        return { success: true, data: response.data };
+        const models = await AIModels.findAll();
+        return { success: true, data: models.map(model => model.toJSON()) };
     } catch (error) {
         console.error('Failed to fetch AI models:', error);
         return { success: false, error: error.message };
