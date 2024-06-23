@@ -54,3 +54,18 @@ class Media (Base):
     media_url = Column(String, nullable=False)
     creation_date = Column(DateTime, default=datetime.utcnow)
     user = relationship('User')
+    
+class AIModels (Base):
+    __tablename__ = 'ai_models'
+    id = Column(Integer, primary_key=True)
+    model_id = Column(String, unique=True, nullable=False)
+    model_name = Column(String, nullable=False)
+    model_description = Column(String, nullable=False)
+    model_version = Column(String, nullable=False)
+    model_summary = Column(String, nullable=False)
+    model_profileimg = Column(String, nullable=False)
+    model_img = Column(String, nullable=False)
+    creation_date = Column(DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
