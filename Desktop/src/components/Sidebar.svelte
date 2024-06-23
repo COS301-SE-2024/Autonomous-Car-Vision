@@ -86,7 +86,7 @@
 </script>
 
 <div
-  class="fixed h-screen w-1/5 bg-theme-dark-backgroundBlue flex flex-col justify-end z-50 text-white"
+  class="fixed h-screen w-1/6 bg-theme-dark-backgroundBlue flex flex-col justify-end z-50 text-white"
 >
   <div class="popup">
     <div class="tabs">
@@ -197,7 +197,7 @@
     flex-direction: column;
     justify-content: space-around;
     position: relative;
-    gap: 10px;
+    gap: 6px;
   }
 
   .marker {
