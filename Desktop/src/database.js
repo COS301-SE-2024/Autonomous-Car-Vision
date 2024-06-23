@@ -93,6 +93,15 @@ sequelize.sync().then(async () => {
             },
             {
                 model_id: '3',
+                model_name: 'yolov8n-seg',
+                model_description: 'A lightweight model to segment detected objects in a video stream.',
+                model_version: '1.0',
+                model_summary: 'Segmentation model',
+                model_profileimg: 'https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                model_img: 'https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif'
+            },
+            {
+                model_id: '4',
                 model_name: 'HV1',
                 model_description: 'HV1 is an advanced model under development, focused on high-velocity object detection and tracking.',
                 model_version: '1.0',

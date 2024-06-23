@@ -81,7 +81,7 @@
       const processedFiles = files
         .map((file, index) => {
           // Extract the model name from the file name (assuming the model name is part of the file name)
-          const modelNameMatch = file.match(/_processed_(\w+)\./);
+          const modelNameMatch = file.match(/_processed_([\w-]+)\./);
           if (!modelNameMatch) {
             return null; // Skip files that do not match the pattern
           }
