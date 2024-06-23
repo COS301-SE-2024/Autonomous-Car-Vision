@@ -19,8 +19,6 @@
   let username = "Username";
   let Name = "User Name";
 
-  // export let items = [];
-
   const accountPopupItems = [
     {
       name: "Account settings",
@@ -75,11 +73,11 @@
   }
 
   function getMarkerPosition() {
-    // If the current route is "/video", treat it as "/gallery"
-    let route = $location === "/video/*" ? "/gallery" : $location;
+    let route = $location.startsWith("/video/") || $location === "/accountsettings" || $location === "/changepassword" ? "/gallery" : $location;
     for (let i = 0; i < items.length; i++) {
       if (items[i].route === route) {
-        return `translateY(calc(calc(50% / 3) * ${i}))`;
+        console.log(route, i);
+        return `translateY(calc(calc(50% / ${items.length}) * ${i}))`;
       }
     }
   }
@@ -96,14 +94,15 @@
           id={"tab" + i}
           name="tab"
           checked={$location === item.route ||
-            (item.route === "/gallery" && $location === "/video")}
+            (item.route === "/gallery" && $location.startsWith("/video")) ||
+            $location === "/accountsettings" || $location === "/changepassword"}
         />
         <label
           for={"tab" + i}
           on:keydown
           on:click={() => navigate(item.route)}
           class={$location === item.route ||
-          (item.route === "/gallery" && $location.startsWith("/video")) || $location === "/accountsettings" || $location === "/changePassword"
+          (item.route === "/gallery" && ($location.startsWith("/video") || $location === "/accountsettings" || $location === "/changepassword"))
             ? "active"
             : ""}
         >
@@ -117,10 +116,10 @@
       </div>
     </div>
   </div>
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
     class="relative flex justify-center gap-4 items-center mt-2 py-2 px-2 rounded transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
     on:click={toggleAccountPopup}
+    on:keydown
   >
     <Avatar class="bg-gray p-2 rounded-full">
       <Icon path={mdiAccountCircle} />
@@ -143,7 +142,6 @@
   .popup {
     position: relative;
     bottom: 2rem;
-    /* height: 100%; */
     width: 100%;
     overflow: hidden;
     background-color: white;
@@ -157,7 +155,7 @@
     opacity: 0.4;
     transition: opacity 0.4s ease-in-out;
     display: block;
-    width: calc(100%);
+    width: 100%;
     text-align: center;
     z-index: 100;
     user-select: none;
@@ -168,11 +166,17 @@
     width: 0;
   }
 
+  input[type="radio"]:checked + label {
+    opacity: 1;
+    color: white;
+  }
+
   label:hover,
   input[type="radio"]:checked + label {
     opacity: 1;
-    color: #b6b6b6;
+    color: rgb(165, 165, 165);
   }
+
 
   label,
   input[type="radio"] {
@@ -185,10 +189,10 @@
     opacity: 1;
   }
 
-  input[type="radio"]:checked + label.active:hover {
-    color: #555555;
+  /* input[type="radio"]:checked + label.active:hover {
+    color: rgb(165, 165, 165);
     opacity: 1;
-  }
+  } */
 
   .tabs {
     width: 100%;
@@ -201,7 +205,6 @@
   }
 
   .marker {
-    /* background-color: #ffffff; */
     position: absolute;
     width: 100%;
     height: 200%;
@@ -217,12 +220,16 @@
     box-shadow: 32px 32px 48px #2e364315;
   }
   .marker #top {
-    height: calc(50%);
+    height: 50%;
     margin-bottom: auto;
     border-radius: 0 0 32px 0;
   }
   .marker #bottom {
     height: calc(50% - 43px);
     border-radius: 0 32px 0 0;
+  }
+
+  label.active {
+    color: black;
   }
 </style>

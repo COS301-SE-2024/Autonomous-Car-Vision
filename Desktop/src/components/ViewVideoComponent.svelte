@@ -1,11 +1,11 @@
 <script>
     import { onMount } from "svelte";
+    import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
     import { Icon } from "svelte-materialify";
     import { mdiPause, mdiPlay } from "@mdi/js";
 
     export let videoPath;
-    videoPath = videoPath.replace("%", " ");
 
     let time = 0;
     let volume = 0;
@@ -83,11 +83,15 @@
     // Subscribe to the videoURL store to get the clicked video
     $: VideoURL.subscribe((value) => {
         videoPath = value;
-        extractFrames();
     });
 
     onMount(() => {
-        console.log(videoPath);
+        console.log($location);
+        // const encodedPath = encodeURIComponent(VideoSource);
+        videoPath = $location.replace("/video/", "");
+        videoPath = decodeURIComponent(videoPath);
+        console.log("VideoPath: ", videoPath);
+        console.log("Stores: ", $VideoURL);
         extractFrames();
     });
 
@@ -115,7 +119,7 @@
 </script>
 
 <div>
-    <div>
+    <div class="flex justify-center bg-black">
         <video
             poster={frames[1]}
             src={videoPath}
@@ -127,7 +131,6 @@
             bind:duration
             bind:paused
             bind:volume
-            class="w-full"
         >
             <track kind="captions" />
         </video>
@@ -137,7 +140,7 @@
         >
             <progress class="TimelineProgress" value={time / duration || 0} />
             <button
-                class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold"
+                class="pl-4 w-10 border-2 border-white rounded-full text-white font-bold"
                 on:click={pause}
             >
                 {#if paused}
@@ -192,6 +195,7 @@
         display: flex;
         overflow-x: scroll;
         overflow-y: hidden;
+        width: 100%;
         height: 100px;
     }
 
@@ -235,7 +239,7 @@
         position: absolute;
         bottom: 40px;
         left: 0;
-        width: 100%;
+        width: 80%;
         height: 5px;
     }
 
@@ -259,7 +263,7 @@
 
     progress {
         display: block;
-        width: 100%;
+        width: 80%;
         height: 40px;
         position: absolute;
         bottom: 0;
@@ -276,6 +280,7 @@
     }
 
     video {
-        width: 100%;
+        width: 90%;
+        aspect-ratio: 16 / 9;
     }
 </style>
