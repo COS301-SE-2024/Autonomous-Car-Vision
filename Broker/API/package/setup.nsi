@@ -111,6 +111,7 @@ Section "MainSection" SEC01
   File "requirements.txt"
   File "start.bat"
   File ".env"
+  File "cerberus.py"
 
   ; Write agent type to a file
   FileOpen $0 "$INSTDIR\agent_type.txt" w
