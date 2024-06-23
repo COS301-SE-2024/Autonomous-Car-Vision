@@ -9,7 +9,7 @@
 
   // Subscribe to the token store to get the current authentication state
   $: token.subscribe((value) => {
-    authToken = value;
+    authToken = window.electronAPI.getToken();
   });
 
   // On component mount, check the authentication state
@@ -26,7 +26,7 @@
   <div class="col-span-1">
     <Sidebar />
   </div>
-    <div class="col-span-4">
-      <slot />
-    </div>
+  <div class="col-span-4">
+    <slot />
+  </div>
 </div>
