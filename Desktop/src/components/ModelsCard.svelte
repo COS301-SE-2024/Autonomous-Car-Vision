@@ -3,13 +3,13 @@
   // Exported Parameters
 
   export let Model = {
-    name: "",
-    category: "",
-    description: "",
-    moreDetails: "",
-    status: "",
-    gif: "",
-    img: "",
+    mName: "",
+    mDescription: "",
+    mVersion: "",
+    mSummary: "",
+    mStatus: "",
+    mProfileImg: "",
+    mImg: "",
   };
   export let key;
   let isFlipped = false;
@@ -21,13 +21,13 @@
     isFlipped =!isFlipped;
   }
 
-  if (Model.status === "green") {
+  if (Model.mStatus === "green") {
     statusColour = "#00DC82";
     status = "Online";
-  } else if (Model.status === "orange") {
+  } else if (Model.mStatus === "orange") {
     statusColour = "#EC9F05";
     status = "Retraining";
-  } else if (Model.status === "red") {
+  } else if (Model.mStatus === "red") {
     statusColour = "#FF0000";
     status = "Offline";
   }
@@ -57,11 +57,11 @@
       class="flex flex-row items-center justify-between px-6 py-4 w-full"
     >
       <div class="inline-flex flex-row items-center gap-2">
-        {#if Model.img !== ""}
-          <img
+        {#if Model.mProfileImg !== ""}
+          <mImg
             class="rounded-full"
-            src={Model.img}
-            alt={Model.name}
+            src={Model.mProfileImg}
+            alt={Model.mName}
             style="height: 53px; width: 52px; object-fit: cover;"
           />
         {:else}
@@ -76,9 +76,9 @@
           </svg>
         {/if}
         <div class="flex flex-col">
-          <p class="w-fit text-theme-blue-light text-xl font-medium">{Model.name}</p>
+          <p class="w-fit text-theme-blue-light text-xl font-medium">{Model.mName}</p>
           <p class="w-40 text-gray text-md font-normal">
-            {Model.category}
+            {Model.mDescription}
           </p>
         </div>
       </div>
@@ -92,10 +92,10 @@
         >
           <circle cx="8" cy="8.5" r="8" fill={statusColour} />
         </svg>
-        <span slot="tip">{status}</span>
+        <span slot="tip">{mStatus}</span>
       </Tooltip>
     </div>
-    {#if Model.gif === ""}
+    {#if Model.mImg === ""}
       <div
         id="image"
         class="flex justify-center items-center bg-black h-72 w-full"
@@ -107,21 +107,21 @@
         id="image"
         class="flex justify-center items-center bg-black h-72 w-full"
       >
-        <img class="h-72 w-full" src={Model.gif} alt={Model.name} />
+        <mImg class="h-72 w-full" src={Model.mImg} alt={Model.mName} />
        </div>
     {/if}
     <div id="content" class="flex flex-col gap-4 w-full p-4">
       <div id="withcontent" class="flex flex-col items-start gap-0">
-        <h1 class="text-lg font-medium">{Model.description}</h1>
+        <h1 class="text-lg font-medium">{Model.mVersion}</h1>
         <!--p class="font-light h-fit">
-          {Model.description}
-        </p-->
+          {Model.mVersion}
+        mSummary</p-->
       </div>
     </div>
     </div>
     <div class="card-back rounded-xl">
      <div class="flex flex-row items-center justify-between px-6 py-4 w-full">
-       <p class="font-light h-fit"> {Model.moreDetails} </p>
+       <p class="font-light h-fit"> {Model.mSummary} </p>
     </div>
    
        </div>
