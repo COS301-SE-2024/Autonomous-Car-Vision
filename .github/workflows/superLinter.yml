@@ -20,5 +20,9 @@ jobs:
           VALIDATE_MARKDOWN: false
           VALIDATE_CSS: false
           VALIDATE_HTML: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_YAML: false
+          VALIDATE_PYTHON: false
+          VALIDAE_PYTHON_BLACK: false
           DEFAULT_BRANCH: "master"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
