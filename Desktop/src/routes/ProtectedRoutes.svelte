@@ -22,11 +22,11 @@
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div class="grid grid-cols-5">
+<div class="grid grid-cols-6 h-full">
   <div class="col-span-1">
     <Sidebar />
   </div>
-  <div class="col-span-4">
-    <slot />
-  </div>
+    <div class="col-span-5">
+      <slot />
+    </div>
 </div>

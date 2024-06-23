@@ -89,9 +89,9 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="flex flex-col items-center justify-center min-h-screen border-theme-dark-backgroundBlue">
       <div
-        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentont space-y-3"
+        class="flex flex-col items-center justify-center p-8 shadow-tech-blue rounded-lg w-1/2 border border-theme-keith-accentont space-y-3"
       >
         <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
@@ -113,7 +113,7 @@
         </div>
 
         <!-- Edit Username -->
-        <div class="mb-4">
+        <div class="mb-4 w-1/2">
           <label for="username" class="block text-theme-keith-secondary mb-1"
             >Username</label
           >
@@ -125,7 +125,7 @@
         </div>
 
         <!-- Edit Email -->
-        <div class="mb-4 text-black">
+        <div class="mb-4 text-black w-1/2">
           <label for="email" class="block text-theme-keith-secondary mb-1"
             >Email</label
           >
@@ -142,7 +142,7 @@
         >
 
         <!-- Save Changes -->
-        <Button class="bg-theme-keith-accentone rounded" on:click={saveChanges}
+        <Button class="bg-theme-dark-backgroundBlue text-theme-dark-white rounded" on:click={saveChanges}
           >Save Changes</Button
         >
       </div>

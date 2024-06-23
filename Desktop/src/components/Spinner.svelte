@@ -35,7 +35,7 @@
 
   .container {
     --uib-size: 120px;
-    --uib-color: rgb(74, 255, 114);
+    --uib-color: #0099ff;
     --uib-speed: 1s;
     --uib-dot-size: calc(var(--uib-size) * 0.1);
     position: relative;

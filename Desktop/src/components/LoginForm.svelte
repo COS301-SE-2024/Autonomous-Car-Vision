@@ -53,15 +53,16 @@
   };
 </script>
 
+<!-- TODO: add error messages -->
 <div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
   <MaterialApp>
     <div class="flex flex-row gap-2">
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center border border-theme-dark-primary rounded-md"
         href="#/login"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-black bg-theme-dark-white "
           depressed
           block>Log In</Button
         >
@@ -71,22 +72,22 @@
         href="#/signup"
       >
         <Button
-          class="text-theme-keith-jet bg-theme-keith-accentone"
+          class="text-theme-dark-white bg-theme-dark-primary"
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 border-2 rounded-md border-theme-keith-primary mt-2">
+    <div class="w-full p-4 rounded-md mt-2 bg-theme-dark-white shadow-card-blue">
       <div class="text-left">
-        <h1 class="text-2xl">Welcome back!</h1>
-        <p>Please enter your information.</p>
+        <h1 class="text-2xl text-black">Welcome back!</h1>
+        <p class="text-black">Please enter your information.</p>
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-1 py-2">
           <TextField bind:value={nToken} outlined>Username/Email</TextField>
           <Button
-            class="bg-theme-keith-accentone text-theme-keith-jet"
+            class="bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitUsername}
             rounded
             block>Next</Button
@@ -112,7 +113,7 @@
             </div>
           </TextField>
           <Button
-            class="bg-theme-keith-accentone text-theme-keith-jet"
+            class="bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitPassword}
             rounded
             block>Log in</Button
