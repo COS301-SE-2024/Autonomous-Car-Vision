@@ -4,15 +4,16 @@
   import { mdiAccountCircle } from "@mdi/js";
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
+  import { push, location } from "svelte-spa-router";
 
   import { mdiViewGallery, mdiUpload, mdiCloudPrintOutline } from "@mdi/js";
 
   import AccountPopup from "./AccountPopup.svelte";
 
   const items = [
-    { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
-    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
-    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
+    { name: "Gallery", route: "/gallery", iconPath: mdiViewGallery },
+    { name: "Upload", route: "/upload", iconPath: mdiUpload },
+    { name: "Models", route: "/models", iconPath: mdiCloudPrintOutline },
   ];
 
   let username = "Username";
@@ -66,52 +67,162 @@
       document.removeEventListener("click", handleClickOutside);
     };
   });
+
+  function navigate(route) {
+    push(route);
+    updateCurrentRoute();
+  }
+
+  function getMarkerPosition() {
+    // If the current route is "/video", treat it as "/gallery"
+    let route = $location === "/video/*" ? "/gallery" : $location;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].route === route) {
+        return `translateY(calc(calc(50% / 3) * ${i}))`;
+      }
+    }
+  }
 </script>
 
 <div
-  class="fixed h-screen w-1/5 bg-theme-dark-backgroundBlue rounded-r-2xl shadow-tech-blue p-4 flex flex-col justify-end z-50 text-white"
+  class="fixed h-screen w-1/5 bg-theme-dark-backgroundBlue flex flex-col justify-end z-50 text-white"
 >
-  <aside>
-    <nav>
-      <ul class="flex flex-col space-y-2 list-none">
-        {#each items as { name, route, iconPath }}
-          <li class="border-b border-theme-dark-primary rounded-lg">
-            <a
-              href={route}
-              class="flex justify-start gap-4 items-center py-2 px-2 transition hover:bg-theme-dark-bgHover hover:border-theme-keith-accentone hover:rounded-lg rounded-lg {currentRoute ===
-              route
-                ? 'bg-theme-dark-bgHover border-theme-dark-backgroundBlue rounded-lg'
-                : ''}"
-            >
-              <Icon path={iconPath} />
-              <span class="ml-2">{name}</span>
-            </a>
-          </li>
-        {/each}
-      </ul>
-    </nav>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div
-      class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
-      on:click={toggleAccountPopup}
-    >
-      <Avatar class="bg-gray p-2 rounded-full">
-        <Icon path={mdiAccountCircle} />
-      </Avatar>
-      <div class="flex flex-col">
-        <span class="text-sm font-bold">{username}</span>
-        <span class="text-sm">{Name}</span>
-      </div>
-      {#if showAccountPopup}
-        <div
-          class="absolute top-0 right-0 transform translate-x-full -translate-y-1/3 mt-2 account-popup-content"
+  <div class="popup">
+    <div class="tabs">
+      {#each items as item, i}
+        <input
+          type="radio"
+          id={"tab" + i}
+          name="tab"
+          checked={$location === item.route ||
+            (item.route === "/gallery" && $location === "/video")}
+        />
+        <label
+          for={"tab" + i}
+          on:keydown
+          on:click={() => navigate(item.route)}
+          class={$location === item.route ||
+          (item.route === "/gallery" && $location === "/video")
+            ? "active"
+            : ""}>
+            {item.name}</label
         >
-          <AccountPopup
-            items={accountPopupItems}
-            on:close={closeAccountPopup}
-          />
-        </div>
-      {/if}
+      {/each}
+      <div
+        class="marker"
+        style="transform: {getMarkerPosition()};"
+      >
+        <div id="top"></div>
+        <div id="bottom"></div>
+      </div>
     </div>
-  </aside>
+  </div>
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div
+    class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
+    on:click={toggleAccountPopup}
+  >
+    <Avatar class="bg-gray p-2 rounded-full">
+      <Icon path={mdiAccountCircle} />
+    </Avatar>
+    <div class="flex flex-col">
+      <span class="text-sm font-bold">{username}</span>
+      <span class="text-sm">{Name}</span>
+    </div>
+    {#if showAccountPopup}
+      <div
+        class="absolute top-0 right-0 transform translate-x-full -translate-y-1/3 mt-2 account-popup-content"
+      >
+        <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
+      </div>
+    {/if}
+  </div>
 </div>
+
+<style>
+  .popup {
+    position: relative;
+    bottom: 2rem;
+    /* height: 100%; */
+    width: 100%;
+    overflow: hidden;
+    background-color: white;
+  }
+
+  label {
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    opacity: 0.4;
+    transition: opacity 0.4s ease-in-out;
+    display: block;
+    width: calc(100%);
+    text-align: center;
+    z-index: 100;
+    user-select: none;
+  }
+
+  input[type="radio"] {
+    display: none;
+    width: 0;
+  }
+
+  label:hover,
+  input[type="radio"]:checked + label {
+    opacity: 1;
+    color: #999999;
+  }
+
+  label,
+  input[type="radio"] {
+    opacity: 1;
+    color: white;
+  }
+
+  input[type="radio"]:checked + label.active {
+    color: black;
+    opacity: 1;
+  }
+
+  input[type="radio"]:checked + label.active:hover {
+    color: #999999;
+    opacity: 1;
+  }
+
+  .tabs {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    position: relative;
+    gap: 10px;
+  }
+
+  .marker {
+    /* background-color: #ffffff; */
+    position: absolute;
+    width: 100%;
+    height: 200%;
+    display: flex;
+    flex-direction: column;
+    bottom: 0;
+    left: 0;
+    transition: transform 0.2s ease-in-out;
+  }
+  .marker #bottom,
+  .marker #top {
+    background-color: #0c003c;
+    box-shadow: 32px 32px 48px #2e364315;
+  }
+  .marker #top {
+    height: calc(50%);
+    margin-bottom: auto;
+    border-radius: 0 0 32px 0;
+  }
+  .marker #bottom {
+    height: calc(50% - 43px);
+    border-radius: 0 32px 0 0;
+  }
+</style>

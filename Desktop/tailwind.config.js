@@ -5,6 +5,7 @@ module.exports = {
       extend: {
         colors: {
           'theme-dark': {
+            textHover: "#4D4D4D",
             white: '#FFFFFF', // white
             lightText: '#FFFFFF', // white
             background: '#181818', // offBlack

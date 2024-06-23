@@ -92,7 +92,7 @@
         >
           <circle cx="8" cy="8.5" r="8" fill={statusColour} />
         </svg>
-        <span slot="tip">{mStatus}</span>
+        <span slot="tip">{Model.mStatus}</span>
       </Tooltip>
     </div>
     {#if Model.mImg === ""}

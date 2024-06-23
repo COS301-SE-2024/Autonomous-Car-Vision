@@ -1,6 +1,8 @@
 <script>
     import { onMount } from "svelte";
     import { VideoURL } from "../stores/video";
+    import { Icon } from "svelte-materialify";
+    import { mdiPause, mdiPlay } from "@mdi/js";
 
     export let videoPath;
     videoPath = videoPath.replace("%", " ");
@@ -140,7 +142,11 @@
                 class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold"
                 on:click={pause}
             >
-                {paused ? "Play" : "Pause"}
+                {#if paused}
+                    <Icon path={mdiPlay} />
+                {:else}
+                    <Icon path={mdiPause} />
+                {/if}
                 <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
             </button>
             <div class="info">
@@ -155,7 +161,6 @@
             {#each frames as frame}
                 <div
                     class="thumbnail hover:cursor-pointer"
-                    style="background-image: url({frame})"
                     on:click={() => seekToFrame(frame)}
                     on:keypress
                 >
@@ -199,6 +204,12 @@
         background-size: cover;
         background-position: center;
         cursor: pointer;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
     }
 
     .thumbnail:hover {
