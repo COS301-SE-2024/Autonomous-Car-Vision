@@ -114,7 +114,6 @@ def test_store_agent_keys(mock_db_connection):
 
 def test_store_agent_keys_false(mock_db_connection):
     from charon import store_agent_keys
-
     aid = 1
     ecdh_pub = b"mock_ecdh_public_key"
     rsa_pub = b"mock_rsa_public_key"
