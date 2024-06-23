@@ -2,6 +2,7 @@
 import Home from './Home.svelte';
 import LogIn from './LogIn.svelte';
 import SignUp from './SignUp.svelte';
+import Help from './Help.svelte';
 
 import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
@@ -10,6 +11,7 @@ import Gallery from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
+
 
 const routes = {
     '/': Home,
@@ -22,6 +24,7 @@ const routes = {
     '/accountsettings' : AccountSettings,
     '/changePassword': ChangePassword,
     '/video/:VideoUrl': VideoPage,
+    '/Help': Help,
 };
 
 export default routes;
