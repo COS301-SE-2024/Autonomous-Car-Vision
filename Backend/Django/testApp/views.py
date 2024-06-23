@@ -2,6 +2,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 from django.shortcuts import render
+import requests
 from rest_framework import viewsets
 from .serializers import TokenSerializer, UserSerializer, AuthSerializer, OTPSerializer, MediaSerializer
 from .models import User, Auth, OTP, Token, Media
@@ -588,3 +589,42 @@ def devLogin(request):
 
 def download(request):
     return render(request, './download.html')
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def uploadFile(request):
+    data = request.data
+    uid = data.get('uid')
+    token = data.get('token')
+    
+    #! Commented for dev purposes
+    # if not token:
+    #     return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # try:    
+    #     dataToken = Token.objects.get(uid=uid)
+    # except Token.DoesNotExist:
+    #     return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)        
+    
+    # if dataToken.token != token:
+    #     return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)   
+    
+    aid = data.get('aid')
+    size = data.get('size')
+    utoken = data.get('utoken')
+    
+    message = {
+        'aid': aid,
+        'size': size,
+        'utoken': utoken
+    }
+    
+    print(message)
+    
+    url = "http://localhost:8006/brokerStore"
+    response = requests.post(url, json=message)
+    data = response.json()
+    print(response.status_code)
+    print(response.json())
+    
+    return Response({'aip': data["aip"], 'aport': data["aport"]}, status=status.HTTP_200_OK)

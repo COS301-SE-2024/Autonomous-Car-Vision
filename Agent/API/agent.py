@@ -13,7 +13,9 @@ import subprocess
 import shutil
 import json
 from dotenv import load_dotenv
+import base64
 
+load_dotenv()
 
 app = FastAPI()
 
@@ -36,11 +38,16 @@ def getHardwareInfo():
 
     return False
 
-
+#TODO TEST
 @app.get("/install")
 async def install():
     async with httpx.AsyncClient() as client:
-        load_dotenv()
+        # # get my agent details
+        # response = await client.get('http://127.0.0.1:8006/agent')
+        # if response.status_code != 200:
+        #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
+        # print("Response:", response.json())
+
         # encrypt my public ecd key
         init_elyptic = cerberus.elyptic(True)
         agent_public = init_elyptic['public']
@@ -59,10 +66,11 @@ async def install():
             "rsa_key": agent_rsa_public.decode('utf-8')
         }
         print("JSON data for encryption:", data_to_encrypt)
-        with open("./public_key.pem", "rb") as key_file:
-            pem_content = key_file.read()
-            print("Public key content:\n", pem_content.decode())  # Print the content of the PEM file
-        encrypted_message = cerberus.encrypt_message(pem_content, data_to_encrypt)
+        
+        test = os.getenv("PUBLIC")
+        test = base64.b64decode(test)
+
+        encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
         print("Encrypted message: ", encrypted_message)
 
         # Transmit the encrypted data
@@ -75,9 +83,6 @@ async def install():
         server_ecdh = cerberus.decrypt_ecdh_key_with_rsa(agent_rsa_private, response2.json()['encrypted_ecdh'])
         print("server ecdh decoded", server_ecdh)
         server_ecdh2 = load_pem_public_key(server_ecdh.encode('utf-8'))
-        
-        with open('./.env', 'w') as f:
-            f.write(f"SERVER_ECDH={server_ecdh2}")
 
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
@@ -122,9 +127,7 @@ def startFTP(ip, port, old_uid, old_size, old_token):
         while True:
             conn, addr = s.accept()
             with conn:
-                # Receive UID
                 data = receive_until_null(conn)
-                # make data json
                 data = json.loads(data)
                 print(f"DATA: {data}")
                 
@@ -133,8 +136,6 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 size = data['size']
                 token = data['token']
                 command = data['command']
-                
-                
 
                 directory = f"./Download/{uid}/"
                 os.makedirs(directory, exist_ok=True)
@@ -187,9 +188,10 @@ def startFTP(ip, port, old_uid, old_size, old_token):
 async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
     ip, port = findOpenPort()
     body = await request.json()
-    aid = body['aid']
-    size = body['size']
-    utoken = body['utoken']
+    print(f"Body: \n{body}")
+    aid = "STUMPED"
+    size = "STUMPED"
+    utoken = "STUMPED"
     backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
     return {"aip": ip, "aport": port}
 

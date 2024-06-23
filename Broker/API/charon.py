@@ -438,11 +438,10 @@ import httpx
 async def transmit(aip, aport, emessage):
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(f'http://{aip}:{aport}/startupFTPListener', json=emessage)
+            response = await client.post(f'http://{aip}:{aport}/startupFTPListener/', json=emessage)
         if response.status_code != 200:
             return False
         return response.json()
     except httpx.RequestError as exc:
         print(f"An error occurred while posting to agent {exc.request.url!r}: {exc}")
         return False
-

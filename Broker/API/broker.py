@@ -1,16 +1,15 @@
 import json
 
 from cryptography.hazmat.primitives.serialization import load_pem_public_key, load_pem_private_key
-from cryptography.hazmat.primitives import serialization
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import subprocess
 # import setup
 import charon
 import media
+import base64
 
 app = FastAPI()
-
 
 @app.get("/")
 def status():
@@ -29,15 +28,13 @@ def agent():
 
     aid = response['aid']
     public = response['public']
+    
+    public = base64.b64encode(public).decode('utf-8')
 
     # make env file
     with open('./package/.env', 'w') as f:
         f.write(f"AID={aid}\n")
-     
-    with open("./package/public_key.pem", "wb") as public_key_file:
-        public_key_file.write(
-            public
-        )  
+        f.write(f"PUBLIC={public}")
 
     subprocess.run(['makensis', './package/setup.nsi'])
 
@@ -92,16 +89,16 @@ async def brokerStore(request: Request):
     # gets file size, mid, uid, token,
     message = await request.json()
     print(">>>BrokerStore initiated", message)
-    print("Getting available agents")
-    agents = media.get_avail_store_agents(message['size'])
-    print("avail agents: ", agents)
+    # print("Getting available agents")
+    # agents = media.get_avail_store_agents(message['size'])
+    # print("avail agents: ", agents)
     avail = None
-    for agent in agents:
-        if await charon.ping(agent['aip'], agent['aport']):
-            avail = agent
-            break
+    # for agent in agents:
+    #     if await charon.ping(agent['aip'], agent['aport']):
+    #         avail = agent
+    #         break
     if avail is None:
-        avail = {'aid': 1, 'aport': 8009, 'aip': '127.0.0.1'}
+        avail = {'aid': 28, 'aport': 8001, 'aip': '127.0.0.1'}
 
     if not await charon.ping(avail['aip'], avail['aport']):
         return {'status': 'no agents available'}
