@@ -19,7 +19,7 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Define the codec and create a VideoWriter object to save the output video
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'X264')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
     while cap.isOpened():
