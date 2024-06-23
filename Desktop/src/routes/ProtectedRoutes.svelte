@@ -12,22 +12,21 @@
         authToken = value;
     });
 
-    // On component mount, check the authentication state
-    onMount(() => {
-        if (!authToken) {
-            console.log(authToken);
-            // Redirect to the login page if the user is not authenticated
-            navigate("#login"); // Change this to your login route
-        }
-    });
+  // On component mount, check the authentication state
+  onMount(() => {
+    if (!authToken) {
+      // Redirect to the login page if the user is not authenticated
+      navigate("#login"); // Change this to your login route
+    }
+  });
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div class="flex">
-    <div class="w-1/5">
-        <Sidebar />
-    </div>
-    <div class="flex-1 items-center p-4">
-        <slot />
+<div class="grid grid-cols-5">
+  <div class="col-span-1">
+    <Sidebar />
+  </div>
+    <div class="col-span-4">
+      <slot />
     </div>
 </div>

@@ -10,5 +10,9 @@ backendVenv
 .sqlite
 frames
 .pnp.*
+agentVenv
+brokerVenv
+.pem
+.enc
 Desktop/html
 .svelte-kit

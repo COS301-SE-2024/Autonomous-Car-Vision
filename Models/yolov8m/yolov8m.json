@@ -1,0 +1,8 @@
+{
+"description": {
+    "description": "The YOLOv8 Medium model is a mid-sized version of the YOLOv8 object detection model. It strikes a balance between accuracy and speed, making it suitable for a wide range of applications. The model architecture is based on the YOLO (You Only Look Once) approach, which divides the input image into a grid and predicts bounding boxes and class probabilities for each grid cell. It utilizes convolutional layers, upsampling, and concatenation operations to extract features at different scales. Compared to the YOLOv8 Nano model, the YOLOv8 Medium model has more layers and parameters, resulting in improved detection accuracy, especially for small or heavily occluded objects. It is a great choice for applications that require real-time object detection on devices with moderate computational resources."
+},
+    "version": {
+        "version": "v1.0"
+    }
+}

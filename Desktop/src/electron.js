@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, View } = require('electron');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -6,6 +6,13 @@ const { LookupTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
+const ffmpegFluent = require('fluent-ffmpeg');
+const ffmpegPath = require('ffmpeg-static');
+const ffprobePath = require('ffprobe-static').path;
+
+const os = require('os');
+const { Worker, isMainThread } = require('worker_threads');
+
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -212,4 +219,114 @@ ipcMain.handle('fetch-videos', async () => {
         console.error('Failed to fetch videos:', error);
         return { success: false, error: error.message };
     }
+});
+
+// Extract frames handler
+ipcMain.handle('extract-frames', async (event, videoPath) => {
+    try {
+        console.log("VIDEO PATH:", videoPath);
+
+        const { format } = await new Promise((resolve, reject) => {
+            ffmpegFluent(videoPath)
+                .setFfprobePath(ffprobePath)
+                .ffprobe((err, metadata) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(metadata);
+                    }
+                });
+        });
+
+        
+        const duration = format.duration;
+        const videoName = path.basename(videoPath, path.extname(videoPath));
+        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+
+        // checks if output directory exists
+
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+        
+        // Checking if the frames are already generated
+        const frameFiles = fs.readdirSync(outputDir);
+        if (frameFiles.length > 0) {
+            console.log('Frames already exist for:', videoPath);
+            const framePaths = frameFiles.map(file => path.join(outputDir, file));
+            return framePaths;
+        }
+
+        console.log('output directory: ', outputDir);
+
+        const MAX_FRAMES = 100;
+        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.15));
+        const frameRate = maxFrameCount / duration;
+
+        const threadCount = Math.min(os.cpus().length, maxFrameCount);
+        const chunkDuration = duration / threadCount;
+
+        const promises = [];
+        for (let i = 0; i < threadCount; i++) {
+            const startTime = i * chunkDuration;
+            const worker = new Worker(path.join(__dirname, 'frameExtractorWorker.js'), {
+                workerData: {
+                    videoPath,
+                    outputDir,
+                    startTime,
+                    duration: chunkDuration,
+                    frameRate,
+                    threadIndex: i + 1
+                }
+            });
+
+            promises.push(new Promise((resolve, reject) => {
+                worker.on('message', (msg) => {
+                    if (msg.error) {
+                        reject(new Error(msg.error));
+                    } else {
+                        resolve();
+                    }
+                });
+                worker.on('error', reject);
+                worker.on('exit', (code) => {
+                    if (code !== 0) {
+                        reject(new Error(`Worker stopped with exit code ${code}`));
+                    }
+                });
+            }));
+        }
+
+        await Promise.all(promises);
+
+        const framePaths = fs.readdirSync(outputDir).map(file => path.join(outputDir, file));
+        return framePaths;
+    } catch (error) {
+        console.error('Error extracting frames:', error);
+        throw error;
+    }
+});
+
+
+// IPC handler to save the file and return the file path
+ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
+    const appDataPath = app.getPath('userData');
+    const downloadsPath = path.join(appDataPath, 'Downloads');
+
+    if (!fs.existsSync(downloadsPath)) {
+        fs.mkdirSync(downloadsPath);
+    }
+
+    const destinationPath = path.join(downloadsPath, fileName);
+
+    return new Promise((resolve, reject) => {
+        const readStream = fs.createReadStream(sourcePath);
+        const writeStream = fs.createWriteStream(destinationPath);
+
+        readStream.on('error', reject);
+        writeStream.on('error', reject);
+        writeStream.on('finish', () => resolve(destinationPath));
+
+        readStream.pipe(writeStream);
+    });
 });

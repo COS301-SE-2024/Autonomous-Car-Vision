@@ -46,7 +46,7 @@ module.exports = {
           secondary: '#83468F',
         },
         'white': '#FFFF',
-        'black': '#0000',
+        'black': '#000',
       },
     },
     variants: {

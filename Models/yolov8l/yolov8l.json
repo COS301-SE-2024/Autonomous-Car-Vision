@@ -1,0 +1,8 @@
+{
+    "description": {
+        "description": "The YOLOv8 Large model is a powerful object detection model that balances accuracy and speed, making it suitable for real-time applications on resource-constrained devices."
+    },
+    "version": {
+        "version": "v1.0"
+    }
+}
