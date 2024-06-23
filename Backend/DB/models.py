@@ -1,5 +1,14 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Sequence, PrimaryKeyConstraint
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    Boolean,
+    Sequence,
+    PrimaryKeyConstraint,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import os
@@ -13,56 +22,60 @@ DATABASE_URL = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('
 
 Base = declarative_base()
 
+
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
     uid = Column(Integer, primary_key=True)
     uname = Column(String, unique=True, nullable=False)
     uemail = Column(String, unique=True, nullable=False)
 
+
 class Auth(Base):
-    __tablename__ = 'auth'
+    __tablename__ = "auth"
     id = Column(Integer, primary_key=True)
-    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
+    uid = Column(Integer, ForeignKey("users.uid", ondelete="CASCADE"), nullable=False)
     hash = Column(String, nullable=False)
     salt = Column(String, nullable=False)
-    user = relationship('User')
+    user = relationship("User")
+
 
 class Otp(Base):
-    __tablename__ = 'otp'
+    __tablename__ = "otp"
     id = Column(Integer, primary_key=True)
-    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
+    uid = Column(Integer, ForeignKey("users.uid", ondelete="CASCADE"), nullable=False)
     otp = Column(String(6))
     creation_date = Column(DateTime, default=datetime.utcnow)
     expiry_date = Column(DateTime, nullable=False)
-    user = relationship('User')
+    user = relationship("User")
+
 
 class Token(Base):
-    __tablename__ = 'tokens'
+    __tablename__ = "tokens"
     id = Column(Integer, primary_key=True)
-    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
+    uid = Column(Integer, ForeignKey("users.uid", ondelete="CASCADE"), nullable=False)
     token = Column(String(40), unique=True, nullable=False)
     creation_date = Column(DateTime, default=datetime.utcnow)
-    user = relationship('User')
+    user = relationship("User")
+
 
 class Media(Base):
-    __tablename__ = 'media'
+    __tablename__ = "media"
     id = Column(Integer, primary_key=True)
-    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
+    uid = Column(Integer, ForeignKey("users.uid", ondelete="CASCADE"), nullable=False)
     media_id = Column(String, unique=True, nullable=False)
     media_name = Column(String, nullable=False)
     media_url = Column(String, nullable=False)
     creation_date = Column(DateTime, default=datetime.utcnow)
-    user = relationship('User')
+    user = relationship("User")
+
 
 class Keystore(Base):
-    __tablename__ = 'keystore'
-    aid = Column(Integer, Sequence('aid_seq'), primary_key=True)
-    keyid = Column(Integer, Sequence('keyid_seq'), primary_key=True)
+    __tablename__ = "keystore"
+    aid = Column(Integer, Sequence("aid_seq"), primary_key=True)
+    keyid = Column(Integer, Sequence("keyid_seq"), primary_key=True)
     init_key = Column(String(250), nullable=False)
     initkey_validation = Column(Boolean, default=False)
     pem_priv = Column(String(250), nullable=True)
     pem_pub = Column(String(250), nullable=True)
 
-    __table_args__ = (
-        PrimaryKeyConstraint('aid', 'keyid', name='keystore_pk'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("aid", "keyid", name="keystore_pk"),)

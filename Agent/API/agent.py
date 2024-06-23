@@ -19,34 +19,50 @@ load_dotenv()
 app = FastAPI()
 RUN_ONCE_FILE = "run_once_flag.txt"
 
+
 @app.get("/")
 def status():
     return {"status": "online"}
 
+
 def getHardwareInfo():
     try:
-        if shutil.which('nvidia-smi') is not None:
-            result = subprocess.run(['nvidia-smi'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        if shutil.which("nvidia-smi") is not None:
+            result = subprocess.run(
+                ["nvidia-smi"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
             if "NVIDIA-SMI" in result.stdout:
-                if shutil.which('nvcc') is not None:
-                    result = subprocess.run(['nvcc', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+                if shutil.which("nvcc") is not None:
+                    result = subprocess.run(
+                        ["nvcc", "--version"],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        check=True,
+                    )
                     if "release" in result.stdout:
                         return True
     except:
         pass
     return False
 
+
 @app.on_event("startup")
 async def startup_event():
     if not os.path.exists(RUN_ONCE_FILE):
         await install()
-        #TODO Run initial setup
+        # TODO Run initial setup
         with open(RUN_ONCE_FILE, "w") as file:
             file.write("This file indicates the one-time function has run.")
     else:
         print("One-time setup function has already run, skipping.")
 
-#TODO TEST
+
+# TODO TEST
 @app.get("/install")
 async def install():
     async with httpx.AsyncClient() as client:
@@ -58,23 +74,23 @@ async def install():
 
         # encrypt my public ecd key
         init_elyptic = cerberus.elyptic(True)
-        agent_public = init_elyptic['public']
-        agent_private = init_elyptic['private']
+        agent_public = init_elyptic["public"]
+        agent_private = init_elyptic["private"]
 
         agent_rsa = cerberus.asymmetric()
-        agent_rsa_public = agent_rsa['public']
-        agent_rsa_private = agent_rsa['private']
+        agent_rsa_public = agent_rsa["public"]
+        agent_rsa_private = agent_rsa["private"]
 
         data_to_encrypt = {
             "aid": os.getenv("AID"),
             "ecd_key": agent_public.public_bytes(
                 encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
-            ).decode('utf-8'),
-            "rsa_key": agent_rsa_public.decode('utf-8')
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            ).decode("utf-8"),
+            "rsa_key": agent_rsa_public.decode("utf-8"),
         }
         print("JSON data for encryption:", data_to_encrypt)
-        
+
         test = os.getenv("PUBLIC")
         test = base64.b64decode(test)
 
@@ -82,28 +98,49 @@ async def install():
         print("Encrypted message: ", encrypted_message)
 
         # Transmit the encrypted data
-        response2 = await client.post('http://127.0.0.1:8006/test',
-                                      json={"aid": os.getenv("AID"), "message": encrypted_message})
+        response2 = await client.post(
+            "http://127.0.0.1:8006/test",
+            json={"aid": os.getenv("AID"), "message": encrypted_message},
+        )
         if response2.status_code != 200:
-            raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
+            raise HTTPException(
+                status_code=response2.status_code, detail="Error posting encrypted data"
+            )
         print("Response:", response2.json())
         # session = cerberus.get_session(agent_private,)
-        server_ecdh = cerberus.decrypt_ecdh_key_with_rsa(agent_rsa_private, response2.json()['encrypted_ecdh'])
+        server_ecdh = cerberus.decrypt_ecdh_key_with_rsa(
+            agent_rsa_private, response2.json()["encrypted_ecdh"]
+        )
         print("server ecdh decoded", server_ecdh)
-        server_ecdh2 = load_pem_public_key(server_ecdh.encode('utf-8'))
+        server_ecdh2 = load_pem_public_key(server_ecdh.encode("utf-8"))
 
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
         session = cerberus.get_session(agent_private, server_ecdh2)
-        message = cerberus.elyptic_encryptor(session, json.dumps({'aip': '127.0.0.1', 'aport': 8010, 'capacity': 'dual', 'storage': 290.4,
-                                                       'identifier': "ACDC"}))
-        response3 = await client.post('http://127.0.0.1:8006/handshake',
-                                      json={"aid": os.getenv("AID"), "message": message})
+        message = cerberus.elyptic_encryptor(
+            session,
+            json.dumps(
+                {
+                    "aip": "127.0.0.1",
+                    "aport": 8010,
+                    "capacity": "dual",
+                    "storage": 290.4,
+                    "identifier": "ACDC",
+                }
+            ),
+        )
+        response3 = await client.post(
+            "http://127.0.0.1:8006/handshake",
+            json={"aid": os.getenv("AID"), "message": message},
+        )
         if response3.status_code != 200:
-            raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
+            raise HTTPException(
+                status_code=response2.status_code, detail="Error posting encrypted data"
+            )
         print("Response:", response3.json())
         print(server_ecdh)
-        return {'message': "success"}
+        return {"message": "success"}
+
 
 def findOpenPort():
     port = 8002
@@ -118,16 +155,17 @@ def findOpenPort():
                 break
     return ip, port
 
+
 def startFTP(ip, port, old_uid, old_size, old_token):
     def receive_until_null(conn):
-        data = b''
+        data = b""
         while True:
             byte = conn.recv(1)
-            if byte == b'\0':
+            if byte == b"\0":
                 break
             data += byte
         return data.decode()
-    
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
@@ -138,18 +176,18 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 data = receive_until_null(conn)
                 data = json.loads(data)
                 print(f"DATA: {data}")
-                
+
                 uid = data.get("uid")
                 mid = data.get["mid"]
-                size = data['size']
-                token = data['token']
-                command = data['command']
+                size = data["size"]
+                token = data["token"]
+                command = data["command"]
 
                 directory = f"./Download/{uid}/"
                 os.makedirs(directory, exist_ok=True)
                 print(f"Directory {directory} created to store information.")
 
-                print(f'Connected by {addr}')
+                print(f"Connected by {addr}")
 
                 if command == "SEND":
                     filename = receive_until_null(conn)
@@ -159,7 +197,7 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                         break
                     filepath = os.path.join(directory, filename)
 
-                    with open(filepath, 'wb') as f:
+                    with open(filepath, "wb") as f:
                         print(f"Receiving file {filename}...")
                         while True:
                             data = conn.recv(1024)
@@ -177,7 +215,7 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                     filepath = os.path.join(directory, filename)
 
                     if os.path.exists(filepath):
-                        with open(filepath, 'rb') as f:
+                        with open(filepath, "rb") as f:
                             print(f"Sending file {filename}...")
                             while True:
                                 data = f.read(1024)
@@ -187,9 +225,10 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                         print(f"File {filename} sent successfully.")
                     else:
                         print(f"File {filename} does not exist.")
-                        
+
     s.close()
     return "Operation completed successfully."
+
 
 @app.post("/startupFTPListener/")
 async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
@@ -202,21 +241,23 @@ async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request)
     backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
     return {"aip": ip, "aport": port}
 
+
 @app.post("/process/")
 async def process(request: Request):
     # gets the name from the request
     try:
         body = await request.json()
-        uid = body['uid']
-        mid = body['mid']
-        token = body['token']
+        uid = body["uid"]
+        mid = body["mid"]
+        token = body["token"]
         # fetch the file url
         # process the file
-        if(getHardwareInfo()):
+        if getHardwareInfo():
             return JSONResponse(status_code=200, content={"message": "Success"})
         # subprocess.run(['makensis', './package/setup.nsi'])
     except:
         return JSONResponse(status_code=400, content={"message": "Invalid request"})
+
 
 def verifyOTP(otp):
     otp = "1234"
@@ -224,9 +265,10 @@ def verifyOTP(otp):
         return True
     else:
         return False
-    
+
+
 @app.post("/listen")
 async def listen(request: Request):
     message = await request.json()
     print(message)
-    return {'message': "ill start listening thanks"}
+    return {"message": "ill start listening thanks"}

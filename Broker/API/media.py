@@ -6,21 +6,16 @@ from psycopg2 import pool
 
 load_dotenv()
 
-dbname = os.getenv('POSTGRES_DB')
-user = os.getenv('POSTGRES_USER')
-password = os.getenv('POSTGRES_PASSWORD')
-host = os.getenv('POSTGRES_HOST')
-port = os.getenv('POSTGRES_PORT')
+dbname = os.getenv("POSTGRES_DB")
+user = os.getenv("POSTGRES_USER")
+password = os.getenv("POSTGRES_PASSWORD")
+host = os.getenv("POSTGRES_HOST")
+port = os.getenv("POSTGRES_PORT")
 
 print(f"Connecting to database {dbname} at {host}:{port} with user {user}")
 
 connection_pool = psycopg2.pool.SimpleConnectionPool(
-    1, 20,
-    dbname=dbname,
-    user=user,
-    password=password,
-    host=host,
-    port=port
+    1, 20, dbname=dbname, user=user, password=password, host=host, port=port
 )
 
 
@@ -47,12 +42,18 @@ def registerAgent(message, aid):
     WHERE aid = %s;
     """
     values = (
-        message['aip'], message['aport'], message['capacity'], message['storage'], message['identifier'], aid)
+        message["aip"],
+        message["aport"],
+        message["capacity"],
+        message["storage"],
+        message["identifier"],
+        aid,
+    )
     print(values)
     cursor.execute(update_query, values)
     conn.commit()
     release_connection(conn)
-    return {'message': 'Agent registered'}
+    return {"message": "Agent registered"}
 
 
 def get_agent_details_from_media(mid):
@@ -85,6 +86,7 @@ def get_agent_details_from_media(mid):
 
     return result
 
+
 def get_avail_store_agents(storage_capacity):
     conn = get_connection()
     cursor = conn.cursor()
@@ -103,6 +105,3 @@ def get_avail_store_agents(storage_capacity):
     release_connection(conn)
 
     return result
-
-
-

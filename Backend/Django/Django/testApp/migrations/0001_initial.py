@@ -8,35 +8,48 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('uid', models.AutoField(primary_key=True, serialize=False)),
-                ('uname', models.TextField(unique=True)),
-                ('uemail', models.TextField(unique=True)),
+                ("uid", models.AutoField(primary_key=True, serialize=False)),
+                ("uname", models.TextField(unique=True)),
+                ("uemail", models.TextField(unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='OTP',
+            name="OTP",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('otp', models.CharField(max_length=6)),
-                ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('expiry_date', models.DateTimeField()),
-                ('uid', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='otp', to='testApp.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("otp", models.CharField(max_length=6)),
+                ("creation_date", models.DateTimeField(auto_now_add=True)),
+                ("expiry_date", models.DateTimeField()),
+                (
+                    "uid",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="otp",
+                        to="testApp.user",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Auth',
+            name="Auth",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('hash', models.CharField(max_length=255)),
-                ('salt', models.CharField(max_length=255)),
-                ('uid', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='auth', to='testApp.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("hash", models.CharField(max_length=255)),
+                ("salt", models.CharField(max_length=255)),
+                (
+                    "uid",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="auth",
+                        to="testApp.user",
+                    ),
+                ),
             ],
         ),
     ]
