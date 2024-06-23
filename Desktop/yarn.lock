@@ -1171,7 +1171,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/kit@npm:^2.5.10":
+"@sveltejs/kit@npm:^2.5.17":
   version: 2.5.17
   resolution: "@sveltejs/kit@npm:2.5.17"
   dependencies:
@@ -9693,7 +9693,7 @@ __metadata:
     "@rollup/plugin-node-resolve": "npm:^11.0.0"
     "@rollup/plugin-url": "npm:^8.0.2"
     "@rollup/pluginutils": "npm:^5.1.0"
-    "@sveltejs/kit": "npm:^2.5.10"
+    "@sveltejs/kit": "npm:^2.5.17"
     "@testing-library/svelte": "npm:^3.0.0"
     "@types/bcryptjs": "npm:^2.4.6"
     autoprefixer: "npm:^10.0.0"
