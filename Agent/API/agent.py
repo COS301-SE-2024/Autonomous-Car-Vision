@@ -16,9 +16,8 @@ from dotenv import load_dotenv
 import base64
 
 load_dotenv()
-
 app = FastAPI()
-
+RUN_ONCE_FILE = "run_once_flag.txt"
 
 @app.get("/")
 def status():
@@ -35,8 +34,17 @@ def getHardwareInfo():
                         return True
     except:
         pass
-
     return False
+
+@app.on_event("startup")
+async def startup_event():
+    if not os.path.exists(RUN_ONCE_FILE):
+        await install()
+        #TODO Run initial setup
+        with open(RUN_ONCE_FILE, "w") as file:
+            file.write("This file indicates the one-time function has run.")
+    else:
+        print("One-time setup function has already run, skipping.")
 
 #TODO TEST
 @app.get("/install")
@@ -86,14 +94,15 @@ async def install():
 
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
-        # session = cerberus.get_session(agent_private, server_ecdh2)
-        # message = cerberus.elyptic_encryptor(session, "hello")
-        # response3 = await client.post('http://127.0.0.1:8006/message',
-        #                               json={"aid": response.json()['aid'], "message": message})
-        # if response3.status_code != 200:
-        #     raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
-        # print("Response:", response3.json())
-        # print(server_ecdh)
+        session = cerberus.get_session(agent_private, server_ecdh2)
+        message = cerberus.elyptic_encryptor(session, json.dumps({'aip': '127.0.0.1', 'aport': 8010, 'capacity': 'dual', 'storage': 290.4,
+                                                       'identifier': "ACDC"}))
+        response3 = await client.post('http://127.0.0.1:8006/handshake',
+                                      json={"aid": os.getenv("AID"), "message": message})
+        if response3.status_code != 200:
+            raise HTTPException(status_code=response2.status_code, detail="Error posting encrypted data")
+        print("Response:", response3.json())
+        print(server_ecdh)
         return {'message': "success"}
 
 def findOpenPort():
@@ -123,7 +132,6 @@ def startFTP(ip, port, old_uid, old_size, old_token):
         s.bind((ip, port))
         s.listen()
         print(f"Server started and listening on {ip}:{port}")
-
         while True:
             conn, addr = s.accept()
             with conn:
@@ -183,7 +191,6 @@ def startFTP(ip, port, old_uid, old_size, old_token):
     s.close()
     return "Operation completed successfully."
 
-
 @app.post("/startupFTPListener/")
 async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
     ip, port = findOpenPort()
@@ -203,17 +210,13 @@ async def process(request: Request):
         uid = body['uid']
         mid = body['mid']
         token = body['token']
-
         # fetch the file url
-
         # process the file
         if(getHardwareInfo()):
             return JSONResponse(status_code=200, content={"message": "Success"})
         # subprocess.run(['makensis', './package/setup.nsi'])
-
     except:
         return JSONResponse(status_code=400, content={"message": "Invalid request"})
-
 
 def verifyOTP(otp):
     otp = "1234"
@@ -221,6 +224,7 @@ def verifyOTP(otp):
         return True
     else:
         return False
+    
 @app.post("/listen")
 async def listen(request: Request):
     message = await request.json()

@@ -15,7 +15,6 @@ app = FastAPI()
 def status():
     return {"status": "online"}
 
-
 @app.get("/agent")
 def agent():
     # So Obol refers to the journey of a soul to the underworld.

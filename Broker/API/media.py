@@ -48,6 +48,7 @@ def registerAgent(message, aid):
     """
     values = (
         message['aip'], message['aport'], message['capacity'], message['storage'], message['identifier'], aid)
+    print(values)
     cursor.execute(update_query, values)
     conn.commit()
     release_connection(conn)
