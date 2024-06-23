@@ -269,7 +269,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 
         // Checking if the frames are already generated
         const frameFiles = fs.readdirSync(outputDir);
-        if (frameFiles.length > 0) {
+        if (frameFiles.length > 1) {
             console.log('Frames already exist for:', videoPath);
             const framePaths = frameFiles.map(file => path.join(outputDir, file));
             return framePaths;
@@ -281,7 +281,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
         const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.5));
         const frameRate = maxFrameCount / duration;
 
-        let threadCount = Math.min(os.cpus().length, maxFrameCount);
+        let threadCount = Math.min(Math.floor(os.cpus().length / 2), maxFrameCount);
         const chunkDuration = duration / threadCount;
 
         const promises = [];
@@ -397,9 +397,13 @@ ipcMain.handle('check-file-existence', async (event, filePath) => {
 // IPC handler to delete a video file
 ipcMain.handle('delete-video-file', async (event, filePath) => {
     try {
-        // Delete the video file
+        // Delete the video file - Move it to deleted folder
         if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            // Move the video file to the Deleted folder in development mode
+            const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
+            fs.mkdirSync(deletedDir, { recursive: true });
+            const newFilePath = path.join(deletedDir, path.basename(filePath));
+            fs.renameSync(filePath, newFilePath);
         } else {
             return { success: false, error: 'File does not exist' };
         }
@@ -440,7 +444,34 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
             const framePaths = frameFiles.map(file => path.join(outputDir, file));
             return framePaths;
         }
-})
+});
+
+// IPC handler to move a video file from the Deleted folder to the Downloads folder
+ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
+    try {
+        const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
+        const videoFilePath = path.join(deletedDir, `${videoName}`);
+        
+        if (!fs.existsSync(videoFilePath)) {
+            return { success: false, error: 'Video file does not exist' };
+        }
+
+        // Get the user's Downloads folder path
+        const appDataPath = app.getPath('userData');
+        const downloadsDir = path.join(appDataPath, 'Downloads');
+        const destinationPath = path.join(downloadsDir, videoName);
+
+        console.log('Moving video file to:', destinationPath);
+        console.log('from: ', deletedDir);
+        // Move the video file to the Downloads folder
+        fs.renameSync(videoFilePath, destinationPath);
+
+        return { success: true, videoFilePath: destinationPath };
+    } catch (error) {
+        console.error('Error moving video file:', error);
+        return { success: false, error: error.message };
+    }
+});
 
 ipcMain.handle('get-ai-models', async () => {
     try {

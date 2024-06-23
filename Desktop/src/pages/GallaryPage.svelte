@@ -21,8 +21,8 @@
       if (response.success) {
         videoURLs = response.data.map((record) => record.dataValues.localurl);
         videoNames = response.data.map((record) => record.dataValues.mname);
+        console.log(videoURLs);
         console.log(videoNames);
-
         downloadedStatuses = await Promise.all(
           videoURLs.map(async (url) => {
             const checkResponse = await window.electronAPI.checkFileExistence(url);

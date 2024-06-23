@@ -17,10 +17,17 @@
   let firstFrameURL = "";
   let isDownloading = false;
 
-  function handleDownload() {
+  const handleDownload = async (event) => {
+    event.stopPropagation();
     // isDownloading.set(true);
     isDownloading = true;
-
+    try {
+        const response = await window.electronAPI.downloadVideo(
+          VideoName,
+          VideoSource
+        );
+        console.log(response.success, response.filePath);
+      } catch (error) {}
     setTimeout(() => {
       // isDownloading.set(false);
       isDownloading = false;
@@ -31,6 +38,7 @@
   }
 
   function goToVideo() {
+    if (!isDownloaded) return;
     console.log("Go to video");
     const encodedPath = encodeURIComponent(VideoSource);
     VideoURL.set(VideoSource);

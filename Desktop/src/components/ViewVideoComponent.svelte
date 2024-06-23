@@ -74,8 +74,6 @@
             frames = framePaths.map((framePath) =>
                 framePath.replace(/\\/g, "/"),
             ); // Convert backslashes to slashes for URLs
-            console.log("Frames extracted:", frames.length);
-            console.log("FRAMES ARRAY: ", frames);
             console.log("Video Path: ", videoPath);
         } catch (error) {
             console.error("Error extracting frames:", error);

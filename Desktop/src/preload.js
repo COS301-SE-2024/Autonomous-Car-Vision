@@ -41,5 +41,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
     deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file',filePath),
     getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
+    downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
     getAIModels: () => ipcRenderer.invoke('get-ai-models'),
   });
