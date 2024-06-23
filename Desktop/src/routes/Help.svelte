@@ -9,27 +9,34 @@
      const topics = [
         {
         title: 'View Gallery',
-        details: 'Steps and screenshots to view the gallery...',
+        details: 'On the Navigation bar, find and click the Gallery tab: ',
+        images: '<Screenshot>',
         },
         {
         title: 'View/Download Video',
-        details: 'Steps and screenshots to view and download videos...',
+        details: 'Access the Gallery page. Click on a video of your choice. If the video is not downloaded on your local machine, the download button will be visible; click on it to download the video from our server. Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.',
+        images: '<Screenshots>',
         },
         {
         title: 'Process Video',
         details: 'Steps and screenshots to process videos...',
+        images: '<Screenshot>',
         },
         {
         title: 'View Models',
-        details: 'Steps and screenshots to view models...',
-        },
+        details: 'On the Navigation bar, find and click the Models tab. To view more details of model, simply hover over it to reveal the extended summary. ',
+        images: '<Screenshot>',
+        }
+        ,
         {
         title: 'Account Settings',
-        details: 'Steps and screenshots to manage account settings...',
+        details: 'Click on your username in the navigation bar. A pop-up menu will appear. Click on the Account Settings option to open the settings page.',
+        images: '<Screenshot>',
         },
         {
         title: 'Logout',
-        details: 'Steps and screenshots to logout...',
+        details: 'Click on your username in the navigation bar. A pop-up menu will appear; click on the Log Out button',
+        images: '<Screenshot>',
         },
     ];
 
@@ -47,15 +54,16 @@
 <ProtectedRoutes>
    <div class="help-page">
     {#each topics as topic, index}
-        <div class="topic">
-        <div class="topic-title" on:click={() => toggleTopic(index)}>
+        <div class="topic shadow-md shadow-theme-keith-accenttwo shadow-card-blue ">
+        <div class="topic-title w-fit text-theme-blue-light text-xl font-medium" on:click={() => toggleTopic(index)}>
             <span>{topic.title}</span>
             <button class="dropdown-btn">
             {#if $openTopic === index}▲{:else}▼{/if}
             </button>
         </div>
-        <div class="topic-details { $openTopic === index ? 'open' : '' }">
-            <p>{topic.details}</p>
+        <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === index ? 'open' : '' }">
+            <p>{topic.details}</p> <br>
+            <p class="screenshots text-light pr-10" >{topic.images} </p>
             <!-- Insert screenshots and detailed steps here -->
         </div>
         </div>
@@ -100,5 +108,13 @@
         border: none;
         font-size: 16px;
         cursor: pointer;
+    }
+
+    .screenshots{
+        display:flex;
+        align-text: center;
+        align-items: center;
+        justify-content: center;
+        
     }
 </style>
