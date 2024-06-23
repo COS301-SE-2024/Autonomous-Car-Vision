@@ -76,9 +76,10 @@ module.exports = {
         'modal': '#0000009f',
         'white': '#FFFF',
         'black': '#000',
-        'red' : '#AA4A44',
+        'red' : '#f44336',
         'green-80' : '#37FF8B80',
-        'greeen' : '#37FF8B'
+        'greeen' : '#37FF8B',
+        'red-hover': '#FF1C0C',
       },
     },
     variants: {

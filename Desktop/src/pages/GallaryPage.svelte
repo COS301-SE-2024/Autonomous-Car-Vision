@@ -4,9 +4,6 @@
   import GallaryCard from "../components/GallaryCard.svelte";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
 
-  import { isGalLoading } from "../stores/galleryLoading";
-  import PingLoader from "../components/PingLoader.svelte";
-
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
@@ -18,7 +15,6 @@
 
   // Fetch the video records from the database
   onMount(async () => {
-    isGalLoading.set(true);
     isLoading.set(true);
     try {
       const response = await window.electronAPI.fetchVideos();
@@ -42,9 +38,6 @@
       } else {
         console.error("Failed to fetch video records:", response.error);
       }
-      setTimeout(() => {
-        isGalLoading.set(false);
-      }, 1000);
       
       await new Promise((resolve) => setTimeout(resolve, 3000));
       data = await fetchData();
@@ -78,14 +71,7 @@
         </div>
         <div class="grid grid-flow-row-dense grid-cols-3 items-center">
           {#each videoURLs as url,index}
-            {#if $isGalLoading}
-            <div class="flex justify-center">
-              <PingLoader />
-            </div>
-            {/if}
-            {#if !$isGalLoading}
-              <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
-            {/if}
+            <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
           {/each}
         </div>
       </div>

@@ -1,6 +1,6 @@
 <script>
   import Dropzone from "svelte-file-dropzone";
-  import { push } from "svelte-spa-router";
+  import { push, location } from "svelte-spa-router";
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
   import { onMount } from "svelte";
@@ -42,17 +42,16 @@
 
   const saveVideo = async () => {
     if (!videoSource) {
-      isUploadLoading.set(true);
       toast.error("Upload a video file to get started", {
         duration: 5000,
         position: "top-center",
       });
-
       return;
     }
+    console.log("TESTING SAVE before try block");
 
-    
     try {
+      isUploadLoading.set(true);
 
       // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
@@ -60,9 +59,8 @@
         mname: filename,
         localurl: videoSource,
       };
-      
+
       // Insert the record into the database
-      
       const response1 = await window.electronAPI.insertData(record);
       console.log("resp1", response1);
 
@@ -75,21 +73,24 @@
         position: "top-center",
       });
 
-      // sleep for 1 second
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // sleep for 5 seconds
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       isUploadLoading.set(false);
+      console.log("TESTING SAVE before IF");
 
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
         const uid = window.electronAPI.getUid();
         const token = window.electronAPI.getToken();
 
-        console.log(location);
-        push("/gallery");
+        console.log($location);
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }
+      console.log("TESTING SAVE BEFORE PUSHING SUPPOSED TO HAPPEN");
+
+      // push("/gallery");
     } catch (error) {
       console.error("Error occurred:", error);
     }
@@ -103,34 +104,36 @@
     </div>
   {:else}
     <Toaster />
-    <div
-      class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5"
-    >
-      {#if videoSource}
-        <video class="video-preview w-full mt-4" src={videoSource} controls>
-          <track kind="captions" />
-        </video>
-      {:else}
-        <Dropzone
-          on:drop={handleFilesSelect}
-          accept="video/*"
-          containerStyles="border-color: #8492a6; color: black"
-          multiple={false}
-        />
-      {/if}
-      <div class="w-full flex items-center mt-4">
-        <span class="flex-grow"></span>
-        <button
-          class="bg-theme-dark-backgroundBlue text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
-          on:click={saveVideo}
-          >Save
-        </button>
-      </div>
-      {#if $isUploadLoading}
-        <div class="flex justify-center">
-          <RingLoader />
+    <div class="flex justify-center items-center h-screen">
+      <div
+        class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 h-fit"
+      >
+        {#if videoSource}
+          <video class="video-preview w-full mt-4" src={videoSource} controls>
+            <track kind="captions" />
+          </video>
+        {:else}
+          <Dropzone
+            on:drop={handleFilesSelect}
+            accept="video/*"
+            containerStyles="border-color: #8492a6; color: black"
+            multiple={false}
+          />
+        {/if}
+        <div class="w-full flex items-center mt-4">
+          <span class="flex-grow"></span>
+          <button
+            class="bg-theme-dark-backgroundBlue text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            on:click={saveVideo}
+            >Save
+          </button>
         </div>
-      {/if}
+        {#if $isUploadLoading}
+          <div class="flex justify-center">
+            <RingLoader />
+          </div>
+        {/if}
+      </div>
     </div>
   {/if}
 </ProtectedRoutes>

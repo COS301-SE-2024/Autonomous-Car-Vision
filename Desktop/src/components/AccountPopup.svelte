@@ -12,7 +12,7 @@
 </script>
 
 <div
-  class="bg-theme-dark-white text-theme-dark-backgroundBlue border-1 border-theme-dark-backgroundBlue border-opacity-10 rounded-lg p-2 w-64 flex flex-col z-50"
+  class="relative left-2 bottom-4 bg-theme-dark-white text-theme-dark-backgroundBlue border border-theme-dark-backgroundBlue rounded-lg p-2 w-64 flex flex-col z-50"
 >
   <nav>
     <ul class="list-none p-0 m-0">

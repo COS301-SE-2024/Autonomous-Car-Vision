@@ -106,6 +106,7 @@
     if (outputFiles.length > 1) {
       showModelList.set(true);
     }
+    console.log($location)
   });
 
   let processed = false; // Check if the video has been processed
@@ -176,11 +177,11 @@
       <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
-          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
           on:click={() => (showProcessPopup = true)}>Process</button
         >
         <button
-          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          class="text-white font-medium p-2 h-10 rounded bg-red hover:bg-red-hover"
           on:click={deleteItem}>Delete</button
         >
         {#if showDeleteModal}

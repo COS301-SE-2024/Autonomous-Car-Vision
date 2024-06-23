@@ -105,7 +105,7 @@
     <Toaster />
     <div class="flex flex-col items-center justify-center min-h-screen">
       <div
-        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-96 border border-theme-keith-accentone space-y-3"
+        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-1/2 border border-theme-keith-accentone space-y-3"
       >
         <h2
           class="text-2xl font-bold mb-4 text-center text-theme-keith-accentone"
@@ -114,7 +114,7 @@
         </h2>
 
         <!-- Old Password -->
-        <div class="mb-4">
+        <div class="mb-4 w-1/2">
           <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
             >Old Password</label
           >
@@ -127,7 +127,7 @@
         </div>
 
         <!-- New Password -->
-        <div class="mb-4">
+        <div class="mb-4 w-1/2">
           <label for="newPassword" class="block text-theme-keith-accentone mb-1"
             >New Password</label
           >
@@ -140,7 +140,7 @@
         </div>
 
         <!-- Confirm New Password -->
-        <div class="mb-4">
+        <div class="mb-4 w-1/2">
           <label
             for="confirmPassword"
             class="block text-theme-keith-accentone mb-1"

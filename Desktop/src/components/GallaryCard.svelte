@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
+  import PingLoader from "../components/PingLoader.svelte";
 
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
@@ -9,6 +10,7 @@
   export let VideoName;
   export let isDownloaded;
 
+  let isGalLoading = false;
   let showMoreModal = false;
   let firstFrameURL = "";
   let isDownloading = false;
@@ -71,18 +73,23 @@
   }
 
   onMount(async () => {
+    isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
-    console.log("Video Source Path", VideoSource, "Video Name: ",VideoName);
-    if(!isDownloaded) {
+    console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
+    if (!isDownloaded) {
       try {
-        const response = await window.electronAPI.getVideoFrame(VideoSource, VideoName);
+        const response = await window.electronAPI.getVideoFrame(
+          VideoSource,
+          VideoName
+        );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
         console.log(firstFrameURL);
-      } catch (error) {
-
-      }
+      } catch (error) {}
     }
+    setInterval(() => {
+      isGalLoading = false;
+    }, 3000);
   });
 </script>
 
@@ -93,32 +100,41 @@
     : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={handleMore}
 >
-  <div class="image-container relative">
-    <img
-      src={firstFrameURL}
-      alt="video preview"
-      class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-    />
-    <div
-      class="{isDownloaded
-        ? 'hover:block'
-        : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-    >
-      {#if !isDownloading && !isDownloaded}
-        <button
-          class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
-          on:click={handleDownload}>Download</button
-        >
-      {:else if !isDownloaded}
-        <div class="flex justify-center">
-          <RingLoader />
-        </div>
-      {/if}
+  {#if isGalLoading}
+    <div class="flex justify-center items-center h-44">
+      <div class="flex justify-center">
+        <PingLoader />
+      </div>
     </div>
-  </div>
-  <div class="details p-2">
-    <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
-  </div>
+  {/if}
+  {#if !isGalLoading}
+    <div class="image-container relative">
+      <img
+        src={firstFrameURL}
+        alt="video preview"
+        class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+      />
+      <div
+        class="{isDownloaded
+          ? 'hover:block'
+          : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      >
+        {#if !isDownloading && !isDownloaded}
+          <button
+            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
+            on:click={handleDownload}>Download</button
+          >
+        {:else if !isDownloaded}
+          <div class="flex justify-center">
+            <RingLoader />
+          </div>
+        {/if}
+      </div>
+    </div>
+    <div class="details p-2">
+      <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
+    </div>
+  {/if}
 </div>
 
 {#if showMoreModal && isDownloaded}

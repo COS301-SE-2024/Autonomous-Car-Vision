@@ -278,10 +278,10 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
         console.log('output directory: ', outputDir);
 
         const MAX_FRAMES = 100;
-        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.15));
+        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.5));
         const frameRate = maxFrameCount / duration;
 
-        const threadCount = Math.min(os.cpus().length, maxFrameCount);
+        let threadCount = Math.min(os.cpus().length, maxFrameCount);
         const chunkDuration = duration / threadCount;
 
         const promises = [];

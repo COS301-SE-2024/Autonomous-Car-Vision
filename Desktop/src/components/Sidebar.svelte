@@ -69,8 +69,9 @@
   });
 
   function navigate(route) {
-    push(route);
     updateCurrentRoute();
+    console.log(route);
+    push(route);
   }
 
   function getMarkerPosition() {
@@ -102,16 +103,15 @@
           on:keydown
           on:click={() => navigate(item.route)}
           class={$location === item.route ||
-          (item.route === "/gallery" && $location === "/video")
+          (item.route === "/gallery" && $location.startsWith("/video")) || $location === "/accountsettings" || $location === "/changePassword"
             ? "active"
-            : ""}>
-            {item.name}</label
+            : ""}
         >
+          <Icon path={item.iconPath} />
+          <span class="sidebartext ml-2">{item.name}</span>
+        </label>
       {/each}
-      <div
-        class="marker"
-        style="transform: {getMarkerPosition()};"
-      >
+      <div class="marker" style="transform: {getMarkerPosition()};">
         <div id="top"></div>
         <div id="bottom"></div>
       </div>
@@ -119,7 +119,7 @@
   </div>
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div
-    class="relative flex justify-start gap-4 items-center mt-2 py-2 px-2 rounded-lg transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
+    class="relative flex justify-center gap-4 items-center mt-2 py-2 px-2 rounded transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
     on:click={toggleAccountPopup}
   >
     <Avatar class="bg-gray p-2 rounded-full">
@@ -171,7 +171,7 @@
   label:hover,
   input[type="radio"]:checked + label {
     opacity: 1;
-    color: #999999;
+    color: #b6b6b6;
   }
 
   label,
@@ -186,7 +186,7 @@
   }
 
   input[type="radio"]:checked + label.active:hover {
-    color: #999999;
+    color: #555555;
     opacity: 1;
   }
 
