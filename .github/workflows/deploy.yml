@@ -28,5 +28,5 @@ jobs:
       - name: Build and Push Docker Image
         working-directory: ./Backend/DB
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/DB:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/DB:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/db:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/db:latest
