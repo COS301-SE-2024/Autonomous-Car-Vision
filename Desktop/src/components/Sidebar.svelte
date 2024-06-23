@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { Avatar, Icon } from "svelte-materialify";
-  import { mdiAccountCircle } from "@mdi/js";
+  import { mdiAccountCircle , mdiHelpCircle} from "@mdi/js";
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
 
@@ -10,6 +10,7 @@
   import AccountPopup from "./AccountPopup.svelte";
 
   const items = [
+    { name: "Help", route: "#/help", iconPath: mdiHelpCircle },
     { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
     { name: "Upload", route: "#/upload", iconPath: mdiUpload },
     { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },

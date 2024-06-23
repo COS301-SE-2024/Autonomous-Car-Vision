@@ -5,7 +5,7 @@
   export let Model = {
     name: "",
     category: "",
-    description: "",
+    version: "",
     moreDetails: "",
     status: "",
     gif: "",
@@ -112,9 +112,9 @@
     {/if}
     <div id="content" class="flex flex-col gap-4 w-full p-4">
       <div id="withcontent" class="flex flex-col items-start gap-0">
-        <h1 class="text-lg font-medium">{Model.description}</h1>
+        <h1 class="text-lg font-medium">{Model.version}</h1>
         <!--p class="font-light h-fit">
-          {Model.description}
+          {Model.version}
         </p-->
       </div>
     </div>
