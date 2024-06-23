@@ -8,6 +8,9 @@
 
   import { onMount } from "svelte";
 
+  import { isLoading } from "../../../stores/loading";
+  import Spinner from "../../../components/Spinner.svelte";
+
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
   import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
@@ -137,9 +140,11 @@
 
   async function processVideo(event) {
     modelName = event.detail.modelName;
+    isLoading.set(true);
     showProcessPopup = false;
     try {
       await getVideoDetails();
+      console.log(isLoading, "isLoading");
 
       OriginalVideoURL.set(videoPath);
 
@@ -149,12 +154,15 @@
         modelsPath,
       ]);
       console.log("Python Script Output:", output);
+      setInterval(() => {
+        isLoading.set(false);
+      }, 5000);
     } catch (error) {
       output = error.message;
       console.error("Python Script Error:", output);
     }
-    processed = true;
     console.log("Processing video");
+    processed = true;
   }
 
   function re_process() {
@@ -199,6 +207,11 @@
 <ProtectedRoutes>
   <div class="grid grid-cols-5">
     <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
+      {#if $isLoading}
+        <div class="flex justify-center fixed top-8 z-50">
+          <Spinner />
+        </div>
+      {/if}
       <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
@@ -255,7 +268,7 @@
     </div>
 
     <!--Put video and editor and buttons-->
-    {#if processed}
+    {#if false}
       <div class="col-span-1">
         <NestedTimeline />
         <!--style-->

@@ -3,6 +3,8 @@
     import { createEventDispatcher } from "svelte";
     import { onMount } from "svelte";
 
+    import { isLoading } from "../stores/loading";
+
     export let showProcessPopup;
     export let models = [];
     export let selectedModelName;
@@ -14,7 +16,8 @@
     }
 
     function processVideo() {
-        dispatch("processVideo", { modelName: selectedModelName });
+        isLoading.set(true);
+        dispatch("processVideo", { modelName: selectedModelName});
         console.log("Processing video", showProcessPopup);
     }
 
@@ -30,8 +33,8 @@
         class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
     >
         <div class="flex flex-col boder border-theme-dark-backgroundBlue">
-            <p class="text-md">Are you sure you want to process this video?</p>
-            <select on:change={handleModelChange} bind:value={selectedModelName} class="mt-2 p-2 border rounded">
+            <p class="text-md">Are you sure you want to process this video? Please select a model to process below.</p>
+            <select on:change={handleModelChange} bind:value={selectedModelName} class="mt-2 p-2 border rounded bg-theme-dark-primary text-white">
                 {#each models as model}
                     <option value={model.model_name}>{model.model_name}</option>
                 {/each}
