@@ -441,3 +441,13 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
             return framePaths;
         }
 })
+
+ipcMain.handle('get-ai-models', async () => {
+    try {
+        const response = await axios.get('http://127.0.0.1:5000/ai_models');
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error('Failed to fetch AI models:', error);
+        return { success: false, error: error.message };
+    }
+});
