@@ -16,7 +16,6 @@
     try {
       const response = await axios.get("http://localhost:8000/devLogin/", {});
       console.log("Developer Login Response:", response.data);
-      token.set(response.data.token);
       window.electronAPI.storeToken(response.data.token);
       window.electronAPI.storeUid(response.data.uid);
       window.electronAPI.storeUname(response.data.uname);

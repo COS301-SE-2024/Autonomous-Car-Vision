@@ -1,9 +1,15 @@
 <script>
-  import { location } from "svelte-spa-router";
+  import { location, push } from "svelte-spa-router";
 
   import { writable } from "svelte/store";
 
   import { VideoURL } from "../../../stores/video";
+  import { OriginalVideoURL } from "../../../stores/video";
+
+  import { onMount } from "svelte";
+
+  import { isLoading } from "../../../stores/loading";
+  import Spinner from "../../../components/Spinner.svelte";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
@@ -18,37 +24,145 @@
 
   const showModelList = writable(false);
 
-  let scriptPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/processVideo.py";
+  let appPath = "";
+  let scriptPath = "";
   let videoPath;
   let videoName;
   let outputVideoPath;
-  let modelsPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Models/yolov8n/yolov8n.pt";
+  let modelName = "yolov8n";
+  let modelsPath = "";
+  let videoNameExtract = "";
+  let extention = "";
+  let models = [];
+  let selectedModelName = "yolov8n";
+
+  let output = ""; // Store the output of the Python script
+  let outputFiles = []; // Store the output files
 
   function getFileName(filePath) {
     const parts = filePath.split(/[/\\]/);
     return parts[parts.length - 1];
   }
 
-  VideoURL.subscribe(value => {
-    videoPath = value;
-    videoName = getFileName(videoPath);
-    outputVideoPath = "D:/MyData/Uni2024/COS301/Capstone/Autonomous-Car-Vision/Desktop/outputVideos/" + videoName;
+  async function getVideoDetails() {
+    return new Promise((resolve) => {
+      VideoURL.subscribe(async (value) => {
+        appPath = await window.electronAPI.getAppPath();
+        videoPath = value;
+        videoName = await getFileName(videoPath);
+        //extract video name from video name without the extention
+        videoNameExtract = videoName.split(".")[0];
+        extention = videoName.split(".")[1];
+        outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          ".."
+        );
+        scriptPath = `${appDirectory}/Models/processVideo.py`;
+        modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
+        resolve();
+      })();
+    });
+  }
+
+  async function getOutputFiles() {
+    try {
+      const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
+      const files = await window.electronAPI.readDirectory(outputDir);
+
+      // Start with the original video
+      outputFiles = [
+        {
+          id: 0,
+          label: "Original",
+          profileImgURL: "https://placekitten.com/300/300",
+          videoURL: videoPath,
+        },
+      ];
+
+      // Add processed videos
+      const processedFiles = files
+        .map((file, index) => {
+          // Extract the model name from the file name (assuming the model name is part of the file name)
+          const modelNameMatch = file.match(/_processed_([\w-]+)\./);
+          if (!modelNameMatch) {
+            return null; // Skip files that do not match the pattern
+          }
+          const modelName = modelNameMatch[1];
+
+          return {
+            id: index + 1,
+            label: modelName,
+            profileImgURL:
+              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            videoURL: `${outputDir}/${file}`,
+          };
+        })
+        .filter((file) => file !== null); // Remove null values from the array
+
+      // Combine original and processed videos
+      outputFiles = outputFiles.concat(processedFiles);
+
+      console.log("Output files:", outputFiles);
+    } catch (error) {
+      console.error("Error reading output directory:", error);
+    }
+  }
+
+  async function fetchModels() {
+    try {
+      const result = await window.electronAPI.getAIModels();
+      if (result.success) {
+        models = result.data;
+        if (models.length > 0) {
+          selectedModelName = models[0].model_name;
+        }
+      } else {
+        console.error("Failed to fetch AI models:", result.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch models", error);
+    }
+  }
+
+  onMount(async () => {
+    await fetchModels();
+    await getVideoDetails();
+    await getOutputFiles();
+
+    if (outputFiles.length > 1) {
+      showModelList.set(true);
+    }
+    console.log($location);
   });
 
   let processed = false; // Check if the video has been processed
 
-  function process() {
-    window.electronAPI.runPythonScript(scriptPath, [videoPath, outputVideoPath, modelsPath])
-      .then(result => {
-      output = result;
+  async function processVideo(event) {
+    modelName = event.detail.modelName;
+    isLoading.set(true);
+    showProcessPopup = false;
+    try {
+      await getVideoDetails();
+      console.log(isLoading, "isLoading");
+
+      OriginalVideoURL.set(videoPath);
+
+      output = await window.electronAPI.runPythonScript(scriptPath, [
+        videoPath,
+        outputVideoPath,
+        modelsPath,
+      ]);
       console.log("Python Script Output:", output);
-    })
-      .catch(error => {
+      setInterval(() => {
+        isLoading.set(false);
+      }, 5000);
+    } catch (error) {
       output = error.message;
       console.error("Python Script Error:", output);
-    });
+    }
+    console.log("Processing video");
     processed = true;
-    console.log("Processing video", showProcessPopup);
   }
 
   function re_process() {
@@ -57,19 +171,17 @@
   }
 
   let selectedModel = null;
-  let showEditModal = false;
   let showDeleteModal = false;
 
   let modalDefault =
     "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
-  function handleCancel() {
-    showEditModal = false;
-    showDeleteModal = false;
+  function closeProcessPopup() {
+    showProcessPopup = false;
   }
 
-  function deleteItem() {
-    showDeleteModal = true;
+  function handleCancel() {
+    showDeleteModal = false;
   }
 
   function handleDeleteSave() {
@@ -77,11 +189,16 @@
     showDeleteModal = false;
   }
 
+  function deleteItem() {
+    showDeleteModal = true;
+  }
+
   function toggleModelList() {
     showModelList.update((value) => !value);
   }
 
   function handleModelSelect(event) {
+    VideoURL.set(event.detail.videoURL);
     selectedModel = event.detail;
     showModelList.set(false);
   }
@@ -90,18 +207,27 @@
 <ProtectedRoutes>
   <div class="grid grid-cols-5">
     <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
+      {#if $isLoading}
+        <div class="flex justify-center fixed top-8 z-50">
+          <Spinner />
+        </div>
+      {/if}
       <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
-          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
           on:click={() => (showProcessPopup = true)}>Process</button
         >
         <button
-          class="text-white p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          class="text-white font-medium p-2 h-10 rounded bg-red hover:bg-red-hover"
           on:click={deleteItem}>Delete</button
         >
         {#if showDeleteModal}
-          <DeleteModal on:cancel={handleCancel} on:save={handleDeleteSave} />
+          <DeleteModal
+            on:cancel={handleCancel}
+            on:save={handleDeleteSave}
+            {videoPath}
+          />
         {/if}
         <div>
           <button
@@ -110,7 +236,7 @@
           >
             {#if selectedModel}
               <img
-                src={selectedModel.profileImg}
+                src={selectedModel.profileImgURL}
                 alt="Selected Model"
                 class="w-12 h-12 rounded-full"
               />
@@ -123,21 +249,26 @@
             {/if}
           </button>
           {#if $showModelList}
-            <ModelList on:select={handleModelSelect} />
+            <ModelList
+              on:select={handleModelSelect}
+              processedVideos={outputFiles}
+            />
           {/if}
         </div>
       </div>
-      <ProcessPopup bind:showProcessPopup>
-        <div slot="body">
-          <h1>Are you sure you want to process this video?</h1>
-          <button class="bg-theme-dark-primary text-white rounded-xl w-20" on:click={process}>Yes</button>
-          <button class="bg-theme-dark-error text-white rounded-xl w-20" on:click={() => (showProcessPopup = false)}>No</button>
-        </div>
-      </ProcessPopup>
+      {#if showProcessPopup}
+        <ProcessPopup
+        on:closePopup={closeProcessPopup}
+        on:processVideo={processVideo}
+        showProcessPopup={showProcessPopup}
+        models={models}
+        selectedModelName={selectedModelName}
+        />
+      {/if}
     </div>
 
     <!--Put video and editor and buttons-->
-    {#if processed}
+    {#if false}
       <div class="col-span-1">
         <NestedTimeline />
         <!--style-->

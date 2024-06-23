@@ -11,6 +11,9 @@ window.addEventListener('DOMContentLoaded', () => {
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    getAppPath: async () => await ipcRenderer.invoke('get-app-path'),
+    resolvePath: async (...segments) => await ipcRenderer.invoke('resolve-path', ...segments),
+    readDirectory: (directoryPath) => ipcRenderer.invoke('read-directory', directoryPath),
     storeToken: (token) => ipcRenderer.send('store-token', token),
     getToken: () => ipcRenderer.sendSync('get-token'),
     clearToken: () => ipcRenderer.sendSync('clear-token'),
@@ -33,5 +36,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
     extractFrames: (videoPath) => ipcRenderer.invoke('extract-frames', videoPath),
     saveFile: (fileBuffer, fileName) => ipcRenderer.invoke('save-file', fileBuffer, fileName),
+    fileExists: (filePath) => fs.existsSync(path.resolve(filePath)),
     runPythonScript: (scriptPath, args) => ipcRenderer.invoke('run-python-script', scriptPath, args),
-});
+    checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
+    deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file',filePath),
+    getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
+    downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
+    getAIModels: () => ipcRenderer.invoke('get-ai-models'),
+  });

@@ -6,9 +6,6 @@
   import { push } from "svelte-spa-router";
 
   const dispatch = createEventDispatcher();
-  const currentTab = writable("original");
-  const showModelList = writable(false);
-  let selectedModel = null;
 
   export let imgSource;
   export let videoSource;
@@ -32,15 +29,15 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="fixed inset-0 flex items-center justify-center z-50"
+  class="fixed inset-0 flex items-center justify-center z-50 bg-modal"
   on:click|stopPropagation={back}
 >
   <div
-    class="relative bg-theme-keith-secondary p-8 rounded-lg shadow-lg w-full max-w-2xl border border-theme-keith-primary"
+    class="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl border border-theme-keith-primary"
   >
     <div>
       <button
-        class="text-white border-none p-2 rounded cursor-pointer text-xs bg-theme-keith-accentone hover:bg-theme-keith-accenttwo transition-all duration-300 ease-in-out"
+        class="text-white border-none p-2 rounded cursor-pointer text-xs bg-theme-dark-primary hover:bg-theme-dark-secondary transition-all duration-300 ease-in-out"
         on:click={back}>Back</button
       >
     </div>

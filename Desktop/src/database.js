@@ -27,6 +27,90 @@ const LookupTable = sequelize.define('LookupTable', {
     }
 });
 
-sequelize.sync();
+const AIModels = sequelize.define('AIModels', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+    },
+    model_id: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false
+    },
+    model_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_description: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_version: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_summary: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_profileimg: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    model_img: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    creation_date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+});
 
-module.exports = { sequelize, LookupTable };
+sequelize.sync().then(async () => {
+    const count = await AIModels.count();
+    if (count === 0) {
+        await AIModels.bulkCreate([
+            {
+                model_id: '1',
+                model_name: 'yolov8n',
+                model_description: 'The YOLOv8n (You Only Look Once version 8 nano) model is a lightweight, real-time object detection model designed for high-speed and efficiency.',
+                model_version: '1.0',
+                model_summary: 'The smallest version of the Yolov8 models.',
+                model_profileimg: 'https://placekitten.com/200/200',
+                model_img: 'https://placekitten.com/200/200'
+            },
+            {
+                model_id: '2',
+                model_name: 'yolov8s',
+                model_description: 'The YOLOv8s model is a slightly larger and more accurate version of YOLOv8n, optimized for better performance while maintaining efficiency.',
+                model_version: '1.0',
+                model_summary: 'The small version of the Yolov8 models.',
+                model_profileimg: 'https://placekitten.com/200/201',
+                model_img: 'https://placekitten.com/200/201'
+            },
+            {
+                model_id: '3',
+                model_name: 'yolov8n-seg',
+                model_description: 'A lightweight model to segment detected objects in a video stream.',
+                model_version: '1.0',
+                model_summary: 'Segmentation model',
+                model_profileimg: 'https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                model_img: 'https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif'
+            },
+            {
+                model_id: '4',
+                model_name: 'HV1',
+                model_description: 'HV1 is an advanced model under development, focused on high-velocity object detection and tracking.',
+                model_version: '1.0',
+                model_summary: 'Work in progress.',
+                model_profileimg: 'https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                model_img: 'https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif'
+            }
+        ]);
+    }
+});
+
+module.exports = { sequelize, LookupTable, AIModels  };

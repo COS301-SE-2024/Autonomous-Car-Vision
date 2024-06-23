@@ -53,4 +53,16 @@ class Media (Base):
     media_name = Column(String, nullable=False)
     media_url = Column(String, nullable=False)
     creation_date = Column(DateTime, default=datetime.utcnow)
-    user = relationship('User')
+    user = relationship("User")
+
+
+class Keystore(Base):
+    __tablename__ = "keystore"
+    aid = Column(Integer, Sequence("aid_seq"), primary_key=True)
+    keyid = Column(Integer, Sequence("keyid_seq"), primary_key=True)
+    init_key = Column(String(250), nullable=False)
+    initkey_validation = Column(Boolean, default=False)
+    pem_priv = Column(String(250), nullable=True)
+    pem_pub = Column(String(250), nullable=True)
+
+    __table_args__ = (PrimaryKeyConstraint("aid", "keyid", name="keystore_pk"),)

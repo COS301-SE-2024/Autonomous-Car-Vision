@@ -7,7 +7,7 @@ import Help from './Help.svelte';
 import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
-import Gallary from '../pages/GallaryPage.svelte'
+import Gallery from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
@@ -18,7 +18,7 @@ const routes = {
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
-    '/gallery':Gallary,
+    '/gallery':Gallery,
     '/upload':Upload,
     '/models': ModelPage,
     '/accountsettings' : AccountSettings,

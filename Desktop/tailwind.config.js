@@ -5,6 +5,7 @@ module.exports = {
       extend: {
         colors: {
           'theme-dark': {
+            textHover: "#4D4D4D",
             white: '#FFFFFF', // white
             lightText: '#FFFFFF', // white
             background: '#181818', // offBlack
@@ -14,6 +15,7 @@ module.exports = {
             secondary: '#007acc', // techBlueDark
             highlight: '#0066cc', // highlight
             error: '#ff0000', // error
+            download: "#181818e0"
           },
           'theme-light': {
             lightText: '#FFFFFF',
@@ -71,11 +73,13 @@ module.exports = {
           primary: '#400F65',
           secondary: '#83468F',
         },
+        'modal': '#0000009f',
         'white': '#FFFF',
         'black': '#000',
-        'red' : '#AA4A44',
+        'red' : '#f44336',
         'green-80' : '#37FF8B80',
-        'greeen' : '#37FF8B'
+        'greeen' : '#37FF8B',
+        'red-hover': '#FF1C0C',
       },
     },
     variants: {

@@ -9,7 +9,7 @@
 
   // Subscribe to the token store to get the current authentication state
   $: token.subscribe((value) => {
-    authToken = value;
+    authToken = window.electronAPI.getToken();
   });
 
   // On component mount, check the authentication state
@@ -22,11 +22,11 @@
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div class="grid grid-cols-5">
+<div class="grid grid-cols-6 h-full">
   <div class="col-span-1">
     <Sidebar />
   </div>
-    <div class="col-span-4">
+    <div class="col-span-5">
       <slot />
     </div>
 </div>

@@ -1,9 +1,11 @@
 <script>
     import { onMount } from "svelte";
+    import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
+    import { Icon } from "svelte-materialify";
+    import { mdiPause, mdiPlay } from "@mdi/js";
 
     export let videoPath;
-    videoPath = videoPath.replace("%", " ");
 
     let time = 0;
     let volume = 0;
@@ -72,8 +74,7 @@
             frames = framePaths.map((framePath) =>
                 framePath.replace(/\\/g, "/"),
             ); // Convert backslashes to slashes for URLs
-            console.log("Frames extracted:", frames.length);
-            console.log("FRAMES ARRAY: ", frames);
+            console.log("Video Path: ", videoPath);
         } catch (error) {
             console.error("Error extracting frames:", error);
         }
@@ -85,7 +86,12 @@
     });
 
     onMount(() => {
-        console.log(videoPath);
+        console.log($location);
+        // const encodedPath = encodeURIComponent(VideoSource);
+        videoPath = $location.replace("/video/", "");
+        videoPath = decodeURIComponent(videoPath);
+        console.log("VideoPath: ", videoPath);
+        console.log("Stores: ", $VideoURL);
         extractFrames();
     });
 
@@ -113,7 +119,7 @@
 </script>
 
 <div>
-    <div>
+    <div class="flex justify-center bg-black">
         <video
             poster={frames[1]}
             src={videoPath}
@@ -125,7 +131,6 @@
             bind:duration
             bind:paused
             bind:volume
-            class="w-full"
         >
             <track kind="captions" />
         </video>
@@ -135,10 +140,14 @@
         >
             <progress class="TimelineProgress" value={time / duration || 0} />
             <button
-                class="pl-4 w-16 border-2 border-white rounded-full text-white font-bold"
+                class="pl-4 w-10 border-2 border-white rounded-full text-white font-bold"
                 on:click={pause}
             >
-                {paused ? "Play" : "Pause"}
+                {#if paused}
+                    <Icon path={mdiPlay} />
+                {:else}
+                    <Icon path={mdiPause} />
+                {/if}
                 <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
             </button>
             <div class="info">
@@ -153,7 +162,6 @@
             {#each frames as frame}
                 <div
                     class="thumbnail hover:cursor-pointer"
-                    style="background-image: url({frame})"
                     on:click={() => seekToFrame(frame)}
                     on:keypress
                 >
@@ -187,6 +195,7 @@
         display: flex;
         overflow-x: scroll;
         overflow-y: hidden;
+        width: 100%;
         height: 100px;
     }
 
@@ -197,6 +206,12 @@
         background-size: cover;
         background-position: center;
         cursor: pointer;
+    }
+
+    .thumbnail img {
+        width: 100%;
+        height: 100px;
+        object-fit: cover;
     }
 
     .thumbnail:hover {
@@ -224,7 +239,7 @@
         position: absolute;
         bottom: 40px;
         left: 0;
-        width: 100%;
+        width: 80%;
         height: 5px;
     }
 
@@ -248,7 +263,7 @@
 
     progress {
         display: block;
-        width: 100%;
+        width: 80%;
         height: 40px;
         position: absolute;
         bottom: 0;
@@ -265,6 +280,7 @@
     }
 
     video {
-        width: 100%;
+        width: 90%;
+        aspect-ratio: 16 / 9;
     }
 </style>

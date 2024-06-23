@@ -4,7 +4,7 @@ import os
 from ultralytics import YOLO
 
 def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov8n.pt'):
-    model = YOLO(model_path) 
+    model = YOLO(model_path)
 
     # Create the output directory if it doesn't exist
     output_dir = os.path.dirname(output_video_path)
@@ -19,7 +19,7 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Define the codec and create a VideoWriter object to save the output video
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*'X264')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
     while cap.isOpened():
@@ -27,11 +27,20 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
         success, frame = cap.read()
 
         if success:
-            # Run YOLOv8 tracking on the frame, persisting tracks between frames
-            results = model.track(frame, persist=True)
+            # Run YOLOv8 model on the frame
+            results = model(frame)
 
-            # Visualize the results on the frame
-            annotated_frame = results[0].plot()
+            # Check if the model is a segmentation model (SAM)
+            if hasattr(results[0], 'masks'):
+                # Handle segmentation/masking
+                annotated_frame = results[0].plot()  # Assuming results[0].plot() plots the masks
+                
+                # If not, you need to manually plot masks using OpenCV
+                # for mask in results[0].masks:
+                #     frame[mask] = (0, 255, 0)  # Example: filling mask with green color
+            else:
+                # Handle normal object detection
+                annotated_frame = results[0].plot()
 
             # Write the annotated frame to the output video
             out.write(annotated_frame)
@@ -42,7 +51,7 @@ def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov
     # Release the video capture and writer objects
     cap.release()
     out.release()
-    
+
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         sys.exit(1)
