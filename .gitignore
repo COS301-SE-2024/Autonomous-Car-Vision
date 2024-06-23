@@ -11,4 +11,7 @@ backendVenv
 frames
 .pnp.*
 agentVenv
+brokerVenv
+.pem
+.enc
 frames

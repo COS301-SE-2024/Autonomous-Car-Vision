@@ -7,25 +7,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('testApp', '0007_alter_video_video_url'),
+        ("testApp", "0007_alter_video_video_url"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Media',
+            name="Media",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('mid', models.TextField(unique=True)),
-                ('media_name', models.TextField()),
-                ('media_url', models.FileField(upload_to='media/')),
-                ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('uid', models.ForeignKey(db_column='uid', on_delete=django.db.models.deletion.CASCADE, related_name='video', to='testApp.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("mid", models.TextField(unique=True)),
+                ("media_name", models.TextField()),
+                ("media_url", models.FileField(upload_to="media/")),
+                ("creation_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "uid",
+                    models.ForeignKey(
+                        db_column="uid",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="video",
+                        to="testApp.user",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'media',
+                "db_table": "media",
             },
         ),
         migrations.DeleteModel(
-            name='Video',
+            name="Video",
         ),
     ]
