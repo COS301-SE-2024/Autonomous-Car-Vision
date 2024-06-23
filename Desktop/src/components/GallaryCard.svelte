@@ -2,9 +2,11 @@
   import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
   import PingLoader from "../components/PingLoader.svelte";
+  import { VideoURL } from "../stores/video";
 
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
+  import { push } from "svelte-spa-router";
 
   export let VideoSource;
   export let VideoName;
@@ -26,6 +28,13 @@
       isDownloaded = true;
     }, 5000);
     console.log("DOWNLOAD BUTTON");
+  }
+
+  function goToVideo() {
+    console.log("Go to video");
+    const encodedPath = encodeURIComponent(VideoSource);
+    VideoURL.set(VideoSource);
+    push(`/video/${encodedPath}`);
   }
 
   function handleMore() {
@@ -98,7 +107,7 @@
   class="{isDownloaded
     ? 'cursor-pointer'
     : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
-  on:click={handleMore}
+  on:click={goToVideo}
 >
   {#if isGalLoading}
     <div class="flex justify-center items-center h-44">
