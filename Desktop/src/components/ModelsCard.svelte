@@ -107,7 +107,7 @@
         id="image"
         class="flex justify-center items-center bg-black h-72 w-full"
       >
-        <mImg class="h-72 w-full" src={Model.mImg} alt={Model.mName} />
+        <img class="h-72 w-full" src={Model.mImg} alt={Model.mName} />
        </div>
     {/if}
     <div id="content" class="flex flex-col gap-4 w-full p-4">
