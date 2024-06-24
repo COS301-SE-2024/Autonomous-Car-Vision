@@ -45,3 +45,4 @@ pem==23.1.0
 pydantic-extra-types==2.8.0
 pydantic-settings==2.3.1
 pyotp==2.9.0
+pytest-cov==5.0.0
