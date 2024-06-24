@@ -2,24 +2,29 @@
 import Home from './Home.svelte';
 import LogIn from './LogIn.svelte';
 import SignUp from './SignUp.svelte';
+import Help from './Help.svelte';
 
-import GallaryPage from "../pages/GallaryPage.svelte"
-import ViewVideoModal from "../components/ViewVideoModal.svelte"
 import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
-import Gallary from '../pages/GallaryPage.svelte';
+import Gallery from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
+import ModelPage from './Models.svelte'
+import VideoPage from './video/[videoUrl]/+page.svelte'
+
 
 const routes = {
     '/': Home,
     '/login': LogIn,
     '/signup': SignUp,
     '/otp': OTP,
-    '/gallary':Gallary,
+    '/gallery':Gallery,
     '/upload':Upload,
+    '/models': ModelPage,
     '/accountsettings' : AccountSettings,
-    '/changePassword': ChangePassword
+    '/changePassword': ChangePassword,
+    '/video/:VideoUrl': VideoPage,
+    '/Help': Help,
 };
 
 export default routes;

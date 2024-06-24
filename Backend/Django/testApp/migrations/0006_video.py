@@ -7,21 +7,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('testApp', '0005_alter_auth_uid_alter_otp_uid_alter_token_uid_and_more'),
+        ("testApp", "0005_alter_auth_uid_alter_otp_uid_alter_token_uid_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Video',
+            name="Video",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('video_name', models.TextField()),
-                ('video_url', models.TextField()),
-                ('creation_date', models.DateTimeField(auto_now_add=True)),
-                ('uid', models.ForeignKey(db_column='uid', on_delete=django.db.models.deletion.CASCADE, related_name='video', to='testApp.user')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("video_name", models.TextField()),
+                ("video_url", models.TextField()),
+                ("creation_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "uid",
+                    models.ForeignKey(
+                        db_column="uid",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="video",
+                        to="testApp.user",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'videos',
+                "db_table": "videos",
             },
         ),
     ]

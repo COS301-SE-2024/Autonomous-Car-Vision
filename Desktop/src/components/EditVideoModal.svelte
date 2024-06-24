@@ -14,8 +14,6 @@
     }
 </script>
 
-
-<div class="overlay mx-autorounded-xl rounded-lg"></div>
 <div class="modal mx-autorounded-lg">
     <!-- <video class="video-preview" src={videoSrc} controls></video> -->
      <img src={imgSource} alt="video preview"/>

@@ -1,128 +1,167 @@
 <script>
-  import { createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
+  import PingLoader from "../components/PingLoader.svelte";
+  import { VideoURL } from "../stores/video";
+
+  // import { isDownloading } from "../stores/loading";
+  import RingLoader from "./RingLoader.svelte";
+  import { push } from "svelte-spa-router";
 
   export let VideoSource;
+  export let VideoName;
+  export let isDownloaded;
 
+  let isGalLoading = false;
   let showMoreModal = false;
   let firstFrameURL = "";
-  let isDownloaded = false;
-  const dispatch = createEventDispatcher();
+  let isDownloading = false;
 
-  function handleDownload() {
-    // Logic to download the video
-    isDownloaded = true;
+  const handleDownload = async (event) => {
+    event.stopPropagation();
+    // isDownloading.set(true);
+    isDownloading = true;
+    try {
+        const response = await window.electronAPI.downloadVideo(
+          VideoName,
+          VideoSource
+        );
+        console.log(response.success, response.filePath);
+      } catch (error) {}
+    setTimeout(() => {
+      // isDownloading.set(false);
+      isDownloading = false;
+      showMoreModal = false;
+      isDownloaded = true;
+    }, 10000);
+    console.log("DOWNLOAD BUTTON");
+  }
+
+  function goToVideo() {
+    if (!isDownloaded) return;
+    console.log("Go to video");
+    const encodedPath = encodeURIComponent(VideoSource);
+    VideoURL.set(VideoSource);
+    push(`/video/${encodedPath}`);
   }
 
   function handleMore() {
-    console.log('More button clicked');
+    console.log("More button clicked");
     showMoreModal = true;
+    console.log(VideoSource);
   }
 
   function handleBack(event) {
-    console.log('Back button clicked');
+    console.log("Back button clicked");
     event.stopPropagation(); // Stop event propagation
     showMoreModal = false;
   }
 
   function captureSpecificFrame(frameNumber) {
-    const videoElement = document.createElement('video');
+    const videoElement = document.createElement("video");
     videoElement.src = VideoSource;
-    videoElement.crossOrigin = 'anonymous'; // Ensure CORS is handled
+    videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
 
-    videoElement.addEventListener('loadedmetadata', () => {
+    videoElement.addEventListener("loadedmetadata", () => {
       const fps = 30; // Assuming the video has 30 frames per second
       const targetTime = frameNumber / fps;
 
       videoElement.currentTime = targetTime;
     });
 
-    videoElement.addEventListener('seeked', () => {
-      if (videoElement.readyState >= 2) { // Ensure the video is loaded
-        const canvas = document.createElement('canvas');
+    videoElement.addEventListener("seeked", () => {
+      if (videoElement.readyState >= 2) {
+        // Ensure the video is loaded
+        const canvas = document.createElement("canvas");
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext("2d");
         context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        firstFrameURL = canvas.toDataURL('image/png');
+        firstFrameURL = canvas.toDataURL("image/png");
         // Remove the video element from the DOM
         videoElement.remove();
       } else {
-        console.error('Video is not ready to capture the frame.');
+        console.error("Video is not ready to capture the frame.");
       }
-    });
-
-    videoElement.addEventListener('error', (e) => {
-      console.error('Error loading video: ', e);
     });
 
     // Add the video element to the DOM to trigger loading
     document.body.appendChild(videoElement);
   }
 
-  onMount(() => {
+  onMount(async () => {
+    isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
+    console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
+    if (!isDownloaded) {
+      try {
+        const response = await window.electronAPI.getVideoFrame(
+          VideoSource,
+          VideoName
+        );
+        let videoPaths = response;
+        firstFrameURL = videoPaths[0];
+        console.log(firstFrameURL);
+      } catch (error) {}
+    }
+    setInterval(() => {
+      isGalLoading = false;
+    }, 3000);
   });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-{#if isDownloaded}
-  <div
-    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
-    on:click={handleMore}
-  >
+<div
+  class="{isDownloaded
+    ? 'cursor-pointer'
+    : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+  on:click={goToVideo}
+>
+  {#if isGalLoading}
+    <div class="flex justify-center items-center h-44">
+      <div class="flex justify-center">
+        <PingLoader />
+      </div>
+    </div>
+  {/if}
+  {#if !isGalLoading}
     <div class="image-container relative">
+      <!-- style="filter: {!isDownloaded ? 'grayscale(1);' : ''}" add grayscale when notDownloaded current solution doesn't work -->
       <img
         src={firstFrameURL}
         alt="video preview"
         class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
       />
       <div
-        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
+        class="{isDownloaded
+          ? 'hover:block'
+          : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
       >
-        <button
-          class="more bg-blue text-white border-none px-2 py-1 rounded text-xs"
-          on:click={handleMore}>More</button>
+        {#if !isDownloading && !isDownloaded}
+          <button
+            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
+            on:click={handleDownload}>Download</button
+          >
+        {:else if !isDownloaded}
+          <div class="flex justify-center">
+            <RingLoader />
+          </div>
+        {/if}
       </div>
     </div>
     <div class="details p-2">
-      <p class="details-link">Details here...</p>
+      <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
     </div>
-    <div>
-      {#if showMoreModal}
-        <GallaryMore on:close={handleBack} />
-      {/if}
-    </div>
-  </div>
-{:else}
-  <div
-    class="relative overflow-hidden rounded-lg p-2 w-48 shadow-md shadow-theme-keith-accenttwo m-2 transition-all duration-300 ease-in-out"
-    on:click={handleMore}
-  >
-    <div class="image-container relative filter grayscale">
-      <img
-        src={firstFrameURL}
-        alt="video preview"
-        class="w-full rounded-lg transition-filter duration-300 ease-in-out"
-      />
-      <div
-        class="button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"
-      >
-        <button
-          class="download bg-blue text-white border-none px-2 py-1 rounded text-xs"
-          on:click={handleDownload}>Download</button>
-      </div>
-    </div>
-    <div class="details p-2">
-      <p class="details-link">Details here...</p>
-    </div>
-    <div>
-      {#if showMoreModal}
-        <GallaryMore on:close={handleBack} imgSource={firstFrameURL} videoSource={VideoSource}/>
-      {/if}
-    </div>
+  {/if}
+</div>
+
+{#if showMoreModal && isDownloaded}
+  <div>
+    <GallaryMore
+      imgSource={firstFrameURL}
+      videoSource={VideoSource}
+      videoName={VideoName}
+      on:close={handleBack}
+    />
   </div>
 {/if}
-
-<style>
-</style>
