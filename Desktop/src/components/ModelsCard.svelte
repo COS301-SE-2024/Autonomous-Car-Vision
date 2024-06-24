@@ -54,9 +54,9 @@
     <div class="card-front   rounded-xl  "> 
     <div
       id="header"
-      class="flex flex-row items-center justify-between px-6 py-4 w-full"
+      class="flex flex-row  justify-between px-6 py-4 w-full"
     >
-      <div class="inline-flex flex-row items-center gap-2">
+      <div class="inline-flex flex-row gap-2">
         {#if Model.mProfileImg !== ""}
           <mImg
             class="rounded-full"
@@ -77,7 +77,7 @@
         {/if}
         <div class="flex flex-col">
           <p class="w-fit text-theme-blue-light text-xl font-medium">{Model.mName}</p>
-          <p class="w-40 text-gray text-md font-normal">
+          <p class="w-80 text-gray text-md font-normal">
             {Model.mDescription}
           </p>
         </div>
@@ -136,7 +136,6 @@
   position: relative;
   width: 100%;
   height: 100%;
-  text-align: center;
   transition: transform 0.6s;
   transform-style: preserve-3d;
   transform: rotateY(0deg);
