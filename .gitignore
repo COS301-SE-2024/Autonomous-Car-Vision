@@ -3,6 +3,7 @@ node_modules
 build
 backendVenv
 modelsVenv
+modelVenv
 .pyc
 .idea
 .env
