@@ -20,14 +20,17 @@
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
 
 ## Demo Presentations
+- **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
-- **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1bhapjd8wDtabWWb_AEo8rIxxPd-gfZOM/view?usp=sharing>)
-- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1bZZQaBq7FIXqjst2A2y2xmyoVP715Edx/view?usp=sharing>)
-- **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1GHAieep9AIpLuKAqaFwaMQBW2bEQLIQW/view?usp=sharing>)
+- **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1_-aVUgu6myCXf3xeL3x6jl85uQNEHegc/view?usp=sharing>)
+- **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
+- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
+- **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
-- **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/1RgeIPDWVPLAodiI0t6hK5uDr90-0ssG5/view?usp=sharing>)
+- **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
+- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/138qQ2a141yoY-sG7PY3I0nQTkwcz7CTC/view?usp=sharing>)
 
 <h2 align="center"> Meet The Team </h2>
 
