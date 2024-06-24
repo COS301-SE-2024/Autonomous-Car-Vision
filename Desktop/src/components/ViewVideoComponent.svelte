@@ -239,7 +239,7 @@
         position: absolute;
         bottom: 40px;
         left: 0;
-        width: 80%;
+        width: 100%;
         height: 5px;
     }
 
