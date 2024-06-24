@@ -123,6 +123,7 @@
         <video
             poster={frames[1]}
             src={videoPath}
+            type="video/mp4"
             on:mousemove={handleMove}
             on:touchmove|preventDefault={handleMove}
             on:mousedown={handleMousedown}
