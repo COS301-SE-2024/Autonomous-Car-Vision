@@ -1,10 +1,16 @@
 import sys
 import cv2
 import os
+import torch
 from ultralytics import YOLO
 
 def process_video(input_video_path, output_video_path, model_path='yolov8n/yolov8n.pt'):
-    model = YOLO(model_path)
+    # Check if CUDA is available and set the device
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using device: {device}")
+
+    # Load the model with the specified device
+    model = YOLO(model_path).to(device)
 
     # Create the output directory if it doesn't exist
     output_dir = os.path.dirname(output_video_path)
