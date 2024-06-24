@@ -88,8 +88,8 @@ sequelize.sync().then(async () => {
                 model_description: 'The YOLOv8s model is a slightly larger and more accurate version of YOLOv8n, optimized for better performance while maintaining efficiency.',
                 model_version: '1.0',
                 model_summary: 'The small version of the Yolov8 models.',
-                model_profileimg: 'https://placekitten.com/200/201',
-                model_img: 'https://placekitten.com/200/201'
+                model_profileimg: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2RoNjVydWczOGZnN3E5bHhtMWs3ZWlydngzeGNuczNlMjM5Y2JscSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/M9MaCQV4CsWWIhYv7S/giphy.webp',
+                model_img: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2RoNjVydWczOGZnN3E5bHhtMWs3ZWlydngzeGNuczNlMjM5Y2JscSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/M9MaCQV4CsWWIhYv7S/giphy.webp'
             },
             {
                 model_id: '3',
