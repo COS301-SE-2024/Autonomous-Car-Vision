@@ -7,33 +7,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('testApp', '0003_token'),
+        ("testApp", "0003_token"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='token',
-            old_name='created',
-            new_name='creation_date',
+            model_name="token",
+            old_name="created",
+            new_name="creation_date",
         ),
         migrations.RemoveField(
-            model_name='token',
-            name='user',
+            model_name="token",
+            name="user",
         ),
         migrations.AddField(
-            model_name='token',
-            name='uid',
-            field=models.ForeignKey(default=1970, on_delete=django.db.models.deletion.CASCADE, related_name='token', to='testApp.user'),
+            model_name="token",
+            name="uid",
+            field=models.ForeignKey(
+                default=1970,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="token",
+                to="testApp.user",
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='token',
-            name='id',
+            model_name="token",
+            name="id",
             field=models.AutoField(primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='token',
-            name='token',
+            model_name="token",
+            name="token",
             field=models.CharField(max_length=40, unique=True),
         ),
     ]
