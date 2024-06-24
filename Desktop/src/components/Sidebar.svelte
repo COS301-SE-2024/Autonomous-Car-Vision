@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { Avatar, Icon } from "svelte-materialify";
-  import { mdiAccountCircle , mdiHelpCircle} from "@mdi/js";
+  import { mdiAccountCircle, mdiHelpCircle } from "@mdi/js";
   import { mdiAccountCog } from "@mdi/js";
   import { mdiLogout } from "@mdi/js";
   import { push, location } from "svelte-spa-router";
@@ -11,10 +11,10 @@
   import AccountPopup from "./AccountPopup.svelte";
 
   const items = [
-    { name: "Help", route: "#/help", iconPath: mdiHelpCircle },
-    { name: "Gallery", route: "#/gallery", iconPath: mdiViewGallery },
-    { name: "Upload", route: "#/upload", iconPath: mdiUpload },
-    { name: "Models", route: "#/models", iconPath: mdiCloudPrintOutline },
+    { name: "Gallery", route: "/gallery", iconPath: mdiViewGallery },
+    { name: "Upload", route: "/upload", iconPath: mdiUpload },
+    { name: "Models", route: "/models", iconPath: mdiCloudPrintOutline },
+    { name: "Help", route: "/help", iconPath: mdiHelpCircle },
   ];
 
   let username = "Username";
@@ -74,7 +74,12 @@
   }
 
   function getMarkerPosition() {
-    let route = $location.startsWith("/video/") || $location === "/accountsettings" || $location === "/changepassword" ? "/gallery" : $location;
+    let route =
+      $location.startsWith("/video/") ||
+      $location === "/accountsettings" ||
+      $location === "/changepassword"
+        ? "/gallery"
+        : $location;
     for (let i = 0; i < items.length; i++) {
       if (items[i].route === route) {
         console.log(route, i);
@@ -96,14 +101,18 @@
           name="tab"
           checked={$location === item.route ||
             (item.route === "/gallery" && $location.startsWith("/video")) ||
-            $location === "/accountsettings" || $location === "/changepassword"}
+            $location === "/accountsettings" ||
+            $location === "/changepassword"}
         />
         <label
           for={"tab" + i}
           on:keydown
           on:click={() => navigate(item.route)}
           class={$location === item.route ||
-          (item.route === "/gallery" && ($location.startsWith("/video") || $location === "/accountsettings" || $location === "/changepassword"))
+          (item.route === "/gallery" &&
+            ($location.startsWith("/video") ||
+              $location === "/accountsettings" ||
+              $location === "/changepassword"))
             ? "active"
             : ""}
         >
@@ -111,6 +120,12 @@
           <span class="sidebartext ml-2">{item.name}</span>
         </label>
       {/each}
+      <!-- <div>
+        <button on:click={() => navigate("/help")}>
+          <Icon path={mdiHelpCircle} />
+          <span class="sidebartext ml-2">Help</span>
+        </button>
+      </div> -->
       <div class="marker" style="transform: {getMarkerPosition()};">
         <div id="top"></div>
         <div id="bottom"></div>
@@ -177,7 +192,6 @@
     opacity: 1;
     color: rgb(165, 165, 165);
   }
-
 
   label,
   input[type="radio"] {

@@ -33,7 +33,7 @@
       isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
-    }, 5000);
+    }, 10000);
     console.log("DOWNLOAD BUTTON");
   }
 
@@ -126,6 +126,7 @@
   {/if}
   {#if !isGalLoading}
     <div class="image-container relative">
+      <!-- style="filter: {!isDownloaded ? 'grayscale(1);' : ''}" add grayscale when notDownloaded current solution doesn't work -->
       <img
         src={firstFrameURL}
         alt="video preview"

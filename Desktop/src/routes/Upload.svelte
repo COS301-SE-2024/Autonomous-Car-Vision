@@ -15,6 +15,8 @@
   let filename = "";
   let file;
 
+  let isUploading = false;
+
   // For loading screen purposes
   onMount(() => {
     // isLoading.set(true);
@@ -35,7 +37,7 @@
     // Alert for rejected files
     fileRejections.forEach((rejection) => {
       alert(
-        `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`
+        `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`,
       );
     });
   }
@@ -50,9 +52,13 @@
     }
     console.log("TESTING SAVE before try block");
 
+    // isUploadLoading.set(true);
+    isUploading = true;
+    setInterval(() => {
+      // isUploadLoading.set(true);
+      isUploading = false;
+    }, 6000);
     try {
-      isUploadLoading.set(true);
-
       // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
       let record = {
@@ -73,10 +79,10 @@
         position: "top-center",
       });
 
+
       // sleep for 5 seconds
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      isUploadLoading.set(false);
       console.log("TESTING SAVE before IF");
 
       if (response2.success) {
@@ -128,7 +134,7 @@
             >Save
           </button>
         </div>
-        {#if $isUploadLoading}
+        {#if isUploading}
           <div class="flex justify-center">
             <RingLoader />
           </div>
