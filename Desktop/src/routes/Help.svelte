@@ -10,7 +10,7 @@
         {
         title: 'View Gallery',
         details: 'On the Navigation bar, find and click the Gallery tab: ',
-        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/NavBar.png'],
+        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/NavBar.png'],
         },
         {
         title: 'View/Download Video',
@@ -20,23 +20,23 @@
         {
         title: 'Process Video',
         details: 'After you have uploaded the video, click on the Process Video button. This will open a modal window where you can select the model. Confirm the model and wait patiently as the AI does its work.',
-        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/ChosenVideo.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/ProcessPopUp.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/ProcessingLoader.png'],
+        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/ChosenVideo.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/ProcessPopUp.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/ProcessingLoader.png'],
         },
         {
         title: 'View Models',
         details: 'On the Navigation bar, find and click the Models tab. To view more details of model, simply hover over it to reveal the extended summary. ',
-        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/ModelsPage.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/FliipedModelCard.png'],
+        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/ModelsPage.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/FliipedModelCard.png'],
         }
         ,
         {
         title: 'Account Settings',
         details: 'Click on your username in the navigation bar. A pop-up menu will appear. Click on the Account Settings option to open the settings page.',
-        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/SettingsPopUp.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/AccountSettings.png'],
+        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/SettingsPopUp.png', 'https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/AccountSettings.png'],
         },
         {
         title: 'Logout',
         details: 'Click on your username in the navigation bar. A pop-up menu will appear; click on the Log Out button',
-        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix/Documentation/Images/HelpImages/AccountSettings.png'],
+        images: ['https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/help_fix2/Documentation/Images/HelpImages/AccountSettings.png'],
         },
     ];
 
@@ -63,9 +63,9 @@
         </div>
         <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === index ? 'open' : '' }">
             <p>{topic.details}</p> <br>
-            {#each topic.images as image}
-            <img src="{image}" alt="screenshot" class="screenshots" />
-            {/each}
+            <!--{#each topic.images as image}
+            <img src={image} alt="screenshot" class="screenshots" />
+            {/each}-->
         </div>
         </div>
     {/each}
@@ -116,7 +116,7 @@
         align-text: center;
         align-items: center;
         justify-content: center;
-        padding-left: 10px;
+        padding-left: 10px
         
     }
 </style>
