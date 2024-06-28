@@ -24,7 +24,7 @@ const routes = {
     '/accountsettings' : AccountSettings,
     '/changePassword': ChangePassword,
     '/video/:VideoUrl': VideoPage,
-    '/Help': Help,
+    '/help': Help,
 };
 
 export default routes;

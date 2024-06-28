@@ -120,12 +120,6 @@
           <span class="sidebartext ml-2">{item.name}</span>
         </label>
       {/each}
-      <!-- <div>
-        <button on:click={() => navigate("/help")}>
-          <Icon path={mdiHelpCircle} />
-          <span class="sidebartext ml-2">Help</span>
-        </button>
-      </div> -->
       <div class="marker" style="transform: {getMarkerPosition()};">
         <div id="top"></div>
         <div id="bottom"></div>
@@ -133,24 +127,31 @@
     </div>
   </div>
   <div
-    class="relative flex justify-center gap-4 items-center mt-2 py-2 px-2 rounded transition hover:bg-theme-dark-bgHover border-theme-dark-primary cursor-pointer avatar-container"
+    class="relative transition border-theme-dark-primary cursor-pointer avatar-container m-2"
     on:click={toggleAccountPopup}
     on:keydown
   >
-    <Avatar class="bg-gray p-2 rounded-full">
-      <Icon path={mdiAccountCircle} />
-    </Avatar>
-    <div class="flex flex-col">
-      <span class="text-sm font-bold">{username}</span>
-      <span class="text-sm">{Name}</span>
-    </div>
-    {#if showAccountPopup}
-      <div
-        class="absolute top-0 right-0 transform translate-x-full -translate-y-1/3 mt-2 account-popup-content"
-      >
-        <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
+    <div class="{'/accountsettings' === $location || '/changepassword' === $location
+    ? 'bg-theme-dark-bgHover'
+    : ''} bg-theme-blue-primary hover:bg-theme-dark-bgHover py-2 px-2 w-10/12 mx-auto flex justify-start md:gap-6 gap-2 items-center rounded-full">
+      <Avatar class="bg-gray p-2 rounded-full">
+        <Icon path={mdiAccountCircle} />
+      </Avatar>
+      <div class="flex flex-col justify-center">
+        <span class="text-sm font-bold">{username}</span>
+        <span class="text-sm">{Name}</span>
       </div>
-    {/if}
+      {#if showAccountPopup}
+        <div
+          class="absolute top-0 right-0 transform translate-x-full -translate-y-1/3 mt-2 account-popup-content"
+        >
+          <AccountPopup
+            items={accountPopupItems}
+            on:close={closeAccountPopup}
+          />
+        </div>
+      {/if}
+    </div>
   </div>
 </div>
 
@@ -187,10 +188,8 @@
     color: white;
   }
 
-  label:hover,
-  input[type="radio"]:checked + label {
-    opacity: 1;
-    color: rgb(165, 165, 165);
+  label:hover, input[type="radio"]:checked + label:hover {
+    color: #0099ff;
   }
 
   label,
@@ -204,10 +203,10 @@
     opacity: 1;
   }
 
-  /* input[type="radio"]:checked + label.active:hover {
-    color: rgb(165, 165, 165);
+  input[type="radio"]:checked + label.active:hover {
     opacity: 1;
-  } */
+    color: #0099ff;
+  }
 
   .tabs {
     width: 100%;
