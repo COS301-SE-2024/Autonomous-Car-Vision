@@ -353,10 +353,11 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 // IPC handler to run a python script with set parameters
 ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
     return new Promise((resolve, reject) => {
-        const python = spawn('python', [scriptPath, ...args], {
+        const python = spawn('pythonw', [scriptPath, ...args], {
             detached: true,  // Detach the process
             stdio: ['ignore', 'pipe', 'pipe'],  // Ignore stdin, but pipe stdout and stderr
-            windowsHide: true
+            shell: true,  // Run the command through a shell
+            windowsHide: true  // Hide the terminal window on Windows
         });
 
         let output = '';
