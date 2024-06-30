@@ -92,7 +92,7 @@
 <div
   class="fixed h-screen w-1/6 bg-theme-dark-backgroundBlue flex flex-col justify-end z-50 text-white"
 >
-  <div class="popup">
+  <div class="popup {$location === "/accountsettings" || $location === "/changePassword" ? 'bg-theme-dark-backgroundBlue' : 'bg-white'}  ">
     <div class="tabs">
       {#each items as item, i}
         <input
@@ -100,9 +100,7 @@
           id={"tab" + i}
           name="tab"
           checked={$location === item.route ||
-            (item.route === "/gallery" && $location.startsWith("/video")) ||
-            $location === "/accountsettings" ||
-            $location === "/changepassword"}
+            (item.route === "/gallery" && $location.startsWith("/video"))}
         />
         <label
           for={"tab" + i}
@@ -110,14 +108,12 @@
           on:click={() => navigate(item.route)}
           class={$location === item.route ||
           (item.route === "/gallery" &&
-            ($location.startsWith("/video") ||
-              $location === "/accountsettings" ||
-              $location === "/changepassword"))
+            $location.startsWith("/video"))
             ? "active"
             : ""}
         >
           <Icon path={item.iconPath} />
-          <span class="sidebartext ml-2">{item.name}</span>
+          <span class="sidebartext ml-2 lg:contents hidden">{item.name}</span>
         </label>
       {/each}
       <div class="marker" style="transform: {getMarkerPosition()};">
@@ -133,11 +129,11 @@
   >
     <div class="{'/accountsettings' === $location || '/changepassword' === $location
     ? 'bg-theme-dark-bgHover'
-    : ''} bg-theme-blue-primary hover:bg-theme-dark-bgHover py-2 px-2 w-10/12 mx-auto flex justify-start md:gap-6 gap-2 items-center rounded-full">
-      <Avatar class="bg-gray p-2 rounded-full">
+    : ''} lg:bg-theme-blue-primary hover:bg-theme-dark-bgHover py-2 px-2 w-auto mx-auto flex lg:justify-start justify-center gap-2 items-center rounded-full">
+      <Avatar class="bg-gray p-2 rounded-full content-center">
         <Icon path={mdiAccountCircle} />
       </Avatar>
-      <div class="flex flex-col justify-center">
+      <div class="w-full flex-col justify-center items-center lg:flex hidden">
         <span class="text-sm font-bold">{username}</span>
         <span class="text-sm">{Name}</span>
       </div>
@@ -161,7 +157,7 @@
     bottom: 2rem;
     width: 100%;
     overflow: hidden;
-    background-color: white;
+    /* background-color: white; */
   }
 
   label {
