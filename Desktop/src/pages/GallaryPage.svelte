@@ -65,7 +65,7 @@
     <div class="items-center">
       <div>
         <div
-          class="text-4xl font-heading text-theme-dark-bgHover text-center rounded"
+          class="text-4xl font-heading text-dark-primary font-bold text-center rounded"
         >
           Gallery
         </div>

@@ -18,6 +18,4 @@
   console.log(window.electronAPI.getToken());
 </script>
 
-<div>
-  <Router {routes} />
-</div>
+<Router {routes} />

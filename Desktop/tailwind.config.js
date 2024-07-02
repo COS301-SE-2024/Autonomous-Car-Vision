@@ -29,6 +29,7 @@ module.exports = {
           'tech-blue': '0 10px 20px #0C003C, 0 6px 20px #0C003C', // shadow-blue
           'card-blue': '6px 6px 10px rgba(0.15, 40, 145, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)', // shadow-card
           'tech-green': '0 10px 20px #218838, 0 6px 20px #218838', // shadow-green
+          'card-white': '6px 6px 10px rgba(0.15, 244, 244, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)'
         },
       },
       fontFamily: {
@@ -40,6 +41,13 @@ module.exports = {
         lighter: ['var(--font-light-light)', 'sans-serif'],
       },
       colors: {
+        'dark' : {
+          background: '#011C27', // '#03254E',  // '#001524', '#011C27'
+          primary: '#FFFFFF',
+          secondary: '',
+          background_secondary: '#000000'
+
+        },
         'theme-green': {
           light:'#343434', //Timber wolf
           dark:'#D3D3D3', //Jet

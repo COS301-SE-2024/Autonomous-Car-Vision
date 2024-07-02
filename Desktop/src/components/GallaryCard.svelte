@@ -84,9 +84,6 @@
         console.error("Video is not ready to capture the frame.");
       }
     });
-
-    // Add the video element to the DOM to trigger loading
-    document.body.appendChild(videoElement);
   }
 
   onMount(async () => {
@@ -114,7 +111,7 @@
 <div
   class="{isDownloaded
     ? 'cursor-pointer'
-    : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'cursor-default'} relative overflow-hidden rounded-lg p-2 w-10/12 m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
 >
   {#if isGalLoading}
@@ -150,7 +147,7 @@
       </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
+      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
     </div>
   {/if}
 </div>

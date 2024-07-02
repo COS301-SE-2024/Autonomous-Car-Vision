@@ -35,34 +35,36 @@
   }
 
   function handleMouseUp() {
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
   }
 
   function handleMouseDown() {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
   }
 
   onMount(() => {
     // Cleanup event listeners if the component is unmounted
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   });
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div class="h-full w-full">
+<div class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary">
   <div class="side">
     <div class="sidebar" style="width: {sidebarWidth}px;">
       <SidebarV2 />
     </div>
-  <div class="handle" on:mousedown={handleMouseDown}></div>
+    <div class="handle" on:mousedown={handleMouseDown}></div>
   </div>
-  <div class="content" style="margin-left: {sidebarWidth + 15}px;">
-    <slot />
+  <div class="pr-2 pt-2 pb-2 h-screen">
+    <div class="content" style="margin-left: {sidebarWidth + 15}px;">
+      <slot />
+    </div>
   </div>
 </div>
 
@@ -74,19 +76,28 @@
   }
   .sidebar {
     float: left;
-    height: 100%;
-    background: #ffcdd2;
-    overflow: auto;
+    height: 100vh;
+    background: none;
+    overflow: hidden;
+    padding: 0.5rem 0 0.5rem 0.5rem;
   }
   .handle {
     float: left;
     width: 15px;
     height: 100vh;
-    background: #0C3E63;
+    background: transparent;
     cursor: ew-resize;
   }
+
   .content {
     height: 100%;
     overflow: auto;
+    background-image: linear-gradient(180deg, #001524, #181818);
+    border-radius: 15px;
+    padding: 0.5rem;
   }
+
+  .content::-webkit-scrollbar {
+  display: none;
+}
 </style>
