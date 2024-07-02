@@ -8,6 +8,13 @@
 
   import { onMount } from "svelte";
 
+  import {
+    processing,
+    videoUrl,
+    processingQueue,
+    loadState,
+  } from "../../../stores/processing";
+
   import { isLoading } from "../../../stores/loading";
   import Spinner from "../../../components/Spinner.svelte";
 
@@ -129,7 +136,7 @@
     await fetchModels();
     await getVideoDetails();
     await getOutputFiles();
-
+    await loadState(); // Load state on mount
     if (outputFiles.length > 1) {
       showModelList.set(true);
     }
@@ -139,31 +146,29 @@
   let processed = false; // Check if the video has been processed
 
   async function processVideo(event) {
-    modelName = event.detail.modelName;
-    isLoading.set(true);
-    showProcessPopup = false;
-    try {
-      await getVideoDetails();
-      console.log(isLoading, "isLoading");
+  modelName = event.detail.modelName;
+  isLoading.set(true);
+  showProcessPopup = false;
+  try {
+    await getVideoDetails();
 
-      OriginalVideoURL.set(videoPath);
+    console.log(isLoading, "isLoading");
 
-      output = await window.electronAPI.runPythonScript(scriptPath, [
-        videoPath,
-        outputVideoPath,
-        modelsPath,
-      ]);
-      console.log("Python Script Output:", output);
-      setInterval(() => {
-        isLoading.set(false);
-      }, 5000);
-    } catch (error) {
-      output = error.message;
-      console.error("Python Script Error:", output);
-    }
-    console.log("Processing video");
-    processed = true;
+    OriginalVideoURL.set(videoPath);
+
+    const videoDetails = { scriptPath, videoPath, outputVideoPath, modelPath: modelsPath };
+    await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
+
+    processing.set(true);
+    videoUrl.set(outputVideoPath);
+    console.log("Queued video for processing now:", videoDetails);
+  } catch (error) {
+    output = error.message;
+    console.error("Error:", output);
   }
+  console.log("Processing video");
+  processed = true;
+}
 
   function re_process() {
     // Re-process functionality
@@ -258,11 +263,11 @@
       </div>
       {#if showProcessPopup}
         <ProcessPopup
-        on:closePopup={closeProcessPopup}
-        on:processVideo={processVideo}
-        showProcessPopup={showProcessPopup}
-        models={models}
-        selectedModelName={selectedModelName}
+          on:closePopup={closeProcessPopup}
+          on:processVideo={processVideo}
+          {showProcessPopup}
+          {models}
+          {selectedModelName}
         />
       {/if}
     </div>

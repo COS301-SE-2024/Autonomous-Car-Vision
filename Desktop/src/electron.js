@@ -14,6 +14,7 @@ const ffprobePath = require('ffprobe-static').path;
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
 
+let store;
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -59,8 +60,6 @@ try {
 } catch (_) { }
 
 // handler for token storing
-
-let store;
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
@@ -143,6 +142,23 @@ ipcMain.on('clear-uemail', (event) => {
     store.delete('uemail');
     event.returnValue = true;
 });
+
+ipcMain.handle('load-store-process', async () => {
+    return store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+});
+
+ipcMain.handle('save-store-process', async (event, state) => {
+    store.set('appProcessing', state);
+});
+
+// Helper function to update the store state
+function updateState(updates) {
+    console.log('Updating state:', updates);
+    const currentState = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    const newState = { ...currentState, ...updates };
+    store.set('appProcessing', newState);
+    return newState;
+}
 
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
@@ -350,10 +366,45 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
     });
 });
 
-// IPC handler to run a python script with set parameters
-ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
+// Function to process the queue
+async function processQueue() {
+    const { processingQueue, processing } = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    if (processing || processingQueue.length === 0) return;
+
+    const nextVideo = processingQueue.shift();
+    updateState({ processing: true, videoUrl: nextVideo.outputVideoPath, processingQueue });
+
+    try {
+        //call the run-python-script IPC handler
+        
+        const output = await runPythonScript(nextVideo.scriptPath, [
+            nextVideo.videoPath,
+            nextVideo.outputVideoPath,
+            nextVideo.modelPath,
+        ]);
+        console.log("Python Script Output:", output);
+        updateState({ processing: false, videoUrl: '' });
+        processQueue(); // Process the next video in the queue
+    } catch (error) {
+        console.error("Python Script Error:", error);
+        updateState({ processing: false, videoUrl: '' });
+    }
+}
+
+// IPC handler to queue a video for processing
+ipcMain.handle('queue-video', async (event, videoDetails) => {
+    console.log('Video Details being added:', videoDetails);
+    const { processing, videoUrl, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    processingQueue.push(videoDetails);
+    updateState({ processing, videoUrl, processingQueue });
+    processQueue();
+});
+
+// Function to run a python script with set parameters
+function runPythonScript(scriptPath, args) {
+    console.log('Running Python Script:', scriptPath, args);
     return new Promise((resolve, reject) => {
-        const python = spawn('pythonw', [scriptPath, ...args], {
+        const python = spawn('python', [scriptPath, ...args], {
             detached: true,  // Detach the process
             stdio: ['ignore', 'pipe', 'pipe'],  // Ignore stdin, but pipe stdout and stderr
             shell: true,  // Run the command through a shell
@@ -382,7 +433,7 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
         // Detach the process and allow it to continue running
         python.unref();
     });
-});
+}
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
     return path.resolve(...segments);
