@@ -5,6 +5,7 @@
   import { navigate } from "@sveltejs/kit/navigation"; // If using SvelteKit for navigation
   import Sidebar from "../components/Sidebar.svelte";
   import SidebarV2 from "../components/SidebarV2.svelte";
+  import { sidebarWidth } from "../stores/store";
 
   let authToken;
 
@@ -21,9 +22,8 @@
     }
   });
 
-  let sidebarWidth = 200; // initial width of the sidebar
-  const minOffset = 200;
-  const maxOffset = 500;
+  const minOffset = 75;
+  const maxOffset = 250;
 
   function handleMouseMove(event) {
     let offset = event.pageX;
@@ -31,7 +31,13 @@
     offset = offset < minOffset ? minOffset : offset;
     offset = offset > maxOffset ? maxOffset : offset;
 
-    sidebarWidth = offset;
+    if (offset < 150) {
+      // sidebarWidth = 75;
+      sidebarWidth.set(75);
+    } else {
+      // sidebarWidth = offset;
+      sidebarWidth.set(offset);
+    }
   }
 
   function handleMouseUp() {
@@ -54,15 +60,17 @@
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary">
+<div
+  class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary"
+>
   <div class="side">
-    <div class="sidebar" style="width: {sidebarWidth}px;">
-      <SidebarV2 />
+    <div class="sidebar" style="width: {$sidebarWidth}px;">
+      <SidebarV2 width={$sidebarWidth} />
     </div>
     <div class="handle" on:mousedown={handleMouseDown}></div>
   </div>
   <div class="pr-2 pt-2 pb-2 h-screen">
-    <div class="content" style="margin-left: {sidebarWidth + 15}px;">
+    <div class="content" style="margin-left: {$sidebarWidth + 15}px;">
       <slot />
     </div>
   </div>
@@ -70,7 +78,7 @@
 
 <style>
   .side {
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
   }
@@ -98,6 +106,6 @@
   }
 
   .content::-webkit-scrollbar {
-  display: none;
-}
+    display: none;
+  }
 </style>

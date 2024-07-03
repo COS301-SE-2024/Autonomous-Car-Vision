@@ -109,9 +109,9 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="{isDownloaded
+  class="z-0 {isDownloaded
     ? 'cursor-pointer'
-    : 'cursor-default'} relative overflow-hidden rounded-lg p-2 w-10/12 m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'cursor-default'} relative overflow-hidden rounded-lg p-2 w-10/12 m-2 ml-auto mr-auto transition-all duration-300 ease-in-out hover:bg-dark-hover"
   on:click={goToVideo}
 >
   {#if isGalLoading}
