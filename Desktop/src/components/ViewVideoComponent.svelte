@@ -80,6 +80,17 @@
         if (new Date() - lastMouseDown < 300) {
             if (paused) e.target.play();
             else e.target.pause();
+        }   
+        // Find the frame index that corresponds to the current time
+        const frameIndex = Math.floor((time / duration) * frames.length);
+        const frameElement =
+            document.querySelectorAll(".thumbnail")[frameIndex];
+        if (frameElement) {
+            frameElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
         }
     }
 
@@ -314,7 +325,7 @@
     }
 
     video {
-        width: 95%;
+        width: 100%;
         height: 60%;
         aspect-ratio: 16 / 9;
     }
