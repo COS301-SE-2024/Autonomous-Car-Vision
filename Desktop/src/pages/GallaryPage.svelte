@@ -16,7 +16,7 @@
   let downloadedStatuses = [];
 
   let searchQuery = '';
-  let filterCategory = 'Name';
+  let filterCategory = 'All';
 
   // Fetch the video records from the database
   onMount(async () => {
@@ -59,19 +59,19 @@
   }
 
   
-
-  //$: filteredItems = gallaryURLs.filter(item => {
+    // TODO: clear DB becasue it returns error with the function below
+  // $: filteredItems = gallaryURLs.filter(item => {
   //  const searchRegex = new RegExp(searchQuery, 'i');
 
   //   if (filterCategory === 'Name') {
   //    return searchRegex.test(item.name);
-   // } else if (filterCategory === 'Date') {
+  //  } else if (filterCategory === 'Date') {
   //    return searchRegex.test(item.date);
-   // } else if (filterCategory === 'Model Name') {
-   //   return searchRegex.test(item.modelName);
+  //  } else if (filterCategory === 'Model Name') {
+  //    return searchRegex.test(item.modelName);
   //  }
-   // return true;
-  //}); 
+  //  return true;
+  // }); 
 
   function handleSearch(event) {
     searchQuery = event.target.value;
@@ -91,18 +91,26 @@
   {:else}
     <div class="items-center">
       <div>
-      <div class="flex justify-center items-center w-full mb-4 p-4">
+      <div class="flex justify-center items-center w-full mb-4 p-4"> <!--TODO: style the searchbar -->
         <input
           type="text"
           placeholder="Search..."
           on:input{handleSearch}
-          class="p-2 border rounded-lg" 
+          class="p-2 border rounded-lg text-xl" 
           />
-        <!-- add filter bar-->
+        <!-- TODO: style filter bar-->
+        <select class="ml-2 p-2 bourder rounded-lg text-xl" 
+          on:change={handleFilterChange}
+          placeholder="Filter...">
+            <option value="All">Filter...</option>
+            <option value="Name">Name</option>
+            <option value="Date">Date</option>
+            <option value="Model Name">Model Name</option>
+        </select>
       </div>
         <div class="grid grid-flow-row-dense grid-cols-3 items-center">
         
-        {#each videoURLs as url,index}
+        {#each videoURLs as url,index} <!--TODO: Changr 'videoURLs' to 'filteredItems'-->
             <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
           {/each}
         </div>
