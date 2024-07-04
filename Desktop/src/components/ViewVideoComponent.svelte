@@ -3,7 +3,7 @@
     import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
     import { Icon } from "svelte-materialify";
-    import { mdiPause, mdiPlay } from "@mdi/js";
+    import { mdiPause, mdiPlay, mdiReplay } from "@mdi/js";
 
     export let videoPath;
 
@@ -17,6 +17,7 @@
 
     let thumbnailBar;
     let frames = [];
+    let ended = false;
 
     function format(seconds) {
         if (isNaN(seconds)) return "...";
@@ -43,7 +44,7 @@
 
     function handleMouseLeave(e) {
         // Start the timeout to hide the controls after 2500ms
-        showControlsTimeout = setTimeout(() => (showControls = false), 2000);
+        showControlsTimeout = setTimeout(() => (showControls = false), 2500);
     }
 
     function handleMove(e) {
@@ -140,9 +141,22 @@
     }
 
     function pause() {
+        if(ended) {
+            time = 0;
+            return;
+        }
         paused = !paused;
-        console.log(frames);
     }
+
+    function handleTimeUpdate(e) {
+        if (time >= duration) {
+            ended = true;
+            paused = true;
+        } else {
+            ended = false;
+        }
+    }
+
 </script>
 
 <div>
@@ -155,6 +169,7 @@
             on:touchmove|preventDefault={handleMove}
             on:mousedown={handleMousedown}
             on:mouseup={handleMouseup}
+            on:timeupdate={handleTimeUpdate}
             bind:currentTime={time}
             bind:duration
             bind:paused
@@ -193,10 +208,12 @@
                 />
                 <div class="pl-4">
                     <button class="w-10 text-white" on:click={pause}>
-                        {#if paused}
-                            <Icon path={mdiPlay} />
+                        {#if ended}
+                            <Icon size={30} path={mdiReplay} />
+                        {:else if paused}
+                            <Icon size={30} path={mdiPlay} />
                         {:else}
-                            <Icon path={mdiPause} />
+                            <Icon size={30} path={mdiPause} />
                         {/if}
                     </button>
                 </div>

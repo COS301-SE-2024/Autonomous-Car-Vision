@@ -9,7 +9,7 @@
   import { onMount } from "svelte";
 
   import { isLoading } from "../../../stores/loading";
-  import Spinner from "../../../components/Spinner.svelte";
+  import QuantamLoader from "../../../components/QuantamLoader.svelte";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
@@ -56,7 +56,7 @@
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
-          ".."
+          "..",
         );
         scriptPath = `${appDirectory}/Models/processVideo.py`;
         modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
@@ -140,8 +140,8 @@
 
   async function processVideo(event) {
     modelName = event.detail.modelName;
-    isLoading.set(true);
     showProcessPopup = false;
+    // isLoading.set(true);
     try {
       await getVideoDetails();
       console.log(isLoading, "isLoading");
@@ -154,9 +154,11 @@
         modelsPath,
       ]);
       console.log("Python Script Output:", output);
+
       setInterval(() => {
         isLoading.set(false);
-      }, 5000);
+      }, 15000);
+      showModelList.set(true);
     } catch (error) {
       output = error.message;
       console.error("Python Script Error:", output);
@@ -206,13 +208,19 @@
 
 <ProtectedRoutes>
   <div class="grid grid-cols-5">
-    <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
+    <div class="col-span-5">
+      <!-- {processed ? 'col-span-4' : 'col-span-5'} -->
       {#if $isLoading}
-        <div class="flex justify-center fixed top-8 z-50">
-          <Spinner />
+        <div
+          class="flex flex-col justify-center items-center flex-nowrap"
+          style="aspect-ratio: 16/9"
+        >
+          <QuantamLoader />
+          
         </div>
+      {:else}
+        <ViewVideoComponent videoPath={$location} />
       {/if}
-      <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
           class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
@@ -258,11 +266,11 @@
       </div>
       {#if showProcessPopup}
         <ProcessPopup
-        on:closePopup={closeProcessPopup}
-        on:processVideo={processVideo}
-        showProcessPopup={showProcessPopup}
-        models={models}
-        selectedModelName={selectedModelName}
+          on:closePopup={closeProcessPopup}
+          on:processVideo={processVideo}
+          {showProcessPopup}
+          {models}
+          {selectedModelName}
         />
       {/if}
     </div>
