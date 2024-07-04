@@ -7,11 +7,16 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
+  import {writable} from "svelte/store";
+
   let data = null;
 
   let videoURLs = [];
   let videoNames = [];
   let downloadedStatuses = [];
+
+  let searchQuery = '';
+  let filterCategory = 'Name';
 
   // Fetch the video records from the database
   onMount(async () => {
@@ -53,7 +58,29 @@
     return { message: "Data loaded successfully" };
   }
 
-  console.log("At gallery page");
+  
+
+  //$: filteredItems = gallaryURLs.filter(item => {
+  //  const searchRegex = new RegExp(searchQuery, 'i');
+
+  //   if (filterCategory === 'Name') {
+  //    return searchRegex.test(item.name);
+   // } else if (filterCategory === 'Date') {
+  //    return searchRegex.test(item.date);
+   // } else if (filterCategory === 'Model Name') {
+   //   return searchRegex.test(item.modelName);
+  //  }
+   // return true;
+  //}); 
+
+  function handleSearch(event) {
+    searchQuery = event.target.value;
+  }
+
+  function handleFilterChange(event) {
+    filterCategory = event.target.value;
+  }
+
 </script>
 
 <ProtectedRoutes>
@@ -64,13 +91,18 @@
   {:else}
     <div class="items-center">
       <div>
-        <div
-          class="text-4xl font-heading text-theme-dark-bgHover text-center rounded"
-        >
-          Gallery
-        </div>
+      <div class="flex justify-center items-center w-full mb-4 p-4">
+        <input
+          type="text"
+          placeholder="Search..."
+          on:input{handleSearch}
+          class="p-2 border rounded-lg" 
+          />
+        <!-- add filter bar-->
+      </div>
         <div class="grid grid-flow-row-dense grid-cols-3 items-center">
-          {#each videoURLs as url,index}
+        
+        {#each videoURLs as url,index}
             <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
           {/each}
         </div>
