@@ -1,9 +1,10 @@
 <script>
     import { onMount } from "svelte";
+    import { fly } from 'svelte/transition';
     import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
-    import { Icon } from "svelte-materialify";
-    import { mdiPause, mdiPlay, mdiReplay } from "@mdi/js";
+    import { Button, Icon } from "svelte-materialify";
+    import { mdiPause, mdiPlay, mdiReplay, mdiMenuLeftOutline, mdiMenuRightOutline } from "@mdi/js";
 
     export let videoPath;
 
@@ -18,6 +19,7 @@
     let thumbnailBar;
     let frames = [];
     let ended = false;
+    let showSideAIDetail = false;
 
     function format(seconds) {
         if (isNaN(seconds)) return "...";
@@ -81,7 +83,7 @@
         if (new Date() - lastMouseDown < 300) {
             if (paused) e.target.play();
             else e.target.pause();
-        }   
+        }
         // Find the frame index that corresponds to the current time
         const frameIndex = Math.floor((time / duration) * frames.length);
         const frameElement =
@@ -141,7 +143,7 @@
     }
 
     function pause() {
-        if(ended) {
+        if (ended) {
             time = 0;
             return;
         }
@@ -157,10 +159,14 @@
         }
     }
 
+    function revealAIDetails () {
+        console.log("TEST SIDEBUTTON");
+        showSideAIDetail = !showSideAIDetail;
+    }
 </script>
 
 <div>
-    <div class="flex justify-center bg-black">
+    <div class="flex relative justify-center bg-black">
         <video
             poster={frames[1]}
             src={videoPath}
@@ -177,6 +183,24 @@
         >
             <track kind="captions" />
         </video>
+        <div class="sideButton {showSideAIDetail ? 'z-20' : ''}" style="{showSideAIDetail ? 'right: 30%;' : ''}">
+            <Button icon on:click={revealAIDetails} class="text-white" size="default">
+                {#if !showSideAIDetail}
+                    <Icon size={50} path={mdiMenuLeftOutline} />
+                {:else}
+                    <Icon size={50} path={mdiMenuRightOutline} />
+                {/if}
+            </Button>
+        </div>
+        {#if showSideAIDetail}
+        <!-- transition:fly={{ x: 420, duration: 1000 }} -->
+        <div class="sidevideo"
+            >
+                <!-- Side video component -->
+                <div class="m-2">
+                </div>
+            </div>
+        {/if}
         <div
             class="controls"
             style="opacity: {duration && showControls ? 1 : 0}"
@@ -209,11 +233,11 @@
                 <div class="pl-4">
                     <button class="w-10 text-white" on:click={pause}>
                         {#if ended}
-                            <Icon size={30} path={mdiReplay} />
+                            <Icon size={32} path={mdiReplay} />
                         {:else if paused}
-                            <Icon size={30} path={mdiPlay} />
+                            <Icon size={32} path={mdiPlay} />
                         {:else}
-                            <Icon size={30} path={mdiPause} />
+                            <Icon size={32} path={mdiPause} />
                         {/if}
                     </button>
                 </div>
@@ -228,6 +252,44 @@
 </div>
 
 <style>
+    .sideButton {
+        width: fit-content;
+        position: absolute;
+        top: 2%;
+        right: 0%;
+        transition: test 1s;
+        background-color: #03191ec6;
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .sidevideo {
+        width: 30%;
+        height: 80%;
+        top: 0;
+        position: absolute;
+        right: 0;
+        background-color: #03191ec6;
+        z-index: 10;
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+        transition: test 1s;
+    }
+
+    @keyframes test {
+        0% {right: 0%}
+        10% {right: 3%}
+        20% {right: 6%}
+        30% {right: 9%}
+        40% {right: 12%}
+        50% {right: 15%}
+        60% {right: 18%}
+        70% {right: 21%}
+        80% {right: 24%}
+        90% {right: 27%}
+        100% {right: 30%}
+    }
+
     ::-webkit-scrollbar {
         width: 10px;
     }
