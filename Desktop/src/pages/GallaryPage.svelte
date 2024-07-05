@@ -19,6 +19,7 @@
   let filterCategory = 'All';
 
   // Fetch the video records from the database
+  //TODO: Must fecth date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
     try {
@@ -59,19 +60,18 @@
   }
 
   
-    // TODO: clear DB becasue it returns error with the function below
-  // $: filteredItems = gallaryURLs.filter(item => {
-  //  const searchRegex = new RegExp(searchQuery, 'i');
+  $: filteredItems = videoURLs.filter(item => {
+   const searchRegex = new RegExp(searchQuery, 'i');
 
-  //   if (filterCategory === 'Name') {
-  //    return searchRegex.test(item.name);
-  //  } else if (filterCategory === 'Date') {
-  //    return searchRegex.test(item.date);
-  //  } else if (filterCategory === 'Model Name') {
-  //    return searchRegex.test(item.modelName);
-  //  }
-  //  return true;
-  // }); 
+    if (filterCategory === 'Name') {
+     return searchRegex.test(videoNames[item]); //TODO: check this (maybe meant to be mname)
+   } else if (filterCategory === 'Date') {
+     return searchRegex.test(item.date); //check the returned value
+   } else if (filterCategory === 'Model Name') {
+     return searchRegex.test(item.modelName); //check the returned value
+   }
+   return true;
+  }); 
 
   function handleSearch(event) {
     searchQuery = event.target.value;
@@ -110,7 +110,7 @@
       </div>
         <div class="grid grid-flow-row-dense grid-cols-3 items-center">
         
-        {#each videoURLs as url,index} <!--TODO: Changr 'videoURLs' to 'filteredItems'-->
+        {#each filteredItems as url,index} 
             <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
           {/each}
         </div>
