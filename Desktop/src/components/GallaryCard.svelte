@@ -25,12 +25,12 @@
     // isDownloading.set(true);
     isDownloading = true;
     try {
-        const response = await window.electronAPI.downloadVideo(
-          VideoName,
-          VideoSource
-        );
-        console.log(response.success, response.filePath);
-      } catch (error) {}
+      const response = await window.electronAPI.downloadVideo(
+        VideoName,
+        VideoSource
+      );
+      console.log(response.success, response.filePath);
+    } catch (error) {}
     setTimeout(() => {
       // isDownloading.set(false);
       isDownloading = false;
@@ -38,7 +38,7 @@
       isDownloaded = true;
     }, 10000);
     console.log("DOWNLOAD BUTTON");
-  }
+  };
 
   function goToVideo() {
     if (!isDownloaded) return;
@@ -117,7 +117,7 @@
 <div
   class="{isDownloaded
     ? 'cursor-default'
-    : 'notDownloaded' } shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'notDownloaded'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
 >
   {#if isGalLoading}
@@ -133,19 +133,19 @@
       <img
         src={firstFrameURL}
         alt="video preview"
-        class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        class="h-40 w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
       />
       <div
         class="{isDownloaded
           ? 'hover:block'
           : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-            style="top:50%; left:50%; transform: translate(-50%, 50%);">
-            
+        style="top:50%; left:50%; transform: translate(-50%, 50%);"
+      >
         {#if !isDownloading && !isDownloaded}
           <button
             class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
-            on:click={handleDownload}>
-            
+            on:click={handleDownload}
+          >
             <Icon path={mdiDownload} size="24" /></button
           >
         {:else if !isDownloaded}
@@ -174,13 +174,18 @@
 
 <style>
   .notDownloaded {
-  filter: grayscale(100%);
-  cursor: pointer;
-  shadow: grayscale;
-}
+    filter: grayscale(100%);
+    cursor: pointer;
+    shadow: grayscale;
+  }
 
-.cursor-default {
-  cursor: default;
-}
+  .cursor-default {
+    cursor: default;
+  }
+
+  /* .preview {
+    @apply object-cover rounded-t-lg;
+    width: 100%;
+    height: 150px; /* Fixed height for preview */
+  } */
 </style>
-
