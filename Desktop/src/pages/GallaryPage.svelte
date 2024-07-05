@@ -75,6 +75,18 @@
 
   function handleSearch(event) {
     searchQuery = event.target.value;
+    filteredItems = videoURLs.filter(item => {
+      const searchRegex = new RegExp(searchQuery, 'i');
+
+      if (filterCategory === 'Name') {
+        return searchRegex.test(videoNames[item]);
+      } else if (filterCategory === 'Date') {
+        return searchRegex.test(item.date);
+      } else if (filterCategory === 'Model Name') {
+        return searchRegex.test(item.modelName);
+      }
+      return true;
+    });
   }
 
   function handleFilterChange(event) {
@@ -91,15 +103,15 @@
   {:else}
     <div class="items-center">
       <div>
-      <div class="flex justify-center items-center w-full mb-4 p-4"> <!--TODO: style the searchbar -->
+      <div class="flex justify-center items-center w-full mb-4 p-4 "> <!--TODO: style the searchbar -->
         <input
           type="text"
           placeholder="Search..."
           on:input{handleSearch}
-          class="p-2 border rounded-lg text-xl" 
+          class="bg-theme-dark-white rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg" 
           />
         <!-- TODO: style filter bar-->
-        <select class="ml-2 p-2 bourder rounded-lg text-xl" 
+        <select class="bg-theme-dark-secondary  rounded-lg ml-2 p-2  text-lg" 
           on:change={handleFilterChange}
           placeholder="Filter...">
             <option value="All">Filter...</option>

@@ -182,10 +182,4 @@
   .cursor-default {
     cursor: default;
   }
-
-  /* .preview {
-    @apply object-cover rounded-t-lg;
-    width: 100%;
-    height: 150px; /* Fixed height for preview */
-  } */
 </style>
