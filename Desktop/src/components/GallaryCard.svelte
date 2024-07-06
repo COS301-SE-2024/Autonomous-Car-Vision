@@ -87,9 +87,6 @@
         console.error("Video is not ready to capture the frame.");
       }
     });
-
-    // Add the video element to the DOM to trigger loading
-    document.body.appendChild(videoElement);
   }
 
   onMount(async () => {
@@ -156,7 +153,7 @@
       </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
+      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
     </div>
   {/if}
 </div>

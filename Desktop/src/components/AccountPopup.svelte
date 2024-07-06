@@ -12,13 +12,13 @@
 </script>
 
 <div
-  class="relative left-2 bottom-4 bg-theme-dark-white text-theme-dark-backgroundBlue border border-theme-dark-backgroundBlue rounded-lg p-2 w-64 flex flex-col z-50"
+  class="relative bg-dark-background_secondary text-dark-primary border border-dark-background_secondary rounded-lg p-2 w-64 flex flex-col z-50"
 >
   <nav>
     <ul class="list-none p-0 m-0">
       {#each items as { name, route, iconPath }}
         <li
-          class="p-2 border-b border-opacity-10 border-theme-dark-backgroundBlue rounded-md hover:bg-theme-dark-backgroundBlue hover:text-theme-dark-white transition"
+          class="p-2 border-b border-opacity-10 border-theme-dark-backgroundBlue rounded-md hover:bg-dark-background hover:text-theme-dark-white transition"
         >
           <a href={route} class="flex items-center text-inherit no-underline">
             <Icon path={iconPath} />
