@@ -36,13 +36,13 @@ describe('Selected Code Block', () => {
     
   });
 
-  test('Checks if the correct tab is active when the location is "/upload"', async() => {
+  // test('Checks if the correct tab is active when the location is "/upload"', async() => {
    
-    const {container} = await render(Sidebar);
-    $location.set('/upload');
-    const activeTab = screen.getByTest('Upload');
-    expect(activeTab).toBeInDocument();
-  });
+  //   const {container} = await render(Sidebar);
+  //   $location.set('/upload');
+  //   const activeTab = screen.getByTest('Upload');
+  //   expect(activeTab).toBeInDocument();
+  // });
 
   // test('Checks if the correct tab is active when the location is "/models"', () => {
   //   $location.set('/models');

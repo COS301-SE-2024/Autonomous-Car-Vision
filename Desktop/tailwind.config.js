@@ -40,6 +40,15 @@ module.exports = {
         lighter: ['var(--font-light-light)', 'sans-serif'],
       },
       colors: {
+        'dark' : {
+          background: '#011C27', // '#03254E',  // '#001524', '#011C27'
+          primary: '#FFFFFF',
+          secondary: '',
+          hover: '#012A3B',
+          background_secondary: '#000000'
+
+        },
+        
         'theme-green': {
           light:'#343434', //Timber wolf
           dark:'#D3D3D3', //Jet
