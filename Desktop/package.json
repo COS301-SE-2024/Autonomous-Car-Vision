@@ -6,7 +6,10 @@
   "scripts": {
     "start": "yarn run rollup -c -w & electron .",
     "build": "rollup -c",
-    "rebuild": "electron-rebuild -f -w bcrypt"
+    "rebuild": "electron-rebuild -f -w bcrypt",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
@@ -16,9 +19,12 @@
     "@rollup/plugin-url": "^8.0.2",
     "@rollup/pluginutils": "^5.1.0",
     "@sveltejs/kit": "^2.5.17",
+    "@sveltejs/vite-plugin-svelte": "^3.1.1",
+    "@testing-library/jest-dom": "^6.4.6",
     "@types/bcryptjs": "^2.4.6",
     "autoprefixer": "^10.0.0",
     "axios": "^1.7.2",
+    "axios-mock-adapter": "^1.22.0",
     "bcryptjs": "^2.4.3",
     "electron": "^30.0.9",
     "electron-reloader": "^1.2.3",
@@ -34,6 +40,7 @@
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-postcss": "^4.0.0",
     "rollup-plugin-svelte": "^7.0.0",
+    "sass": "^1.77.6",
     "sequelize": "^6.37.3",
     "sqlite3": "^5.1.7",
     "svelte": "^3.0.0",
@@ -45,11 +52,13 @@
     "svelte-toast": "^1.0.0",
     "svelte-toasts": "^1.1.2",
     "svrollbar": "^0.12.0",
-    "tailwindcss": "^2.0.0"
+    "tailwindcss": "^2.0.0",
+    "vitest": "^1.6.0"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
-    "@testing-library/svelte": "^3.0.0",
+    "@testing-library/svelte": "^5.2.0",
+    "@vitest/ui": "^1.6.0",
     "babel-jest": "^27.0.0",
     "electron-rebuild": "^3.2.9",
     "ffmpeg": "^0.0.4",

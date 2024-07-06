@@ -1,4 +1,4 @@
-<!-- src/routes/ProtectedRoute.svelte -->
+src/routes/ProtectedRoute.svelte
 <script>
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
@@ -77,11 +77,13 @@
 </div>
 
 <style>
+  
   .side {
     position: relative;
     top: 0;
     left: 0;
   }
+  
   .sidebar {
     float: left;
     height: 100vh;
@@ -89,6 +91,7 @@
     overflow: hidden;
     padding: 0.5rem 0 0.5rem 0.5rem;
   }
+  
   .handle {
     float: left;
     width: 15px;
@@ -96,7 +99,7 @@
     background: transparent;
     cursor: ew-resize;
   }
-
+  
   .content {
     height: 100%;
     overflow: auto;
@@ -104,7 +107,7 @@
     border-radius: 15px;
     padding: 0.5rem;
   }
-
+  
   .content::-webkit-scrollbar {
     display: none;
   }

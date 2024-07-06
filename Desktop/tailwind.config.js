@@ -47,7 +47,6 @@ module.exports = {
           secondary: '',
           hover: '#012A3B',
           background_secondary: '#000000'
-
         },
         'theme-green': {
           light:'#343434', //Timber wolf
