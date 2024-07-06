@@ -1,10 +1,19 @@
 <script>
     import { onMount } from "svelte";
-    import { fly } from 'svelte/transition';
+    import { fly } from "svelte/transition";
     import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
-    import { Button, Icon } from "svelte-materialify";
-    import { mdiPause, mdiPlay, mdiReplay, mdiMenuLeftOutline, mdiMenuRightOutline } from "@mdi/js";
+    import { Avatar, Button, Icon } from "svelte-materialify";
+    import {
+        mdiPause,
+        mdiPlay,
+        mdiReplay,
+        mdiMenuLeftOutline,
+        mdiMenuRightOutline,
+    } from "@mdi/js";
+
+    import VideoAside from "./videoAside.svelte";
+    import { each } from "svelte/internal";
 
     export let videoPath;
 
@@ -159,10 +168,31 @@
         }
     }
 
-    function revealAIDetails () {
+    function revealAIDetails() {
         console.log("TEST SIDEBUTTON");
         showSideAIDetail = !showSideAIDetail;
     }
+
+    let sideAIinfo = [
+        {
+            id: "1",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "06/07/2024",
+        },
+        {
+            id: "2",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "07/07/2024",
+        },
+        {
+            id: "3",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "08/07/2024",
+        },
+    ];
 </script>
 
 <div>
@@ -183,21 +213,34 @@
         >
             <track kind="captions" />
         </video>
-        <div class="sideButton {showSideAIDetail ? 'z-20' : ''}" style="{showSideAIDetail ? 'right: 30%;' : ''}">
-            <Button icon on:click={revealAIDetails} class="text-white" size="default">
-                {#if !showSideAIDetail}
-                    <Icon size={50} path={mdiMenuLeftOutline} />
-                {:else}
-                    <Icon size={50} path={mdiMenuRightOutline} />
-                {/if}
-            </Button>
+        <div
+            class="sideButton {showSideAIDetail ? 'z-20' : ''}"
+            style={showSideAIDetail ? "right: 30%;" : ""}
+        >
+            <div class="flex items-center h-full">
+                <Button
+                    icon
+                    on:click={revealAIDetails}
+                    class="text-white"
+                    size="default"
+                >
+                    {#if !showSideAIDetail}
+                        <Icon size={50} path={mdiMenuLeftOutline} />
+                    {:else}
+                        <Icon size={50} path={mdiMenuRightOutline} />
+                    {/if}
+                </Button>
+            </div>
         </div>
         {#if showSideAIDetail}
-        <!-- transition:fly={{ x: 420, duration: 1000 }} -->
-        <div class="sidevideo"
-            >
+            <!-- transition:fly={{ x: 420, duration: 1000 }} -->
+            <div class="sidevideo">
                 <!-- Side video component -->
-                <div class="m-2">
+                <div class="m-3">
+                    <!-- Inside Side Video -->
+                    {#each sideAIinfo as info}
+                        <VideoAside AIinfo={info} />
+                    {/each}
                 </div>
             </div>
         {/if}
@@ -254,13 +297,14 @@
 <style>
     .sideButton {
         width: fit-content;
+        height: 50px;
         position: absolute;
-        top: 2%;
+        top: 0%;
         right: 0%;
         transition: test 1s;
         background-color: #03191ec6;
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
+        /* border-top-left-radius: 15px; */
+        border-bottom-left-radius: 15px;
     }
 
     .sidevideo {
@@ -271,23 +315,44 @@
         right: 0;
         background-color: #03191ec6;
         z-index: 10;
-        border-top-left-radius: 12px;
         border-bottom-left-radius: 12px;
         transition: test 1s;
     }
 
     @keyframes test {
-        0% {right: 0%}
-        10% {right: 3%}
-        20% {right: 6%}
-        30% {right: 9%}
-        40% {right: 12%}
-        50% {right: 15%}
-        60% {right: 18%}
-        70% {right: 21%}
-        80% {right: 24%}
-        90% {right: 27%}
-        100% {right: 30%}
+        0% {
+            right: 0%;
+        }
+        10% {
+            right: 3%;
+        }
+        20% {
+            right: 6%;
+        }
+        30% {
+            right: 9%;
+        }
+        40% {
+            right: 12%;
+        }
+        50% {
+            right: 15%;
+        }
+        60% {
+            right: 18%;
+        }
+        70% {
+            right: 21%;
+        }
+        80% {
+            right: 24%;
+        }
+        90% {
+            right: 27%;
+        }
+        100% {
+            right: 30%;
+        }
     }
 
     ::-webkit-scrollbar {
