@@ -1,4 +1,4 @@
-<!-- src/routes/ProtectedRoute.svelte -->
+src/routes/ProtectedRoute.svelte
 <script>
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
@@ -30,3 +30,13 @@
       <slot />
     </div>
 </div>
+
+<style>
+  .content {
+    height: 100%;
+    overflow: auto;
+    background-image: linear-gradient(180deg, #001524, #181818);
+    border-radius: 15px;
+    padding: 0.5rem;
+  }
+</style>
