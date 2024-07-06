@@ -1,4 +1,4 @@
-src/routes/ProtectedRoute.svelte
+<!--src/routes/ProtectedRoute.svelte-->
 <script>
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
