@@ -254,11 +254,6 @@
 <ProtectedRoutes>
   <div class="grid grid-cols-5">
     <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
-      {#if $isLoading}
-        <div class="flex justify-center fixed top-8 z-50">
-          <Spinner />
-        </div>
-      {/if}
       <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
