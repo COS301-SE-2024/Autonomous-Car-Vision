@@ -15,7 +15,6 @@ export async function loadState() {
     videoUrl.set(store.videoUrl);
     originalVideoURL.set(store.originalVideoURL);
     processingQueue.set(store.processingQueue);
-    console.log("Hellooooooooooooooo", store.originalVideoURL);
     isStateLoaded = true;
 }
 

@@ -145,7 +145,6 @@ ipcMain.on('clear-uemail', (event) => {
 
 ipcMain.on('load-store-process', (event) => {
     const storeData = store.get('appProcessing');
-    console.log("Teeeeeeeeest", storeData);
     event.returnValue = storeData;
 });
 

@@ -56,7 +56,6 @@
       originalVideoURL.subscribe(async (value) => {
         appPath = await window.electronAPI.getAppPath();
         videoPath = value;
-        console.log("Oke Vid", videoPath);
         videoName = await getFileName(videoPath);
         //extract video name from video name without the extention
         videoNameExtract = videoName.split(".")[0];
@@ -77,8 +76,6 @@
     try {
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
       const files = await window.electronAPI.readDirectory(outputDir);
-
-      console.log("Cirrent state: ", )
 
       await loadState();
 
