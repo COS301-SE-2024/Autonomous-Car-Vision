@@ -1,16 +1,16 @@
 <script>
   import { location, push } from "svelte-spa-router";
 
-  import { writable } from "svelte/store";
+  import { writable, get } from "svelte/store";
 
   import { VideoURL } from "../../../stores/video";
-  import { OriginalVideoURL } from "../../../stores/video";
 
   import { onMount } from "svelte";
 
   import {
     processing,
     videoUrl,
+    originalVideoURL,
     processingQueue,
     loadState,
   } from "../../../stores/processing";
@@ -53,9 +53,10 @@
 
   async function getVideoDetails() {
     return new Promise((resolve) => {
-      VideoURL.subscribe(async (value) => {
+      originalVideoURL.subscribe(async (value) => {
         appPath = await window.electronAPI.getAppPath();
         videoPath = value;
+        console.log("Oke Vid", videoPath);
         videoName = await getFileName(videoPath);
         //extract video name from video name without the extention
         videoNameExtract = videoName.split(".")[0];
@@ -77,42 +78,55 @@
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
       const files = await window.electronAPI.readDirectory(outputDir);
 
-      // Start with the original video
-      outputFiles = [
-        {
-          id: 0,
+      console.log("Cirrent state: ", )
+
+      await loadState();
+
+      // Fetch the original video details from the database
+      let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+
+      console.log("Original video:", originalVideo);
+
+      // If the original video is not found, add it to the database
+      if (!originalVideo) {
+        const newOriginalVideo = {
           label: "Original",
           profileImgURL: "https://placekitten.com/300/300",
           videoURL: videoPath,
+          originalVidID: 0, // Original videos have their originalVidID set to 0 or null
+        };
+        originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
+        console.log("Original video add:", originalVideo);
+      }
+
+      // Start with the original video
+      outputFiles = [
+        {
+          id: originalVideo.videoID,
+          label: "Original",
+          profileImgURL: originalVideo.profileImgURL,
+          videoURL: originalVideo.videoURL,
         },
       ];
 
+      // Fetch processed videos linked to the original video
+      const processedVideos = await window.electronAPI.getProcessedVideos(
+        originalVideo.videoID
+      );
+
       // Add processed videos
-      const processedFiles = files
-        .map((file, index) => {
-          // Extract the model name from the file name (assuming the model name is part of the file name)
-          const modelNameMatch = file.match(/_processed_([\w-]+)\./);
-          if (!modelNameMatch) {
-            return null; // Skip files that do not match the pattern
-          }
-          const modelName = modelNameMatch[1];
-
-          return {
-            id: index + 1,
-            label: modelName,
-            profileImgURL:
-              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            videoURL: `${outputDir}/${file}`,
-          };
-        })
-        .filter((file) => file !== null); // Remove null values from the array
-
-      // Combine original and processed videos
-      outputFiles = outputFiles.concat(processedFiles);
+      processedVideos.forEach((video) => {
+        outputFiles.push({
+          id: video.videoID,
+          label: video.label,
+          profileImgURL: video.profileImgURL,
+          videoURL: video.videoURL,
+        });
+      });
 
       console.log("Output files:", outputFiles);
     } catch (error) {
-      console.error("Error reading output directory:", error);
+      console.error("Error fetching output files:", error);
     }
   }
 
@@ -137,6 +151,9 @@
     await getVideoDetails();
     await getOutputFiles();
     await loadState(); // Load state on mount
+
+    console.log("Test Video URL page: ", get(videoUrl));
+
     if (outputFiles.length > 1) {
       showModelList.set(true);
     }
@@ -146,29 +163,57 @@
   let processed = false; // Check if the video has been processed
 
   async function processVideo(event) {
-  modelName = event.detail.modelName;
-  isLoading.set(true);
-  showProcessPopup = false;
-  try {
-    await getVideoDetails();
+    modelName = event.detail.modelName;
+    isLoading.set(true);
+    showProcessPopup = false;
+    try {
+      await getVideoDetails();
 
-    console.log(isLoading, "isLoading");
+      console.log(isLoading, "isLoading");
 
-    OriginalVideoURL.set(videoPath);
+      const videoDetails = {
+        scriptPath,
+        videoPath,
+        outputVideoPath,
+        modelPath: modelsPath,
+      };
+      await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
 
-    const videoDetails = { scriptPath, videoPath, outputVideoPath, modelPath: modelsPath };
-    await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
+      await loadState(); // Load state after adding the video to the queue
 
-    processing.set(true);
-    videoUrl.set(outputVideoPath);
-    console.log("Queued video for processing now:", videoDetails);
-  } catch (error) {
-    output = error.message;
-    console.error("Error:", output);
+      console.log("Queued video for processing now:", videoDetails);
+
+      // Add processed video information to the database
+      const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+      if (originalVideo) {
+        const processedVideoURL = outputVideoPath;
+        const existingProcessedVideo =
+          await window.electronAPI.getVideoByURL(processedVideoURL);
+
+        if (!existingProcessedVideo) {
+          const newProcessedVideo = {
+            label: modelName,
+            profileImgURL:
+              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            videoURL: processedVideoURL,
+            originalVidID: originalVideo.videoID,
+          };
+          await window.electronAPI.addVideo(newProcessedVideo);
+        } else {
+          console.log(
+            "Processed video already exists in the database and will not be added again."
+          );
+        }
+      } else {
+        console.error("Original video not found in the database");
+      }
+    } catch (error) {
+      output = error.message;
+      console.error("Error:", output);
+    }
+    console.log("Processing video");
+    processed = true;
   }
-  console.log("Processing video");
-  processed = true;
-}
 
   function re_process() {
     // Re-process functionality
@@ -256,7 +301,6 @@
           {#if $showModelList}
             <ModelList
               on:select={handleModelSelect}
-              processedVideos={outputFiles}
             />
           {/if}
         </div>

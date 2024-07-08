@@ -3,7 +3,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
-const { LookupTable, AIModels } = require('./database');
+const { LookupTable, AIModels, VideoTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
@@ -143,8 +143,10 @@ ipcMain.on('clear-uemail', (event) => {
     event.returnValue = true;
 });
 
-ipcMain.handle('load-store-process', async () => {
-    return store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+ipcMain.on('load-store-process', (event) => {
+    const storeData = store.get('appProcessing');
+    console.log("Teeeeeeeeest", storeData);
+    event.returnValue = storeData;
 });
 
 ipcMain.handle('save-store-process', async (event, state) => {
@@ -154,7 +156,7 @@ ipcMain.handle('save-store-process', async (event, state) => {
 // Helper function to update the store state
 function updateState(updates) {
     console.log('Updating state:', updates);
-    const currentState = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    const currentState = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     const newState = { ...currentState, ...updates };
     store.set('appProcessing', newState);
     return newState;
@@ -368,11 +370,11 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 
 // Function to process the queue
 async function processQueue() {
-    const { processingQueue, processing } = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    const { processing, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     if (processing || processingQueue.length === 0) return;
 
     const nextVideo = processingQueue.shift();
-    updateState({ processing: true, videoUrl: nextVideo.outputVideoPath, processingQueue });
+    updateState({ processing: true, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
 
     try {
         //call the run-python-script IPC handler
@@ -383,20 +385,20 @@ async function processQueue() {
             nextVideo.modelPath,
         ]);
         console.log("Python Script Output:", output);
-        updateState({ processing: false, videoUrl: '' });
+        updateState({ processing: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
         processQueue(); // Process the next video in the queue
     } catch (error) {
         console.error("Python Script Error:", error);
-        updateState({ processing: false, videoUrl: '' });
+        updateState({ processing: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
     }
 }
 
 // IPC handler to queue a video for processing
 ipcMain.handle('queue-video', async (event, videoDetails) => {
     console.log('Video Details being added:', videoDetails);
-    const { processing, videoUrl, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', processingQueue: [] });
+    const { processing, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     processingQueue.push(videoDetails);
-    updateState({ processing, videoUrl, processingQueue });
+    updateState({ processing: processing, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
     processQueue();
 });
 
@@ -541,3 +543,35 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
+
+// Handler to get video from the database but URL
+ipcMain.handle('getVideoByURL', async (event, videoURL) => {
+    try {
+      const video = await VideoTable.findOne({ where: { videoURL } });
+      return video ? video.toJSON() : null;
+    } catch (error) {
+      console.error("Error fetching video by URL:", error);
+      return null;
+    }
+  });
+
+  // Handler to get all processed videos for a given original video ID
+ipcMain.handle('getProcessedVideos', async (event, originalVidID) => {
+    try {
+      const videos = await VideoTable.findAll({ where: { originalVidID } });
+      return videos.map(video => video.toJSON());
+    } catch (error) {
+      console.error("Error fetching processed videos:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle('addVideo', async (event, videoData) => {
+    try {
+      const newVideo = await VideoTable.create(videoData);
+      return newVideo.toJSON();
+    } catch (error) {
+      console.error("Error adding new video:", error);
+      return null;
+    }
+  });
