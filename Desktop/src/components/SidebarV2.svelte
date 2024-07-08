@@ -23,6 +23,11 @@
     let showAccountPopup = false;
 
     let routes = [
+          {
+            name: "Models TEST",
+            route: "#/modelsPage",
+            iconPath: mdiViewGallery,
+        },
         {
             name: "Gallery",
             route: "#/gallery",
