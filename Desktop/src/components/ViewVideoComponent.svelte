@@ -214,10 +214,9 @@
             <track kind="captions" />
         </video>
         <div
-            class="sideButton {showSideAIDetail ? 'z-20' : ''}"
-            style={showSideAIDetail ? "right: 30%;" : ""}
+            class="sideButton {showSideAIDetail ? 'move-right' : ''}"
         >
-            <div class="flex items-center h-full">
+            <div class="flex items-center justify-center h-full">
                 <Button
                     icon
                     on:click={revealAIDetails}
@@ -232,18 +231,13 @@
                 </Button>
             </div>
         </div>
-        {#if showSideAIDetail}
-            <!-- transition:fly={{ x: 420, duration: 1000 }} -->
-            <div class="sidevideo">
-                <!-- Side video component -->
-                <div class="m-3">
-                    <!-- Inside Side Video -->
-                    {#each sideAIinfo as info}
-                        <VideoAside AIinfo={info} />
-                    {/each}
-                </div>
+        <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
+            <div class="m-3">
+                {#each sideAIinfo as info}
+                    <VideoAside AIinfo={info} />
+                {/each}
             </div>
-        {/if}
+        </div>
         <div
             class="controls"
             style="opacity: {duration && showControls ? 1 : 0}"
@@ -296,63 +290,39 @@
 
 <style>
     .sideButton {
-        width: fit-content;
-        height: 50px;
+        width: 42px;
+        height: 42px;
         position: absolute;
         top: 0%;
         right: 0%;
         transition: test 1s;
         background-color: #03191ec6;
+        margin: 5px;
         /* border-top-left-radius: 15px; */
-        border-bottom-left-radius: 15px;
+        /* border-bottom-left-radius: 15px; */
+        border-radius: 50%;
+        transition: ease-in-out 1s
     }
 
     .sidevideo {
-        width: 30%;
-        height: 80%;
+        width: 20%;
+        height: fit-content;
         top: 0;
         position: absolute;
-        right: 0;
+        right: -25%;
+        margin: 5px;
         background-color: #03191ec6;
         z-index: 10;
-        border-bottom-left-radius: 12px;
-        transition: test 1s;
+        border-radius: 15px;
+        transition: ease-in-out 1s;
     }
 
-    @keyframes test {
-        0% {
-            right: 0%;
-        }
-        10% {
-            right: 3%;
-        }
-        20% {
-            right: 6%;
-        }
-        30% {
-            right: 9%;
-        }
-        40% {
-            right: 12%;
-        }
-        50% {
-            right: 15%;
-        }
-        60% {
-            right: 18%;
-        }
-        70% {
-            right: 21%;
-        }
-        80% {
-            right: 24%;
-        }
-        90% {
-            right: 27%;
-        }
-        100% {
-            right: 30%;
-        }
+    .sidevideo.move-right {
+        right: 0;
+    }
+
+    .sideButton.move-right {
+        right: 20.5%;
     }
 
     ::-webkit-scrollbar {
