@@ -15,17 +15,20 @@
     // export let key;
 </script>
 
-<div class="content">
-    <div class="content__item">
-      <span class="content__number">{Model.mVersion}</span>
-      <h3 class="content__title">{Model.mName}</h3>
-      <div class="content__text">{Model.mSummary}</div>
-    </div>
-    <button class="content__close">
-      <svg class="icon icon--longarrow">
-        <use xlink:href="#icon-longarrow"></use>
-      </svg>
-    </button>
+<div>
+  <div class="content">
+      <div class="content__item">
+        <span class="content__number">Version: {Model.mVersion}</span>
+        <h3 class="content__title">{Model.mName}</h3>
+        <h4 class="content__subtitle"> </h4>
+        <div class="content__text">{Model.mSummary}</div>
+      </div>
+      <button class="content__close">
+        <svg class="icon icon--longarrow">
+          <use xlink:href="#icon-longarrow"></use>
+        </svg>
+      </button>
+  </div>
 </div>
 
 <style>

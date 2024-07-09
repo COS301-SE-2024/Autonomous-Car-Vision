@@ -1,5 +1,6 @@
 <script>
   import { Button, Tooltip } from "svelte-materialify";
+   import ModelsCardContent from '../components/ModelsCardContent.svelte';
   // Exported Parameters
 
   export let Model = {
@@ -8,7 +9,7 @@
     mVersion: "",
     mSummary: "",
     mStatus: "",
-    mProfileImg: "",
+    mProfileImg: "https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp",
     mImg: "",
   };
   export let key;
@@ -61,16 +62,17 @@
 
 
 
-<div class="slide">
-  <div class="slide__img-wrap">
-      <div class="slide__img" style="background-image: url({Model.mProfileImg})"></div>
+  <div class="slide">
+    <div class="slide__img-wrap">
+        <div class="slide__img" style="background-image: url({Model.mProfileImg})"></div>
+    </div>
+    <div class="slide__side">{Model.mDescription}</div>
+    <div class="slide__title-wrap">
+        <span class="slide__number">Ver: {Model.mVersion}</span>
+        <h3 class="slide__title">{Model.mName}</h3>
+    </div>
   </div>
-  <div class="slide__side">{Model.mDescription}</div>
-  <div class="slide__title-wrap">
-      <span class="slide__number">{Model.mVersion}</span>
-      <h3 class="slide__title">{Model.mName}</h3>
-  </div>
-</div>
+
 
 
 <style>

@@ -324,6 +324,7 @@ a:focus {
 .content__item--current,
 .content__item--current ~ .content__close {
 	pointer-events: auto;
+	/* margin-left: 2rem; */
 }
 
 .content__close {
