@@ -101,8 +101,8 @@ a:focus {
 	 z-index: 1000; 
 	top: 5rem;
 	left: 5rem;
-	width: 100%;
-	max-width: 100%; 
+	width: 95%;
+	/* max-width: 100%;  */
 	min-height: 0;
 	/* height: 100vh;  */
     height:100%;
@@ -155,8 +155,9 @@ a:focus {
 	position: relative;
 	overflow: hidden;
 	margin: 0;
-	height: 100vh;
-	width: 100%;
+	/* height: 100vh; */
+	height: ;
+	width: 80%;
 	height: calc(100vh - 10rem);
 	display: grid;
 	grid-template-columns: 33% 33% 33%;
@@ -324,7 +325,7 @@ a:focus {
 .content__item--current,
 .content__item--current ~ .content__close {
 	pointer-events: auto;
-	/* margin-left: 2rem; */
+	/* margin-left: 12rem; */
 }
 
 .content__close {
@@ -406,7 +407,7 @@ a:focus {
 	.slideshow {
 		height: 100%;
 		grid-template-columns: 27% 27% 27%;
-		grid-column-gap: 9.5%;
+		grid-column-gap: 7.5%;
 	}
 	.slide {
 		padding: 10vh 0 7vh;

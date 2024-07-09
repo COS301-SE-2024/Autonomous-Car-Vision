@@ -113,7 +113,7 @@
     </div>
   {:else}
     <div>
-      <div class="flex justify-center items-center w-4/5 mb-4 p-4">
+      <div class="flex justify-center items-center w-10/12 mb-4 p-4">
         <!--TODO: style the searchbar -->
         <input
           type="text"
@@ -121,7 +121,7 @@
           on:input{handleSearch}
           class="bg-theme-dark-white rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg"
         />
-        <!-- TODO: style filter bar-->
+        <!-- TODO: style filter bar -->
         <select
           class="bg-theme-dark-secondary rounded-lg ml-2 p-2 text-lg"
           on:change={handleFilterChange}
@@ -176,7 +176,7 @@
       <!-- <div class="content">
         <ModelsCardContent />
       </div> -->
-      <button class="nav nav--prev">
+      <!-- <button class="nav nav--prev">
         <svg class="icon icon--navarrow-prev">
           <use xlink:href="#icon-navarrow"></use>
         </svg>
@@ -185,7 +185,7 @@
         <svg class="icon icon--navarrow-next">
           <use xlink:href="#icon-navarrow"></use>
         </svg>
-      </button>
+      </button> -->
     </div>
   {/if}
 </ProtectedRoutes>

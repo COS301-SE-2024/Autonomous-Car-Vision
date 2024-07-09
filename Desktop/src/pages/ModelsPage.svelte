@@ -64,7 +64,7 @@
       <div class="slideshow__deco"></div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Memories &amp; Thoughts</div>
         <div class="slide__title-wrap">
@@ -75,7 +75,7 @@
       </div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Random Roam</div>
         <div class="slide__title-wrap">
@@ -86,7 +86,7 @@
       </div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Arbitrary Words</div>
         <div class="slide__title-wrap">
@@ -97,7 +97,7 @@
       </div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Haunted Drift</div>
         <div class="slide__title-wrap">
@@ -108,7 +108,7 @@
       </div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Fun Diverge</div>
         <div class="slide__title-wrap">
@@ -119,7 +119,7 @@
       </div>
       <div class="slide">
         <div class="slide__img-wrap">
-          <div class="slide__img" style="background-image: url(https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp);"></div>
+          <div class="slide__img" style="background-image: url(https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png);"></div>
         </div>
         <div class="slide__side">Hopes &amp; Dreams</div>
         <div class="slide__title-wrap">

@@ -15,7 +15,7 @@
     // export let key;
 </script>
 
-<div>
+
   <div class="content">
       <div class="content__item">
         <span class="content__number">Version: {Model.mVersion}</span>
@@ -29,7 +29,7 @@
         </svg>
       </button>
   </div>
-</div>
+
 
 <style>
      @import '../assets/base.css';
