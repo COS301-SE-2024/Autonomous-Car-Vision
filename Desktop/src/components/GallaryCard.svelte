@@ -2,7 +2,10 @@
   import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
   import PingLoader from "../components/PingLoader.svelte";
-  import { VideoURL } from "../stores/video";
+  import { VideoURL, OriginalVideoURL } from "../stores/video";
+
+  import { originalVideoURL } from "../stores/processing";
+  import { get } from 'svelte/store';
 
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
@@ -42,6 +45,10 @@
     console.log("Go to video");
     const encodedPath = encodeURIComponent(VideoSource);
     VideoURL.set(VideoSource);
+    VideoURL.set(VideoSource);
+    OriginalVideoURL.set(VideoSource);
+    originalVideoURL.set(VideoSource);
+
     push(`/video/${encodedPath}`);
   }
 
