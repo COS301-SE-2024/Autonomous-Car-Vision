@@ -196,7 +196,7 @@
 </script>
 
 <div>
-    <div class="flex relative justify-center bg-black">
+    <div class="flex relative justify-center bg-black overflow-hidden">
         <video
             poster={frames[1]}
             src={videoPath}
