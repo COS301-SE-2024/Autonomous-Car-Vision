@@ -13,7 +13,7 @@
   <div class="particle"></div>
   <div class="particle"></div>
 </div>
-<h1 class="processing-text text-sm font-semibold">Processing</h1>
+<!-- <h1 class="processing-text text-sm font-semibold">Processing</h1> -->
 
 <style>
   .processing-text {
@@ -43,7 +43,7 @@
   }
 
   .container {
-    --uib-size: 125px;
+    --uib-size: 20px;
     --uib-color: #0099ff;
     --uib-speed: 1s;
     position: relative;

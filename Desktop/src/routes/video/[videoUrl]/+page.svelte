@@ -261,7 +261,8 @@
   <div class="grid grid-cols-5">
     <div class="col-span-5">
       <!-- {processed ? 'col-span-4' : 'col-span-5'} -->
-      {#if $isLoading}
+      <ViewVideoComponent videoPath={$location} />
+      <!-- {#if $isLoading}
         <div
           class="flex flex-col justify-center items-center flex-nowrap"
           style="aspect-ratio: 16/9"
@@ -271,7 +272,7 @@
         </div>
       {:else}
         <ViewVideoComponent videoPath={$location} />
-      {/if}
+      {/if} -->
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
           class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"

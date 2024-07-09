@@ -41,12 +41,25 @@
     <p>
       {AIinfo.mTime}
     </p>
+    <!-- <div
+          class="flex flex-col justify-center items-center flex-nowrap"
+          style="aspect-ratio: 16/9"
+        >
+          <QuantamLoader />
+        </div> -->
     {#if mounting == false}
-        {#if AIinfo.mURL != currrentVideoUrl}
-            <button class="rounded border viewButton" on:click={selectVideo}>View</button>
-        {:else}
-            <p>Processing...</p>
-        {/if}
+      {#if AIinfo.mURL != currrentVideoUrl}
+        <button class="rounded border viewButton" on:click={selectVideo}
+          >View</button
+        >
+      {:else}
+        <div
+          class="flex flex-col justify-center items-center flex-nowrap"
+          style="aspect-ratio: 14/7"
+        >
+          <QuantamLoader />
+        </div>
+      {/if}
     {/if}
   </div>
   <div class="line"></div>
