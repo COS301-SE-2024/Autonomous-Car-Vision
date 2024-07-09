@@ -100,8 +100,6 @@
     });
   }
 
- 
-
 </script>
 
 <ProtectedRoutes>
@@ -110,24 +108,25 @@
             <Spinner />
         </div>
     {:else}
-    <div class="flex justify-center items-center w-full mb-4 p-4 "> <!--TODO: style the searchbar -->
-        <input
-          type="text"
-          placeholder="Search..."
-          on:input{handleSearch}
-          class="bg-theme-dark-white rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg" 
-          />
-        <!-- TODO: style filter bar-->
-        <select class="bg-theme-dark-secondary  rounded-lg ml-2 p-2  text-lg" 
-          on:change={handleFilterChange}
-          placeholder="Filter...">
-            <option value="All">Filter...</option>
-            <option value="Name">Name</option>
-            <option value="Date">Date</option>
-            <option value="Model Name">Model Name</option>
-        </select>
-      </div>
-      <div>
+    <div>
+      <div class="flex justify-center items-center w-4/5 mb-4 p-4"> <!--TODO: style the searchbar -->
+          <input
+            type="text"
+            placeholder="Search..."
+            on:input{handleSearch}
+            class="bg-theme-dark-white rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg" 
+            />
+          <!-- TODO: style filter bar-->
+          <select class="bg-theme-dark-secondary  rounded-lg ml-2 p-2  text-lg" 
+            on:change={handleFilterChange}
+            placeholder="Filter...">
+              <option value="All">Filter...</option>
+              <option value="Name">Name</option>
+              <option value="Date">Date</option>
+              <option value="Model Name">Model Name</option>
+          </select>
+        </div>
+      
         <svg class="hidden">
             <symbol id="icon-arrow" viewBox="0 0 24 24">
               <title>arrow</title>
@@ -152,7 +151,7 @@
           <!--import slides and content-->
           {#each Models as Model, key}
                <ModelsCard {Model} {key} />
-               <ModelsCardContent {Model} {key} />
+               <!-- <ModelsCardContent {Model} {key} /> -->
           {/each}
 
       </div>

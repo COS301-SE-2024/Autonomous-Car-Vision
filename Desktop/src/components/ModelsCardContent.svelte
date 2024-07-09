@@ -12,12 +12,12 @@
       mImg: "",
     };
 
-    export let key;
+    // export let key;
 </script>
 
 <div class="content">
     <div class="content__item">
-      <span class="content__number">Version: {Model.mVersion}</span>
+      <span class="content__number">{Model.mVersion}</span>
       <h3 class="content__title">{Model.mName}</h3>
       <div class="content__text">{Model.mSummary}</div>
     </div>

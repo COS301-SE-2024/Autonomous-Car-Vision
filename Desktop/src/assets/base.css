@@ -26,7 +26,7 @@ body {
 .js .loading::before {
 	content: '';
 	position: fixed;
-	z-index: 100000;
+	/* z-index: 100000; */
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -37,7 +37,7 @@ body {
 .js .loading::after {
 	content: '';
 	position: fixed;
-	z-index: 100000;
+	/* z-index: 100000; */
 	top: 50%;
 	left: 50%;
 	width: 60px;
@@ -98,16 +98,16 @@ a:focus {
 
 .frame {
 	position: fixed;
-	z-index: 10000;
+	 z-index: 1000; 
 	top: 5rem;
-	left: 0;
+	left: 5rem;
 	width: 100%;
-	max-width: none;
+	max-width: 100%; 
 	min-height: 0;
-	/* height: 100vh; */
+	/* height: 100vh;  */
     height:100%;
 	padding: 1rem;
-	pointer-events: none;
+	/* pointer-events: none; */
 }
 
 .frame a {
@@ -155,7 +155,7 @@ a:focus {
 	position: relative;
 	overflow: hidden;
 	margin: 0;
-	/* height: 100vh; */
+	height: 100vh;
 	width: 100%;
 	height: calc(100vh - 10rem);
 	display: grid;
@@ -186,7 +186,7 @@ a:focus {
 .slide__img-wrap {
 	width: 100%;
 	overflow: hidden;
-	z-index: 100;
+	z-index: 10;
 	height: 80%;
 	top: 10%;
 	position: absolute;
@@ -208,7 +208,7 @@ a:focus {
 	background: none;
 	width: 3rem;
 	height: 3rem;
-	z-index: 1000;
+	z-index: 100;
 	border: 0;
 	padding: 0;
 	margin: 0;
@@ -280,7 +280,7 @@ a:focus {
 	justify-self: flex-end;
 	width: 100%;
 	position: relative;
-	z-index: 1000;
+	z-index: 100;
 }
 
 .slide__number {
@@ -308,7 +308,7 @@ a:focus {
 	width: 100%;
 	height: calc(100% - 10rem);
 	pointer-events: none;
-	z-index: 100;
+	z-index: 10;
 }
 
 .content__item {
@@ -403,7 +403,7 @@ a:focus {
 		margin: 0.25rem auto 0 0.25rem;
 	}
 	.slideshow {
-		height: 100vh;
+		height: 100%;
 		grid-template-columns: 27% 27% 27%;
 		grid-column-gap: 9.5%;
 	}
@@ -438,7 +438,7 @@ a:focus {
 		-webkit-writing-mode: vertical-rl;
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
-		z-index: 1000;
+		z-index: 100;
 	}
 	.content {
 		top: 0;
