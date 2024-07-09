@@ -16,7 +16,7 @@
   } from "../../../stores/processing";
 
   import { isLoading } from "../../../stores/loading";
-  import Spinner from "../../../components/Spinner.svelte";
+  import QuantamLoader from "../../../components/QuantamLoader.svelte";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
@@ -63,7 +63,7 @@
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
-          ".."
+          "..",
         );
         scriptPath = `${appDirectory}/Models/processVideo.py`;
         modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
@@ -161,8 +161,8 @@
 
   async function processVideo(event) {
     modelName = event.detail.modelName;
-    isLoading.set(true);
     showProcessPopup = false;
+    // isLoading.set(true);
     try {
       await getVideoDetails();
 
@@ -174,6 +174,12 @@
         outputVideoPath,
         modelPath: modelsPath,
       };
+    
+      setInterval(() => {
+        isLoading.set(false);
+      }, 3000);
+      showModelList.set(true);
+    
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
 
       await loadState(); // Load state after adding the video to the queue
@@ -253,8 +259,19 @@
 
 <ProtectedRoutes>
   <div class="grid grid-cols-5">
-    <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
-      <ViewVideoComponent videoPath={$location} />
+    <div class="col-span-5">
+      <!-- {processed ? 'col-span-4' : 'col-span-5'} -->
+      {#if $isLoading}
+        <div
+          class="flex flex-col justify-center items-center flex-nowrap"
+          style="aspect-ratio: 16/9"
+        >
+          <QuantamLoader />
+          
+        </div>
+      {:else}
+        <ViewVideoComponent videoPath={$location} />
+      {/if}
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
         <button
           class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"

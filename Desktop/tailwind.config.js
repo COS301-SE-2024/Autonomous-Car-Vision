@@ -34,7 +34,7 @@ module.exports = {
       fontFamily: {
         custom: ['var(--font-custom)', 'sans-serif'],
         heading: ['var(--font-heading)', 'sans-serif'],
-        special: ['var(--font-special)', 'sans-serif'],
+        special: ['var(--font-special)', 'sans-serif'], 
         body: ['var(--font-body)', 'sans-serif'],
         light: ['var(--font-light)', 'sans-serif'],
         lighter: ['var(--font-light-light)', 'sans-serif'],

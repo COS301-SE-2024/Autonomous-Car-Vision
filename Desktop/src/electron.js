@@ -260,8 +260,6 @@ ipcMain.handle('fetch-videos', async () => {
 // Extract frames handler
 ipcMain.handle('extract-frames', async (event, videoPath) => {
     try {
-        console.log("VIDEO PATH:", videoPath);
-
         const { format } = await new Promise((resolve, reject) => {
             ffmpegFluent(videoPath)
                 .setFfprobePath(ffprobePath)
@@ -293,10 +291,10 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
             return framePaths;
         }
 
-        console.log('output directory: ', outputDir);
-
-        const MAX_FRAMES = 100;
-        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.5));
+        const MAX_FRAMES = 120;
+        const framesRequired = 20                   ;
+        const MinFrames = Math.max(framesRequired, Math.floor(duration * 0.5));
+        const maxFrameCount = Math.min(MinFrames, MAX_FRAMES);
         const frameRate = maxFrameCount / duration;
 
         let threadCount = Math.min(Math.floor(os.cpus().length / 2), maxFrameCount);

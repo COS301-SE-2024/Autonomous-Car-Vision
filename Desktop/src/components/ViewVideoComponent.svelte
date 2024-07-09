@@ -1,9 +1,19 @@
 <script>
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
     import { location } from "svelte-spa-router";
     import { VideoURL } from "../stores/video";
-    import { Icon } from "svelte-materialify";
-    import { mdiPause, mdiPlay } from "@mdi/js";
+    import { Avatar, Button, Icon } from "svelte-materialify";
+    import {
+        mdiPause,
+        mdiPlay,
+        mdiReplay,
+        mdiMenuLeftOutline,
+        mdiMenuRightOutline,
+    } from "@mdi/js";
+
+    import VideoAside from "./videoAside.svelte";
+    import { each } from "svelte/internal";
 
     export let videoPath;
 
@@ -17,18 +27,36 @@
 
     let thumbnailBar;
     let frames = [];
+    let ended = false;
+    let showSideAIDetail = false;
 
     function format(seconds) {
         if (isNaN(seconds)) return "...";
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
+        let hours = Math.floor(seconds / 3600);
+        let minutes = Math.floor((seconds % 3600) / 60);
         seconds = Math.floor(seconds % 60);
         if (seconds < 10) seconds = "0" + seconds;
+        if (minutes < 10 || null) minutes = "0" + minutes;
+        if (hours < 10 || null) hours = "0" + hours;
 
-        return `${hours}:${minutes}:${seconds}`;
+        if (hours == 0 || null) {
+            return `${minutes}:${seconds}`;
+        } else return `${hours}:${minutes}:${seconds}`;
     }
 
     let lastMouseDown;
+
+    function handleMouseEnter(e) {
+        // Clear any existing timeout to prevent the controls from hiding
+        clearTimeout(showControlsTimeout);
+        // Show the controls immediately
+        showControls = true;
+    }
+
+    function handleMouseLeave(e) {
+        // Start the timeout to hide the controls after 2500ms
+        showControlsTimeout = setTimeout(() => (showControls = false), 2500);
+    }
 
     function handleMove(e) {
         clearTimeout(showControlsTimeout);
@@ -64,6 +92,17 @@
         if (new Date() - lastMouseDown < 300) {
             if (paused) e.target.play();
             else e.target.pause();
+        }
+        // Find the frame index that corresponds to the current time
+        const frameIndex = Math.floor((time / duration) * frames.length);
+        const frameElement =
+            document.querySelectorAll(".thumbnail")[frameIndex];
+        if (frameElement) {
+            frameElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
         }
     }
 
@@ -113,13 +152,51 @@
     }
 
     function pause() {
+        if (ended) {
+            time = 0;
+            return;
+        }
         paused = !paused;
-        console.log(frames);
     }
+
+    function handleTimeUpdate(e) {
+        if (time >= duration) {
+            ended = true;
+            paused = true;
+        } else {
+            ended = false;
+        }
+    }
+
+    function revealAIDetails() {
+        console.log("TEST SIDEBUTTON");
+        showSideAIDetail = !showSideAIDetail;
+    }
+
+    let sideAIinfo = [
+        {
+            id: "1",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "06/07/2024",
+        },
+        {
+            id: "2",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "07/07/2024",
+        },
+        {
+            id: "3",
+            img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+            mName: "YoloV8n",
+            mTime: "08/07/2024",
+        },
+    ];
 </script>
 
 <div>
-    <div class="flex justify-center bg-black">
+    <div class="flex relative justify-center bg-black overflow-hidden">
         <video
             poster={frames[1]}
             src={videoPath}
@@ -128,6 +205,7 @@
             on:touchmove|preventDefault={handleMove}
             on:mousedown={handleMousedown}
             on:mouseup={handleMouseup}
+            on:timeupdate={handleTimeUpdate}
             bind:currentTime={time}
             bind:duration
             bind:paused
@@ -136,44 +214,117 @@
             <track kind="captions" />
         </video>
         <div
+            class="sideButton {showSideAIDetail ? 'move-right' : ''}"
+        >
+            <div class="flex items-center justify-center h-full">
+                <Button
+                    icon
+                    on:click={revealAIDetails}
+                    class="text-white"
+                    size="default"
+                >
+                    {#if !showSideAIDetail}
+                        <Icon size={50} path={mdiMenuLeftOutline} />
+                    {:else}
+                        <Icon size={50} path={mdiMenuRightOutline} />
+                    {/if}
+                </Button>
+            </div>
+        </div>
+        <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
+            <div class="m-3">
+                {#each sideAIinfo as info}
+                    <VideoAside AIinfo={info} />
+                {/each}
+            </div>
+        </div>
+        <div
             class="controls"
             style="opacity: {duration && showControls ? 1 : 0}"
         >
-            <progress class="TimelineProgress" value={time / duration || 0} />
-            <button
-                class="pl-4 w-10 border-2 border-white rounded-full text-white font-bold"
-                on:click={pause}
-            >
-                {#if paused}
-                    <Icon path={mdiPlay} />
-                {:else}
-                    <Icon path={mdiPause} />
-                {/if}
-                <!-- WILL ADD SVG JUST FOR NOW LEAVING IT AS TEXT -->
-            </button>
-            <div class="info">
-                <span class="time">{format(time)}</span>
-                <span>:</span>
-                <span class="time">{format(duration)}</span>
+            {#if frames.length > 0}
+                <div
+                    on:mouseover={handleMouseEnter}
+                    on:mouseleave={handleMouseLeave}
+                    on:focus
+                    bind:this={thumbnailBar}
+                    class="thumbnail-bar absolute"
+                    style="opacity: {showControls ? 1 : 0}"
+                >
+                    {#each frames as frame}
+                        <div
+                            class="thumbnail hover:cursor-pointer"
+                            on:click={() => seekToFrame(frame)}
+                            on:keypress
+                        >
+                            <img src={frame} width="120px" alt={frame} />
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+            <div class="w-full flex flex-row justify-start items-center">
+                <progress
+                    class="TimelineProgress"
+                    value={time / duration || 0}
+                />
+                <div class="pl-4">
+                    <button class="w-10 text-white" on:click={pause}>
+                        {#if ended}
+                            <Icon size={32} path={mdiReplay} />
+                        {:else if paused}
+                            <Icon size={32} path={mdiPlay} />
+                        {:else}
+                            <Icon size={32} path={mdiPause} />
+                        {/if}
+                    </button>
+                </div>
+                <div class="info">
+                    <span class="time">{format(time)}</span>
+                    <span>:</span>
+                    <span class="time">{format(duration)}</span>
+                </div>
             </div>
         </div>
     </div>
-    {#if frames.length > 0}
-        <div bind:this={thumbnailBar} class="thumbnail-bar">
-            {#each frames as frame}
-                <div
-                    class="thumbnail hover:cursor-pointer"
-                    on:click={() => seekToFrame(frame)}
-                    on:keypress
-                >
-                <img src={frame} width="120px" alt={frame}>
-            </div>
-            {/each}
-        </div>
-    {/if}
 </div>
 
 <style>
+    .sideButton {
+        width: 42px;
+        height: 42px;
+        position: absolute;
+        top: 0%;
+        right: 0%;
+        transition: test 1s;
+        background-color: #03191ec6;
+        margin: 5px;
+        /* border-top-left-radius: 15px; */
+        /* border-bottom-left-radius: 15px; */
+        border-radius: 50%;
+        transition: ease-in-out 1s
+    }
+
+    .sidevideo {
+        width: 20%;
+        height: fit-content;
+        top: 0;
+        position: absolute;
+        right: -25%;
+        margin: 5px;
+        background-color: #03191ec6;
+        z-index: 10;
+        border-radius: 15px;
+        transition: ease-in-out 1s;
+    }
+
+    .sidevideo.move-right {
+        right: 0;
+    }
+
+    .sideButton.move-right {
+        right: 20.5%;
+    }
+
     ::-webkit-scrollbar {
         width: 10px;
     }
@@ -194,10 +345,11 @@
 
     .thumbnail-bar {
         display: flex;
-        overflow-x: scroll;
+        overflow-x: hidden;
         overflow-y: hidden;
         width: 100%;
-        height: 100px;
+        height: 60px;
+        transition: opacity 0.5s;
     }
 
     .thumbnail {
@@ -210,14 +362,20 @@
     }
 
     .thumbnail img {
+        opacity: 0.6;
         width: 100%;
-        height: 100px;
+        height: 60px;
         object-fit: cover;
     }
 
     .thumbnail:hover {
         transform: scale(1.1);
         transition: linear 0.2s;
+        z-index: 10;
+    }
+
+    .thumbnail > img:hover {
+        opacity: 1;
     }
 
     div {
@@ -226,12 +384,12 @@
 
     .controls {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: start;
         align-items: center;
         position: absolute;
         bottom: 0;
-        gap: 2rem;
+        gap: 0;
         width: 100%;
         transition: opacity 0.5s;
     }
@@ -281,7 +439,8 @@
     }
 
     video {
-        width: 90%;
+        width: 100%;
+        height: 60%;
         aspect-ratio: 16 / 9;
     }
 </style>
