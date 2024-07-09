@@ -7,11 +7,11 @@ article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,su
 
 body {
 	--color-text: #f1f1f1;
-    --color-bg: #0c0c0c;
+    --color-bg: var(--bg-theme-dark-background ) ; /*#0c0c0c; */
     --color-link: #1ab3de;
     --color-link-hover: #f1f1f1;
 	--color-deco: #141414;
-	--color-side: #353535;
+	--color-side: #48bfff;
 	font-family: Futura, "futura-pt", sans-serif;
 	/* min-height: 100vh; */
 	color: #57585c;
@@ -156,7 +156,7 @@ a:focus {
 	overflow: hidden;
 	margin: 0;
 	/* height: 100vh; */
-	height: ;
+	height: 80%;
 	width: 80%;
 	height: calc(100vh - 10rem);
 	display: grid;
@@ -196,6 +196,7 @@ a:focus {
 .slideshow__deco {
 	grid-area: slide;
 	background: var(--color-deco);
+	/* box-shadow: 2px 2px var(--shadow-card-blue); */
 	width: 100%;
 	height: 80%;
 	align-self: center;
@@ -333,7 +334,7 @@ a:focus {
 	top: 1rem;
 	left: 1rem;
 	background: none;
-	color: currentColor;
+	color: var(--color-side);
 	border: 0;
 	margin: 0;
 	padding: 0;
@@ -354,7 +355,7 @@ a:focus {
 .content__number::before {
 	content: "\2014";
 	display: inline-block;
-	margin: 0 1rem 0 0;
+	/* margin: 0 1rem 0 0; */
 }
 
 .content__title {
@@ -440,6 +441,7 @@ a:focus {
 		-webkit-writing-mode: vertical-rl;
 		writing-mode: vertical-rl;
 		transform: rotate(180deg);
+		font-size: small;
 		z-index: 100;
 	}
 	.content {
@@ -448,32 +450,33 @@ a:focus {
 	}
 	.content__item {
 		padding: calc(10vh + 5rem) 0 7vh;
-		width: 50.5%;
+		width: 40.5%; 
 		right: 7.5%;
 		overflow: visible;
 	}
 	.content__close {
-		left: 42%;
-		top: calc(10vh + 1rem);
+		left: 45%;
+		top: calc(10vh + 3rem);
 	}
 	.content__number {
 		position: absolute;
-		bottom: 7vh;
+		bottom: 15vh;
 		right: 0;
 		font-size: 2rem;
 	}
 	.content__title {
-		font-size: 7vw;
+		font-size: 5vw;
 	}
 	.content__subtitle {
 		font-size: 1.15rem;
 		margin-bottom: 7.5vh;
+		padding-top:3vh;
 	}
 	.content__text {
 		font-size: 0.95rem;
-		column-count: 2;
-		column-gap: 2rem;
-		max-width: 600px;
+		column-count: 1;
+		column-gap: 2rem; 
+		max-width: 500px;
 		text-align: justify;
 	}
 }

@@ -79,8 +79,8 @@ sequelize.sync().then(async () => {
                 model_description: 'The YOLOv8n (You Only Look Once version 8 nano) model is a lightweight, real-time object detection model designed for high-speed and efficiency.',
                 model_version: '1.0',
                 model_summary: 'The smallest version of the Yolov8 models.',
-                model_profileimg: 'https://placekitten.com/200/200',
-                model_img: 'https://placekitten.com/200/200'
+                model_profileimg: 'https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_960_720.png',
+                model_img: 'https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_960_720.png'
             },
             {
                 model_id: '2',

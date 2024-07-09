@@ -9,7 +9,7 @@
     mVersion: "",
     mSummary: "",
     mStatus: "",
-    mProfileImg: "https://deep-image.ai/_next/static/media/app-info-generator.bf08e63e.webp",
+    mProfileImg: "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
     mImg: "",
   };
   export let key;
