@@ -146,14 +146,14 @@
   onMount(async () => {
     await fetchModels();
     await getVideoDetails();
-    await getOutputFiles();
+    // await getOutputFiles();
     await loadState(); // Load state on mount
 
     console.log("Test Video URL page: ", get(videoUrl));
 
-    if (outputFiles.length > 1) {
-      showModelList.set(true);
-    }
+    // if (outputFiles.length > 1) {
+    //   showModelList.set(true);
+    // }
     console.log($location);
   });
 
@@ -177,7 +177,7 @@
     
       setInterval(() => {
         isLoading.set(false);
-      }, 3000);
+      }, 15000);
       showModelList.set(true);
     
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
@@ -289,7 +289,7 @@
           />
         {/if}
         <div>
-          <button
+          <!-- <button
             class="text-white p-0.5 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
             on:click={toggleModelList}
           >
@@ -306,12 +306,12 @@
                 class="w-12 h-12 rounded-full"
               />
             {/if}
-          </button>
-          {#if $showModelList}
+          </button> -->
+          <!-- {#if $showModelList}
             <ModelList
               on:select={handleModelSelect}
             />
-          {/if}
+          {/if} -->
         </div>
       </div>
       {#if showProcessPopup}

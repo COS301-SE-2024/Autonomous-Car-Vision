@@ -91,6 +91,10 @@ const VideoTable = sequelize.define('VideoTable', {
     originalVidID: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    creation_date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
     }
 });
 
