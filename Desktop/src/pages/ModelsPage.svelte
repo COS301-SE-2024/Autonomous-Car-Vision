@@ -36,7 +36,7 @@
   </script>
   
   <style>
-    @import '/base.css';
+    @import '../assets/base.css';
   </style>
   
   <ProtectedRoutes>

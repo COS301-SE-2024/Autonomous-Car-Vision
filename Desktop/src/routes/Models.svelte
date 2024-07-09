@@ -1,5 +1,6 @@
 <script>
     import ModelsCard from "../components/ModelsCard.svelte";
+    import ModelsCardContent from '../components/ModelsCardContent.svelte';
     import ProtectedRoutes from "./ProtectedRoutes.svelte";
     import { isLoading } from "../stores/loading";
     import Spinner from "../components/Spinner.svelte";
@@ -127,12 +128,34 @@
         </select>
       </div>
       <div>
-        <div class="slideshow relative overflow-hidden m-0 h-screen w-full grid"> 
-             <div class="slideshow__deco"></div>
-             <!-- <ModelsCard /> -->
-            {#each Models as Model, key}
-                <ModelsCard {Model} {key} />
-            {/each}
+        <svg class="hidden">
+            <symbol id="icon-arrow" viewBox="0 0 24 24">
+              <title>arrow</title>
+              <polygon points="6.3,12.8 20.9,12.8 20.9,11.2 6.3,11.2 10.2,7.2 9,6 3.1,12 9,18 10.2,16.8 " />
+            </symbol>
+            <symbol id="icon-drop" viewBox="0 0 24 24">
+              <title>drop</title>
+              <path d="M12,21c-3.6,0-6.6-3-6.6-6.6C5.4,11,10.8,4,11.4,3.2C11.6,3.1,11.8,3,12,3s0.4,0.1,0.6,0.3c0.6,0.8,6.1,7.8,6.1,11.2C18.6,18.1,15.6,21,12,21zM12,4.8c-1.8,2.4-5.2,7.4-5.2,9.6c0,2.9,2.3,5.2,5.2,5.2s5.2-2.3,5.2-5.2C17.2,12.2,13.8,7.3,12,4.8z" />
+              <path d="M12,18.2c-0.4,0-0.7-0.3-0.7-0.7s0.3-0.7,0.7-0.7c1.3,0,2.4-1.1,2.4-2.4c0-0.4,0.3-0.7,0.7-0.7c0.4,0,0.7,0.3,0.7,0.7C15.8,16.5,14.1,18.2,12,18.2z" />
+            </symbol>
+            <symbol id="icon-longarrow" viewBox="0 0 54 24">
+              <title>longarrow</title>
+              <path d="M.42 11.158L12.38.256c.333-.27.696-.322 1.09-.155.395.166.593.467.593.903v6.977h38.87c.29 0 .53.093.716.28.187.187.28.426.28.716v5.98c0 .29-.093.53-.28.716a.971.971 0 0 1-.716.28h-38.87v6.977c0 .416-.199.717-.592.903-.395.167-.759.104-1.09-.186L.42 12.62a1.018 1.018 0 0 1 0-1.462z" />
+            </symbol>
+            <symbol id="icon-navarrow" viewBox="0 0 408 408">
+              <title>navarrow</title>
+              <polygon fill="#fff" fill-rule="nonzero" points="204 0 168.3 35.7 311.1 178.5 0 178.5 0 229.5 311.1 229.5 168.3 372.3 204 408 408 204"></polygon>
+            </symbol>
+        </svg> 
+      <div class="slideshow">
+        <div class="slideshow__deco"></div>
+          <!--import slides and content-->
+          {#each Models as Model, key}
+               <ModelsCard {Model} {key} />
+               <ModelsCardContent {Model} {key} />
+          {/each}
+
+      </div>
             <button class="nav nav--prev">
                 <svg class="icon icon--navarrow-prev">
                     <use xlink:href="#icon-navarrow"></use>
@@ -144,121 +167,9 @@
                 </svg>
             </button>
         </div>
-    </div>
     {/if}
 </ProtectedRoutes>
 
 <style>
-
-    :global(article), :global(aside), :global(details), :global(figcaption), :global(figure), :global(footer), :global(header), :global(hgroup), :global(main), :global(nav), :global(section), :global(summary) { display: block; }
-  :global(audio), :global(canvas), :global(video) { display: inline-block; }
-  :global(audio:not([controls])) { display: none; height: 0; }
-  :global([hidden]) { display: none; }
-  :global(html) { font-family: sans-serif; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
-  :global(body) { margin: 0; }
-  :global(a:focus) { outline: thin dotted; }
-  :global(a:active), :global(a:hover) { outline: 0; }
-  :global(h1) { font-size: 2em; margin: 0.67em 0; }
-  :global(abbr[title]) { border-bottom: 1px dotted; }
-  :global(b), :global(strong) { font-weight: bold; }
-  :global(dfn) { font-style: italic; }
-  :global(hr) { -moz-box-sizing: content-box; box-sizing: content-box; height: 0; }
-  :global(mark) { background: #ff0; color: #000; }
-  :global(code), :global(kbd), :global(pre), :global(samp) { font-family: monospace, serif; font-size: 1em; }
-  :global(pre) { white-space: pre-wrap; }
-  :global(q) { quotes: "\201C" "\201D" "\2018" "\2019"; }
-  :global(small) { font-size: 80%; }
-  :global(sub), :global(sup) { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
-  :global(sup) { top: -0.5em; }
-  :global(sub) { bottom: -0.25em; }
-  :global(img) { border: 0; }
-  :global(svg:not(:root)) { overflow: hidden; }
-  :global(figure) { margin: 0; }
-  :global(fieldset) { border: 1px solid #c0c0c0; margin: 0 2px; padding: 0.35em 0.625em 0.75em; }
-  :global(legend) { border: 0; padding: 0; }
-  :global(button), :global(input), :global(select), :global(textarea) { font-family: inherit; font-size: 100%; margin: 0; }
-  :global(button), :global(input) { line-height: normal; }
-  :global(button), :global(select) { text-transform: none; }
-  :global(button), :global(html input[type="button"]), :global(input[type="reset"]), :global(input[type="submit"]) { -webkit-appearance: button; cursor: pointer; }
-  :global(button[disabled]), :global(html input[disabled]) { cursor: default; }
-  :global(input[type="checkbox"]), :global(input[type="radio"]) { box-sizing: border-box; padding: 0; }
-  :global(input[type="search"]) { -webkit-appearance: textfield; appearance: textfield; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; }
-  :global(input[type="search"]::-webkit-search-cancel-button), :global(input[type="search"]::-webkit-search-decoration) { -webkit-appearance: none; }
-  :global(button::-moz-focus-inner), :global(input::-moz-focus-inner) { border: 0; padding: 0; }
-  :global(textarea) { overflow: auto; vertical-align: top; }
-  :global(table) { border-collapse: collapse; border-spacing: 0; }
-  :global(*), :global(*::after), :global(*::before) { box-sizing: border-box; }
-    .slideshow{
-    overflow:hidden;
-    display: grid;
-	grid-template-columns: 33% 33% 33%;
-	grid-column-gap: 0.5%;
-	grid-template-rows: 100%;
-	grid-template-areas: '... slide ...';
-    }
-
-    .slideshow__deco {
-	grid-area: slide;
-	background: var(--color-deco);
-	width: 100%;
-	height: 80%;
-	align-self: center;
-	position: relative;
-	margin: -40px 0 0 0;
-	right: -20px;
-}
-
-
-.nav {
-	position: absolute;
-	background: none;
-	width: 3rem;
-	height: 3rem;
-	z-index: 1000;
-	border: 0;
-	padding: 0;
-	margin: 0;
-	pointer-events: none;
-	transition: transform 0.8s, opacity 0.8s;
-	transition-timing-function: cubic-bezier(0.7,0,0.3,1);
-}
-
-.nav--next {
-	bottom: 1rem;
-	right: 1rem;
-}
-
-.icon--navarrow-next {
-	transform: rotate(45deg);
-}
-
-.nav--prev {
-	top: 1rem;
-	left: 1rem;
-}
-
-.icon--navarrow-prev {
-	transform: rotate(-135deg);
-}
-
-.slideshow--previewopen .nav {
-	opacity: 0;
-	transition-duration: 0.4s;
-}
-
-.slideshow--previewopen .nav--next {
-	transform: translate3d(100%, 100%, 0);
-}
-
-.slideshow--previewopen .nav--prev {
-	transform: translate3d(-100%, -100%, 0);
-}
-
-@media screen and (min-width: 53em) {
-  .slideshow {
-		height: 100vh;
-		grid-template-columns: 27% 27% 27%;
-		grid-column-gap: 9.5%;
-	}
-}
+  @import '../assets/base.css';
 </style>
