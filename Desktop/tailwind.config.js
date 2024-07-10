@@ -41,7 +41,7 @@ module.exports = {
         lighter: ['var(--font-light-light)', 'sans-serif'],
       },
       colors: {
-        'dark-theme' : {
+        'dark' : {
           background: '#011C27', // '#03254E',  // '#001524', '#011C27'
           primary: '#FFFFFF',
           secondary: '',

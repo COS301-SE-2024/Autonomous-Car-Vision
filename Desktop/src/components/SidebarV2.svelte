@@ -94,7 +94,7 @@
 >
     {#each routes as route}
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
-            <a class="w-6/12" href={route.route}>
+            <a class="w-full" href={route.route}>
                 <div class="flex justify-start gap-2">
                     <Icon path={route.iconPath} />
                     {#if width >= 150}
@@ -106,50 +106,51 @@
             </a>
         </div>
     {/each}
-    <div
-        class="relative transition border-theme-dark-primary cursor-pointer avatar-container m-2"
-        on:click={toggleAccountPopup}
-        on:keydown
-    >
         <div
-            style="width: {width < 150 ? 'fit-content' : 'auto'};"
-            class="{'/accountsettings' === $location ||
-            '/changepassword' === $location
-                ? 'bg-dark-background'
-                : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
+            class="relative cursor-pointer avatar-container m-3 grid {width < 150 ? 'place-items-center' : ''}"
+            on:click={toggleAccountPopup}
+            on:keydown
         >
-            <Avatar
-                size="34px"
-                class="bg-gray rounded-full content-center w-fit"
+            <div
+                style="width: {width < 150 ? 'fit-content' : 'auto'};"
+                class="{'/accountsettings' === $location ||
+                '/changepassword' === $location
+                    ? 'bg-dark-background'
+                    : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
             >
-                <img class="accountImg" src={profileImg} alt="img" />
-            </Avatar>
-            {#if width >= 150}
-                <div class="w-auto flex flex-col justify-start items-center">
-                    <span class="w-fit text-left text-xs font-bold"
-                        >{username}</span
-                    >
-                    <span class="w-fit text-left text-xs">{name}</span>
-                </div>
-            {/if}
+                <Avatar
+                    size="34px"
+                    class="bg-gray rounded-full content-center w-fit"
+                >
+                    <img class="accountImg" src={profileImg} alt="img" />
+                </Avatar>
+                {#if width >= 150}
+                    <div class="w-auto flex flex-col justify-start items-center">
+                        <span class="w-fit text-left text-xs font-bold"
+                            >{username}</span
+                        >
+                        <span class="w-fit text-left text-xs">{name}</span>
+                    </div>
+                {/if}   
+            </div>
         </div>
-    </div>
+        {#if showAccountPopup}
+            <div
+                class="popupAcc z-20 mt-2 account-popup-content" style="left: {width + 10}px;"
+            >
+                <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
+            </div>
+        {/if}
 </div>
-{#if showAccountPopup}
-    <div
-        class="popupAcc absolute z-50 left-44 mt-2 account-popup-content"
-    >
-        <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
-    </div>
-{/if}
 
 <style>
     .popupAcc {
-        top: 49.8rem;
+        position: absolute;
     }
 
     .sidebarV2 {
         border-radius: 15px;
+        overflow: hidden;
     }
 
     .nav-item {

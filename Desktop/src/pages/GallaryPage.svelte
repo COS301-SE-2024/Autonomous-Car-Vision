@@ -97,13 +97,13 @@
 
 <ProtectedRoutes>
   {#if $isLoading}
-  <div class="flex justify-center">
+  <div class="flex justify-center w-full">
     <Spinner />
   </div>
   {:else}
     <div class="items-center">
       <div>
-      <div class="flex justify-center items-center w-10/12  mb-4 p-4 "> <!--TODO: style the searchbar -->
+      <div class="flex justify-center items-center w-full mb-4 p-4 "> <!--TODO: style the searchbar -->
         <input
           type="text"
           placeholder="Search..."
@@ -120,7 +120,7 @@
             <option value="Model Name">Model Name</option>
         </select>
       </div>
-        <div class="grid grid-flow-row-dense grid-cols-3 items-center w-10/12 ">
+        <div class="grid grid-flow-row-dense grid-cols-3 items-center w-full ">
         
         {#each filteredItems as url,index} 
             <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
