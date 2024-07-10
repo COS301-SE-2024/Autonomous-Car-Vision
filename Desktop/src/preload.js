@@ -49,4 +49,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVideoByURL: (videoURL) => ipcRenderer.invoke('getVideoByURL', videoURL),
     getProcessedVideos: (originalVidID) => ipcRenderer.invoke('getProcessedVideos', originalVidID),
     addVideo: (videoData) => ipcRenderer.invoke('addVideo', videoData),
+    onPythonScriptDone: (callback) => ipcRenderer.on('python-script-done', callback),
   });

@@ -14,6 +14,7 @@ const ffprobePath = require('ffprobe-static').path;
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
 
+let mainWindow;
 let store;
 
 async function loadElectronStore() {
@@ -23,7 +24,7 @@ async function loadElectronStore() {
 
 
 async function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -154,9 +155,9 @@ ipcMain.handle('save-store-process', async (event, state) => {
 
 // Helper function to update the store state
 function updateState(updates) {
-    console.log('Updating state:', updates);
     const currentState = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     const newState = { ...currentState, ...updates };
+    console.log('Updated state:', newState);
     store.set('appProcessing', newState);
     return newState;
 }
@@ -367,6 +368,7 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 
 // Function to process the queue
 async function processQueue() {
+    console.log("In process -----------------------------------------------");
     const { processing, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     if (processing || processingQueue.length === 0) return;
 
@@ -382,6 +384,7 @@ async function processQueue() {
             nextVideo.modelPath,
         ]);
         console.log("Python Script Output:", output);
+        const { originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
         updateState({ processing: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
         processQueue(); // Process the next video in the queue
     } catch (error) {
@@ -421,11 +424,20 @@ function runPythonScript(scriptPath, args) {
             error += data.toString();
         });
 
+        python.on('error', (err) => {
+            // Handle the error event, for example, when the process could not be spawned, killed, or there's a sending message error
+            reject(new Error("Failed to execute Python script: " + err.message));
+        });
+
         python.on('close', (code) => {
             if (code === 0) {
                 resolve(output);
+                mainWindow.webContents.send('python-script-done', 'Video done processing');
             } else {
-                reject(new Error(error));
+                // If the process exited with a code other than 0, it means there was an error
+                mainWindow.webContents.send('python-script-done', 'Video done processing');
+                console.log('Python script done but exited with unexpected code:', code);
+                resolve(output);
             }
         });
 

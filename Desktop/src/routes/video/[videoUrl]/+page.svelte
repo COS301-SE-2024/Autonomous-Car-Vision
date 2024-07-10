@@ -7,6 +7,8 @@
 
   import { onMount } from "svelte";
 
+  import toast, { Toaster } from "svelte-french-toast";
+
   import {
     processing,
     videoUrl,
@@ -182,6 +184,11 @@
     
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
 
+      toast.success("Video queued for processing", {
+        duration: 5000,
+        position: "top-center",
+      });
+
       await loadState(); // Load state after adding the video to the queue
 
       console.log("Queued video for processing now:", videoDetails);
@@ -258,6 +265,7 @@
 </script>
 
 <ProtectedRoutes>
+  <Toaster />
   <div class="grid grid-cols-5">
     <div class="col-span-5">
       <!-- {processed ? 'col-span-4' : 'col-span-5'} -->

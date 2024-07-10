@@ -54,7 +54,13 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: python script.py <input_video_path> <output_video_path> <model_path>")
         sys.exit(1)
-    input_video_path = sys.argv[1]
-    output_video_path = sys.argv[2]
-    model_path = sys.argv[3]
-    process_video(input_video_path, output_video_path, model_path)
+    try:
+        input_video_path = sys.argv[1]
+        output_video_path = sys.argv[2]
+        model_path = sys.argv[3]
+        process_video(input_video_path, output_video_path, model_path)
+    except KeyboardInterrupt:
+        # If interrupted, exit with interrupt code
+        sys.exit(1)
+    # Exit with a success code
+    sys.exit(0)
