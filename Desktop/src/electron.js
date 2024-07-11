@@ -145,7 +145,7 @@ ipcMain.on('clear-uemail', (event) => {
 });
 
 ipcMain.on('load-store-process', (event) => {
-    const storeData = store.get('appProcessing');
+    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     event.returnValue = storeData;
 });
 
@@ -155,7 +155,7 @@ ipcMain.handle('save-store-process', async (event, state) => {
 
 // Helper function to update the store state
 function updateState(updates) {
-    const currentState = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     const newState = { ...currentState, ...updates };
     console.log('Updated state:', newState);
     store.set('appProcessing', newState);
@@ -369,11 +369,11 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 // Function to process the queue
 async function processQueue() {
     console.log("In process -----------------------------------------------");
-    const { processing, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     if (processing || processingQueue.length === 0) return;
 
     const nextVideo = processingQueue.shift();
-    updateState({ processing: true, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
 
     try {
         //call the run-python-script IPC handler
@@ -384,21 +384,21 @@ async function processQueue() {
             nextVideo.modelPath,
         ]);
         console.log("Python Script Output:", output);
-        const { originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
-        updateState({ processing: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+        const { cuda, localProcess, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
         processQueue(); // Process the next video in the queue
     } catch (error) {
         console.error("Python Script Error:", error);
-        updateState({ processing: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+        updateState({ processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
     }
 }
 
 // IPC handler to queue a video for processing
 ipcMain.handle('queue-video', async (event, videoDetails) => {
     console.log('Video Details being added:', videoDetails);
-    const { processing, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
     processingQueue.push(videoDetails);
-    updateState({ processing: processing, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+    updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
     processQueue();
 });
 
@@ -445,6 +445,46 @@ function runPythonScript(scriptPath, args) {
         python.unref();
     });
 }
+
+// IPC handler for checking CUDA availability
+ipcMain.handle('check-cuda', async () => {
+    return new Promise((resolve, reject) => {
+        console.log("Checking cuda availability")
+        // get the root directory of the app
+        const appPath = app.getAppPath();
+        let pythonPath = path.join(appPath, '..');
+        pythonPath = path.join(pythonPath, 'Models/cudaCheck.py');
+        const python = spawn('python', [pythonPath], {
+            cwd: __dirname, // Ensure the working directory is correct
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: true,
+        });
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                console.log("CUDA available:", output.trim() == 'True');
+                resolve(output.trim() == 'True');
+            } else {
+                reject(new Error(error));
+            }
+        });
+
+        python.on('error', (err) => {
+            reject(new Error(`Failed to start Python script: ${err.message}`));
+        });
+    });
+});
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
     return path.resolve(...segments);

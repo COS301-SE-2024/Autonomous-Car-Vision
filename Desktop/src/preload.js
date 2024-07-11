@@ -50,4 +50,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getProcessedVideos: (originalVidID) => ipcRenderer.invoke('getProcessedVideos', originalVidID),
     addVideo: (videoData) => ipcRenderer.invoke('addVideo', videoData),
     onPythonScriptDone: (callback) => ipcRenderer.on('python-script-done', callback),
+    checkCUDA: () => ipcRenderer.invoke('check-cuda')
   });
