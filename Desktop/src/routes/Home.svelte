@@ -33,12 +33,14 @@
   };
 </script>
 
-<MaterialApp> 
-  <div class="min-h-screen flex items-center justify-center bg-theme-dark-white">
+<MaterialApp>
+  <div class="min-h-screen flex items-center justify-center">
     <div
-      class="p-8 rounded-lg shadow-card-blue w-80 text-theme-dark-primary bg-theme-dark-white"
+      class="p-8 rounded-lg shadow-card-blue w-80 text-theme-dark-primary glass"
     >
-      <h1 class="text-4xl text-center mb-6 text-bold text-black">Welcome to High-Viz</h1>
+      <h1 class="text-4xl text-center mb-6 text-bold text-black">
+        Welcome to High-Viz
+      </h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
           <button
@@ -64,4 +66,31 @@
       </div>
     </div>
   </div>
+  <video autoplay muted loop class="bgVideo">
+    <source
+      src="https://cdn.pixabay.com/video/2016/02/14/2165-155327596_large.mp4"
+      type="video/mp4"
+    />
+  </video>
 </MaterialApp>
+
+<style>
+  .glass {
+    position: relative;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.25098039215686274);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5.2px);
+  }
+
+  .bgVideo {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+</style>

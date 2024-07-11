@@ -38,7 +38,7 @@
     try {
       const { hash } = await window.electronAPI.hashPasswordSalt(
         pToken,
-        sString
+        sString,
       );
 
       const response = await axios.post("http://localhost:8000/signin/", {
@@ -54,72 +54,82 @@
 </script>
 
 <!-- TODO: add error messages -->
-<div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
-  <MaterialApp>
-    <div class="flex flex-row gap-2">
-      <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center border border-theme-dark-primary rounded-md"
-        href="#/login"
-      >
-        <Button
-          class="text-black bg-theme-dark-white "
-          depressed
-          block>Log In</Button
+<MaterialApp>
+    <div class="glass">
+      <div class="flex flex-row gap-2">
+        <a
+          class="w-full h-14 flex flex-col flex-wrap justify-center items-center border border-theme-dark-primary rounded-md"
+          href="#/login"
         >
-      </a>
-      <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-        href="#/signup"
-      >
-        <Button
-          class="text-theme-dark-white bg-theme-dark-primary"
-          depressed
-          block>Sign Up</Button
+          <Button class="text-black " depressed block>Log In</Button>
+        </a>
+        <a
+          class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+          href="#/signup"
         >
-      </a>
-    </div>
-    <div class="w-full p-4 rounded-md mt-2 bg-theme-dark-white shadow-card-blue">
-      <div class="text-left">
-        <h1 class="text-2xl text-black">Welcome back!</h1>
-        <p class="text-black">Please enter your information.</p>
+          <Button
+            class="text-theme-dark-white bg-theme-dark-primary"
+            depressed
+            block>Sign Up</Button
+          >
+        </a>
       </div>
-      {#if step === 1}
-        <div id="form" class="flex flex-col gap-1 py-2">
-          <TextField bind:value={nToken} outlined>Username/Email</TextField>
-          <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
-            on:click={onSubmitUsername}
-            rounded
-            block>Next</Button
-          >
+      <div class="w-full p-4 rounded-md mt-2">
+        <div class="text-left">
+          <h1 class="text-2xl text-black">Welcome back!</h1>
+          <p class="text-black">Please enter your information.</p>
         </div>
-      {/if}
-      {#if step === 2}
-        <div id="form" class="flex flex-col gap-1 py-2">
-          <TextField
-            bind:value={pToken}
-            outlined
-            type={show ? "text" : "password"}
-          >
-            Password
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-              slot="append"
-              on:click={() => {
-                show = !show;
-              }}
+        {#if step === 1}
+          <div id="form" class="flex flex-col gap-1 py-2">
+            <TextField bind:value={nToken} outlined>Username/Email</TextField>
+            <Button
+              class="bg-theme-dark-primary text-theme-dark-lightText"
+              on:click={onSubmitUsername}
+              rounded
+              block>Next</Button
             >
-              <Icon path={show ? mdiEyeOff : mdiEye} />
-            </div>
-          </TextField>
-          <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
-            on:click={onSubmitPassword}
-            rounded
-            block>Log in</Button
-          >
-        </div>
-      {/if}
+          </div>
+        {/if}
+        {#if step === 2}
+          <div id="form" class="flex flex-col gap-1 py-2">
+            <TextField
+              bind:value={pToken}
+              outlined
+              type={show ? "text" : "password"}
+            >
+              Password
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                slot="append"
+                on:click={() => {
+                  show = !show;
+                }}
+              >
+                <Icon path={show ? mdiEyeOff : mdiEye} />
+              </div>
+            </TextField>
+            <Button
+              class="bg-theme-dark-primary text-theme-dark-lightText"
+              on:click={onSubmitPassword}
+              rounded
+              block>Log in</Button
+            >
+          </div>
+        {/if}
+      </div>
     </div>
-  </MaterialApp>
-</div>
+</MaterialApp>
+
+<style>
+  .glass {
+    position: relative;
+    top: 200px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.25098039215686274);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5.2px);
+    padding: 2rem;
+    width: 100%;
+  }
+</style>
