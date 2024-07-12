@@ -95,7 +95,7 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC")
+        test = os.getenv("PUBLIC")       
         test = base64.b64decode(test)
 
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
@@ -160,7 +160,7 @@ def findOpenPort():
     return ip, port
 
 
-def startFTP(ip, port, old_uid, old_size, old_token):
+def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
     def receive_until_null(conn):
         data = b""
         while True:
@@ -176,74 +176,83 @@ def startFTP(ip, port, old_uid, old_size, old_token):
         print(f"Server started and listening on {ip}:{port}")
         while True:
             conn, addr = s.accept()
-            with conn:
-                data = receive_until_null(conn)
-                data = json.loads(data)
-                print(f"DATA: {data}")
+            try:
+                with conn:
+                    data = receive_until_null(conn)
+                    data = json.loads(data)
+                    print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
-                size = data["size"]
-                token = data["token"]
-                command = data["command"]
+                    uid = data.get('uid')
+                    size = data['size']
+                    token = data['token']
+                    command = data['command']
 
-                directory = f"./Download/{uid}/"
-                os.makedirs(directory, exist_ok=True)
-                print(f"Directory {directory} created to store information.")
+                    directory = f"./Download/{uid}/"
+                    os.makedirs(directory, exist_ok=True)
+                    print(f"Directory {directory} created to store information.")
 
-                print(f"Connected by {addr}")
+                    print(f"Connected by {addr}")
 
-                if command == "SEND":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    if command == "SEND":
+                        filename = receive_until_null(conn)
+                        print(f"File name: {filename}")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+                        if not filename:
+                            break
+                        filepath = os.path.join(directory, filename)
 
-                    with open(filepath, "wb") as f:
-                        print(f"Receiving file {filename}...")
-                        while True:
-                            data = conn.recv(1024)
-                            if not data:
-                                break
-                            f.write(data)
-                    print(f"File {filename} received and saved to {filepath}")
-
-                elif command == "RETR":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
-
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
-
-                    if os.path.exists(filepath):
-                        with open(filepath, "rb") as f:
-                            print(f"Sending file {filename}...")
+                        with open(filepath, "wb") as f:
+                            print(f"Receiving file {filename}...")
                             while True:
-                                data = f.read(1024)
+                                data = conn.recv(1024)
                                 if not data:
                                     break
-                                conn.sendall(data)
-                        print(f"File {filename} sent successfully.")
-                    else:
-                        print(f"File {filename} does not exist.")
+                                f.write(data)
+                        print(f"File {filename} received and saved to {filepath}")
 
-    s.close()
+                    elif command == "RETR":
+                        filename = receive_until_null(conn)
+                        print(f"File name: {filename}")
+
+                        if not filename:
+                            break
+                        filepath = os.path.join(directory, filename)
+
+                        if os.path.exists(filepath):
+                            with open(filepath, "rb") as f:
+                                print(f"Sending file {filename}...")
+                                while True:
+                                    data = f.read(1024)
+                                    if not data:
+                                        break
+                                    conn.sendall(data)
+                            print(f"File {filename} sent successfully.")
+                        else:
+                            print(f"File {filename} does not exist.")
+            except Exception as e:
+                print(f"Error during connection handling: {e}")
+            finally:
+                conn.close()
+                print("Connection closed")
+                break
+
+        print("Exiting loop, closing socket.")
+        s.close()
+        print("Socket closed")
+
     return "Operation completed successfully."
 
-
 @app.post("/startupFTPListener/")
-async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
+async def startupFTPListener(background_tasks: BackgroundTasks, request: Request):
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
     aid = "STUMPED"
     size = "STUMPED"
     utoken = "STUMPED"
-    backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
+    background_tasks.add_task(startFTP, ip, port, aid, size, utoken)
     return {"aip": ip, "aport": port}
+
 
 
 @app.post("/process/")
@@ -261,15 +270,6 @@ async def process(request: Request):
         # subprocess.run(['makensis', './package/setup.nsi'])
     except:
         return JSONResponse(status_code=400, content={"message": "Invalid request"})
-
-
-def verifyOTP(otp):
-    otp = "1234"
-    if otp == "1234":
-        return True
-    else:
-        return False
-
 
 @app.post("/listen")
 async def listen(request: Request):

@@ -72,18 +72,20 @@ if __name__ == "__main__":
     }
 
     # Define the body
-    body = {
-        "uid": "value1\n",
-        "mid": "value2\n",
-        "size": "HELLO\n",
-        "token": "TOEdwadKN\n",
-    }
+    # body = {
+    #     "uid": "value1\n",
+    #     "mid": "value2\n",
+    #     "size": "HELLO\n",
+    #     "token": "TOEdwadKN\n",
+    # }
 
-    # Get IP and Port
-    response = requests.post(url, headers=headers, json=body)
-    data = response.json()
-    ip = data["ip"]
-    port = data["port"]
+    # # Get IP and Port
+    # response = requests.post(url, headers=headers, json=body)
+    # data = response.json()
+    # ip = data["ip"]
+    # port = data["port"]
+    ip = "localhost"
+    port = 8002
 
     print("IP: ", ip)
     print("Port: ", port)
