@@ -2,7 +2,7 @@
   import Router from "svelte-spa-router";
   import routes from "./routes/routes";
   import Sidebar from "./components/Sidebar.svelte";
-  import { cuda } from "./stores/processing";
+  import { cuda, loadState } from "./stores/processing";
 
   import toast, { Toaster } from 'svelte-french-toast';
   import { onMount } from 'svelte';
@@ -28,6 +28,11 @@
         duration: 5000,
         position: 'top-center',
       });
+    });
+
+    // Listen for state changes from Electron main process
+    window.electronAPI.onProcessChanged(async () => {
+        await loadState();
     });
 
     // call cuda-check and console.log

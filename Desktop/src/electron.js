@@ -159,6 +159,7 @@ function updateState(updates) {
     const newState = { ...currentState, ...updates };
     console.log('Updated state:', newState);
     store.set('appProcessing', newState);
+    mainWindow.webContents.send('process-changed'); // Notify renderer about state change
     return newState;
 }
 

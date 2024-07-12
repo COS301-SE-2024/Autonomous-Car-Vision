@@ -49,7 +49,9 @@
 
   // Subscribe to remote processing queue
   remoteProcessingQueue.subscribe((value) => {
-    let remoteQueue = get(remoteProcessingQueue);
+    let remoteQueue = value;
+
+    remoteProcessingQueueList = [];
 
     // Get video urls from the remote processing queue
     remoteQueue.forEach((detail) => {
