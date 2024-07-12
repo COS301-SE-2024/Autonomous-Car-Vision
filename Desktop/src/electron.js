@@ -145,7 +145,7 @@ ipcMain.on('clear-uemail', (event) => {
 });
 
 ipcMain.on('load-store-process', (event) => {
-    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
     event.returnValue = storeData;
 });
 
@@ -155,7 +155,7 @@ ipcMain.handle('save-store-process', async (event, state) => {
 
 // Helper function to update the store state
 function updateState(updates) {
-    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
     const newState = { ...currentState, ...updates };
     console.log('Updated state:', newState);
     store.set('appProcessing', newState);
@@ -369,11 +369,11 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 // Function to process the queue
 async function processQueue() {
     console.log("In process -----------------------------------------------");
-    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
+    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
     if (processing || processingQueue.length === 0) return;
 
     const nextVideo = processingQueue.shift();
-    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
 
     try {
         //call the run-python-script IPC handler
@@ -384,23 +384,66 @@ async function processQueue() {
             nextVideo.modelPath,
         ]);
         console.log("Python Script Output:", output);
-        const { cuda, localProcess, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
-        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+        const { cuda, localProcess, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
         processQueue(); // Process the next video in the queue
     } catch (error) {
         console.error("Python Script Error:", error);
-        updateState({ processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue });
+        updateState({ processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
     }
 }
 
 // IPC handler to queue a video for processing
 ipcMain.handle('queue-video', async (event, videoDetails) => {
+    // fetch localProcess from videoDetails
+    let local = videoDetails.localProcess;
     console.log('Video Details being added:', videoDetails);
-    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [] });
-    processingQueue.push(videoDetails);
-    updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue });
-    processQueue();
+    if (local) {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        processingQueue.push(videoDetails);
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        processQueue();
+    } else {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        remoteProcessingQueue.push(videoDetails);
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        // Process video remotely
+        processVideoRemotely(videoDetails);
+    }
+    
 });
+
+// Function to process video remotely
+async function processVideoRemotely(videoDetails) {
+    // TODO: Implement remote processing
+    console.log('Processing video remotely:', videoDetails);
+    // Function should return success or failure
+    // Either add listner for when the video is done processing or return a promise
+    // If the process was unsuccessful, return false and notify user of failure
+    // After notifying user, remove from local database because it is already there
+    // Once done, failure of success, remove from remoteProcessingQueue
+    // Notify user on success
+    // mainWindow.webContents.send('python-script-done', 'Video done processing');
+
+    // INFO: This is a placeholder function for remote processing, above steps
+    // the video path will already be added to the local data base
+    // but the user will not be able to view it until it is processed
+    // this is only to show that the video is being processed
+    // so the video has to be removed from the database if the processing fails
+
+    // To remove use:
+    // removeVideo(videoDetails.outputVideoPath);
+
+    // Wait for 15 seconds then remove the video details from the remote processing queue
+    setTimeout(() => {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        const index = remoteProcessingQueue.findIndex(video => video.outputVideoPath === videoDetails.outputVideoPath);
+        if (index !== -1) {
+            remoteProcessingQueue.splice(index, 1);
+            updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        }
+    }, 15000);
+}
 
 // Function to run a python script with set parameters
 function runPythonScript(scriptPath, args) {
@@ -624,3 +667,8 @@ ipcMain.handle('getProcessedVideos', async (event, originalVidID) => {
       return null;
     }
   });
+
+  // Function to remove video from VideoTable
+function removeVideo(videoUrl) {
+    return VideoTable.destroy({ where: { videoURL: videoUrl } });
+  }

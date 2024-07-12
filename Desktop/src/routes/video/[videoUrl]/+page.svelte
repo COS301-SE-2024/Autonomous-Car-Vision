@@ -12,6 +12,7 @@
   import {
     processing,
     videoUrl,
+    localProcess,
     originalVideoURL,
     processingQueue,
     loadState,
@@ -175,6 +176,7 @@
         videoPath,
         outputVideoPath,
         modelPath: modelsPath,
+        localProcess: get(localProcess),
       };
     
       setInterval(() => {
@@ -200,6 +202,7 @@
         const existingProcessedVideo =
           await window.electronAPI.getVideoByURL(processedVideoURL);
 
+        // Video added to the local database
         if (!existingProcessedVideo) {
           const newProcessedVideo = {
             label: modelName,
@@ -211,7 +214,7 @@
           await window.electronAPI.addVideo(newProcessedVideo);
         } else {
           console.log(
-            "Processed video already exists in the database and will not be added again."
+            "Processed video already exists in the database, video will be reprocessed."
           );
         }
       } else {

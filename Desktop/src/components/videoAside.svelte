@@ -9,16 +9,34 @@
     processing,
     originalVideoURL,
     videoUrl,
+    remoteProcessingQueue,
   } from "../stores/processing";
+  import { each } from "svelte/internal";
 
   export let AIinfo;
 
   let currrentVideoUrl;
   let mounting = true;
+  let remoteProcessingQueueList = [];
 
   onMount(async () => {
     await loadState();
     currrentVideoUrl = get(videoUrl);
+
+    let remoteQueue = get(remoteProcessingQueue);
+
+    // Get video urls from the remote processing queue
+    remoteQueue.forEach((detail) => {
+      remoteProcessingQueueList.push(detail.outputVideoPath);
+    });
+
+    console.log("Remote Queue", remoteProcessingQueueList);
+
+    if (remoteProcessingQueueList.includes(AIinfo.mURL)) {
+  console.log('The list contains the URL.');
+} else {
+  console.log('The list does not contain the URL.');
+}
 
     mounting = false;
   });
@@ -28,6 +46,16 @@
   function selectVideo() {
     dispatch("select", AIinfo.mURL);
   }
+
+  // Subscribe to remote processing queue
+  remoteProcessingQueue.subscribe((value) => {
+    let remoteQueue = get(remoteProcessingQueue);
+
+    // Get video urls from the remote processing queue
+    remoteQueue.forEach((detail) => {
+      remoteProcessingQueueList.push(detail.outputVideoPath);
+    });
+  });
 </script>
 
 <div class="component">
@@ -49,9 +77,18 @@
         </div> -->
     {#if mounting == false}
       {#if AIinfo.mURL != currrentVideoUrl}
-        <button class="rounded border viewButton" on:click={selectVideo}
-          >View</button
-        >
+        {#if remoteProcessingQueueList.includes(AIinfo.mURL)}
+          <div
+            class="flex flex-col justify-center items-center flex-nowrap"
+            style="aspect-ratio: 14/7"
+          >
+            <QuantamLoader />
+          </div>
+        {:else}
+          <button class="rounded border viewButton" on:click={selectVideo}
+            >View</button
+          >
+        {/if}
       {:else}
         <div
           class="flex flex-col justify-center items-center flex-nowrap"

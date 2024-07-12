@@ -7,6 +7,7 @@ export const localProcess = writable(false);
 export const videoUrl = writable('');
 export const originalVideoURL = writable('');
 export const processingQueue = writable([]);
+export const remoteProcessingQueue = writable([]);
 
 let isStateLoaded = false;
 
@@ -19,6 +20,7 @@ export async function loadState() {
     videoUrl.set(store.videoUrl);
     originalVideoURL.set(store.originalVideoURL);
     processingQueue.set(store.processingQueue);
+    remoteProcessingQueue.set(store.remoteProcessingQueue);
     isStateLoaded = true;
 }
 
@@ -39,7 +41,8 @@ processing.subscribe(value => {
             localProcess: get(localProcess),
             videoUrl: get(videoUrl),
             originalVideoURL: get(originalVideoURL),
-            processingQueue: get(processingQueue)
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: get(remoteProcessingQueue),
         });
     }
 });
@@ -52,7 +55,8 @@ cuda.subscribe(value => {
             localProcess: get(localProcess),
             videoUrl: get(videoUrl),
             originalVideoURL: get(originalVideoURL),
-            processingQueue: get(processingQueue)
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: get(remoteProcessingQueue),
         });
     }
 });
@@ -65,7 +69,8 @@ localProcess.subscribe(value => {
             localProcess: value,
             videoUrl: get(videoUrl),
             originalVideoURL: get(originalVideoURL),
-            processingQueue: get(processingQueue)
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: get(remoteProcessingQueue),
         });
     }
 });
@@ -78,7 +83,8 @@ videoUrl.subscribe(value => {
             localProcess: get(localProcess),
             videoUrl: value,
             originalVideoURL: get(originalVideoURL),
-            processingQueue: get(processingQueue)
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: get(remoteProcessingQueue),
         });
     }
 });
@@ -91,7 +97,8 @@ processingQueue.subscribe(value => {
             localProcess: get(localProcess),
             videoUrl: get(videoUrl),
             originalVideoURL: get(originalVideoURL),
-            processingQueue: value
+            processingQueue: value,
+            remoteProcessingQueue: get(remoteProcessingQueue),
         });
     }
 });
@@ -104,7 +111,22 @@ originalVideoURL.subscribe(value => {
             localProcess: get(localProcess),
             videoUrl: get(videoUrl),
             originalVideoURL: value,
-            processingQueue: get(processingQueue)
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: get(remoteProcessingQueue),
+        });
+    }
+});
+
+remoteProcessingQueue.subscribe(value => {
+    if (isStateLoaded) { // Only save if the state has been loaded
+        saveState({
+            processing: get(processing),
+            cuda: get(cuda),
+            localProcess: get(localProcess),
+            videoUrl: get(videoUrl),
+            originalVideoURL: get(originalVideoURL),
+            processingQueue: get(processingQueue),
+            remoteProcessingQueue: value,
         });
     }
 });
