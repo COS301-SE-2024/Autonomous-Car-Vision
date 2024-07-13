@@ -5,7 +5,7 @@
   import { VideoURL } from "../stores/video";
   import { writable } from "svelte/store";
   import { mdiDownload, mdiPlayCircle } from "@mdi/js";
-  import { Icon } from "svelte-materialify";
+  import { Icon, Tooltip } from "svelte-materialify";
 
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
@@ -20,6 +20,9 @@
   let firstFrameURL = "";
   let isDownloading = false;
 
+  let showTT = false;
+  let processed = true;
+
   const handleDownload = async (event) => {
     event.stopPropagation();
     // isDownloading.set(true);
@@ -27,7 +30,7 @@
     try {
       const response = await window.electronAPI.downloadVideo(
         VideoName,
-        VideoSource
+        VideoSource,
       );
       console.log(response.success, response.filePath);
     } catch (error) {}
@@ -97,7 +100,7 @@
       try {
         const response = await window.electronAPI.getVideoFrame(
           VideoSource,
-          VideoName
+          VideoName,
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
@@ -106,7 +109,7 @@
     }
     setInterval(() => {
       isGalLoading = false;
-    }, 3000);
+    }, 1500);
   });
 </script>
 
@@ -150,17 +153,56 @@
           </div>
         {/if}
       </div>
+      <div class="TT-positioning">
+        <Tooltip left bind:active={showTT}>
+          <div
+            class="processed-info"
+            style={processed
+              ? "background-color: green;"
+              : "background-color: red;"}
+          ></div>
+          <span slot="tip">
+            {#if processed}
+              Processed
+            {:else}
+              Unprocessed
+            {/if}
+          </span>
+        </Tooltip>
+      </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
+      <p
+        class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText"
+      >
+        {VideoName}
+      </p>
       <div id="playbtn">
-        <Icon class="text-dark-secondary" path={mdiPlayCircle} size={40} on:click={goToVideo} />
+        <Icon
+          class="text-dark-secondary"
+          path={mdiPlayCircle}
+          size={40}
+          on:click={goToVideo}
+        />
       </div>
     </div>
   {/if}
 </div>
 
 <style>
+  .TT-positioning {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+  }
+
+  .processed-info {
+    width: 12px;
+    height: 12px;
+    color: white;
+    border-radius: 50%;
+  }
+
   .notDownloaded {
     filter: grayscale(100%);
     cursor: pointer;
