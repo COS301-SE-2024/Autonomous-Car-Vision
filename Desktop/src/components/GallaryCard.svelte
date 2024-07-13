@@ -4,7 +4,7 @@
   import PingLoader from "../components/PingLoader.svelte";
   import { VideoURL } from "../stores/video";
   import { writable } from "svelte/store";
-  import { mdiDownload } from "@mdi/js";
+  import { mdiDownload, mdiPlayCircle } from "@mdi/js";
   import { Icon } from "svelte-materialify";
 
   // import { isDownloading } from "../stores/loading";
@@ -153,20 +153,12 @@
     </div>
     <div class="details p-2">
       <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
+      <div id="playbtn">
+        <Icon class="text-dark-secondary" path={mdiPlayCircle} size={40} on:click={goToVideo} />
+      </div>
     </div>
   {/if}
 </div>
-
-{#if showMoreModal && isDownloaded}
-  <div>
-    <GallaryMore
-      imgSource={firstFrameURL}
-      videoSource={VideoSource}
-      videoName={VideoName}
-      on:close={handleBack}
-    />
-  </div>
-{/if}
 
 <style>
   .notDownloaded {
@@ -177,5 +169,16 @@
 
   .cursor-default {
     cursor: default;
+  }
+
+  .details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  #playbtn {
+    height: fit-content;
+    cursor: pointer;
   }
 </style>

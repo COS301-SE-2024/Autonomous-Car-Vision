@@ -120,7 +120,7 @@
             <option value="Model Name">Model Name</option>
         </select>
       </div>
-        <div class="grid grid-flow-row-dense grid-cols-3 items-center w-full ">
+        <div class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full ">
         
         {#each filteredItems as url,index} 
             <GallaryCard VideoSource={url} VideoName={videoNames[index]} isDownloaded={downloadedStatuses[index]}/>
