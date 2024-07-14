@@ -3,6 +3,7 @@ import socket
 import os
 import requests
 import json
+import multiprocessing
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
@@ -70,12 +71,6 @@ async def startup_event():
 @app.get("/install")
 async def install():
     async with httpx.AsyncClient() as client:
-        # # get my agent details
-        # response = await client.get('http://127.0.0.1:8006/agent')
-        # if response.status_code != 200:
-        #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
-        # print("Response:", response.json())
-
         # encrypt my public ecd key
         init_elyptic = cerberus.elyptic(True)
         agent_public = init_elyptic["public"]
@@ -148,8 +143,8 @@ async def install():
 
 def findOpenPort():
     port = 8002
+    ip = socket.gethostbyname(socket.gethostname())
     ip = "127.0.0.1"
-    # ip = socket.gethostbyname(socket.gethostname())
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
@@ -171,6 +166,7 @@ def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
         return data.decode()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((ip, port))
         s.listen()
         print(f"Server started and listening on {ip}:{port}")
@@ -251,6 +247,8 @@ async def startupFTPListener(background_tasks: BackgroundTasks, request: Request
     size = "STUMPED"
     utoken = "STUMPED"
     background_tasks.add_task(startFTP, ip, port, aid, size, utoken)
+    # process = multiprocessing.Process(target=startFTP, args=(ip, port, aid, size, utoken))
+    # process.start()
     return {"aip": ip, "aport": port}
 
 
@@ -276,3 +274,9 @@ async def listen(request: Request):
     message = await request.json()
     print(message)
     return {"message": "ill start listening thanks"}
+
+
+# if __name__ == "__main__":
+#     multiprocessing.freeze_support()
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8001)
