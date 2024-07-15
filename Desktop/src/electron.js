@@ -53,9 +53,9 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) { }
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) { }
 
 // handler for token storing
 
@@ -64,20 +64,20 @@ let store;
 // Get app path
 ipcMain.handle('get-app-path', () => {
     return app.getAppPath();
-  });
+});
 
-  // Read directory handler
-  ipcMain.handle('read-directory', async (event, directoryPath) => {
+// Read directory handler
+ipcMain.handle('read-directory', async (event, directoryPath) => {
     return new Promise((resolve, reject) => {
-      fs.readdir(directoryPath, (err, files) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(files);
-        }
-      });
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(files);
+            }
+        });
     });
-  });
+});
 
 //! token
 ipcMain.on('store-token', (event, token) => {
@@ -381,38 +381,38 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, mid, size, token, command) => {
     const scriptPath = 'src/routes/pythonUpload.py';  // Ensure this is the correct path to your Python script
     const args = [ip, port, filepath, uid, mid, size, token, command];
-  
+
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
-      const python = spawn('python', [scriptPath, ...args]);  // Use 'python3' or 'python' depending on your environment
-  
-      console.log("Script path: " + scriptPath);
-      console.log("Args: " + args.join(" "));
-  
-      let output = '';
-      let error = '';
-  
-      python.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-  
-      python.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-  
-      python.on('close', (code) => {
-        if (code === 0) {
-          resolve(output);
-        } else {
-          reject(new Error(error));
-        }
-      });
+        const python = spawn('python', [scriptPath, ...args]);  // Use 'python3' or 'python' depending on your environment
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
     });
-  });
+});
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
     return path.resolve(...segments);
-  });
+});
 
 // IPC handler to check if a video file exists
 ipcMain.handle('check-file-existence', async (event, filePath) => {
@@ -469,15 +469,15 @@ ipcMain.handle('delete-video-file', async (event, filePath) => {
 
 ipcMain.handle('get-video-frame', async (event, videoPath) => {
     const videoName = path.basename(videoPath, path.extname(videoPath));
-        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+    const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
 
-        // Checking if the frames are already generated
-        const frameFiles = fs.readdirSync(outputDir);
-        if (frameFiles.length > 0) {
-            console.log('Frames already exist for:', videoPath);
-            const framePaths = frameFiles.map(file => path.join(outputDir, file));
-            return framePaths;
-        }
+    // Checking if the frames are already generated
+    const frameFiles = fs.readdirSync(outputDir);
+    if (frameFiles.length > 0) {
+        console.log('Frames already exist for:', videoPath);
+        const framePaths = frameFiles.map(file => path.join(outputDir, file));
+        return framePaths;
+    }
 });
 
 // IPC handler to move a video file from the Deleted folder to the Downloads folder
@@ -485,7 +485,7 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
     try {
         const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
         const videoFilePath = path.join(deletedDir, `${videoName}`);
-        
+
         if (!fs.existsSync(videoFilePath)) {
             return { success: false, error: 'Video file does not exist' };
         }
@@ -522,13 +522,17 @@ ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
         const appDataPath = app.getPath('userData');
         const downloadsDir = path.join(appDataPath, 'Downloads');
         const destFile = path.join(downloadsDir, destFileName);
-  
-      fs.renameSync(sourcePath, destFile, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(`File moved to ${destFile}`);
-        }
-      });
+
+        console.log("MOVE VIDEO PATH: ", sourcePath);
+        console.log("MOVE downloadsDir PATH: ", downloadsDir);
+        console.log("MOVE Dest PATH: ", destFile);
+
+          fs.renameSync(sourcePath, destFile, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(`File moved to ${destFile}`);
+            }
+          });
     });
-  });
+});
