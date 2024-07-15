@@ -516,3 +516,19 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
+
+ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
+    return new Promise((resolve, reject) => {
+        const appDataPath = app.getPath('userData');
+        const downloadsDir = path.join(appDataPath, 'Downloads');
+        const destFile = path.join(downloadsDir, destFileName);
+  
+      fs.renameSync(sourcePath, destFile, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(`File moved to ${destFile}`);
+        }
+      });
+    });
+  });

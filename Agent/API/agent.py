@@ -144,7 +144,7 @@ async def install():
 def findOpenPort():
     port = 8002
     ip = socket.gethostbyname(socket.gethostname())
-    ip = "127.0.0.1"
+    # ip = "127.0.0.1"
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))

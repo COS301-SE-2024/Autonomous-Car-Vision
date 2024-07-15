@@ -72,6 +72,12 @@
 
     await window.electronAPI.uploadToAgent(aip, aport, VideoName, uid, mid, size, token, command);
 
+    // move the video to the download folder
+    currentFilePath = '../../' + VideoName;
+    console.log("Current File Path: ", currentFilePath);
+
+    await window.electronAPI.moveVideo(currentFilePath, VideoName);
+
     try {
       const response = await window.electronAPI.downloadVideo(
         VideoName,

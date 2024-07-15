@@ -44,4 +44,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
     downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
     getAIModels: () => ipcRenderer.invoke('get-ai-models'),
+    moveVideo: (sourcePath, destFileName) => ipcRenderer.invoke('move-video', sourcePath, destFileName), 
   });
