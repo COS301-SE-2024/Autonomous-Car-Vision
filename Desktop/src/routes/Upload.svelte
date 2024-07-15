@@ -10,6 +10,7 @@
 
   import { isUploadLoading } from "../stores/uploadLoading";
   import RingLoader from "../components/RingLoader.svelte";
+  import axios from "axios";
 
   export let videoSource = "";
   let filename = "";
@@ -42,6 +43,33 @@
     });
   }
 
+  async function saveVideoToServer() {
+    let url = "http://localhost:8000/uploadFile/";
+    let response = '';
+    let error = '';
+      const postData = {
+        uid: window.electronAPI.getUid(),
+        token: "TOKEN",
+        aid: "8",
+        size: "10",
+        utoken: "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF1UHc3T255U011V1BreXkwTnJWTApOa0taNzBEU2xWajdpWXVSd1FiTnR4RVFDc2Nrb1BWMzgzaDcyY3lmKzZuZW5MK05WYmpHeGJaMjhoMXgybjl6Cko5ZFRLa1VkaDE2UCsvSlY2VW5oR1lwTmYxY01ubjYzUy9RMWZsVnNxTDVaZ3VpcXRpbHJkZ2ZaRE4yODAwVFcKblVRbXNqQzV5SzJITXBrbHU0bi9ZN2ZTY0ZwYnpGdzJMY1hTVlZaRUZuaWpSY1lXR0ZLS2FPL0JwNGNDV2dkcwpWQ25mcmJDeHM2MGZ5cDR2SzBnWmVpTmEzcXJUaThXN3F3aDNpR2hzYWw1ZmZNOWhQaUJlaXc2bGtQWnYyUTJMCmhFUVhIcVBUMFNtay9BSW1tb1dwVUZCYW9maTd0LzB1L2V4Ylg5MHJpb2kzR1RxMTYzYmd3VnFEMTV4MWQzRHQKeVFJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg"
+      };
+
+      try {
+      const res = await axios.post(url, postData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      response = res.data;
+      return response;
+    } catch (e) {
+      error = e.response ? `Error: ${e.response.status} - ${e.response.statusText}` : 'An error occurred';
+      console.error(error);
+      throw new Error(error);
+    }
+  }
+
   const saveVideo = async () => {
     if (!videoSource) {
       toast.error("Upload a video file to get started", {
@@ -54,10 +82,31 @@
 
     // isUploadLoading.set(true);
     isUploading = true;
-    setInterval(() => {
+    setInterval(async () => {
       // isUploadLoading.set(true);
       isUploading = false;
-    }, 6000);
+      }, 6000);
+    
+
+    let response;
+    try {
+      response = await saveVideoToServer();
+    } catch (error) {
+      console.error("Failed to save video to server:", error);
+      return;
+    }
+
+    const { aip, aport } = response;
+    console.log(`IP: ${aip}, Port: ${aport}`);
+
+    let uid = window.electronAPI.getUid();
+    let mid = "1";
+    let size = "10";
+    let token = "TOKEN"
+    let command = "SEND"
+
+    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, mid, size, token, command);
+
     try {
       // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
@@ -65,7 +114,6 @@
         mname: filename,
         localurl: videoSource,
       };
-
       // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
       console.log("resp1", response1);
@@ -83,6 +131,7 @@
       // sleep for 5 seconds
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
+
       console.log("TESTING SAVE before IF");
 
       if (response2.success) {
@@ -91,6 +140,7 @@
         const token = window.electronAPI.getToken();
 
         console.log($location);
+
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }
