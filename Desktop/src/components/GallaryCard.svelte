@@ -95,7 +95,7 @@
   onMount(async () => {
     isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
-    console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
+    // console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
     if (!isDownloaded) {
       try {
         const response = await window.electronAPI.getVideoFrame(
