@@ -29,7 +29,7 @@ class TokenSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ["id", "uid", "mid", "media_name", "media_url"]
+        fields = ["id", "uid", "media_id", "media_name", "media_url", "aid"]
 
     def get_media_url(self, obj):
         request = self.context.get("request")

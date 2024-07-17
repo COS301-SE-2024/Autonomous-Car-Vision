@@ -731,6 +731,22 @@ def uploadFile(request):
     data = response.json()
     print(response.status_code)
     print(response.json())
+    
+    #! insert into media table
+    #TODO Must fix this, then ip and other issues will fix too
+    media_data = {
+        "uid": uid,
+        "media_id": "2",
+        "media_name": "funnyvideo.mp4",
+        "media_url": "media/funnyvideo.mp4",
+        "aid": "8",
+    }
+    
+    media_serializer = MediaSerializer(data=media_data, context={'request': request})
+    if media_serializer.is_valid():
+        media_serializer.save()
+    else:
+        return Response(media_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(
         {"aip": data["aip"], "aport": data["aport"]}, status=status.HTTP_200_OK
