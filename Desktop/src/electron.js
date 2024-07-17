@@ -3,12 +3,12 @@ const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
 const { LookupTable, AIModels } = require('./database');
-const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
+const axios = require('axios');
 
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
@@ -378,7 +378,7 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
     });
 });
 
-ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, command, mname) => {
+ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
     const scriptPath = 'src/routes/pythonUpload.py';  // Ensure this is the correct path to your Python script
     const rec = await LookupTable.create({
         mname: mname,
@@ -386,10 +386,8 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         size: size,
         uid: uid,
     });
-    const mid = rec.mid;
-
-
-    const args = [ip, port, filepath, uid, mid, size, token, command];
+    // const mid = rec.mid;
+    const args = [ip, port, filepath, uid, size, token];
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
@@ -545,3 +543,43 @@ ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
           });
     });
 });
+
+ipcMain.handle('open-ftp', async (event, uid, token, size) => {
+    const formData = new FormData();
+    formData.append('uid', uid);
+    formData.append('token', token);
+    formData.append('size', size);
+
+    try {
+        const response = await axios.post('http://localhost:8000/uploadFile/', formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
+
+        console.log('Upload response:', response.data); // Log response for debugging
+        
+        // Extract IP and port from the response
+        const { aip, aport } = response.data;
+        
+        return { success: true, ip: aip, port: aport };
+    } catch (error) {
+        console.error('Error in FTP upload:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('get-file-size', (event, filePath) => {
+    try {
+      const stats = fs.Stats(filePath);
+      console.log('File stats:', stats);
+      let fileSize = stats.size;
+    //   convert to string 
+        return fileSize.toString();
+    //   return stats.size;
+    } catch (error) {
+      console.error('Error getting file size:', error);
+      return null;
+    }
+  });
+  

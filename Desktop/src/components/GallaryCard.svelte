@@ -53,21 +53,16 @@
     // isDownloading.set(true);
     isDownloading = true;
 
-    let response;
-    try {
-      response = await saveVideoToServer();
-    } catch (error) {
-      console.error("Failed to save video to server:", error);
-      return;
-    }
+    let uid = window.electronAPI.getUid();
+    let token = window.electronAPI.getToken();
+    let size = "10";
+
+    let response = await window.electronAPI.openFTP(uid, token, size);
 
     const { aip, aport } = response;
     console.log(`IP: ${aip}, Port: ${aport}`);
 
-    let uid = window.electronAPI.getUid();
     let mid = "1";
-    let size = "10";
-    let token = "TOKEN"
     let command = "RETR"
 
     await window.electronAPI.uploadToAgent(aip, aport, VideoName, uid, mid, size, token, command);

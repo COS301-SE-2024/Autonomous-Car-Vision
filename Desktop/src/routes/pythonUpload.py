@@ -3,7 +3,7 @@ import os
 import json
 import sys
 
-def send_file(ip, port, filepath, uid, mid, size, token):
+def send_file(ip, port, filepath, uid, size, token):
     filename = os.path.basename(filepath)
     print("File name: ", filename)
 
@@ -12,7 +12,6 @@ def send_file(ip, port, filepath, uid, mid, size, token):
 
         data = {
             "uid": uid,
-            "mid": mid,
             "size": size,
             "token": token,
             "command": "SEND",
@@ -31,7 +30,7 @@ def send_file(ip, port, filepath, uid, mid, size, token):
                 s.sendall(data)
         print(f"File {filename} sent successfully.")
 
-def receive_file(ip, port, filename, uid, mid, size, token):
+def receive_file(ip, port, filename, uid, size, token):
     print("File name: ", filename)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -39,7 +38,6 @@ def receive_file(ip, port, filename, uid, mid, size, token):
 
         data = {
             "uid": uid,
-            "mid": mid,
             "size": size,
             "token": token,
             "command": "RETR",
@@ -61,22 +59,17 @@ def receive_file(ip, port, filename, uid, mid, size, token):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 9:
-        print("Usage: python script.py <ip> <port> <filepath> <uid> <mid> <size> <token> <command>")
+    if len(sys.argv) != 7:
+        print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token>")
         sys.exit(1)
 
     ip = sys.argv[1]
     port = int(sys.argv[2])
     filepath = sys.argv[3]
     uid = sys.argv[4]
-    mid = sys.argv[5]
-    size = sys.argv[6]
-    token = sys.argv[7]
-    command = sys.argv[8]
+    size = sys.argv[5]
+    token = sys.argv[6]
     
-    print(f"{ip} {port} {filepath} {uid} {mid} {size} {token} {command}")
-
-    if(command == "RETR"):
-        receive_file(ip, port, filepath, uid, mid, size, token)
-    elif(command == "SEND"):
-        send_file(ip, port, filepath, uid, mid, size, token)
+    print(f"{ip} {port} {filepath} {uid} {size} {token}")
+    
+    send_file(ip, port, filepath, uid, size, token)

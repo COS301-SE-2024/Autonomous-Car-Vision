@@ -707,25 +707,22 @@ def download(request):
 def uploadFile(request):
     data = request.data
     uid = data.get("uid")
-    token = data.get("token")
+    utoken = data.get("token")
 
     #! Commented for dev purposes
-    # if not token:
-    #     return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    if not utoken:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # try:
-    #     dataToken = Token.objects.get(uid=uid)
-    # except Token.DoesNotExist:
-    #     return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # if dataToken.token != token:
-    #     return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    if dataToken.token != utoken:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-    aid = data.get("aid")
     size = data.get("size")
-    utoken = data.get("utoken")
-
-    message = {"aid": aid, "size": size, "utoken": utoken}
+    message = {"size": size, "uid": uid, "utoken": utoken}
 
     print(message)
 

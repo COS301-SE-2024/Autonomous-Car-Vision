@@ -43,33 +43,6 @@
     });
   }
 
-  async function saveVideoToServer() {
-    let url = "http://localhost:8000/uploadFile/";
-    let response = '';
-    let error = '';
-      const postData = {
-        uid: window.electronAPI.getUid(),
-        token: "TOKEN",
-        aid: "8",
-        size: "10",
-        utoken: "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF1UHc3T255U011V1BreXkwTnJWTApOa0taNzBEU2xWajdpWXVSd1FiTnR4RVFDc2Nrb1BWMzgzaDcyY3lmKzZuZW5MK05WYmpHeGJaMjhoMXgybjl6Cko5ZFRLa1VkaDE2UCsvSlY2VW5oR1lwTmYxY01ubjYzUy9RMWZsVnNxTDVaZ3VpcXRpbHJkZ2ZaRE4yODAwVFcKblVRbXNqQzV5SzJITXBrbHU0bi9ZN2ZTY0ZwYnpGdzJMY1hTVlZaRUZuaWpSY1lXR0ZLS2FPL0JwNGNDV2dkcwpWQ25mcmJDeHM2MGZ5cDR2SzBnWmVpTmEzcXJUaThXN3F3aDNpR2hzYWw1ZmZNOWhQaUJlaXc2bGtQWnYyUTJMCmhFUVhIcVBUMFNtay9BSW1tb1dwVUZCYW9maTd0LzB1L2V4Ylg5MHJpb2kzR1RxMTYzYmd3VnFEMTV4MWQzRHQKeVFJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg"
-      };
-
-      try {
-      const res = await axios.post(url, postData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      response = res.data;
-      return response;
-    } catch (e) {
-      error = e.response ? `Error: ${e.response.status} - ${e.response.statusText}` : 'An error occurred';
-      console.error(error);
-      throw new Error(error);
-    }
-  }
-
   const saveVideo = async () => {
     if (!videoSource) {
       toast.error("Upload a video file to get started", {
@@ -87,25 +60,36 @@
       isUploading = false;
       }, 6000);
     
-
-    let response;
-    try {
-      response = await saveVideoToServer();
-    } catch (error) {
-      console.error("Failed to save video to server:", error);
-      return;
-    }
-
-    const { aip, aport } = response;
-    console.log(`IP: ${aip}, Port: ${aport}`);
-
     let uid = window.electronAPI.getUid();
-    let mid = "1";
-    let size = "10";
-    let token = "TOKEN"
-    let command = "SEND"
+    let token = window.electronAPI.getToken();
+    // let size = "10";
+    // let size = window.electronAPI.getFileSize(file.path);
+    let sizeInBytes = file.size;
+  
+  // Convert size to MB and round to 2 decimal places
+  let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
+    let aip = "";
+    let aport = "";
 
-    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, mid, size, token, command);
+    try {
+    let response = await window.electronAPI.openFTP(uid, token, size);
+    console.log("Response: ", response);
+    
+    if (response.success) {
+        console.log("IP:", response.ip);
+        console.log("Port:", response.port);
+        aip = response.ip;
+        aport = response.port;
+        // You can now use response.ip and response.port as needed
+    } else {
+        console.error("Error:", response.error);
+    }
+} catch (error) {
+    console.error("Error calling openFTP:", error);
+}
+
+
+    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
 
     try {
       // Save the file using the main process
