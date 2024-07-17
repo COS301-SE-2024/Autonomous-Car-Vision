@@ -148,7 +148,8 @@
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 0 ? 'open' : '' }">
                 <p>On the Navigation bar, find and click the Gallery tab:</p>
-                <img src="/public/images/NavBar.png" alt="NavBar" class="screenshots" />
+                <!-- <iframe src="https://drive.google.com/file/d/1R149vbVOIvFrYllmcYnbw1AnQxvIWkc8/preview" width="fit" height="fit" allow="autoplay"></iframe> -->
+                <img src="https://drive.google.com/file/d/1R149vbVOIvFrYllmcYnbw1AnQxvIWkc8/preview" alt="NavBar" class="screenshots" />
             </div>
         </div>
         <!-- svelte-ignore a11y-click-events-have-key-events -->

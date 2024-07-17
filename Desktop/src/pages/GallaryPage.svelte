@@ -142,14 +142,14 @@
           class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg" 
           />
         <!-- TODO: style filter bar-->
-       <select class="bg-theme-dark-secondary  rounded-lg ml-2 p-2  text-lg" 
+       <!-- <select class="bg-theme-dark-secondary  rounded-lg ml-2 p-2  text-lg" 
           on:change={handleSortChange}
           placeholder="Sort...">
              <option value="All">Sort...</option>
              <option value="Name">Name</option>
              <option value="Date">Date</option>
             <option value="Model Name">Model Name</option>
-         </select>
+         </select> -->
       </div>
       {#if $filteredItems.length > 0}
         <div class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full ">

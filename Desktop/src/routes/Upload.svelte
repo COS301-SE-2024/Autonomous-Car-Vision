@@ -129,7 +129,7 @@
         <div class="w-full flex items-center mt-4">
           <span class="flex-grow"></span>
           <button
-            class="bg-theme-dark-backgroundBlue text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            class="bg-theme-dark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
             on:click={saveVideo}
             >Save
           </button>
