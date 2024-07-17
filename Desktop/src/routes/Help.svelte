@@ -63,9 +63,9 @@
         </div>
         <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === index ? 'open' : '' }">
             <p>{topic.details}</p> <br>
-            <!--{#each topic.images as image}
+            {#each topic.images as image}
             <img src={image} alt="screenshot" class="screenshots" />
-            {/each}-->
+            {/each}
         </div>
         </div>
     {/each}
@@ -113,10 +113,10 @@
 
     .screenshots{
         display:block;
-        align-text: center;
+        align-content: center;
         align-items: center;
         justify-content: center;
-        padding-left: 10px
-        
+        padding-left: 10px;
+        align-self: center;
     }
 </style>
