@@ -708,6 +708,9 @@ def uploadFile(request):
     data = request.data
     uid = data.get("uid")
     utoken = data.get("token")
+    mediaName = data.get("media_name")
+    mediaUrl = data.get("media_url")
+    mid = data.get("mid")
 
     #! Commented for dev purposes
     if not utoken:
@@ -736,10 +739,10 @@ def uploadFile(request):
     #TODO Must fix this, then ip and other issues will fix too
     media_data = {
         "uid": uid,
-        "media_id": "2",
-        "media_name": "funnyvideo.mp4",
-        "media_url": "media/funnyvideo.mp4",
-        "aid": "8",
+        "media_id": mid,
+        "media_name": mediaName,
+        "media_url": mediaUrl,
+        "aid": response.json()["aid"],
     }
     
     media_serializer = MediaSerializer(data=media_data, context={'request': request})

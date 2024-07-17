@@ -243,13 +243,13 @@ async def startupFTPListener(background_tasks: BackgroundTasks, request: Request
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
-    aid = "STUMPED"
+    aid = os.getenv("AID")
     size = "STUMPED"
     utoken = "STUMPED"
     background_tasks.add_task(startFTP, ip, port, aid, size, utoken)
     # process = multiprocessing.Process(target=startFTP, args=(ip, port, aid, size, utoken))
     # process.start()
-    return {"aip": ip, "aport": port}
+    return {"aip": ip, "aport": port, "aid": aid}
 
 
 

@@ -575,11 +575,23 @@ ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
     });
 });
 
-ipcMain.handle('open-ftp', async (event, uid, token, size) => {
+ipcMain.handle('open-ftp', async (event, uid, token, size, media_name, media_url, command) => {
+        const rec = await LookupTable.create({
+            mname: media_name,
+            localurl: media_url,
+            size: size,
+            uid: uid,
+        });
+
+    let mid = rec.mid;
+    
     const formData = new FormData();
     formData.append('uid', uid);
     formData.append('token', token);
     formData.append('size', size);
+    formData.append('media_name', media_name);
+    formData.append('media_url', media_url);
+    formData.append('mid', mid);
 
     try {
         const response = await axios.post('http://localhost:8000/uploadFile/', formData, {

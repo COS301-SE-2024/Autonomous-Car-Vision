@@ -46,6 +46,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
     getAIModels: () => ipcRenderer.invoke('get-ai-models'),
     moveVideo: (sourcePath, destFileName) => ipcRenderer.invoke('move-video', sourcePath, destFileName), 
-    openFTP: (event, uid, token, size) => ipcRenderer.invoke('open-ftp', event, uid, token, size),
+    openFTP: (event, uid, token, size, media_name, media_url, command) => ipcRenderer.invoke('open-ftp', event, uid, token, size, media_name, media_url, command),
     getFileSize: (filePath) => ipcRenderer.invoke('get-file-size', filePath),
   });

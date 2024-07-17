@@ -70,9 +70,9 @@
   let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
     let aip = "";
     let aport = "";
-
+      let command = "SEND";
     try {
-    let response = await window.electronAPI.openFTP(uid, token, size);
+    let response = await window.electronAPI.openFTP(uid, token, size, filename, file.path, command);
     console.log("Response: ", response);
     
     if (response.success) {
