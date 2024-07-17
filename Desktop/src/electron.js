@@ -416,6 +416,37 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         });
     });
 });
+    
+ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
+    const scriptPath = 'src/routes/pythonDownload.py';  // Ensure this is the correct path to your Python script
+    const args = [ip, port, filepath, uid, size, token];
+
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]);  // Use 'python3' or 'python' depending on your environment
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+        let output = '';
+        let error = '';
+            
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
+    });
+});
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
     return path.resolve(...segments);
@@ -582,4 +613,3 @@ ipcMain.handle('get-file-size', (event, filePath) => {
       return null;
     }
   });
-  
