@@ -148,7 +148,7 @@
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 0 ? 'open' : '' }">
                 <p>On the Navigation bar, find and click the Gallery tab:</p>
-                <img src="/images/NavBar.png" alt="NavBar" class="screenshots" />
+                <img src="/public/images/NavBar.png" alt="NavBar" class="screenshots" />
             </div>
         </div>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -162,7 +162,7 @@
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 1 ? 'open' : '' }">
                 <p>Access the Gallery page. Click on a video of your choice. If the video is not downloaded on your local machine, the download button will be visible; click on it to download the video from our server. Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.</p>
-                <img src="Documentation/Images/HelpImages/ChosenVideo.png" alt="screenshot" class="screenshots" />
+                <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/develop/Documentation/Images/HelpImages/ChosenVideo.png?raw=true" alt="chosen" class="screenshots" />
             </div>
         </div>
         <div class="topic shadow-md shadow-theme-keith-accenttwo shadow-card-blue">
@@ -267,8 +267,8 @@
         display: block;
         align-items: center;
         justify-content: center;
-        padding-left: 10px;
-        max-width: 100%;
-        height: auto;
+        /* padding-left: 10px; */
+        width: 370px;
+        height: 240px;
     }
 </style>

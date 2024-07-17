@@ -9,6 +9,8 @@ const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
+const express = require('express');
+
 
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
@@ -481,4 +483,23 @@ ipcMain.handle('get-ai-models', async () => {
         console.error('Failed to fetch AI models:', error);
         return { success: false, error: error.message };
     }
+});
+
+const server = express();
+const PORT = 3000;
+
+server.use((req, res, next) => {
+    const type = mime.getType(req.path);
+    if (type) {
+        res.setHeader('Content-Type', type);
+    }
+    next();
+});
+
+// Serve static files from the "public" directory
+server.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback to index.html for single-page applications
+server.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
