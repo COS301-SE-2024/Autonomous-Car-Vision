@@ -378,8 +378,17 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
     });
 });
 
-ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, mid, size, token, command) => {
+ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, command, mname) => {
     const scriptPath = 'src/routes/pythonUpload.py';  // Ensure this is the correct path to your Python script
+    const rec = await LookupTable.create({
+        mname: mname,
+        localurl: filepath,
+        size: size,
+        uid: uid,
+    });
+    const mid = rec.mid;
+
+
     const args = [ip, port, filepath, uid, mid, size, token, command];
 
     return new Promise((resolve, reject) => {
