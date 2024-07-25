@@ -117,11 +117,11 @@
 <div
   class="{isDownloaded
     ? 'cursor-default'
-    : 'notDownloaded'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'notDownloaded'} background-card shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
 >
   {#if isGalLoading}
-    <div class="flex justify-center items-center h-56">
+    <div class="flex justify-center items-center h-64">
       <div class="flex justify-center">
         <PingLoader />
       </div>
@@ -132,7 +132,7 @@
       <img
         src={firstFrameURL}
         alt="video preview"
-        class="h-52 w-full object-cover rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        class="h-64 w-full object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
       />
       <div
         class="{isDownloaded
@@ -222,5 +222,9 @@
   #playbtn {
     height: fit-content;
     cursor: pointer;
+  }
+
+  .background-card {
+    background-color: #01243150;
   }
 </style>
