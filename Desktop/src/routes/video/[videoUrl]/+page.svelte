@@ -4,6 +4,7 @@
   import { writable, get } from "svelte/store";
 
   import { VideoURL } from "../../../stores/video";
+  import { OriginalVideoURL } from "../../../stores/video";
 
   import { onMount } from "svelte";
 
@@ -165,7 +166,6 @@
   async function processVideo(event) {
     modelName = event.detail.modelName;
     showProcessPopup = false;
-    // isLoading.set(true);
     try {
       await getVideoDetails();
 
@@ -178,12 +178,12 @@
         modelPath: modelsPath,
         localProcess: get(localProcess),
       };
-    
+
       setInterval(() => {
         isLoading.set(false);
       }, 15000);
       showModelList.set(true);
-    
+
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
 
       toast.success("Video queued for processing", {
@@ -279,7 +279,7 @@
           style="aspect-ratio: 16/9"
         >
           <QuantamLoader />
-          
+
         </div>
       {:else}
         <ViewVideoComponent videoPath={$location} />

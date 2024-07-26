@@ -54,6 +54,7 @@
 {#if mounted}
   <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
     <div
+        class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
       class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
     >
       <div class="flex flex-col boder border-theme-dark-backgroundBlue">
@@ -68,7 +69,7 @@
         >
           {#each models as model}
             <option value={model.model_name}>{model.model_name}</option>
-          {/each}
+          {/each} ▼
         </select>
         {#if hasCuda}
           <select

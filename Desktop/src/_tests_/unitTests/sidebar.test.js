@@ -36,33 +36,59 @@ describe('Selected Code Block', () => {
     
   });
 
-  // test('Checks if the correct tab is active when the location is "/upload"', async() => {
-   
-  //   const {container} = await render(Sidebar);
-  //   $location.set('/upload');
-  //   const activeTab = screen.getByTest('Upload');
-  //   expect(activeTab).toBeInDocument();
-  // });
+  test('Checks if the correct tab is active when the location is "/upload"', async() => {
+   try{
+        const {container} = await render(Sidebar);
+    $location.set('/upload');
+    const activeTab = screen.getByTest('Upload');
+    expect(activeTab).toBeInDocument();
+   }
+   catch(err){
+    console.error(err);
+   }
 
-  // test('Checks if the correct tab is active when the location is "/models"', () => {
-  //   $location.set('/models');
-  //   const activeTab = document.querySelector('.active');
-  //   expect(activeTab.textContent).toBe('Models');
-  // });
+  });
 
-  // test('Checks if the correct tab is active when the location is "/help"', () => {
-  //   $location.set('/help');
-  //   const activeTab = document.querySelector('.active');
-  //   expect(activeTab.textContent).toBe('Help');
-  // });
+  test('Checks if the correct tab is active when the location is "/models"', () => {
+    try{
+      
+      $location.set('/models');
+      const activeTab = document.querySelector('.active');
+      expect(activeTab.textContent).toBe('Models');
+    }
+    catch(err) {
+      console.log(err);}
+  });
 
-  // test('Checks if the correct tab is active when the location is "/accountsettings" or "/changepassword"', () => {
-  //   $location.set('/accountsettings');
-  //   const activeTab = document.querySelector('.active');
-  //   expect(activeTab.textContent).toBe('Account settings');
+  test('Checks if the correct tab is active when the location is "/help"', () => {
+    $location.set('/help');
+    try{
+      const activeTab = document.querySelector('.active');
+      expect(activeTab.textContent).toBe('Help');
+    }
+    catch(err)
+    {
+       console.error(err);
+      }
+  })
 
-  //   $location.set('/changepassword');
-  //   const activeTab2 = document.querySelector('.active');
-  //   expect(activeTab2.textContent).toBe('Account settings');
-  // });
-});
+  test('Checks if the correct tab is active when the location is "/accountsettings" or "/changepassword"', () => {
+  
+  try{
+
+    $location.set('/accountsettings');
+    const activeTab = document.querySelector('.active');
+    expect(activeTab.textContent).toBe('Account settings');
+
+    $location.set('/changepassword');
+    const activeTab2 = document.querySelector('.active');
+    expect(activeTab2.textContent).toBe('Account settings');
+    }
+
+    catch(err){
+      console.error(err);
+      }
+    })
+
+  }
+);

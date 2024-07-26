@@ -4,13 +4,13 @@
   import PingLoader from "../components/PingLoader.svelte";
   import { VideoURL, OriginalVideoURL } from "../stores/video";
   import { writable } from "svelte/store";
-  import { mdiDownload } from "@mdi/js";
   import { Icon } from "svelte-materialify";
   import { originalVideoURL } from "../stores/processing";
   import { get } from 'svelte/store';
-  // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
+  import { mdiDownload, mdiPlayCircle } from "@mdi/js";
+  import { Icon, Tooltip } from "svelte-materialify";
 
   export let VideoSource;
   export let VideoName;
@@ -21,6 +21,9 @@
   let firstFrameURL = "";
   let isDownloading = false;
 
+  let showTT = false;
+  let processed = true;
+
   const handleDownload = async (event) => {
     event.stopPropagation();
     // isDownloading.set(true);
@@ -28,7 +31,7 @@
     try {
       const response = await window.electronAPI.downloadVideo(
         VideoName,
-        VideoSource
+        VideoSource,
       );
       console.log(response.success, response.filePath);
     } catch (error) {}
@@ -93,12 +96,11 @@
   onMount(async () => {
     isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
-    console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
     if (!isDownloaded) {
       try {
         const response = await window.electronAPI.getVideoFrame(
           VideoSource,
-          VideoName
+          VideoName,
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
@@ -107,7 +109,7 @@
     }
     setInterval(() => {
       isGalLoading = false;
-    }, 3000);
+    }, 1500);
   });
 </script>
 
@@ -115,11 +117,11 @@
 <div
   class="{isDownloaded
     ? 'cursor-default'
-    : 'notDownloaded'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'notDownloaded'} background-card shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
 >
   {#if isGalLoading}
-    <div class="flex justify-center items-center h-44">
+    <div class="flex justify-center items-center h-64">
       <div class="flex justify-center">
         <PingLoader />
       </div>
@@ -127,50 +129,80 @@
   {/if}
   {#if !isGalLoading}
     <div class="image-container relative">
-      <!-- style="filter: {!isDownloaded ? 'grayscale(1);' : ''}" add grayscale when notDownloaded current solution doesn't work -->
       <img
         src={firstFrameURL}
         alt="video preview"
-        class="h-40 w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        class="h-64 w-full object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
       />
       <div
         class="{isDownloaded
           ? 'hover:block'
-          : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        style="top:50%; left:50%; transform: translate(-50%, 50%);"
+          : 'hover:hidden'} lg:w-4/12 button-container absolute"
+        style="top:40%; left:50%; transform: translate(-50%, 50%);"
       >
         {#if !isDownloading && !isDownloaded}
           <button
-            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
+            class="more text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
             on:click={handleDownload}
           >
             <Icon path={mdiDownload} size="24" /></button
           >
         {:else if !isDownloaded}
-          <div class="flex justify-center">
+          <div class="flex justify-center relative -top-4">
             <RingLoader />
           </div>
         {/if}
       </div>
+      <div class="TT-positioning">
+        <Tooltip left bind:active={showTT}>
+          <div
+            class="processed-info"
+            style={processed
+              ? "background-color: green;"
+              : "background-color: red;"}
+          ></div>
+          <span slot="tip">
+            {#if processed}
+              Processed
+            {:else}
+              Unprocessed
+            {/if}
+          </span>
+        </Tooltip>
+      </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
+      <p
+        class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText"
+      >
+        {VideoName}
+      </p>
+      <div id="playbtn">
+        <Icon
+          class="text-dark-secondary"
+          path={mdiPlayCircle}
+          size={40}
+          on:click={goToVideo}
+        />
+      </div>
     </div>
   {/if}
 </div>
 
-{#if showMoreModal && isDownloaded}
-  <div>
-    <GallaryMore
-      imgSource={firstFrameURL}
-      videoSource={VideoSource}
-      videoName={VideoName}
-      on:close={handleBack}
-    />
-  </div>
-{/if}
-
 <style>
+  .TT-positioning {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+  }
+
+  .processed-info {
+    width: 12px;
+    height: 12px;
+    color: white;
+    border-radius: 50%;
+  }
+
   .notDownloaded {
     filter: grayscale(100%);
     cursor: pointer;
@@ -179,5 +211,20 @@
 
   .cursor-default {
     cursor: default;
+  }
+
+  .details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  #playbtn {
+    height: fit-content;
+    cursor: pointer;
+  }
+
+  .background-card {
+    background-color: #01243150;
   }
 </style>

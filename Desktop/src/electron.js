@@ -10,6 +10,8 @@ const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
+// const express = require('express');
+
 
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
@@ -378,7 +380,7 @@ async function processQueue() {
 
     try {
         //call the run-python-script IPC handler
-        
+
         const output = await runPythonScript(nextVideo.scriptPath, [
             nextVideo.videoPath,
             nextVideo.outputVideoPath,
@@ -411,7 +413,7 @@ ipcMain.handle('queue-video', async (event, videoDetails) => {
         // Process video remotely
         processVideoRemotely(videoDetails);
     }
-    
+
 });
 
 // Function to process video remotely
@@ -636,40 +638,57 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
-
 // Handler to get video from the database but URL
 ipcMain.handle('getVideoByURL', async (event, videoURL) => {
     try {
-      const video = await VideoTable.findOne({ where: { videoURL } });
-      return video ? video.toJSON() : null;
+        const video = await VideoTable.findOne({ where: { videoURL } });
+        return video ? video.toJSON() : null;
     } catch (error) {
-      console.error("Error fetching video by URL:", error);
-      return null;
+        console.error("Error fetching video by URL:", error);
+        return null;
     }
-  });
+});
 
-  // Handler to get all processed videos for a given original video ID
+// Handler to get all processed videos for a given original video ID
 ipcMain.handle('getProcessedVideos', async (event, originalVidID) => {
     try {
-      const videos = await VideoTable.findAll({ where: { originalVidID } });
-      return videos.map(video => video.toJSON());
+        const videos = await VideoTable.findAll({ where: { originalVidID } });
+        return videos.map(video => video.toJSON());
     } catch (error) {
-      console.error("Error fetching processed videos:", error);
-      return [];
+        console.error("Error fetching processed videos:", error);
+        return [];
     }
-  });
+});
 
-  ipcMain.handle('addVideo', async (event, videoData) => {
+ipcMain.handle('addVideo', async (event, videoData) => {
     try {
-      const newVideo = await VideoTable.create(videoData);
-      return newVideo.toJSON();
+        const newVideo = await VideoTable.create(videoData);
+        return newVideo.toJSON();
     } catch (error) {
-      console.error("Error adding new video:", error);
-      return null;
+        console.error("Error adding new video:", error);
+        return null;
     }
-  });
+});
 
-  // Function to remove video from VideoTable
+// Function to remove video from VideoTable
 function removeVideo(videoUrl) {
     return VideoTable.destroy({ where: { videoURL: videoUrl } });
-  }
+}
+// const server = express();
+// const PORT = 3000;
+
+// server.use((req, res, next) => {
+//     const type = mime.getType(req.path);
+//     if (type) {
+//         res.setHeader('Content-Type', type);
+//     }
+//     next();
+// });
+//
+// // Serve static files from the "public" directory
+// server.use(express.static(path.join(__dirname, 'public')));
+//
+// // Fallback to index.html for single-page applications
+// server.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
