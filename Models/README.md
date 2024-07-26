@@ -36,6 +36,13 @@ Install Ultralytics:
 pip install ultralytics
 ```
 
+Install imageio:
+
+```bash
+pip install imageio
+pip install imageio[ffmpeg]
+```
+
 Uninstall Existing PyTorch Packages:
 
 ```bash
@@ -52,6 +59,6 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 Download and install the CUDA Toolkit from the official NVIDIA website. Visit the link below and follow the installation instructions for your operating system:
 
-[CUDO Toolkit download](URL)
+[CUDO Toolkit download](https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=11)
 
 Make sure to follow the instructions carefully to ensure CUDA is installed correctly and is compatible with your GPU

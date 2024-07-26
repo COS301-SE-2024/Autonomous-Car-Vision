@@ -69,7 +69,7 @@
     <div class="sidebar" style="width: {$sidebarWidth}px;">
       <SidebarV2 width={$sidebarWidth} />
     </div>
-    <div class="handle" on:mousedown={handleMouseDown}>
+    <div class="handle" on:mousedown={handleMouseDown} role="button" tabindex="0">
       <div class="handle-inner"></div>
     </div>
   </div>

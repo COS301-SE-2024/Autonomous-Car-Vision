@@ -1,28 +1,24 @@
 <script>
   import { onMount } from "svelte";
-  import GallaryMore from "./GallaryMore.svelte";
-  import PingLoader from "../components/PingLoader.svelte";
   import { VideoURL, OriginalVideoURL } from "../stores/video";
-  import { writable } from "svelte/store";
-  import { Icon } from "svelte-materialify";
   import { originalVideoURL } from "../stores/processing";
-  import { get } from 'svelte/store';
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
   import { mdiDownload, mdiPlayCircle } from "@mdi/js";
   import { Icon, Tooltip } from "svelte-materialify";
 
-  export let VideoSource;
-  export let VideoName;
+  export let videoSource;
+  export let videoName;
   export let isDownloaded;
+  export let listType;
 
   let isGalLoading = false;
   let showMoreModal = false;
   let firstFrameURL = "";
   let isDownloading = false;
 
-  let showTT = false;
-  let processed = true;
+  let showTooltip = false;
+  let processed = false;
 
   const handleDownload = async (event) => {
     event.stopPropagation();
@@ -30,8 +26,8 @@
     isDownloading = true;
     try {
       const response = await window.electronAPI.downloadVideo(
-        VideoName,
-        VideoSource,
+        videoName,
+        videoSource
       );
       console.log(response.success, response.filePath);
     } catch (error) {}
@@ -47,15 +43,17 @@
   function goToVideo() {
     if (!isDownloaded) return;
     console.log("Go to video");
-    const encodedPath = encodeURIComponent(VideoSource);
-    VideoURL.set(VideoSource);
+    const encodedPath = encodeURIComponent(videoSource);
+    VideoURL.set(videoSource);
+    OriginalVideoURL.set(videoSource);
+    originalVideoURL.set(videoSource);
     push(`/video/${encodedPath}`);
   }
 
   function handleMore() {
     console.log("More button clicked");
     showMoreModal = true;
-    console.log(VideoSource);
+    console.log(videoSource);
   }
 
   function handleBack(event) {
@@ -66,7 +64,7 @@
 
   function captureSpecificFrame(frameNumber) {
     const videoElement = document.createElement("video");
-    videoElement.src = VideoSource;
+    videoElement.src = videoSource;
     videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
 
     videoElement.addEventListener("loadedmetadata", () => {
@@ -96,11 +94,17 @@
   onMount(async () => {
     isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
+    try {
+      processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
+      console.log("Processed:", processed);
+    } catch (error) {
+      console.error("Error checking if video is processed:", error);
+    }
     if (!isDownloaded) {
       try {
         const response = await window.electronAPI.getVideoFrame(
-          VideoSource,
-          VideoName,
+          videoSource,
+          videoName
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
@@ -117,23 +121,34 @@
 <div
   class="{isDownloaded
     ? 'cursor-default'
-    : 'notDownloaded'} background-card shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'notDownloaded'} background-card relative overflow-hidden rounded-lg {listType === 'list' ? 'w-4/6 flex flex-row align-center justify-between' : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
+  role="button"
+  tabindex="0"
 >
   {#if isGalLoading}
     <div class="flex justify-center items-center h-64">
-      <div class="flex justify-center">
-        <PingLoader />
+      <div class="content-loader flex justify-center h-full w-full">
+         <div class="img-content-loader w-full">
+          </div>
       </div>
     </div>
   {/if}
   {#if !isGalLoading}
     <div class="image-container relative">
-      <img
+      {#if listType === "grid"}
+        <img
+          src={firstFrameURL}
+          alt="video preview"
+          class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {:else}
+        <img
         src={firstFrameURL}
         alt="video preview"
-        class="h-64 w-full object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-      />
+        class="w-28 object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {/if}
       <div
         class="{isDownloaded
           ? 'hover:block'
@@ -154,13 +169,15 @@
         {/if}
       </div>
       <div class="TT-positioning">
-        <Tooltip left bind:active={showTT}>
+        <Tooltip left bind:active={showTooltip}>
+          {#if listType === "grid"}
           <div
             class="processed-info"
             style={processed
-              ? "background-color: green;"
+              ? "background-color: #1AFF00;"
               : "background-color: red;"}
           ></div>
+          {/if}
           <span slot="tip">
             {#if processed}
               Processed
@@ -175,7 +192,7 @@
       <p
         class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText"
       >
-        {VideoName}
+        {videoName}
       </p>
       <div id="playbtn">
         <Icon
@@ -190,6 +207,19 @@
 </div>
 
 <style>
+  .content-loader {
+    background-color: #25292b;
+    border-radius: 10px;
+    animation: pulse 1.5s infinite;
+  }
+
+  .img-content-loader {
+    background-color: #3d3d3d;
+    border-radius: 10px;
+    height: 83.333%;
+    animation: pulse 1.5s infinite;
+  }
+
   .TT-positioning {
     position: absolute;
     top: 5px;
@@ -217,6 +247,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
   }
 
   #playbtn {
@@ -225,6 +256,11 @@
   }
 
   .background-card {
-    background-color: #01243150;
+    /* border: 0.5px solid #012431; */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .background-card:hover {
+    background-color: #012431b1;
   }
 </style>

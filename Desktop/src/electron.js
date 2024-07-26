@@ -638,11 +638,33 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
-// Handler to get video from the database but URL
+// Handler to get video from the database by URL
 ipcMain.handle('getVideoByURL', async (event, videoURL) => {
     try {
         const video = await VideoTable.findOne({ where: { videoURL } });
         return video ? video.toJSON() : null;
+    } catch (error) {
+        console.error("Error fetching video by URL:", error);
+        return null;
+    }
+});
+
+// Handler to get processed videos by original video ID
+ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
+    try {
+        const video = await VideoTable.findOne({ where: { videoUrl } });
+
+        // If the video is not found, return null
+        if (!video) return null;
+
+        // Get the videoID
+        const originalID = video.videoID
+
+        // Fetch all videos with the given original video ID
+        const videos = await VideoTable.findOne({ where: { originalVidID: originalID } });
+        // Return true if at least one video is processed, else return false
+        if(videos) return true;
+        else return false;
     } catch (error) {
         console.error("Error fetching video by URL:", error);
         return null;
