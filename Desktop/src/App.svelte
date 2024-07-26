@@ -46,3 +46,4 @@
   <Toaster />
   <Router {routes} />
 </div>
+

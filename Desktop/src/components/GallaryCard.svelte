@@ -26,12 +26,12 @@
     // isDownloading.set(true);
     isDownloading = true;
     try {
-        const response = await window.electronAPI.downloadVideo(
-          VideoName,
-          VideoSource
-        );
-        console.log(response.success, response.filePath);
-      } catch (error) {}
+      const response = await window.electronAPI.downloadVideo(
+        VideoName,
+        VideoSource
+      );
+      console.log(response.success, response.filePath);
+    } catch (error) {}
     setTimeout(() => {
       // isDownloading.set(false);
       isDownloading = false;
@@ -137,6 +137,7 @@
         class="{isDownloaded
           ? 'hover:block'
           : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        style="top:50%; left:50%; transform: translate(-50%, 50%);"
       >
         {#if !isDownloading && !isDownloaded}
           <button
