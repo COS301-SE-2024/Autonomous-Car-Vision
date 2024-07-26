@@ -66,15 +66,13 @@ class Pipe:
         self.entry_point = None
         self.exit_point = None
 
-    def setEntryPoint(self, unit):
+    def set_entry_point(self, unit):
         self.entry_point = unit
-
-    def setExitPoint(self, unit):
         self.exit_point = unit
 
     def add_unit(self, unit):
         if self.entry_point is None:
-            self.setEntryPoint(unit)
+            self.set_entry_point(unit)
         else:
             self.exit_point.set_next(unit)
             self.exit_point = unit
@@ -86,25 +84,19 @@ class Pipe:
             raise TypeError(f"Input data type {type(data)} does not match expected type {self.entry_point.input_type}")
         return self.entry_point.process(data)
 
-    # def flowTest(self):
-
-
-# Create units
 multiply_unit = MultiplyUnit(name="MultiplyUnit", factor=2)
 divide_unit = DivideUnit(name="DivideUnit", divisor=4)
 add_unit = AddUnit(name="AddUnit", addend=10)
 subtract_unit = SubtractUnit(name="SubtractUnit", subtrahend=5)
 
-# Create the pipeline
 pipeline = Pipe()
 
-# Add units to the pipeline
 pipeline.add_unit(multiply_unit)
 pipeline.add_unit(divide_unit)
 pipeline.add_unit(add_unit)
 pipeline.add_unit(subtract_unit)
 
-# Process data through the pipeline
-input_data = 20.0  # Ensure input data matches the expected type (float)
+
+input_data = 20.0
 output_data = pipeline.process(input_data)
 print(f"Final Output: {output_data}")
