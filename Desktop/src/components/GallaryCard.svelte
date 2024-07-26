@@ -4,7 +4,6 @@
   import PingLoader from "../components/PingLoader.svelte";
   import { VideoURL, OriginalVideoURL } from "../stores/video";
   import { writable } from "svelte/store";
-  import { Icon } from "svelte-materialify";
   import { originalVideoURL } from "../stores/processing";
   import { get } from 'svelte/store';
   import RingLoader from "./RingLoader.svelte";
