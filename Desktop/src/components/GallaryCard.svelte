@@ -2,11 +2,12 @@
   import { onMount } from "svelte";
   import GallaryMore from "./GallaryMore.svelte";
   import PingLoader from "../components/PingLoader.svelte";
-  import { VideoURL } from "../stores/video";
+  import { VideoURL, OriginalVideoURL } from "../stores/video";
   import { writable } from "svelte/store";
   import { mdiDownload } from "@mdi/js";
   import { Icon } from "svelte-materialify";
-
+  import { originalVideoURL } from "../stores/processing";
+  import { get } from 'svelte/store';
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";

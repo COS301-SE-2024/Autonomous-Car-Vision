@@ -1,8 +1,9 @@
 const { app, BrowserWindow, ipcMain, dialog, View } = require('electron');
+const { spawn } = require('child_process');
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
-const { LookupTable, AIModels } = require('./database');
+const { LookupTable, AIModels, VideoTable } = require('./database');
 const axios = require('axios');
 const FormData = require('form-data')
 const { Sequelize } = require('sequelize');
@@ -13,6 +14,8 @@ const ffprobePath = require('ffprobe-static').path;
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
 
+let mainWindow;
+let store;
 
 async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
@@ -21,7 +24,7 @@ async function loadElectronStore() {
 
 
 async function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -58,8 +61,6 @@ try {
 } catch (_) { }
 
 // handler for token storing
-
-let store;
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
@@ -142,6 +143,25 @@ ipcMain.on('clear-uemail', (event) => {
     store.delete('uemail');
     event.returnValue = true;
 });
+
+ipcMain.on('load-store-process', (event) => {
+    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    event.returnValue = storeData;
+});
+
+ipcMain.handle('save-store-process', async (event, state) => {
+    store.set('appProcessing', state);
+});
+
+// Helper function to update the store state
+function updateState(updates) {
+    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    const newState = { ...currentState, ...updates };
+    console.log('Updated state:', newState);
+    store.set('appProcessing', newState);
+    mainWindow.webContents.send('process-changed'); // Notify renderer about state change
+    return newState;
+}
 
 // IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
@@ -242,8 +262,6 @@ ipcMain.handle('fetch-videos', async () => {
 // Extract frames handler
 ipcMain.handle('extract-frames', async (event, videoPath) => {
     try {
-        console.log("VIDEO PATH:", videoPath);
-
         const { format } = await new Promise((resolve, reject) => {
             ffmpegFluent(videoPath)
                 .setFfprobePath(ffprobePath)
@@ -275,10 +293,10 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
             return framePaths;
         }
 
-        console.log('output directory: ', outputDir);
-
-        const MAX_FRAMES = 100;
-        const maxFrameCount = Math.min(MAX_FRAMES, Math.floor(duration * 0.5));
+        const MAX_FRAMES = 120;
+        const framesRequired = 20                   ;
+        const MinFrames = Math.max(framesRequired, Math.floor(duration * 0.5));
+        const maxFrameCount = Math.min(MinFrames, MAX_FRAMES);
         const frameRate = maxFrameCount / duration;
 
         let threadCount = Math.min(Math.floor(os.cpus().length / 2), maxFrameCount);
@@ -349,11 +367,142 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
     });
 });
 
-// IPC handler to run a python script with set parameters
-ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
+// Function to process the queue
+async function processQueue() {
+    console.log("In process -----------------------------------------------");
+    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    if (processing || processingQueue.length === 0) return;
+
+    const nextVideo = processingQueue.shift();
+    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+
+    try {
+        //call the run-python-script IPC handler
+        
+        const output = await runPythonScript(nextVideo.scriptPath, [
+            nextVideo.videoPath,
+            nextVideo.outputVideoPath,
+            nextVideo.modelPath,
+        ]);
+        console.log("Python Script Output:", output);
+        const { cuda, localProcess, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        processQueue(); // Process the next video in the queue
+    } catch (error) {
+        console.error("Python Script Error:", error);
+        updateState({ processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
+    }
+}
+
+// IPC handler to queue a video for processing
+ipcMain.handle('queue-video', async (event, videoDetails) => {
+    // fetch localProcess from videoDetails
+    let local = videoDetails.localProcess;
+    console.log('Video Details being added:', videoDetails);
+    if (local) {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        processingQueue.push(videoDetails);
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        processQueue();
+    } else {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        remoteProcessingQueue.push(videoDetails);
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        // Process video remotely
+        processVideoRemotely(videoDetails);
+    }
+    
+});
+
+// Function to process video remotely
+async function processVideoRemotely(videoDetails) {
+    // TODO: Implement remote processing
+    console.log('Processing video remotely:', videoDetails);
+    // Function should return success or failure
+    // Either add listner for when the video is done processing or return a promise
+    // If the process was unsuccessful, return false and notify user of failure
+    // After notifying user, remove from local database because it is already there
+    // Once done, failure of success, remove from remoteProcessingQueue
+    // Notify user on success
+    // mainWindow.webContents.send('python-script-done', 'Video done processing');
+
+    // INFO: This is a placeholder function for remote processing, above steps
+    // the video path will already be added to the local data base
+    // but the user will not be able to view it until it is processed
+    // this is only to show that the video is being processed
+    // so the video has to be removed from the database if the processing fails
+
+    // To remove use:
+    // removeVideo(videoDetails.outputVideoPath);
+
+    // Wait for 15 seconds then remove the video details from the remote processing queue
+    setTimeout(() => {
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        const index = remoteProcessingQueue.findIndex(video => video.outputVideoPath === videoDetails.outputVideoPath);
+        if (index !== -1) {
+            remoteProcessingQueue.splice(index, 1);
+            updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        }
+    }, 15000);
+}
+
+// Function to run a python script with set parameters
+function runPythonScript(scriptPath, args) {
+    console.log('Running Python Script:', scriptPath, args);
     return new Promise((resolve, reject) => {
-        const { spawn } = require('child_process');
-        const python = spawn('python', [scriptPath, ...args]);
+        const python = spawn('python', [scriptPath, ...args], {
+            detached: true,  // Detach the process
+            stdio: ['ignore', 'pipe', 'pipe'],  // Ignore stdin, but pipe stdout and stderr
+            shell: true,  // Run the command through a shell
+            windowsHide: true  // Hide the terminal window on Windows
+        });
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('error', (err) => {
+            // Handle the error event, for example, when the process could not be spawned, killed, or there's a sending message error
+            reject(new Error("Failed to execute Python script: " + err.message));
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+                mainWindow.webContents.send('python-script-done', 'Video done processing');
+            } else {
+                // If the process exited with a code other than 0, it means there was an error
+                mainWindow.webContents.send('python-script-done', 'Video done processing');
+                console.log('Python script done but exited with unexpected code:', code);
+                resolve(output);
+            }
+        });
+
+        // Detach the process and allow it to continue running
+        python.unref();
+    });
+}
+
+// IPC handler for checking CUDA availability
+ipcMain.handle('check-cuda', async () => {
+    return new Promise((resolve, reject) => {
+        console.log("Checking cuda availability")
+        // get the root directory of the app
+        const appPath = app.getAppPath();
+        let pythonPath = path.join(appPath, '..');
+        pythonPath = path.join(pythonPath, 'Models/cudaCheck.py');
+        const python = spawn('python', [pythonPath], {
+            cwd: __dirname, // Ensure the working directory is correct
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: true,
+        });
 
         let output = '';
         let error = '';
@@ -368,10 +517,15 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
 
         python.on('close', (code) => {
             if (code === 0) {
-                resolve(output);
+                console.log("CUDA available:", output.trim() == 'True');
+                resolve(output.trim() == 'True');
             } else {
                 reject(new Error(error));
             }
+        });
+
+        python.on('error', (err) => {
+            reject(new Error(`Failed to start Python script: ${err.message}`));
         });
     });
 });
@@ -482,3 +636,40 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
+
+// Handler to get video from the database but URL
+ipcMain.handle('getVideoByURL', async (event, videoURL) => {
+    try {
+      const video = await VideoTable.findOne({ where: { videoURL } });
+      return video ? video.toJSON() : null;
+    } catch (error) {
+      console.error("Error fetching video by URL:", error);
+      return null;
+    }
+  });
+
+  // Handler to get all processed videos for a given original video ID
+ipcMain.handle('getProcessedVideos', async (event, originalVidID) => {
+    try {
+      const videos = await VideoTable.findAll({ where: { originalVidID } });
+      return videos.map(video => video.toJSON());
+    } catch (error) {
+      console.error("Error fetching processed videos:", error);
+      return [];
+    }
+  });
+
+  ipcMain.handle('addVideo', async (event, videoData) => {
+    try {
+      const newVideo = await VideoTable.create(videoData);
+      return newVideo.toJSON();
+    } catch (error) {
+      console.error("Error adding new video:", error);
+      return null;
+    }
+  });
+
+  // Function to remove video from VideoTable
+function removeVideo(videoUrl) {
+    return VideoTable.destroy({ where: { videoURL: videoUrl } });
+  }

@@ -69,6 +69,35 @@ const AIModels = sequelize.define('AIModels', {
     }
 });
 
+const VideoTable = sequelize.define('VideoTable', {
+    videoID: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+    },
+    label: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    profileImgURL: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    videoURL: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    originalVidID: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    creation_date: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
+});
+
 sequelize.sync().then(async () => {
     const count = await AIModels.count();
     if (count === 0) {
@@ -113,4 +142,4 @@ sequelize.sync().then(async () => {
     }
 });
 
-module.exports = { sequelize, LookupTable, AIModels  };
+module.exports = { sequelize, LookupTable, AIModels, VideoTable  };
