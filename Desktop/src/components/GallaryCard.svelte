@@ -3,10 +3,11 @@
   import GallaryMore from "./GallaryMore.svelte";
   import PingLoader from "../components/PingLoader.svelte";
   import { VideoURL, OriginalVideoURL } from "../stores/video";
-
+  import { writable } from "svelte/store";
+  import { mdiDownload } from "@mdi/js";
+  import { Icon } from "svelte-materialify";
   import { originalVideoURL } from "../stores/processing";
   import { get } from 'svelte/store';
-
   // import { isDownloading } from "../stores/loading";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
@@ -38,17 +39,13 @@
       isDownloaded = true;
     }, 10000);
     console.log("DOWNLOAD BUTTON");
-  }
+  };
 
   function goToVideo() {
     if (!isDownloaded) return;
     console.log("Go to video");
     const encodedPath = encodeURIComponent(VideoSource);
     VideoURL.set(VideoSource);
-    VideoURL.set(VideoSource);
-    OriginalVideoURL.set(VideoSource);
-    originalVideoURL.set(VideoSource);
-
     push(`/video/${encodedPath}`);
   }
 
@@ -91,9 +88,6 @@
         console.error("Video is not ready to capture the frame.");
       }
     });
-
-    // Add the video element to the DOM to trigger loading
-    document.body.appendChild(videoElement);
   }
 
   onMount(async () => {
@@ -120,8 +114,8 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="{isDownloaded
-    ? 'cursor-pointer'
-    : 'cursor-default'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    ? 'cursor-default'
+    : 'notDownloaded'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
 >
   {#if isGalLoading}
@@ -137,7 +131,7 @@
       <img
         src={firstFrameURL}
         alt="video preview"
-        class="w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        class="h-40 w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
       />
       <div
         class="{isDownloaded
@@ -146,8 +140,10 @@
       >
         {#if !isDownloading && !isDownloaded}
           <button
-            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center cursor-pointer"
-            on:click={handleDownload}>Download</button
+            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
+            on:click={handleDownload}
+          >
+            <Icon path={mdiDownload} size="24" /></button
           >
         {:else if !isDownloaded}
           <div class="flex justify-center">
@@ -157,7 +153,7 @@
       </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden">{VideoName}</p>
+      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
     </div>
   {/if}
 </div>
@@ -172,3 +168,15 @@
     />
   </div>
 {/if}
+
+<style>
+  .notDownloaded {
+    filter: grayscale(100%);
+    cursor: pointer;
+    shadow: grayscale;
+  }
+
+  .cursor-default {
+    cursor: default;
+  }
+</style>
