@@ -33,10 +33,10 @@
     console.log("Remote Queue", remoteProcessingQueueList);
 
     if (remoteProcessingQueueList.includes(AIinfo.mURL)) {
-  console.log('The list contains the URL.');
-} else {
-  console.log('The list does not contain the URL.');
-}
+      console.log("The list contains the URL.");
+    } else {
+      console.log("The list does not contain the URL.");
+    }
 
     mounting = false;
   });
@@ -65,12 +65,14 @@
     <Avatar size="42px">
       <img src={AIinfo.img} alt={AIinfo.mName} />
     </Avatar>
-    <a href="#/models">
-      {AIinfo.mName}
-    </a>
-    <p>
-      {AIinfo.mTime}
-    </p>
+    <div class="xl:contents hidden">
+      <a href="#/models">
+        {AIinfo.mName}
+      </a>
+      <p>
+        {AIinfo.mTime}
+      </p>
+    </div>
     <!-- <div
           class="flex flex-col justify-center items-center flex-nowrap"
           style="aspect-ratio: 16/9"

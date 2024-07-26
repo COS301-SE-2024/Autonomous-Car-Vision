@@ -338,7 +338,7 @@
         <Button
           icon
           on:click={revealAIDetails}
-          class="text-white"
+          class="text-white flex"
           size="default"
         >
           {#if !showSideAIDetail}
