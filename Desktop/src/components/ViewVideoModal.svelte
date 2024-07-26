@@ -13,12 +13,12 @@
 
 
 <div class="overlay mx-autorounded-xl bg-gray"></div>
-<div class="mx-autorounded-lg bg-theme-dark-backgroundBlue">
+<div class="mx-autorounded-lg bg-theme-dark-background ">
     <video class="video-preview" src={videoSource} controls>
         <track kind="captions">
     </video>
     <div class="buttons">
-         <button on:click={save} class="save text-theme-dark-white bg-theme-dark-primary text-bold">Done </button>
+         <button on:click={save} class="save text-theme-dark-white bg-theme-dark-background  text-bold">Done </button>
     </div>
 </div>
 

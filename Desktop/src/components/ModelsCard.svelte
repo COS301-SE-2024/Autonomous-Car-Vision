@@ -1,5 +1,6 @@
 <script>
   import { Button, Tooltip } from "svelte-materialify";
+   import ModelsCardContent from '../components/ModelsCardContent.svelte';
   // Exported Parameters
 
   export let Model = {
@@ -8,7 +9,7 @@
     mVersion: "",
     mSummary: "",
     mStatus: "",
-    mProfileImg: "",
+    mProfileImg: "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
     mImg: "",
   };
   export let key;
@@ -43,11 +44,45 @@
   function handleMouseOut() {
     isHovered = false;
   }
+
+  // onMount(async () => {
+  //     try {
+  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/imagesloaded.pkgd.min.js');
+  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/charming.min.js');
+  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/TweenMax.min.js');
+  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/demo.js');
+  //     console.log('All scripts loaded successfully');
+  //     } catch (error) {
+  //     console.error(error);
+  //     }
+  // })
+
 </script>
 
-  <div
+
+
+
+  <div class="slide">
+    <div class="slide__img-wrap">
+        <div class="slide__img" style="background-image: url({Model.mProfileImg})"></div>
+    </div>
+    <div class="slide__side">{Model.mDescription}</div>
+    <div class="slide__title-wrap">
+        <span class="slide__number">Ver: {Model.mVersion}</span>
+        <h3 class="slide__title">{Model.mName}</h3>
+    </div>
+  </div>
+
+
+
+<style>
+  @import '../assets/base.css';
+</style>
+
+  <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+  <!-- <div
     {key}
-    class="flex flex-col items-start  border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
+    class="flex flex-col h-fit items-start  border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
     on:mouseover={flipCard} on:mouseout={flipCard}>
   <div class="card-inner {isFlipped ? 'flipped' : '' }  rounded-xl ">
 
@@ -115,7 +150,7 @@
         <h1 class="text-lg font-medium">{Model.mVersion}</h1>
         <!--p class="font-light h-fit">
           {Model.mVersion}
-        mSummary</p-->
+        mSummary</p>
       </div>
     </div>
     </div>
@@ -168,4 +203,4 @@
   padding: 10px;
 }
 
-</style>
+</style> -->

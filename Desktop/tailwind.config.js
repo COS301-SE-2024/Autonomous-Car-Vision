@@ -29,49 +29,24 @@ module.exports = {
           'tech-blue': '0 10px 20px #0C003C, 0 6px 20px #0C003C', // shadow-blue
           'card-blue': '6px 6px 10px rgba(0.15, 40, 145, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)', // shadow-card
           'tech-green': '0 10px 20px #218838, 0 6px 20px #218838', // shadow-green
+          'card-white': '6px 6px 10px rgba(0.15, 244, 244, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)'
         },
       },
       fontFamily: {
         custom: ['var(--font-custom)', 'sans-serif'],
         heading: ['var(--font-heading)', 'sans-serif'],
-        special: ['var(--font-special)', 'sans-serif'],
+        special: ['var(--font-special)', 'sans-serif'], 
         body: ['var(--font-body)', 'sans-serif'],
         light: ['var(--font-light)', 'sans-serif'],
         lighter: ['var(--font-light-light)', 'sans-serif'],
       },
       colors: {
-        'theme-green': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#094400',
-          secondary: '#07873A',
-        },
-        'theme-blue': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#0C3E63',
-          secondary: '#5078A0',
-        },
-        'theme-red': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#730D0D',
-          secondary: '#9B1D1D',
-        },
-        'theme-keith':{
-          jet: '#D3D3D3',
-          timber: '#343434',
-          primary: '#344e41',
-          secondary:'#3a5a40',
-          accentone:'#588157',
-          accenttwo:'#a3b18a',
-          highlight:'#dad7cd',
-        },
-        'theme-purple': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#400F65',
-          secondary: '#83468F',
+        'dark' : {
+          background: '#011C27', // '#03254E',  // '#001524', '#011C27'
+          primary: '#FFFFFF',
+          secondary: '#007acc' ,// '#3EFF8B',
+          hover: '#012A3B',
+          background_secondary: '#000000'
         },
         'modal': '#0000009f',
         'white': '#FFFF',
