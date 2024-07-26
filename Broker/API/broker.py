@@ -104,7 +104,7 @@ async def brokerStore(request: Request):
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 8, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 1, "aport": 8001, "aip": "127.0.0.1"}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}

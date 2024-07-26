@@ -3,7 +3,7 @@ import os
 import json
 import sys
 
-def send_file(ip, port, filepath, uid, size, token):
+def send_file(ip, port, filepath, uid, size, token, mid):
     filename = os.path.basename(filepath)
     print("File name: ", filename)
 
@@ -15,6 +15,7 @@ def send_file(ip, port, filepath, uid, size, token):
             "size": size,
             "token": token,
             "command": "SEND",
+            "mid": mid
         }
 
         data = json.dumps(data)
@@ -30,37 +31,9 @@ def send_file(ip, port, filepath, uid, size, token):
                 s.sendall(data)
         print(f"File {filename} sent successfully.")
 
-def receive_file(ip, port, filename, uid, size, token):
-    print("File name: ", filename)
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((ip, port))
-
-        data = {
-            "uid": uid,
-            "size": size,
-            "token": token,
-            "command": "RETR",
-        }
-
-        data = json.dumps(data)
-        s.sendall(data.encode() + b"\0")
-        filepath = "./" + filename
-        s.sendall(filename.encode() + b"\0")
-
-        with open(filepath, "wb") as f:
-            print(f"Receiving file {filename}...")
-            while True:
-                data = s.recv(1024)
-                if not data:
-                    break;
-                f.write(data)
-        print(f"File {filename} received and saved to {filepath}")
-
-
 if __name__ == "__main__":
-    if len(sys.argv) != 7:
-        print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token>")
+    if len(sys.argv) != 8:
+        print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token> <mid>")
         sys.exit(1)
 
     ip = sys.argv[1]
@@ -69,7 +42,8 @@ if __name__ == "__main__":
     uid = sys.argv[4]
     size = sys.argv[5]
     token = sys.argv[6]
+    mid = sys.argv[7]
     
-    print(f"{ip} {port} {filepath} {uid} {size} {token}")
+    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid}")
     
-    send_file(ip, port, filepath, uid, size, token)
+    send_file(ip, port, filepath, uid, size, token, mid)

@@ -3,34 +3,7 @@ import os
 import json
 import sys
 
-def send_file(ip, port, filepath, uid, size, token):
-    filename = os.path.basename(filepath)
-    print("File name: ", filename)
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((ip, port))
-
-        data = {
-            "uid": uid,
-            "size": size,
-            "token": token,
-            "command": "SEND",
-        }
-
-        data = json.dumps(data)
-        s.sendall(data.encode() + b"\0")
-        s.sendall(filename.encode() + b"\0")
-
-        with open(filepath, "rb") as f:
-            print(f"Sending file {filename}")
-            while True:
-                data = f.read(1024)
-                if not data:
-                    break
-                s.sendall(data)
-        print(f"File {filename} sent successfully.")
-
-def receive_file(ip, port, filename, uid, size, token):
+def receive_file(ip, port, filename, uid, size, token, mid):
     print("File name: ", filename)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -41,6 +14,7 @@ def receive_file(ip, port, filename, uid, size, token):
             "size": size,
             "token": token,
             "command": "RETR",
+            "mid": mid
         }
 
         data = json.dumps(data)
@@ -59,8 +33,8 @@ def receive_file(ip, port, filename, uid, size, token):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 7:
-        print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token>")
+    if len(sys.argv) != 8:
+        print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token> <mid>")
         sys.exit(1)
 
     ip = sys.argv[1]
@@ -69,7 +43,8 @@ if __name__ == "__main__":
     uid = sys.argv[4]
     size = sys.argv[5]
     token = sys.argv[6]
+    mid = sys.argv[7]
     
-    print(f"{ip} {port} {filepath} {uid} {size} {token}")
+    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid}")
     
-    receive_file(ip, port, filepath, uid, size, token)
+    receive_file(ip, port, filepath, uid, size, token, mid)

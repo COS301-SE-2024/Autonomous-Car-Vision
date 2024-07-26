@@ -182,6 +182,7 @@ def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
                     size = data['size']
                     token = data['token']
                     command = data['command']
+                    mid = data['mid']
 
                     directory = f"./Download/{uid}/"
                     os.makedirs(directory, exist_ok=True)
@@ -193,9 +194,10 @@ def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
                         filename = receive_until_null(conn)
                         print(f"File name: {filename}")
 
-                        if not filename:
+                        if not mid:
                             break
-                        filepath = os.path.join(directory, filename)
+                        filepath = os.path.join(directory, mid)
+                        filepath = filepath + '.mp4'
 
                         with open(filepath, "wb") as f:
                             print(f"Receiving file {filename}...")
@@ -210,9 +212,10 @@ def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
                         filename = receive_until_null(conn)
                         print(f"File name: {filename}")
 
-                        if not filename:
+                        if not mid:
                             break
-                        filepath = os.path.join(directory, filename)
+                        filepath = os.path.join(directory, mid)
+                        filepath = filepath + '.mp4'
 
                         if os.path.exists(filepath):
                             with open(filepath, "rb") as f:

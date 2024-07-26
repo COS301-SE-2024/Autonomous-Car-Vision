@@ -379,19 +379,15 @@ ipcMain.handle('run-python-script', async (event, scriptPath, args) => {
 });
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
-    const scriptPath = 'src/routes/pythonUpload.py';  // Ensure this is the correct path to your Python script
-    const rec = await LookupTable.create({
-        mname: mname,
-        localurl: filepath,
-        size: size,
-        uid: uid,
-    });
-    // const mid = rec.mid;
-    const args = [ip, port, filepath, uid, size, token];
+    const scriptPath = 'src/routes/pythonUpload.py';
+    let rec = await LookupTable.findOne({ where: { mname: mname, localurl: filepath, uid: uid } });
+    const mid = rec.mid;
+    console.log(mid);
+    const args = [ip, port, filepath, uid, size, token, mid];
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
-        const python = spawn('python', [scriptPath, ...args]);  // Use 'python3' or 'python' depending on your environment
+        const python = spawn('python', [scriptPath, ...args]); 
 
         console.log("Script path: " + scriptPath);
         console.log("Args: " + args.join(" "));
@@ -418,12 +414,14 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 });
     
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
-    const scriptPath = 'src/routes/pythonDownload.py';  // Ensure this is the correct path to your Python script
-    const args = [ip, port, filepath, uid, size, token];
+    const scriptPath = 'src/routes/pythonDownload.py'; 
+    let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
+    const mid = rec.mid;
+    const args = [ip, port, filepath, uid, size, token, mid];
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
-        const python = spawn('python', [scriptPath, ...args]);  // Use 'python3' or 'python' depending on your environment
+        const python = spawn('python', [scriptPath, ...args]);
 
         console.log("Script path: " + scriptPath);
         console.log("Args: " + args.join(" "));
