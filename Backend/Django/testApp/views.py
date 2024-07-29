@@ -711,6 +711,7 @@ def uploadFile(request):
     mediaName = data.get("media_name")
     mediaUrl = data.get("media_url")
     mid = data.get("mid")
+    command = data.get("command")
 
     #! Commented for dev purposes
     if not utoken:
@@ -735,21 +736,22 @@ def uploadFile(request):
     print(response.status_code)
     print(response.json())
     
-    #! insert into media table
-    #TODO Must fix this, then ip and other issues will fix too
-    media_data = {
-        "uid": uid,
-        "media_id": mid,
-        "media_name": mediaName,
-        "media_url": mediaUrl,
-        "aid": response.json()["aid"],
-    }
-    
-    media_serializer = MediaSerializer(data=media_data, context={'request': request})
-    if media_serializer.is_valid():
-        media_serializer.save()
-    else:
-        return Response(media_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if command == "SEND":
+        #! insert into media table
+        #TODO Must fix this, then ip and other issues will fix too
+        media_data = {
+            "uid": uid,
+            "media_id": mid,
+            "media_name": mediaName,
+            "media_url": mediaUrl,
+            "aid": response.json()["aid"],
+        }
+        
+        media_serializer = MediaSerializer(data=media_data, context={'request': request})
+        if media_serializer.is_valid():
+            media_serializer.save()
+        else:
+            return Response(media_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(
         {"aip": data["aip"], "aport": data["aport"]}, status=status.HTTP_200_OK

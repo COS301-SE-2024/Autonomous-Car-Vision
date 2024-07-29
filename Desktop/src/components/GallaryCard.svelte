@@ -33,7 +33,7 @@
     let aport = "";
 
     try {
-    let response = await window.electronAPI.openFTP(uid, token, size);
+    let response = await window.electronAPI.openFTP(uid, token, size, "FAKENAME", "FAKEURL", "RETR");
     console.log("Response: ", response);
     
     if (response.success) {
@@ -50,7 +50,7 @@
 
 
     await window.electronAPI.downloadToClient(aip, aport, VideoName, uid, size, token);
-
+    
     // move the video to the download folder
     let currentFilePath = VideoName;
     console.log("Current File Path: ", currentFilePath);
