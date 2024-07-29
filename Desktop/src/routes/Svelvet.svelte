@@ -1,6 +1,7 @@
 <script>
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
-  import { Node, Svelvet, Minimap, Controls } from "svelvet";
+  import ProcessingNode from "../components/ProcessingNode.svelte";
+  import { Node, Svelvet, Minimap, Controls, Group, generateInput, generateOutput } from "svelvet";
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
@@ -26,6 +27,8 @@
           ]);
       }
   }
+
+  let test = generateInput({ value1: 5, value2: 10, option: 'default' });
 </script>
 
 <ProtectedRoutes>
@@ -37,11 +40,19 @@
           {/each}
       </select>
   </div>
-
+    <div>
+        <button on:click={() => console.log("")}>Output Node</button>
+    </div>  
   <div class="canvas">
-      <Svelvet id="my-canvas" TD minimap controls locked editable>
+      <Svelvet id="my-canvas" TD minimap controls editable>
+        <Group color="lightblue" groupName="myGroup" position={{x: 500, y: 500}}  width={600} height={200}>
+            <Node/>
+            <Node />
+        </Group>
+            <Node label="Output" />
+        <ProcessingNode/>
           {#each $nodes as node}
-              <Node id={node.id} position={node.position} bgColor={node.bgColor} label={node.label} />
+              <Node id={node.id} position={node.position} bgColor={node.bgColor} label={node.label} inputsStore={test} LR />
           {/each}
       </Svelvet>
   </div>
@@ -50,10 +61,20 @@
 <style>
   .toolbar {
       margin: 10px;
+      color: white;
   }
+
+    .toolbar select {
+        padding: 5px;
+        font-size: 16px;
+    }
+
+    .toolbar option {
+        color: black;
+    }
   .canvas {
       width: 100%;
-      height: 100%;
+      height: 90%;
       display: flex;
       justify-content: center;
       border: 1px solid #ccc;
