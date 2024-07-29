@@ -9,6 +9,7 @@
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
+        mdiChartSankey
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -23,6 +24,11 @@
     let showAccountPopup = false;
 
     let routes = [
+        {
+            name: "Svelvet",
+            route: "#/svelvet",
+            iconPath: mdiChartSankey,
+        },
         {
             name: "Gallery",
             route: "#/gallery",

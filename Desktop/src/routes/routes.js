@@ -11,6 +11,7 @@ import Gallery from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
+import Svelvet from './Svelvet.svelte'
 
 
 const routes = {
@@ -25,6 +26,7 @@ const routes = {
     '/changePassword': ChangePassword,
     '/video/:VideoUrl': VideoPage,
     '/help': Help,
+    '/svelvet': Svelvet
 };
 
 export default routes;
