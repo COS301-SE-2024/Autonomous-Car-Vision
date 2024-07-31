@@ -9,7 +9,8 @@
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
-        mdiPipeDisconnected
+        // mdiPipeDisconnected
+        mdiMolecule 
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -27,7 +28,8 @@
         {
             name: "Pipes",
             route: "#/svelvet",
-            iconPath: mdiPipeDisconnected,
+            iconPath: mdiMolecule, 
+            // mdiPipeDisconnected,
         },
         {
             name: "Gallery",

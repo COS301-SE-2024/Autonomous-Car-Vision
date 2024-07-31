@@ -9,11 +9,19 @@
     generateOutput,
   } from "svelvet";
 
+  export let identifier = "";
+  export let connectors = [];
+  export let position = { x: 0, y: 0 };
+  export let operation = "";
+  export let label = "Node";
+  export let bgColor = "";
+
+  console.log(identifier, ": OPERATION: ", operation);
+
   /**
    * @typedef {Object} InputStructure
    * @property {number} value1
    * @property {number} value2
-   * @property {string} option
    */
 
   /**
@@ -22,7 +30,6 @@
   let inputStructure = {
     value1: 0,
     value2: 0,
-    option: "default",
   };
 
   // Create initial values for your parameters
@@ -32,7 +39,6 @@
   const initialData = {
     value1: 10,
     value2: 30,
-    option: "multiply",
   };
 
   // Generate a formatted inputs store
@@ -44,40 +50,43 @@
    * @returns {number}
    */
   const processor = (inputs) => {
-    if (inputs.option === "add") {
+    if (operation === "add") {
       return inputs.value1 + inputs.value2;
-    } else if (inputs.option === "subtract") {
+    } else if (operation === "subtract") {
       return inputs.value1 - inputs.value2;
-    } else if (inputs.option === "multiply") {
+    } else if (operation === "multiply") {
       return inputs.value1 * inputs.value2;
     } else {
       return inputs.value1 / inputs.value2;
     }
   };
 
-  export let Identifier = "";
-  export let connectors = [];
-  export let position = { x: 0, y: 0 };
-
   // Generate output store
   const output = generateOutput(inputs, processor);
+
+  console.log(label, " ", connectors);
 </script>
 
 <Node
   position={position}
-  id={Identifier}
+  id={identifier}
   connections={connectors}
   width={400}
   height={200}
   useDefaults
+  label={label}
+  bgColor={bgColor}
 >
   <div class="node">
-    <div class="radio-group">
+        <!-- <div class="radio-group">
       <RadioGroup
         options={["add", "subtract", "multiply", "divide"]}
         parameterStore={$inputs.option}
       />
-    </div>
+    </div> -->
+    <h1 class="font-bold text-center text-xl capitalize">
+      {label}
+    </h1>
     <div class="sliders">
       <Slider parameterStore={$inputs.value1} />
       <Slider parameterStore={$inputs.value2} />
@@ -90,7 +99,7 @@
     <div class="output-anchors">
       <Anchor
         direction="east"
-        id={Identifier}
+        id={identifier}
         bgColor="red"
         outputStore={output}
         output
@@ -102,6 +111,20 @@
 </Node>
 
 <style>
+  .node {
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sliders {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 20px;
+  }
+
   .input-anchors {
     position: absolute;
     display: flex;
@@ -113,8 +136,8 @@
 
   .output-anchors {
     position: absolute;
-    right: 20px;
-    bottom: 20px;
+    right: 0px;
+    bottom: 50%;
     display: flex;
     flex-direction: column;
     gap: 10px;

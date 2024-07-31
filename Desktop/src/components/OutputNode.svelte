@@ -1,11 +1,11 @@
 <script>
-  import { Node, Anchor, Slider, generateInput, generateOutput } from "svelvet";
-  import { Connections } from "svelvet";
-  import { writable } from "svelte/store";
+  import { Node, Anchor, generateInput, generateOutput } from "svelvet";
 
-  export let Identifier = "";
+  export let identifier = "";
   export let connectors = [];
   export let position = { x: 0, y: 0 };
+  export let label = "Output";
+  export let bgColor = "lightblue";
 
   /**
    * @typedef {Object} InputStructure
@@ -49,21 +49,21 @@
 </script>
 
 <Node
-  {position}
-  id={Identifier}
+  position={position}
+  id={identifier}
   connections={connectors}
   width={400}
   height={200}
   useDefaults
+  label={label}
+  bgColor={bgColor}
 >
   <div class="node">
-	<div class="header w-full text-center">
-		<h1 class="text-xl font-bold">
-			Output
-		</h1>
-	</div>
+    <div class="header w-full text-center">
+      <h1 class="text-xl font-bold">{label}</h1>
+    </div>
     <div class="input-anchors">
-        <Anchor bgColor="green" {key} inputsStore={inputs} input />
+      <Anchor bgColor="green" {key} inputsStore={inputs} input />
     </div>
     <div class="output">
       {$output}
@@ -72,20 +72,19 @@
 </Node>
 
 <style>
-	.node {
-		width: 100%;
-		height: 100%;
-		background-color: #f0f0f0;
-		justify-content: center;
-	}
+  .node {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+  }
 
-	.output {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-		font-size: 32px
-	}
+  .output {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 32px;
+  }
 
   .input-anchors {
     position: absolute;

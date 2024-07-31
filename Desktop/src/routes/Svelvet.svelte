@@ -4,43 +4,53 @@
   import { Node, Svelvet } from "svelvet";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+
+  import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
 
-  let nodes = writable([
-    {
-      id: "sourceNode",
-      position: { x: 1000, y: 300 },
-      bgColor: "red",
-      label: "Node id: sourceNode",
-    },
-    {
-      id: "targetNode",
-      position: { x: 1000, y: 500 },
-      bgColor: "blue",
-      label: "Result id: targetNode",
-    },
-  ]);
-  let nodeIdCounter = 2;
+  let nodes = writable([]);
+  let nodeIdCounter = 301;
 
   let nodeTypes = [
-    { type: "Multiply", label: "Multiply Unit", bgColor: "lightblue" },
-    { type: "Divide", label: "Divide Unit", bgColor: "lightgreen" },
-    { type: "Add", label: "Add Unit", bgColor: "lightcoral" },
-    { type: "Subtract", label: "Subtract Unit", bgColor: "lightyellow" },
+    {
+      type: "YoloV8n",
+      label: "YOLO V8 Nano",
+      bgColor: "lightblue",
+      operation: "yolonano",
+    },
+    {
+      type: "YoloV8s",
+      label: "YOLO V8 Small",
+      bgColor: "lightgreen",
+      operation: "yolosmall",
+    },
+    {
+      type: "YoloV8segg",
+      label: "YOLO V8 Segmentation",
+      bgColor: "lightcoral",
+      operation: "yoloseg",
+    },
+    {
+      type: "HV1",
+      label: "High-Viz v1",
+      bgColor: "lightyellow",
+      operation: "hv1",
+    },
   ];
 
   function addNode(type) {
     const nodeType = nodeTypes.find((t) => t.type === type);
     if (nodeType) {
-      nodes.update((currentNodes) => [
-        ...currentNodes,
-        {
-          id: `node-${nodeIdCounter++}`,
-          position: { x: Math.random() * 500, y: Math.random() * 500 },
-          bgColor: nodeType.bgColor,
-          label: nodeType.label,
-        },
-      ]);
+      const newNode = {
+        id: `node-${nodeIdCounter++}`,
+        operation: nodeType.operation,
+        label: nodeType.label,
+        bgColor: nodeType.bgColor,
+        position: { x: Math.random() * 500, y: Math.random() * 500 }, // Set a random position
+        component: ProcessingNode,
+      };
+
+      nodes.update((currentNodes) => [...currentNodes, newNode]);
     }
   }
 </script>
@@ -56,33 +66,45 @@
   </div>
   <div class="canvas">
     <Svelvet fitView id="my-canvas" TD minimap controls editable>
-      <ProcessingNode
+      <InputNode
+        identifier="inputNode"
+        operation="input"
+        label="Input Image"
+        position={{ x: 0, y: 0 }}
+      />
+      <!-- <ProcessingNode
         connectors={["processingNode"]}
-        Identifier="inputNode"
+        identifier="inputNode"
+        operation="add"
+        label="Add"
         position={{ x: 0, y: 200 }}
       />
       <ProcessingNode
         connectors={["processingNode"]}
-        Identifier="inputNode1"
+        identifier="inputNode1"
+        operation="multiply"
+        label="Multiply"
         position={{ x: 0, y: 400 }}
       />
       <ProcessingNode
         connectors={["Output"]}
-        Identifier="processingNode"
+        identifier="processingNode"
+        operation="add"
+        label="Add"
         position={{ x: 485, y: 315 }}
-      />
-      <OutputNode Identifier="Output" 
-      position={{ x: 1000, y: 315 }}
-      />
-      <!-- {#each $nodes as node}
-        <Node
+      /> -->
+      <OutputNode identifier="Output" position={{ x: 1000, y: 315 }} />
+      {#each $nodes as node}
+        <svelte:component
+          this={node.component}
           id={node.id}
-          position={node.position}
+          identifier={node.id}
+          operation={node.operation}
           bgColor={node.bgColor}
           label={node.label}
-          LR
+          position={node.position}
         />
-      {/each} -->
+      {/each}
     </Svelvet>
   </div>
 </ProtectedRoutes>
