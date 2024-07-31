@@ -1,12 +1,10 @@
 <script>
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import ProcessingNode from "../components/ProcessingNode.svelte";
-  import {
-    Node,
-    Svelvet,
-  } from "svelvet";
+  import { Node, Svelvet } from "svelvet";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
+  import OutputNode from "../components/OutputNode.svelte";
 
   let nodes = writable([
     {
@@ -45,7 +43,6 @@
       ]);
     }
   }
-
 </script>
 
 <ProtectedRoutes>
@@ -70,11 +67,14 @@
         position={{ x: 0, y: 400 }}
       />
       <ProcessingNode
-        connectors={["sourceNode", "targetNode"]}
+        connectors={["Output"]}
         Identifier="processingNode"
         position={{ x: 485, y: 315 }}
       />
-      {#each $nodes as node}
+      <OutputNode Identifier="Output" 
+      position={{ x: 1000, y: 315 }}
+      />
+      <!-- {#each $nodes as node}
         <Node
           id={node.id}
           position={node.position}
@@ -82,7 +82,7 @@
           label={node.label}
           LR
         />
-      {/each}
+      {/each} -->
     </Svelvet>
   </div>
 </ProtectedRoutes>

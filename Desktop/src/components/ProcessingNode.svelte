@@ -58,7 +58,6 @@
   export let Identifier = "";
   export let connectors = [];
   export let position = { x: 0, y: 0 };
-  console.log(Identifier)
 
   // Generate output store
   const output = generateOutput(inputs, processor);
