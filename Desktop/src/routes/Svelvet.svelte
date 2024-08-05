@@ -7,8 +7,11 @@
 
   import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
+  import Drawer from "../components/Drawer.svelte";
+  import { Button } from "svelte-materialify";
 
   let nodes = writable([]);
+  let edges = writable([])
   let nodeIdCounter = 301;
 
   let nodeTypes = [
@@ -49,50 +52,73 @@
         position: { x: Math.random() * 500, y: Math.random() * 500 }, // Set a random position
         component: ProcessingNode,
       };
-
-      nodes.update((currentNodes) => [...currentNodes, newNode]);
+      nodes.update((currentNodes) => {
+        if (!Array.isArray(currentNodes)) {
+          currentNodes = [];
+        }
+        return [...currentNodes, newNode];
+      });
     }
+    nodes.subscribe((value) => {
+      console.log(value);
+    });
   }
+
+  function saveCanvas() {
+    nodes.subscribe((value) => {
+      console.log(value);
+    });
+    edges.subscribe((value) => {
+      console.log(value);
+    });
+    const nodeData = nodes;
+    const edgeData = edges;
+    const canvasData = { nodes: nodeData, edges: edgeData };
+    localStorage.setItem("canvasData", JSON.stringify(canvasData));
+    alert("Canvas saved!");
+
+    canvasData.subscribe((value) => {
+      console.log(value);
+    });
+  }
+
+  onMount(() => {
+    const savedData = localStorage.getItem("canvasData");
+    if (savedData) {
+      const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
+      nodes.set(savedNodes || []);
+      edges.set(savedEdges || []);
+    }
+  });
 </script>
 
 <ProtectedRoutes>
-  <div class="toolbar">
+  <div class="toolbar flex flex-row justify-between">
     <select on:change={(e) => addNode(e.target.value)}>
       <option value="" disabled selected>Select Node Type</option>
       {#each nodeTypes as nodeType}
         <option value={nodeType.type}>{nodeType.label}</option>
       {/each}
     </select>
+    <Button on:click={saveCanvas} class="bg-dark-primary text-dark-background">Save</Button>
   </div>
   <div class="canvas">
-    <Svelvet fitView id="my-canvas" TD minimap controls editable={true} theme="dark">
+    <Svelvet
+      height={900}
+      fitView
+      id="my-canvas"
+      TD
+      minimap
+      editable={true}
+      theme="dark"
+    >
+      <!-- <Drawer /> -->
       <InputNode
         identifier="inputNode"
         operation="input"
         label="Input Image"
         position={{ x: 0, y: 0 }}
       />
-      <!-- <ProcessingNode
-        connectors={["processingNode"]}
-        identifier="inputNode"
-        operation="add"
-        label="Add"
-        position={{ x: 0, y: 200 }}
-      />
-      <ProcessingNode
-        connectors={["processingNode"]}
-        identifier="inputNode1"
-        operation="multiply"
-        label="Multiply"
-        position={{ x: 0, y: 400 }}
-      />
-      <ProcessingNode
-        connectors={["Output"]}
-        identifier="processingNode"
-        operation="add"
-        label="Add"
-        position={{ x: 485, y: 315 }}
-      /> -->
       <OutputNode identifier="Output" position={{ x: 1000, y: 315 }} />
       {#each $nodes as node}
         <svelte:component

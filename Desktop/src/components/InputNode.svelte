@@ -125,6 +125,7 @@
     <div class="output">
       <div class="output-anchors">
         <Anchor
+          dynamic
           direction="east"
           id={identifier}
           bgColor="red"
