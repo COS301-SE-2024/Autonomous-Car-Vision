@@ -1,6 +1,9 @@
 import json
-
-
+import torch
+import torchvision.transforms as transforms
+from PIL import Image
+import numpy as np
+import cv2
 class Unit:
     def __init__(self, id="0", input_type=float, output_type=float, dimW=200, dimH=100, inputs=1, outputs=1,
                  useDefaults=False, bgColor="theme dependent",
@@ -49,53 +52,9 @@ class Unit:
         return json.dumps(properties, indent=4)
 
 
-class MultiplyUnit(Unit):
-    def __init__(self):
-        super().__init__(id="MultiplyUnit")
-
-    def process(self, data):
-        result = data * 2  # Example factor
-        if self.next_unit:
-            return self.next_unit.process(result)
-        return result
-
-
-class DivideUnit(Unit):
-    def __init__(self):
-        super().__init__(id="DivideUnit")
-
-    def process(self, data):
-        result = data / 2  # Example divisor
-        if self.next_unit:
-            return self.next_unit.process(result)
-        return result
-
-
-class AddUnit(Unit):
-    def __init__(self):
-        super().__init__(id="AddUnit")
-
-    def process(self, data):
-        result = data + 2  # Example addend
-        if self.next_unit:
-            return self.next_unit.process(result)
-        return result
-
-
-class SubtractUnit(Unit):
-    def __init__(self):
-        super().__init__(id="SubtractUnit")
-
-    def process(self, data):
-        result = data - 2  # Example subtrahend
-        if self.next_unit:
-            return self.next_unit.process(result)
-        return result
-
-
 class InputUnit(Unit):
     def __init__(self):
-        super().__init__(id="InputUnit")
+        super().__init__(id="InputUnit", input_type=np.ndarray, output_type=np.ndarray)
 
     def process(self, iToken):
         if self.next_unit:
@@ -105,10 +64,10 @@ class InputUnit(Unit):
 
 class OutputUnit(Unit):
     def __init__(self):
-        super().__init__(id="OutputUnit")
+        super().__init__(id="OutputUnit", input_type=np.ndarray, output_type=np.ndarray)
 
     def process(self, data):
-        print(f"{self.id}: Outputting final result: {data}")
+        print(f"{self.id}: Outputting final result: {data.shape}")
         return data
 
 

@@ -1,4 +1,5 @@
 import units
+
 class Pipe:
     def __init__(self):
         self.entry_point = None
@@ -21,22 +22,3 @@ class Pipe:
         if not isinstance(data, self.entry_point.input_type):
             raise TypeError(f"Input data type {type(data)} does not match expected type {self.entry_point.input_type}")
         return self.entry_point.process(data)
-
-# multiply_unit = units.MultiplyUnit(name="MultiplyUnit", factor=2)
-# divide_unit = units.DivideUnit(name="DivideUnit", divisor=4)
-# add_unit = units.AddUnit(name="AddUnit", addend=10)
-# subtract_unit = units.SubtractUnit(name="SubtractUnit", subtrahend=5)
-#
-# pipeline = Pipe()
-#
-# pipeline.add_unit(multiply_unit)
-# pipeline.add_unit(divide_unit)
-# pipeline.add_unit(add_unit)
-# pipeline.add_unit(subtract_unit)
-#
-#
-# input_data = 20.0
-# output_data = pipeline.process(input_data)
-# print(f"Final Output: {output_data}")
-
-# print(units.extractNodes())
