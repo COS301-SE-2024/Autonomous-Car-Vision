@@ -6,7 +6,7 @@ from ultralytics import YOLO
 from units import Unit
 
 class SegUnit(Unit):
-    def __init__(self, model_path='yolov8n-seg.pt'):
+    def __init__(self, model_path='yolov8x-seg.pt'):  # Default to yolov8x-seg.pt if not specified
         super().__init__(id="SegUnit", input_type=np.ndarray, output_type=np.ndarray)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"Using device: {self.device}")

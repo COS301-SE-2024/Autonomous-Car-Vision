@@ -1,37 +1,33 @@
+import os
 import cv2
 import numpy as np
+import imageio
 from units import InputUnit, OutputUnit
 from depthUnit import DepthEstimationUnit
 from pipe import Pipe
 from segUnit import SegUnit
 
-def process_video(video_path, pipe):
-    cap = cv2.VideoCapture(video_path)
+def process_video(video_path, output_path, pipe):
+    reader = imageio.get_reader(video_path, 'ffmpeg')
+    fps = reader.get_meta_data()['fps']
+    width, height = reader.get_meta_data()['size']
 
-    if not cap.isOpened():
-        print("Error: Could not open video.")
-        return
+    writer = imageio.get_writer(output_path, fps=fps)
 
-    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter('output.mp4', fourcc, fps, (frame_width, frame_height))
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        processed_frame = pipe.process(frame)
-        out.write(processed_frame)
-
-    cap.release()
-    out.release()
+    try:
+        for frame in reader:
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)  # Convert to BGR for OpenCV
+            processed_frame = pipe.process(frame)
+            processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)  # Convert back to RGB for imageio
+            writer.append_data(processed_frame)
+    finally:
+        reader.close()
+        writer.close()
+        print("Released video reader and writer resources.")
 
 if __name__ == "__main__":
     video_path = "TestEdit.mp4"
+    output_path = "output.mp4"
 
     input_unit = InputUnit()
     seg_unit = SegUnit(model_path='yolov8x-seg.pt')
@@ -42,4 +38,4 @@ if __name__ == "__main__":
     pipe.add_unit(seg_unit)
     pipe.add_unit(output_unit)
 
-    process_video(video_path, pipe)
+    process_video(video_path, output_path, pipe)
