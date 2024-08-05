@@ -9,6 +9,7 @@
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
+        mdiEyeRefresh,
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -24,9 +25,9 @@
 
     let routes = [
           {
-            name: "Models TEST",
-            route: "#/modelsPage",
-            iconPath: mdiViewGallery,
+            name: "Visualizer",
+            route: "#/visualize",
+            iconPath: mdiEyeRefresh,
         },
         {
             name: "Gallery",

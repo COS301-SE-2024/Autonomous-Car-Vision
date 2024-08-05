@@ -58,6 +58,6 @@ urlpatterns = [
     path("videos/", list_videos, name="list_videos"),
     path("lookup/", lookup, name="lookup"),
     path("devLogin/", devLogin),
-    path("downloadMSI/", download),
+    path("download/", download),
     path("uploadFile/", uploadFile),
 ]
