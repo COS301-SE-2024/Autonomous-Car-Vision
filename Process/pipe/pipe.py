@@ -1,5 +1,3 @@
-import units
-
 class Pipe:
     def __init__(self):
         self.entry_point = None

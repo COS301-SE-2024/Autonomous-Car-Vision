@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from units import InputUnit, OutputUnit
 from depthUnit import DepthEstimationUnit
+from segUnit import SegmentationUnit
 from pipe import Pipe
 
 def process_video(video_path, pipe):
@@ -11,7 +12,15 @@ def process_video(video_path, pipe):
         print("Error: Could not open video.")
         return
 
-    while cap.isOpened():
+    # Get the original frame width and height
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # Initialize VideoWriter to save the output video
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (frame_width, frame_height), isColor=False)
+
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
@@ -19,28 +28,26 @@ def process_video(video_path, pipe):
         # Process the current frame through the pipeline
         processed_frame = pipe.process(frame)
 
-        # Display the frame and processed result
-        cv2.imshow('Frame', frame)
-        cv2.imshow('Processed Frame', processed_frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # Write the processed frame to the output video
+        if len(processed_frame.shape) == 2:  # If the processed frame is grayscale
+            processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_GRAY2BGR)
+        out.write(processed_frame)
 
     cap.release()
-    cv2.destroyAllWindows()
+    out.release()
 
 if __name__ == "__main__":
-    video_path = "C:/Users/Keith/Downloads/petal_20240623_172724.mp4"
+    video_path = "C:/Users/keith/Desktop/Autonomous-Car-Vision/Models/petal.mp4"
 
     # Create units
     input_unit = InputUnit()
-    depth_estimation_unit = DepthEstimationUnit()
+    depth_unit = SegmentationUnit()
     output_unit = OutputUnit()
 
     # Create and configure pipeline
     pipe = Pipe()
     pipe.add_unit(input_unit)
-    pipe.add_unit(depth_estimation_unit)
+    pipe.add_unit(depth_unit)
     pipe.add_unit(output_unit)
 
     # Process video

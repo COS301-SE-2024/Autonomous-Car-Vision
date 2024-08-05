@@ -1,9 +1,8 @@
 import json
-import torch
-import torchvision.transforms as transforms
-from PIL import Image
 import numpy as np
 import cv2
+from PIL import Image
+
 class Unit:
     def __init__(self, id="0", input_type=float, output_type=float, dimW=200, dimH=100, inputs=1, outputs=1,
                  useDefaults=False, bgColor="theme dependent",
@@ -51,7 +50,6 @@ class Unit:
         }
         return json.dumps(properties, indent=4)
 
-
 class InputUnit(Unit):
     def __init__(self):
         super().__init__(id="InputUnit", input_type=np.ndarray, output_type=np.ndarray)
@@ -61,7 +59,6 @@ class InputUnit(Unit):
             return self.next_unit.process(iToken)
         return iToken
 
-
 class OutputUnit(Unit):
     def __init__(self):
         super().__init__(id="OutputUnit", input_type=np.ndarray, output_type=np.ndarray)
@@ -70,13 +67,11 @@ class OutputUnit(Unit):
         print(f"{self.id}: Outputting final result: {data.shape}")
         return data
 
-
 def extractNodes():
     nodes = {}
     for subclass in Unit.__subclasses__():
         instance = subclass()
         nodes[subclass.__name__] = json.loads(instance.printProps())
     return json.dumps(nodes, indent=4)
-
 
 print(extractNodes())
