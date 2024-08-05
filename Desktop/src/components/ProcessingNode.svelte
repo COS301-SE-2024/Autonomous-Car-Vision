@@ -3,7 +3,6 @@
     Node,
     Anchor,
     Slider,
-    RadioGroup,
     Edge,
     generateInput,
     generateOutput,
@@ -20,16 +19,14 @@
 
   /**
    * @typedef {Object} InputStructure
-   * @property {number} value1
-   * @property {number} value2
+   * @property {number} imageURL
    */
 
   /**
    * @type {InputStructure}
    */
   let inputStructure = {
-    value1: 0,
-    value2: 0,
+    imageURL: 0,
   };
 
   // Create initial values for your parameters
@@ -37,8 +34,7 @@
    * @type {InputStructure}
    */
   const initialData = {
-    value1: 10,
-    value2: 30,
+    imageURL: 'noImage.jpeg',
   };
 
   // Generate a formatted inputs store
@@ -50,15 +46,8 @@
    * @returns {number}
    */
   const processor = (inputs) => {
-    if (operation === "add") {
-      return inputs.value1 + inputs.value2;
-    } else if (operation === "subtract") {
-      return inputs.value1 - inputs.value2;
-    } else if (operation === "multiply") {
-      return inputs.value1 * inputs.value2;
-    } else {
-      return inputs.value1 / inputs.value2;
-    }
+    console.log(inputs.imageURL);
+    return inputs.imageURL;
   };
 
   // Generate output store
@@ -68,28 +57,27 @@
 </script>
 
 <Node
-  position={position}
+  {position}
   id={identifier}
   connections={connectors}
   width={400}
-  height={200}
+  height={400}
   useDefaults
-  label={label}
-  bgColor={bgColor}
+  {label}
+  {bgColor}
 >
   <div class="node">
-        <!-- <div class="radio-group">
-      <RadioGroup
-        options={["add", "subtract", "multiply", "divide"]}
-        parameterStore={$inputs.option}
-      />
-    </div> -->
     <h1 class="font-bold text-center text-xl capitalize">
       {label}
     </h1>
-    <div class="sliders">
-      <Slider parameterStore={$inputs.value1} />
-      <Slider parameterStore={$inputs.value2} />
+    <div class="w-full h-full flex items-center flex-col">
+      <h1 class="text-base">
+        {$output}
+      </h1>
+      {#if $output !== 'noImage.jpeg'}
+        <!-- svelte-ignore a11y-img-redundant-alt -->
+        <img width="80%" src={$output} alt="image.jpeg" />
+      {/if}
     </div>
     <div class="input-anchors">
       {#each Object.entries($inputs) as [key, value] (key)}
@@ -115,14 +103,9 @@
     width: fit-content;
     display: flex;
     flex-direction: column;
+    margin: 10px;
     gap: 20px;
-  }
-
-  .sliders {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-size: 20px;
+    color: black;
   }
 
   .input-anchors {

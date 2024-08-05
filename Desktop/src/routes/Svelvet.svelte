@@ -65,7 +65,7 @@
     </select>
   </div>
   <div class="canvas">
-    <Svelvet fitView id="my-canvas" TD minimap controls editable>
+    <Svelvet fitView id="my-canvas" TD minimap controls editable={true} theme="dark">
       <InputNode
         identifier="inputNode"
         operation="input"
