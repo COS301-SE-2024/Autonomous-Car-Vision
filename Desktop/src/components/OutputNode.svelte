@@ -1,5 +1,11 @@
 <script>
-  import { Node, Anchor, generateInput, generateOutput, Resizer } from "svelvet";
+  import {
+    Node,
+    Anchor,
+    generateInput,
+    generateOutput,
+    Resizer,
+  } from "svelvet";
 
   export let identifier = "";
   export let connectors = [];
@@ -58,23 +64,34 @@
   {bgColor}
 >
   <div class="node" class:selected>
-    <div class="header w-full text-center">
-      <h1 class="text-xl font-bold">{label}</h1>
-    </div>
-    <div class="input-anchors">
-      <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
-    </div>
-    <div class="output w-full h-auto flex items-center flex-col">
-      {#if $output !== "noImage.jpeg"}
-        <!-- svelte-ignore a11y-img-redundant-alt -->
-        <img width="80%" src={$output} alt="image.jpeg" />
-      {/if}
+    <div class="body">
+      <div class="header w-full text-center">
+        <h1 class="text-xl font-bold">{label}</h1>
+      </div>
+      <div class="input-anchors">
+        <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
+      </div>
+      <div class="output">
+        {#if $output !== "noImage.jpeg"}
+          <!-- svelte-ignore a11y-img-redundant-alt -->
+          <img src={$output} alt="image.jpeg" />
+        {/if}
+      </div>
     </div>
   </div>
-  <Resizer width height rotation/>
+  <Resizer width height rotation />
 </Node>
 
 <style>
+  .body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    height: 100%;
+  }
+
   .node {
     width: 100%;
     height: 100%;
@@ -85,8 +102,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    font-size: 32px;
+    height: 80%;
+    width: 80%;
   }
 
   .input-anchors {

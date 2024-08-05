@@ -26,7 +26,7 @@
    * @type {InputStructure}
    */
   let inputStructure = {
-    imageURL: '',
+    imageURL: "",
   };
 
   // Create initial values for your parameters
@@ -34,11 +34,11 @@
    * @type {InputStructure}
    */
   const initialData = {
-    imageURL: 'noImage.jpeg',
+    imageURL: "noImage.jpeg",
   };
 
   // Generate a formatted inputs store
-  const inputs = generateInput(initialData);
+  let inputs = generateInput(initialData);
 
   // Specify processor function
   /**
@@ -46,14 +46,20 @@
    * @returns {number}
    */
   const processor = (inputs) => {
-    console.log(inputs.imageURL);
     return inputs.imageURL;
   };
 
   // Generate output store
-  const output = generateOutput(inputs, processor);
+  let output = generateOutput(inputs, processor);
 
   console.log(label, " ", connectors);
+  console.log(initialData)
+  console.log(inputs)
+
+  $: inputs => {
+    inputs = generateInput(initialData);
+    output = generateOutput(inputs, processor);
+  }
 </script>
 
 <Node
@@ -67,34 +73,38 @@
   {bgColor}
 >
   <div class="node">
-    <h1 class="font-bold text-center text-xl capitalize">
-      {label}
-    </h1>
-    <div class="w-full h-full flex items-center flex-col">
-      <h1 class="text-base">
-        {$output}
+    <div class="body">
+      <h1 class="font-bold text-center text-xl capitalize">
+        {label}
       </h1>
-      {#if $output !== 'noImage.jpeg'}
-        <!-- svelte-ignore a11y-img-redundant-alt -->
-        <img width="80%" src={$output} alt="image.jpeg" />
-      {/if}
-    </div>
-    <div class="input-anchors">
-      {#each Object.entries($inputs) as [key, value] (key)}
-        <Anchor bgColor="green" {key} inputsStore={inputs} input />
-      {/each}
-    </div>
-    <div class="output-anchors">
-      <Anchor
-        dynamic
-        direction="east"
-        id={identifier}
-        bgColor="red"
-        outputStore={output}
-        output
-      >
-        <Edge slot="edge" color="yellow" label={$output} />
-      </Anchor>
+      <div class="w-full h-full flex items-center flex-col">
+        <h1 class="text-base">
+          {$output}
+        </h1>
+        <div class="showImage">
+          {#if $output !== "noImage.jpeg"}
+          <!-- svelte-ignore a11y-img-redundant-alt -->
+          <img src={$output} alt="image.jpeg" />
+          {/if}
+        </div>
+      </div>
+      <div class="input-anchors">
+        {#each Object.entries($inputs) as [key, value] (key)}
+          <Anchor bgColor="green" {key} inputsStore={inputs} input />
+        {/each}
+      </div>
+      <div class="output-anchors">
+        <Anchor
+          dynamic
+          direction="east"
+          id={identifier}
+          bgColor="red"
+          outputStore={output}
+          output
+        >
+          <Edge slot="edge" color="yellow" label={$output} />
+        </Anchor>
+      </div>
     </div>
   </div>
 </Node>
@@ -107,6 +117,24 @@
     margin: 10px;
     gap: 20px;
     color: black;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    height: 100%;
+  }
+
+  .showImage {
+    width: 20rem;
+    height: 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 
   .input-anchors {

@@ -22,12 +22,9 @@
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = (e) => {
-      //   inputs.update = e.target.result;
       fileUpload.image = e.target.result;
-      const testing = generateInput(fileUpload); 
-      output = generateOutput(testing, processor);
-      console.log("Image: ", e.target.result);
-      //   console.log("Inputs: ", $inputs);
+      inputs = generateInput(fileUpload);
+      output = generateOutput(inputs, processor);
     };
   };
 
@@ -35,13 +32,6 @@
    * @typedef {Object} InputStructure
    * @property {string} image
    */
-
-  /**
-   * @type {InputStructure}
-   */
-  let inputStructure = {
-    image: "",
-  };
 
   // Create initial values for your parameters
   /**
@@ -60,7 +50,7 @@
     return inputs.image; // Show Image and return string image to processorNode
   };
 
-  const inputs = generateInput(initialData);
+  let inputs = generateInput(initialData);
   let output = generateOutput(inputs, processor);
   console.log("INPUTS: ", $inputs);
   console.log("OUTPUT: ", $output);

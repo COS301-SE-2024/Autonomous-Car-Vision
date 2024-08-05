@@ -77,19 +77,27 @@
     localStorage.setItem("canvasData", JSON.stringify(canvasData));
     alert("Canvas saved!");
 
-    canvasData.subscribe((value) => {
-      console.log(value);
+    canvasData.nodes.subscribe((nodes) => {
+      console.log(nodes);
     });
+    canvasData.edges.subscribe((edges) => {
+      console.log(edges)
+    })
   }
 
-  onMount(() => {
-    const savedData = localStorage.getItem("canvasData");
+  function loadCanvas() {
+    const savedData = localStorage.getItem('canvasData');
+    console.log(savedData)
     if (savedData) {
       const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
       nodes.set(savedNodes || []);
       edges.set(savedEdges || []);
     }
-  });
+  }
+
+  onMount(() => {
+    loadCanvas();  
+  })
 </script>
 
 <ProtectedRoutes>
@@ -100,11 +108,13 @@
         <option value={nodeType.type}>{nodeType.label}</option>
       {/each}
     </select>
-    <Button on:click={saveCanvas} class="bg-dark-primary text-dark-background">Save</Button>
+    <div class="flex flex-row gap-2">
+      <Button on:click={loadCanvas} class="bg-dark-primary text-dark-background">Load Prev</Button>
+      <Button on:click={saveCanvas} class="bg-dark-primary text-dark-background">Save</Button>
+    </div>
   </div>
   <div class="canvas">
     <Svelvet
-      height={900}
       fitView
       id="my-canvas"
       TD
