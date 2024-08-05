@@ -1,6 +1,8 @@
 <script>
   import { Button, Tooltip } from "svelte-materialify";
-   import ModelsCardContent from '../components/ModelsCardContent.svelte';
+  import ModelsCardContent from "../components/ModelsCardContent.svelte";
+  import baffle from "baffle";
+   import { onMount } from "svelte";
   // Exported Parameters
 
   export let Model = {
@@ -9,18 +11,36 @@
     mVersion: "",
     mSummary: "",
     mStatus: "",
-    mProfileImg: "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
+    mProfileImg:
+      "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
     mImg: "",
   };
   export let key;
-  let isFlipped = false;
+ 
+  const script = "https://cdn.jsdelivr.net/npm/baffle@0.3.6/dist/baffle.min.js";
+
+  let b;
+  let b1;
+
+  onMount(async ()  => {
+    b = baffle('.version', {
+      characters: '0909dudcrfds',
+      speed: 100
+    });
+    b.start();
+    b.reveal(5000);
+
+    b1 = baffle('.mName', {
+      characters: '0909dudedggsedcrfefds',
+      speed: 100
+    });
+    b1.start();
+    b1.reveal(5000);
+  });
+
 
   let statusColour = "";
   let status = "";
-
-  function flipCard(){
-    isFlipped =!isFlipped;
-  }
 
   if (Model.mStatus === "green") {
     statusColour = "#00DC82";
@@ -33,174 +53,68 @@
     status = "Offline";
   }
 
+    
   let show = false;
 
   let isHovered = false;
 
-  function handleMouseOver() {
-    isHovered = true;
-  }
 
-  function handleMouseOut() {
-    isHovered = false;
-  }
 
-  // onMount(async () => {
-  //     try {
-  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/imagesloaded.pkgd.min.js');
-  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/charming.min.js');
-  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/TweenMax.min.js');
-  //     await loadScript('/home/kea_mothapo/Desktop/ACV_Project/Autonomous-Car-Vision/Desktop/src/routes/modelsJS/demo.js');
-  //     console.log('All scripts loaded successfully');
-  //     } catch (error) {
-  //     console.error(error);
-  //     }
-  // })
+
 
 </script>
 
-
-
-
-  <div class="slide">
-    <div class="slide__img-wrap">
-        <div class="slide__img" style="background-image: url({Model.mProfileImg})"></div>
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96">
+    <div class="texto col-span-1 transform rotate-180 ">
+      {Model.mDescription}
     </div>
-    <div class="slide__side">{Model.mDescription}</div>
-    <div class="slide__title-wrap">
-        <span class="slide__number">Ver: {Model.mVersion}</span>
-        <h3 class="slide__title">{Model.mName}</h3>
+    <div class="flex col-span-7 flex-col justify-center w-full h-full">
+      <!-- svelte-ignore a11y-img-redundant-alt -->
+      <img
+        src={Model.mProfileImg}
+        alt="Profile Image"
+        class="w-full h-3/4 object-cover"
+      />
+      <div class="block"> 
+          <div class="data flex flex-col">
+            <div class="version mt-2 text-sm text-white">-Ver. {Model.mVersion}</div>
+             <div class="mName text-lg font-bold text-white">{Model.mName}</div>
+          </div>
+          <div class="absolute bottom-10 left-60 ">
+            <Tooltip left bind:active={show}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="17"
+                viewBox="0 0 16 17"
+                fill="none"
+              >
+                <circle cx="8" cy="8.5" r="8" fill={statusColour} />
+              </svg>
+              <span slot="tip">{status}</span>
+            </Tooltip>
+          </div>
+      </div>
     </div>
-  </div>
-
+</div> 
 
 
 <style>
-  @import '../assets/base.css';
+  @import "../assets/base.css";
+
+  .background-card {
+    /* border: 0.5px solid #012431; */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .background-card:hover {
+    background-color: #012431b1;
+  }
+
+  .texto {
+    writing-mode: vertical-rl;
+    position: relative;
+    -webkit-writing-mode: vertical-rl;
+  }
 </style>
-
-  <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-  <!-- <div
-    {key}
-    class="flex flex-col h-fit items-start  border-2 border-theme-blue-light rounded-xl lg:w-full w-10/12 mx-auto text-theme-blue-light"
-    on:mouseover={flipCard} on:mouseout={flipCard}>
-  <div class="card-inner {isFlipped ? 'flipped' : '' }  rounded-xl ">
-
-    <div class="card-front   rounded-xl  "> 
-    <div
-      id="header"
-      class="flex flex-row  justify-between px-6 py-4 w-full"
-    >
-      <div class="inline-flex flex-row gap-2">
-        {#if Model.mProfileImg !== ""}
-          <mImg
-            class="rounded-full"
-            src={Model.mProfileImg}
-            alt={Model.mName}
-            style="height: 53px; width: 52px; object-fit: cover;"
-          />
-        {:else}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="52"
-            height="53"
-            viewBox="0 0 32 33"
-            fill="none"
-          >
-            <circle cx="16" cy="16.5" r="16" fill="#DEDEDE" />
-          </svg>
-        {/if}
-        <div class="flex flex-col">
-          <p class="w-fit text-theme-blue-light text-xl font-medium">{Model.mName}</p>
-          <p class="w-80 text-gray text-md font-normal">
-            {Model.mDescription}
-          </p>
-        </div>
-      </div>
-      <Tooltip left bind:active={show}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="17"
-          viewBox="0 0 16 17"
-          fill="none"
-        >
-          <circle cx="8" cy="8.5" r="8" fill={statusColour} />
-        </svg>
-        <span slot="tip">{Model.mStatus}</span>
-      </Tooltip>
-    </div>
-    {#if Model.mImg === ""}
-      <div
-        id="image"
-        class="flex justify-center items-center bg-black h-72 w-full"
-      >
-        <p class="text-center text-gray-light">No model image to display</p>
-      </div>
-    {:else}
-      <div
-        id="image"
-        class="flex justify-center items-center bg-black h-72 w-full"
-      >
-        <img class="h-72 w-full" src={Model.mImg} alt={Model.mName} />
-       </div>
-    {/if}
-    <div id="content" class="flex flex-col gap-4 w-full p-4">
-      <div id="withcontent" class="flex flex-col items-start gap-0">
-        <h1 class="text-lg font-medium">{Model.mVersion}</h1>
-        <!--p class="font-light h-fit">
-          {Model.mVersion}
-        mSummary</p>
-      </div>
-    </div>
-    </div>
-    <div class="card-back rounded-xl">
-     <div class="flex flex-row items-center justify-between px-6 py-4 w-full">
-       <p class="font-light h-fit"> {Model.mSummary} </p>
-    </div>
-   
-       </div>
-  </div>
-</div>
- 
-
-<style>
-
-
-.card-inner{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-  transform: rotateY(0deg);
-}
-
-.card-inner.flipped{
-  transform: rotateY(180deg);
-}
-
-.card-front, card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-}
-
-.card-front {
-  background-color: #fff;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-}
-
-.card-back {
-  background-color: #fff;
-  transform: rotateY(180deg);
-  backface-visibility: hidden;
-  width: 100%;
-  height: 100%;
-  padding: 10px;
-}
-
-</style> -->
