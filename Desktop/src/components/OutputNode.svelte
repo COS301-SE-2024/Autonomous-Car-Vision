@@ -1,5 +1,5 @@
 <script>
-  import { Node, Anchor, generateInput, generateOutput } from "svelvet";
+  import { Node, Anchor, generateInput, generateOutput, Resizer } from "svelvet";
 
   export let identifier = "";
   export let connectors = [];
@@ -18,9 +18,7 @@
    * @type {InputStructure}
    */
   let inputStructure = {
-    value1: 0,
-    value2: 0,
-    option: "default",
+    imageURL: "",
   };
 
   // Create initial values for your parameters
@@ -28,9 +26,7 @@
    * @type {InputStructure}
    */
   const initialData = {
-    value1: 0,
-    value2: 0,
-    option: "default",
+    imageURL: "images/static_processed_output.png",
   };
 
   // Specify processor function
@@ -39,7 +35,7 @@
    * @returns {number}
    */
   const processor = (inputs) => {
-    return inputs.value1;
+    return inputs.imageURL;
   };
   // Generate a formatted inputs store
   const inputs = generateInput(initialData);
@@ -49,26 +45,33 @@
 </script>
 
 <Node
-  position={position}
+  let:selected
+  minWidth={300}
+  minHeigth={300}
+  {position}
   id={identifier}
   connections={connectors}
   width={400}
-  height={200}
+  height={300}
   useDefaults
-  label={label}
-  bgColor={bgColor}
+  {label}
+  {bgColor}
 >
-  <div class="node">
+  <div class="node" class:selected>
     <div class="header w-full text-center">
       <h1 class="text-xl font-bold">{label}</h1>
     </div>
     <div class="input-anchors">
-      <Anchor bgColor="green" {key} inputsStore={inputs} input />
+      <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
     </div>
-    <div class="output">
-      {$output}
+    <div class="output w-full h-auto flex items-center flex-col">
+      {#if $output !== "noImage.jpeg"}
+        <!-- svelte-ignore a11y-img-redundant-alt -->
+        <img width="80%" src={$output} alt="image.jpeg" />
+      {/if}
     </div>
   </div>
+  <Resizer width height rotation/>
 </Node>
 
 <style>

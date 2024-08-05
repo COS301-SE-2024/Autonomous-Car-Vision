@@ -26,7 +26,7 @@
    * @type {InputStructure}
    */
   let inputStructure = {
-    imageURL: 0,
+    imageURL: '',
   };
 
   // Create initial values for your parameters
@@ -86,6 +86,7 @@
     </div>
     <div class="output-anchors">
       <Anchor
+        dynamic
         direction="east"
         id={identifier}
         bgColor="red"
