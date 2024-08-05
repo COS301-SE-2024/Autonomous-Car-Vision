@@ -4,7 +4,7 @@
   import baffle from "baffle";
    import { onMount } from "svelte";
    import { selectedModel } from "../stores/modelsStore.js"; 
-  // Exported Parameters
+
 
   export let Model = {
     mName: "",
@@ -22,6 +22,8 @@
 
   let b;
   let b1;
+  let versionElement;
+  let nameElement;
 
   onMount(async ()  => {
     b = baffle('.version', {
@@ -38,6 +40,22 @@
     b1.start();
     b1.reveal(5000);
   });
+
+  const handleHover = () => {
+      b = baffle(versionElement, {
+        characters: '0909dudcrfds',
+        speed: 100
+      });
+    b.start();
+    b.reveal(5000);
+
+      b1 = baffle(nameElement, {
+        characters: '0909dudedggsedcrfefds',
+        speed: 100
+      });
+    b1.start();
+    b1.reveal(5000);
+  };
 
 
   let statusColour = "";
@@ -60,7 +78,8 @@
   let isHovered = false;
 
   const handleClick = () => {
-    selectedModel.set(Model); // Set the selected model
+    selectedModel.set(Model); 
+    console.log("handleClick for " + selectedModel.mName);
   };
 
 
@@ -68,7 +87,9 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96"  on:click={handleClick}>
+<div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96" 
+   on:click={handleClick}
+   on:mouseenter={handleHover}>
     <div class="texto col-span-1 transform rotate-180 ">
       {Model.mDescription}
     </div>
@@ -81,8 +102,8 @@
       />
       <div class="block"> 
           <div class="data flex flex-col">
-            <div class="version mt-2 text-sm text-white">-Ver. {Model.mVersion}</div>
-             <div class="mName text-lg font-bold text-white">{Model.mName}</div>
+            <div bind:this={versionElement} class="version mt-2 text-sm text-white">-Ver. {Model.mVersion}</div>
+             <div bind:this={nameElement}  class="mName text-lg font-bold text-white">{Model.mName}</div>
           </div>
           <div class="absolute bottom-10 left-60 ">
             <Tooltip left bind:active={show}>
