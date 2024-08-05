@@ -9,8 +9,6 @@
 
 
   let Models = [];
-
-  // const selectedModel = writable(null);
  
 
   onMount(async () => {
@@ -73,13 +71,6 @@
               <ModelsCardContent {selectedModel} />
           </div>
         {/if}
-
-            <!-- <div class="fixed inset-0  flex items-center justify-center z-50">
-              <div class="p-4 rounded shadow-lg max-w-3xl w-full"> -->
-                <!-- <ModelsCardContent { Model} /> -->
-                <!-- <button class="absolute top-2 right-2 bg-white text-black" on:click={() => selectedModel.set(null)}>Close</button> -->
-              <!-- </div>
-            </div> -->
 
   {/if}
 </ProtectedRoutes>
