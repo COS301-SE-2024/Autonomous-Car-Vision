@@ -1,0 +1,38 @@
+{"dimensions": { "width": number, "height": number },
+  default: "{ width: 200, height: 100 }"
+
+
+{"id": number | string},
+default: "incrementing integer"
+
+
+{"inputs": number}
+default: "1"
+
+{"outputs":number}
+default: "1"
+
+
+{"useDefaults": boolean},
+default: "false"
+{"bgColor":CSS Color String},
+default: "theme dependent"
+
+{"borderColor":CSS Color String},
+default: "theme dependent"
+
+{"textColor":CSS Color String}
+default: "theme dependent"
+
+{"selectionColor": CSS Color String}
+default: "theme dependent"
+
+{"label":string}
+default: ""
+
+{"editable":boolean},
+default: "true"
+
+
+{"dynamic":boolean}
+default: "false"
