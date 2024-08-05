@@ -1,18 +1,20 @@
 <script>
     import { Button, Tooltip } from "svelte-materialify";
+    import { selectedModel } from "../stores/modelsStore.js"
+    import { get } from "svelte/store";
    
 
     
-  
-    export let Model = {
-      mName: "",
-      mDescription: "",
-      mVersion: "",
-      mSummary: "",
-      mStatus: "",
-      mProfileImg: "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
-      mImg: "",
-    };
+    export let Model= get(selectedModel);
+    // export let Model = {
+    //   mName: "",
+    //   mDescription: "",
+    //   mVersion: "",
+    //   mSummary: "",
+    //   mStatus: "",
+    //   mProfileImg: "https://cdn.pixabay.com/photo/2024/03/11/19/15/ai-generated-8627457_640.png",
+    //   mImg: "",
+    // };
 
     const goBack = () => {
       selectedModel.set(null);

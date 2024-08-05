@@ -5,12 +5,12 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
   import { onMount } from "svelte";
+  import { selectedModel } from "../stores/modelsStore.js";
+  import { get } from "svelte/store";
 
 
 
   let Models = [];
- 
-
   onMount(async () => {
 
     isLoading.set(true);
@@ -36,7 +36,9 @@
     }
   });
 
-   let selectedModel = null;
+
+ 
+  let selected = get(selectedModel);
 
   function selectModel(model) {
     selectedModel = model;
@@ -64,11 +66,10 @@
             {/each}
 
         </div>
-
-        {#if selectedModel}
+        {#if selected}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
           <div class="model-content-overlay" on:click={closeModelContent}>
-              <ModelsCardContent {selectedModel} />
+              <ModelsCardContent {selected} />
           </div>
         {/if}
 

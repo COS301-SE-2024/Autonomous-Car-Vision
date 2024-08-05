@@ -3,6 +3,7 @@
   import ModelsCardContent from "../components/ModelsCardContent.svelte";
   import baffle from "baffle";
    import { onMount } from "svelte";
+   import { selectedModel } from "../stores/modelsStore.js"; 
   // Exported Parameters
 
   export let Model = {
@@ -58,14 +59,16 @@
 
   let isHovered = false;
 
-
+  const handleClick = () => {
+    selectedModel.set(Model); // Set the selected model
+  };
 
 
 
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96">
+<div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96"  on:click={handleClick}>
     <div class="texto col-span-1 transform rotate-180 ">
       {Model.mDescription}
     </div>
@@ -116,5 +119,6 @@
     writing-mode: vertical-rl;
     position: relative;
     -webkit-writing-mode: vertical-rl;
+    /* padding-left: 15px; */
   }
 </style>
