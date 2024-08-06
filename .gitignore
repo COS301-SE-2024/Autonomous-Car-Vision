@@ -21,6 +21,10 @@ brokerVenv/
 processVenv/
 
 # IDE specific
+backendVenv
+modelsVenv
+ModelsVenv
+.pyc
 .idea
 .vscode
 
@@ -37,6 +41,3 @@ database.sqlite
 
 # Django specific
 /Django/__pycache__
-
-# Other specific folders and files
-frames
