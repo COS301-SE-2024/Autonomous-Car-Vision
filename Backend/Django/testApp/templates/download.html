@@ -26,7 +26,7 @@
         width: 100%;
         height: 100%;
         /* z-index: -1; */
-        opacity:20%;
+        opacity: 20%;
       }
       header {
         background-color: #0099ff;
@@ -36,24 +36,23 @@
         z-index: 100;
       }
 
-    .main-content {
+      .main-content {
         display: block;
         padding-left: 4rem;
         padding-top: 1rem;
         background-color: rgba(0, 0, 0, 0.902);
-
-    }
-    .main-content h2 {
-      font-weight: bolder;
-      font-size: 6rem;
-       text-shadow: 0 0 10px #0099ffd4;
-    }
-    .main-content p {
-      font-size: 2rem;
-      /* line-height: 1.5; */
-      color: white;
-      z-index: 100;
-    }
+      }
+      .main-content h2 {
+        font-weight: bolder;
+        font-size: 6rem;
+        text-shadow: 0 0 10px #0099ffd4;
+      }
+      .main-content p {
+        font-size: 2rem;
+        /* line-height: 1.5; */
+        color: white;
+        z-index: 100;
+      }
 
       .container {
         gap: 20px;
@@ -87,25 +86,25 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-     }
+      }
 
-      .downloadOption{
+      .downloadOption {
         /* background-color: rgb(102, 108, 128); */
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         text-align: center;
         padding: 20px;
-        display:grid;
+        display: grid;
         grid-template-rows: 1;
         /* background-opacity: 20%; */
       }
 
-        .downloadOption:hover{
-          /* background-color: #ffffff; */
-          color: #0099ff;
-          box-shadow: 0 0 15px #0099ff;
-          transform: scale(1.1);
-        }
+      .downloadOption:hover {
+        /* background-color: #ffffff; */
+        color: #0099ff;
+        box-shadow: 0 0 15px #0099ff;
+        transform: scale(1.1);
+      }
       .button {
         display: inline-block;
         background-color: #0099ff;
@@ -124,55 +123,57 @@
         box-shadow: 0 0 15px rgba(0, 55, 255, 0.683);
       }
 
-    footer {
-      background-color: #0099ff;
-      color: white;
-      text-align: center;
-      padding: 10px 0;
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-    }
-
+      footer {
+        background-color: #0099ff;
+        color: white;
+        text-align: center;
+        padding: 10px 0;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
     </style>
   </head>
 
   <body>
-    <canvas id="matrix-bg">
-    </canvas>
+    <canvas id="matrix-bg"> </canvas>
 
     <header>
       <h1>High-Viz</h1>
-  </header>
+    </header>
 
-  <div class="main-content">
-    <h2>Get High-Viz <br> for your device!</h2>
-    <p>Your autonomous driving assistant is waiting...</p>
-  </div>
+    <div class="main-content">
+      <h2>
+        Get High-Viz <br />
+        for your device!
+      </h2>
+      <p>Your autonomous driving assistant is waiting...</p>
+    </div>
 
-     <section class="container">
-      
+    <section class="container">
       <div class="downloads">
         <div class="downloadOption">
           <h1>WINDOWS</h1>
-          <a href="http://localhost:8006/agent" class="button">Download </a>
+          <a href="http://localhost:8006/windows" class="button">Download </a>
         </div>
 
         <div class="downloadOption">
           <h1>LINUX</h1>
-          <a href="http://localhost:8006/agent" class="button">Download</a>     
+          <a href="http://localhost:8006/linux" class="button">Download</a>
         </div>
 
         <div class="downloadOption" id="agent">
           <h1>AGENT INSTALLER</h1>
-          <a href="http://localhost:8006/agent" class="button">Initiate Download</a>
+          <a href="http://localhost:8006/agent" class="button"
+            >Initiate Download</a
+          >
         </div>
       </div>
     </section>
 
-  <footer>
+    <footer>
       <p>&copy; 2024 High-Viz and BitForge. All rights reserved.</p>
-  </footer>
+    </footer>
 
     <script>
       const canvas = document.getElementById("matrix-bg");
