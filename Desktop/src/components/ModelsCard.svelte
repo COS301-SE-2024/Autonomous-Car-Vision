@@ -44,7 +44,7 @@
   const handleHover = () => {
       b = baffle(versionElement, {
         characters: '0909dudcrfds',
-        speed: 100
+        speed: 100        
       });
     b.start();
     b.reveal(5000);
