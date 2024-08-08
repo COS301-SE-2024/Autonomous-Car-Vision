@@ -43,9 +43,15 @@
   const processor = (inputs) => {
     return inputs.imageURL;
   };
+
+  $: inputs => {
+    inputs = generateInput(initialData);
+    output = generateOutput(inputs, processor);
+  }
+
   // Generate a formatted inputs store
-  const inputs = generateInput(initialData);
-  const output = generateOutput(inputs, processor);
+  let inputs = generateInput(initialData);
+  let output = generateOutput(inputs, processor);
 
   const key = Object.entries($inputs)[0][0];
 </script>

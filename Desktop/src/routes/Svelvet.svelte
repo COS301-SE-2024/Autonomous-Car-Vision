@@ -1,14 +1,14 @@
 <script>
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import ProcessingNode from "../components/ProcessingNode.svelte";
-  import { Node, Svelvet } from "svelvet";
+  import { Svelvet, Node } from "svelvet";
   import { onMount } from "svelte";
   import { writable } from "svelte/store";
 
   import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
-  import Drawer from "../components/Drawer.svelte";
   import { Button } from "svelte-materialify";
+  import { get } from "svelte/store";
 
   let nodes = writable([]);
   let edges = writable([])
@@ -65,24 +65,15 @@
   }
 
   function saveCanvas() {
-    nodes.subscribe((value) => {
-      console.log(value);
-    });
-    edges.subscribe((value) => {
-      console.log(value);
-    });
-    const nodeData = nodes;
-    const edgeData = edges;
-    const canvasData = { nodes: nodeData, edges: edgeData };
-    localStorage.setItem("canvasData", JSON.stringify(canvasData));
-    alert("Canvas saved!");
+    const currentNodes = get(nodes);
+    const currentEdges = get(edges);
+    const canvasState = { nodes: currentNodes, edges: currentEdges };
+    const jsonCanvasState = JSON.stringify(canvasState);
 
-    canvasData.nodes.subscribe((nodes) => {
-      console.log(nodes);
-    });
-    canvasData.edges.subscribe((edges) => {
-      console.log(edges)
-    })
+    localStorage.setItem('canvasData', jsonCanvasState);
+
+    console.log("Canvas Saved", canvasState);
+
   }
 
   function loadCanvas() {
@@ -95,9 +86,37 @@
     }
   }
 
+  // function to handle when a node gets a connection
+  function handleEdgeConnect(event) {
+    edges.update((currentEdges) => [
+      ...currentEdges,
+      {
+        source: event.detail.source,
+        target: event.detail.target,
+      },
+    ]);
+    console.log("Edge Connected", event.detail);
+  }
+
+  // function to handle when a node loses a connection
+  function handleEdgeDisconnect(event) {
+    edges.update((currentEdges) =>
+      currentEdges.filter(
+        (edge) =>
+          !(edge.source === event.detail.source && edge.target === event.detail.target)
+      )
+    );
+  }
+
+
   onMount(() => {
-    loadCanvas();  
+    localStorage.clear();
+    loadCanvas();
   })
+
+  // Add a check that the user has to save the canvas before leaving the page if they have any unsaved changes
+  // add another check that the user has to save the canvas before running it
+  // make the sidebar a drawer that shows all the saved canvases
 </script>
 
 <ProtectedRoutes>
@@ -121,6 +140,8 @@
       minimap
       editable={true}
       theme="dark"
+      on:connection={handleEdgeConnect}
+      on:disconnection={handleEdgeDisconnect}
     >
       <!-- <Drawer /> -->
       <InputNode
