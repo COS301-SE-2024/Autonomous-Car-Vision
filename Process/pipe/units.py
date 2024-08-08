@@ -55,22 +55,7 @@ class Unit:
         """ Convert the unit to use TensorRT for processing """
         raise NotImplementedError("Each unit must implement the to_tensorrt method")
 
-class InputUnit(Unit):
-    def __init__(self):
-        super().__init__(id="InputUnit", input_type=np.ndarray, output_type=np.ndarray)
 
-    def process(self, iToken):
-        if self.next_unit:
-            return self.next_unit.process(iToken)
-        return iToken
-
-class OutputUnit(Unit):
-    def __init__(self):
-        super().__init__(id="OutputUnit", input_type=np.ndarray, output_type=np.ndarray)
-
-    def process(self, data):
-        print(f"{self.id}: Outputting final result: {data.shape}")
-        return data
 
 def extractNodes():
     nodes = {}
@@ -79,4 +64,4 @@ def extractNodes():
         nodes[subclass.__name__] = json.loads(instance.printProps())
     return json.dumps(nodes, indent=4)
 
-print(extractNodes())
+# print(extractNodes())

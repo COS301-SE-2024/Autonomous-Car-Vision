@@ -40,4 +40,7 @@ database.sqlite
 
 # Other specific folders and files
 frames
-petal.mp4
+Process/pipe/petal.mp4
+Process/pipe/output.mp4
+*.pt
+

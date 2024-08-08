@@ -3,8 +3,11 @@ import os
 import cv2
 import numpy as np
 import imageio
-from units import InputUnit, OutputUnit
-import segUnit
+from inputUnit import inputUnit
+from outputUnit import outputUnit
+import yoloUnit
+# from units import InputUnit, OutputUnit
+import yoloUnit
 from pipe import Pipe
 
 def process_video(video_path, output_path, pipe):
@@ -29,9 +32,9 @@ if __name__ == "__main__":
     video_path = "petal.mp4"
     output_path = "output.mp4"
 
-    input_unit = InputUnit()
-    seg_unit = segUnit.SegUnit('yolov8n-seg', use_tensorrt=True)
-    output_unit = OutputUnit()
+    input_unit = inputUnit()
+    seg_unit = yoloUnit.yoloUnit('yolov8n', use_tensorrt=False)
+    output_unit = outputUnit()
 
     pipe = Pipe()
     pipe.add_unit(input_unit)
@@ -39,7 +42,7 @@ if __name__ == "__main__":
     pipe.add_unit(output_unit)
 
     # Convert all units to TensorRT
-    for unit in [seg_unit]:
-        unit.to_tensorrt()
+    # for unit in [seg_unit]:
+    #     unit.to_tensorrt()
 
     process_video(video_path, output_path, pipe)

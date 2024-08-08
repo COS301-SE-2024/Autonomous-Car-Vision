@@ -1,9 +1,5 @@
-# bobthebuilder.py
-
 import pipe
-import units
 import importlib
-import numpy as np
 
 def parse_token(token):
     parts = token.split('.')
@@ -13,7 +9,7 @@ def parse_token(token):
 
 def get_unit_class(unit_type):
     try:
-        module = importlib.import_module('units')
+        module = importlib.import_module(unit_type)
         unit_class = getattr(module, unit_type)
         return unit_class
     except (ImportError, AttributeError) as e:
@@ -21,8 +17,10 @@ def get_unit_class(unit_type):
 
 def create_unit(unit_type, init_args):
     unit_class = get_unit_class(unit_type)
-    init_kwargs = {arg.split('=')[0]: arg.split('=')[1] for arg in init_args}
-    unit = unit_class(**init_kwargs)
+    if init_args:
+        unit = unit_class(*init_args)
+    else:
+        unit = unit_class()
     return unit
 
 def build_pipeline(input_string):
@@ -36,9 +34,5 @@ def build_pipeline(input_string):
 
     return pipeline
 
-# if __name__ == "__main__":
-#     input_string = "InputUnit,yolov8n.rt.int8,OutputUnit"
-#     pipeline = build_pipeline(input_string)
-#     data = np.zeros((100, 100))  # Example input data
-#     result = pipeline.process(data)
-#     print(result)
+# Example usage
+
