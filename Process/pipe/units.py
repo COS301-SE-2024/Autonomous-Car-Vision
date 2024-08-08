@@ -1,3 +1,4 @@
+# units.py
 import json
 import numpy as np
 import cv2
@@ -49,6 +50,10 @@ class Unit:
             "dynamic": self.dynamic
         }
         return json.dumps(properties, indent=4)
+
+    def to_tensorrt(self):
+        """ Convert the unit to use TensorRT for processing """
+        raise NotImplementedError("Each unit must implement the to_tensorrt method")
 
 class InputUnit(Unit):
     def __init__(self):

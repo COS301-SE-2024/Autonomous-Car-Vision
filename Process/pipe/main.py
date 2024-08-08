@@ -1,11 +1,11 @@
+# main.py
 import os
 import cv2
 import numpy as np
 import imageio
 from units import InputUnit, OutputUnit
-from depthUnit import DepthEstimationUnit
+import segUnit
 from pipe import Pipe
-from segUnit import SegUnit
 
 def process_video(video_path, output_path, pipe):
     reader = imageio.get_reader(video_path, 'ffmpeg')
@@ -26,16 +26,20 @@ def process_video(video_path, output_path, pipe):
         print("Released video reader and writer resources.")
 
 if __name__ == "__main__":
-    video_path = "TestEdit.mp4"
+    video_path = "petal.mp4"
     output_path = "output.mp4"
 
     input_unit = InputUnit()
-    seg_unit = SegUnit(model_path='yolov8x-seg.pt')
+    seg_unit = segUnit.SegUnit('yolov8n-seg', use_tensorrt=True)
     output_unit = OutputUnit()
 
     pipe = Pipe()
     pipe.add_unit(input_unit)
     pipe.add_unit(seg_unit)
     pipe.add_unit(output_unit)
+
+    # Convert all units to TensorRT
+    for unit in [seg_unit]:
+        unit.to_tensorrt()
 
     process_video(video_path, output_path, pipe)
