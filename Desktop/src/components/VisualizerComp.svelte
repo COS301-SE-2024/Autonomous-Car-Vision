@@ -7,7 +7,6 @@
     let scale = 1;
   let translateX = 0;
   let translateY = 0;
-  let model = "Model Name";
   let isDragging = false;
   let startX = 0;
   let startY = 0;
@@ -38,9 +37,6 @@
 
     
 <div class="relative h-screen flex justify-center items-center bg-gray-100">
-  <div class="absolute top-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2">
-    {model}
-  </div>
   <div class="image-container w-full h-full">
     <!-- svelte-ignore a11y-img-redundant-alt -->
     <img
