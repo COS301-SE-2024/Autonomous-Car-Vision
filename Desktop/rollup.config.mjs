@@ -16,10 +16,7 @@ export default {
     sourcemap: true,
     format: 'iife',
     name: 'app',
-    file: 'public/build/bundle.js',
-    globals: {
-      '@sveltejs/kit/navigation': 'navigation'
-    }
+    file: 'public/build/bundle.js'
   },
   plugins: [
     svelte({
@@ -47,7 +44,7 @@ export default {
       dedupe: ['svelte']
     }),
     commonjs(),
-    json(),
+      json(),
     production && terser()
   ],
   watch: {

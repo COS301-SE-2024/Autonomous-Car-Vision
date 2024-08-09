@@ -1,44 +1,21 @@
-# Node and Svelte specific
 .yarn
 node_modules
 build
-.svelte-kit
-.pnp.*
-.yarnrc.yml
-
-# Python specific
-*.py[cod]
-__pycache__/
-*.sqlite
-frames
-
-# Virtual environments
-backendVenv/
-modelsVenv/
-ModelsVenv/
-agentVenv/
-brokerVenv/
-processVenv/
-
-# IDE specific
+backendVenv
+modelsVenv
+ModelsVenv
 .pyc
 .idea
-.vscode
-
-# Environment files
 .env
 .env.local
-
-# SSL and encryption files
-*.pem
-*.enc
-
-# SQLite databases
+.yarnrc.yml
+.sqlite
+frames
+.pnp.*
+agentVenv
+brokerVenv
+.pem
+.enc
+frames
+processVenv
 database.sqlite
-
-# Django specific
-/Django/__pycache__
-
-# Dev Specific
-
-yarn.lock

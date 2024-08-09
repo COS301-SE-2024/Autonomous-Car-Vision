@@ -1,20 +1,9 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
-const fs = require('fs');
-
-// Determine the correct path for the SQLite database
-const isPackaged = process.mainModule.filename.indexOf('app.asar') !== -1;
-const basePath = isPackaged ? process.resourcesPath : __dirname;
-const databasePath = path.join(basePath, 'database.sqlite');
-
-// Ensure the directory exists in a writable location for the database file
-if (!fs.existsSync(path.dirname(databasePath))) {
-    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
-}
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: databasePath
+    storage: path.join(__dirname, 'database.sqlite')
 });
 
 const LookupTable = sequelize.define('LookupTable', {
