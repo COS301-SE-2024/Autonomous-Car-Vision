@@ -38,3 +38,7 @@ database.sqlite
 
 # Django specific
 /Django/__pycache__
+
+# Dev Specific
+
+yarn.lock
