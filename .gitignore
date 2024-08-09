@@ -42,5 +42,5 @@ database.sqlite
 frames
 Process/pipe/petal.mp4
 Process/pipe/output.mp4
-*.pt
-
+Process/pipe/*.pt
+/Desktop/outputVideos

@@ -36,14 +36,14 @@ class yoloUnit(Unit):
 
     def pytorch_process(self, frame):
         # Ensure the frame is resized to (640, 640) and normalized
-        frame = cv2.resize(frame, (640, 640))
-        frame = frame / 255.0  # Normalize to [0, 1]
-        frame = frame.transpose((2, 0, 1))  # Change from HWC to CHW
-        frame = np.expand_dims(frame, axis=0)  # Add batch dimension
-        frame = torch.from_numpy(frame).to(self.device).float()
+        # frame = cv2.resize(frame, (640, 640))
+        # frame = frame / 255.0  # Normalize to [0, 1]
+        # frame = frame.transpose((2, 0, 1))  # Change from HWC to CHW
+        # frame = np.expand_dims(frame, axis=0)  # Add batch dimension
+        # frame = torch.from_numpy(frame).to(self.device).float()
 
         # Debugging information
-        print(f"Frame shape: {frame.shape}, dtype: {frame.dtype}, device: {frame.device}")
+        # print(f"Frame shape: {frame.shape}, dtype: {frame.dtype}, device: {frame.device}")
 
         results = self.model(frame)
         annotated_frame = results[0].plot() if hasattr(results[0], 'masks') else results[0].plot()

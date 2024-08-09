@@ -52,8 +52,6 @@
 
   let inputs = generateInput(initialData);
   let output = generateOutput(inputs, processor);
-  console.log("INPUTS: ", $inputs);
-  console.log("OUTPUT: ", $output);
 
   const key = Object.entries($inputs)[0][0];
 </script>

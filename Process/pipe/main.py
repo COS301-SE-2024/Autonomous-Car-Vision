@@ -9,6 +9,7 @@ import yoloUnit
 # from units import InputUnit, OutputUnit
 import yoloUnit
 from pipe import Pipe
+import bobTheBuilder
 
 def process_video(video_path, output_path, pipe):
     reader = imageio.get_reader(video_path, 'ffmpeg')
@@ -31,18 +32,18 @@ def process_video(video_path, output_path, pipe):
 if __name__ == "__main__":
     video_path = "petal.mp4"
     output_path = "output.mp4"
+    pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8x-seg,outputUnit")
+    # input_unit = inputUnit()
+    # seg_unit = yoloUnit.yoloUnit('yolov8n-seg', use_tensorrt=False)
+    # output_unit = outputUnit()
 
-    input_unit = inputUnit()
-    seg_unit = yoloUnit.yoloUnit('yolov8n', use_tensorrt=False)
-    output_unit = outputUnit()
-
-    pipe = Pipe()
-    pipe.add_unit(input_unit)
-    pipe.add_unit(seg_unit)
-    pipe.add_unit(output_unit)
-
-    # Convert all units to TensorRT
-    # for unit in [seg_unit]:
-    #     unit.to_tensorrt()
+    # pipe = Pipe()
+    # pipe.add_unit(input_unit)
+    # pipe.add_unit(seg_unit)
+    # pipe.add_unit(output_unit)
+    #
+    # # Convert all units to TensorRT
+    # # for unit in [seg_unit]:
+    # #     unit.to_tensorrt()
 
     process_video(video_path, output_path, pipe)
