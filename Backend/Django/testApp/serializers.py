@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import User, Auth, OTP, Token, Media
+from .models import User, Auth, OTP, Token, Media, Corporation
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["uid", "uname", "uemail"]
+        fields = ["uid", "uname", "uemail", "cid", "is_admin"]
 
 
 class AuthSerializer(serializers.ModelSerializer):
@@ -36,3 +36,8 @@ class MediaSerializer(serializers.ModelSerializer):
         if obj.media_url:
             return request.build_absolute_uri(obj.media_url)
         return None
+
+class CorporationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Corporation
+        fields = ["cid", "cname"]

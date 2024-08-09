@@ -26,6 +26,11 @@ from .views import (
     devLogin,
     download,
     uploadFile,
+    getCID,
+    isInCorporation,
+    registerCorporation,
+    addUserToCorporation,
+    makeAdmin    
 )
 
 router = DefaultRouter()
@@ -60,4 +65,9 @@ urlpatterns = [
     path("devLogin/", devLogin),
     path("download/", download),
     path("uploadFile/", uploadFile),
+    path("getCID/", getCID),
+    path("isInCorporation/", isInCorporation),
+    path("registerCorporation/", registerCorporation),
+    path("addUserToCorporation/", addUserToCorporation),
+    path("makeAdmin/", makeAdmin),
 ]

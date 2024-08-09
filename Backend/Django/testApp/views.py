@@ -10,8 +10,9 @@ from .serializers import (
     AuthSerializer,
     OTPSerializer,
     MediaSerializer,
+    CorporationSerializer
 )
-from .models import User, Auth, OTP, Token, Media
+from .models import User, Auth, OTP, Token, Media, Corporation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -55,6 +56,11 @@ class MediaViewSet(viewsets.ModelViewSet):
     queryset = Media.objects.all()
     serializer_class = MediaSerializer
     permission_classes = [IsAuthenticated]
+    
+class CorporationViewSet(viewsets.ModelViewSet):
+    queryset = Corporation.objects.all()
+    serializer_class = CorporationSerializer
+    permission_classes = [IsAuthenticated]    
 
 
 @api_view(["POST", "PUT", "DELETE"])
@@ -184,6 +190,8 @@ def signup(request):
         "uid": uid,
         "uname": data["uname"],
         "uemail": data["uemail"],
+        "cid": data["cid"],
+        "is_admin": data["is_admin"],
     }
     user_serializer = UserSerializer(data=user_data)
     if user_serializer.is_valid():
@@ -647,12 +655,24 @@ def devLogin(request):
     uname = 'dev'
     uemail = 'dev@gmail.com'
     
+    if not Corporation.objects.filter(cname='dev').exists():
+        corporation_data = {
+            'cname': 'dev'
+        }
+        corporation_serializer = CorporationSerializer(data=corporation_data)
+        if corporation_serializer.is_valid():
+            corporation_serializer.save()
+        else:
+            return Response(corporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     if not User.objects.filter(uname=uname).exists():
         uid = random.randint(0, 999999999)
         user_data = {
             'uid': uid,
             'uname': "dev",
-            'uemail': 'dev@gmail.com'
+            'uemail': 'dev@gmail.com',
+            'cid': 1,
+            'is_admin': True
         }
         
         user_serializer = UserSerializer(data=user_data)
@@ -738,3 +758,96 @@ def uploadFile(request):
     return Response(
         {"aip": data["aip"], "aport": data["aport"]}, status=status.HTTP_200_OK
     )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCID(request):
+    data = request.data
+    cname = data.get("cname")
+    if not cname:
+        return Response(
+            {"error": "Corporation name is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if Corporation.objects.filter(cname=cname).exists():
+        corporation = Corporation.objects.get(cname=cname)
+        return Response({"cid": corporation.cid}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Corporation not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def isInCorporation(request):
+    data = request.data
+    uid = data.get("uid")
+    cid = data.get("cid")
+    if not uid or not cid:
+        return Response(
+            {"error": "UID and CID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if User.objects.filter(uid=uid, cid=cid).exists():
+        return Response({"message": "User is in corporation"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"message": "User is not in corporation"}, status=status.HTTP_404_NOT_FOUND)    
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def registerCorporation(request):
+    data = request.data
+    cname = data.get("cname")
+    if not cname:
+        return Response(
+            {"error": "Corporation name is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if Corporation.objects.filter(cname=cname).exists():
+        return Response({"error": "Corporation already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        corporation_data = {
+            "cname": cname
+        }
+        corporation_serializer = CorporationSerializer(data=corporation_data)
+        if corporation_serializer.is_valid():
+            corporation_serializer.save()
+            return Response(corporation_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(corporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def addUserToCorporation(request):
+    data = request.data
+    uid = data.get("uid")
+    cid = data.get("cid")
+    if not uid or not cid:
+        return Response(
+            {"error": "UID and CID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if User.objects.filter(uid=uid).exists():
+        user = User.objects.get(uid=uid)
+        user.cid = cid
+        user.save()
+        return Response({"message": "User added to corporation"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def makeAdmin(request):
+    data = request.data
+    uid = data.get("uid")
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if User.objects.filter(uid=uid).exists():
+        user = User.objects.get(uid=uid)
+        user.is_admin = True
+        user.save()
+        return Response({"message": "User is now an admin"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+                
