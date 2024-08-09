@@ -46,6 +46,15 @@ def agent():
     filePath = "./package/MyFastAPIAppSetup.exe"
     return FileResponse(filePath, filename="MyFastAPIAppSetup.exe")
 
+@app.get("/windows")
+def windows():
+    filepath = "./package/HighViz Setup 1.0.0.exe"
+    return FileResponse(filepath, filename="HighViz.exe")
+
+@app.get("/linux")
+def linux():
+    filepath = "./package/HighViz-1.0.0.AppImage"
+    return FileResponse(filepath, filename="HighViz.AppImage")
 
 @app.post("/test")
 async def test(request: Request):

@@ -5,12 +5,12 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
   import { onMount } from "svelte";
+  import { selectedModel } from "../stores/modelsStore.js";
+  import { get } from "svelte/store";
 
 
 
   let Models = [];
- 
-
   onMount(async () => {
 
     isLoading.set(true);
@@ -36,14 +36,16 @@
     }
   });
 
-   let selectedModel = null;
+
+ 
+  let selected = get(selectedModel);
 
   function selectModel(model) {
-    selectedModel = model;
-  }
+    selected = model;
+   }
 
   function closeModelContent() {
-    selectedModel = null;
+    selected = null;
   }
 
 </script>
@@ -64,11 +66,10 @@
             {/each}
 
         </div>
-
-        {#if selectedModel}
+        {#if selected}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div class="model-content-overlay" on:click={closeModelContent}>
-              <ModelsCardContent {selectedModel} />
+          <div class="model-content-overlay rounded-lg" on:click={closeModelContent}>
+              <ModelsCardContent {selected} />
           </div>
         {/if}
 
@@ -80,12 +81,11 @@
 
   .model-content-overlay {
     position: fixed;
-    top: 20%;
-    left: 27%;
-    /* right: 0; */
-    background-color: rgba(0, 0, 0, 0.5);
+    top: 11%;
+    left: 18%;
+    background-image: linear-gradient(180deg, #001524, #181818);
     z-index: 1000;
-    width:90vh;
-    height: 60vh;
+    width: 125vh;
+    height: 77vh;
   }
 </style>
