@@ -4,7 +4,7 @@ class User(models.Model):
     uid = models.IntegerField(primary_key=True)
     uname = models.TextField(unique=True)
     uemail = models.TextField(unique=True)
-    cid = models.ForeignKey("Corporation", on_delete=models.CASCADE)
+    cid = models.ForeignKey("Corporation", on_delete=models.CASCADE, db_column="cid")
     is_admin = models.BooleanField(default=False)
 
     class Meta:
