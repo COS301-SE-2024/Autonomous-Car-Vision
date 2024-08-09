@@ -34,29 +34,29 @@
 </script>
 
 <MaterialApp> 
-  <div class="min-h-screen flex items-center justify-center bg-theme-dark-white">
+  <div class="container min-h-screen flex items-center justify-center bg-theme-dark">
     <div
-      class="p-8 rounded-lg shadow-card-blue w-80 text-theme-dark-primary bg-theme-dark-white"
+      class="modal p-8 rounded-lg shadow-lg w-80 text-theme-dark-primary"
     >
-      <h1 class="text-4xl text-center mb-6 text-bold text-black">Welcome to High-Viz</h1>
+      <h1 class=" text-4xl text-center mb-6 text-bold text-white">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
           <button
-            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             Log In
           </button>
         </a>
         <a href="#/signup" class="w-full">
           <button
-            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             Sign Up
           </button>
         </a>
         <a href="#/" class="w-full" on:click={developerLogin}>
           <button
-            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg hover:bg-theme-dark-secondary transition"
+            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             Developer
           </button>
@@ -65,3 +65,17 @@
     </div>
   </div>
 </MaterialApp>
+
+
+<style>
+.container{
+  background-image: linear-gradient(180deg, #001524, #181818);
+}
+
+.modal{
+  background-image: linear-gradient(180deg, #181818, #001524);
+}
+button:hover {
+    background-color: #0f6173c6;
+  }
+</style>

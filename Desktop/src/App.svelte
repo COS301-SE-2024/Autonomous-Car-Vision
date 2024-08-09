@@ -43,7 +43,12 @@
 </script>
 
 <div>
-  <Toaster />
+  <Toaster class="container"/>
   <Router {routes} />
 </div>
 
+<style>
+    .container{
+       background-image: linear-gradient(180deg, #001524, #181818);
+      }
+</style>

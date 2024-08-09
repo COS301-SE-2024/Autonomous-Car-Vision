@@ -19,7 +19,7 @@ module.exports = {
           },
           'theme-light': {
             lightText: '#FFFFFF',
-            background: '#d9d9d9', // Timberwolf background
+            background: '#001524', // Timberwolf background
             primary: '#28a745', // primary
             secondary: '#218838', // secondary
             error: '#ff0000', // error

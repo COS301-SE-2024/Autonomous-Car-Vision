@@ -77,7 +77,7 @@
 </ProtectedRoutes>
 
 <style>
-  @import "../assets/base.css";
+  /* @import "../assets/base.css"; */
 
   .model-content-overlay {
     position: fixed;
