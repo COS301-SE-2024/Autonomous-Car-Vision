@@ -64,7 +64,6 @@
 
     function toggleAccountPopup() {
         showAccountPopup = !showAccountPopup;
-        console.log("TOGGLE: ", showAccountPopup);
     }
 
     function closeAccountPopup() {

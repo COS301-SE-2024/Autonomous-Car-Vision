@@ -11,7 +11,7 @@
   import { get } from "svelte/store";
 
   let nodes = writable([]);
-  let edges = writable([])
+  let edges = writable([]);
   let nodeIdCounter = 301;
 
   let nodeTypes = [
@@ -64,21 +64,22 @@
     });
   }
 
-  function saveCanvas() {
+  function SaveCanvas() {
     const currentNodes = get(nodes);
     const currentEdges = get(edges);
     const canvasState = { nodes: currentNodes, edges: currentEdges };
     const jsonCanvasState = JSON.stringify(canvasState);
 
-    localStorage.setItem('canvasData', jsonCanvasState);
+    localStorage.setItem("canvasData", jsonCanvasState);
 
     console.log("Canvas Saved", canvasState);
 
+    console.log("Encoder: ", encoder(jsonCanvasState));
   }
 
-  function loadCanvas() {
-    const savedData = localStorage.getItem('canvasData');
-    console.log(savedData)
+  function LoadCanvas() {
+    const savedData = localStorage.getItem("canvasData");
+    console.log(savedData);
     if (savedData) {
       const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedData);
       nodes.set(savedNodes || []);
@@ -86,37 +87,60 @@
     }
   }
 
+  function ClearCanvas() {
+    nodes.set([]); // set nodes array empty
+    edges.set([]); // set edges array empty 
+  }
+
   // function to handle when a node gets a connection
   function handleEdgeConnect(event) {
     edges.update((currentEdges) => [
       ...currentEdges,
       {
-        source: event.detail.source,
-        target: event.detail.target,
+        sourceAnchor: event.detail.sourceAnchor,
+        sourceNode: event.detail.sourceNode,
+        targetAnchor: event.detail.targetAnchor,
+        targetNode: event.detail.targetNode,
       },
     ]);
-    console.log("Edge Connected", event.detail);
   }
 
   // function to handle when a node loses a connection
   function handleEdgeDisconnect(event) {
+    console.log("Edge DISConnected", event.detail);
     edges.update((currentEdges) =>
       currentEdges.filter(
         (edge) =>
-          !(edge.source === event.detail.source && edge.target === event.detail.target)
-      )
+          !(
+            edge.sourceAnchor === event.detail.sourceAnchor &&
+            edge.sourceNode === event.detail.sourceNode &&
+            edge.targetAnchor === event.detail.targetNode &&
+            edge.targetNode === event.detail.targetNode
+          ),
+      ),
     );
   }
 
+  function deleteNode(nodeId) {
+    nodes.update((currentNodes) => currentNodes.filter(node => node.id !== nodeId));
+  }
+
+  function encoder(jsonCanvasState) {
+    let PipeString = 'inputUnit,outputUnit';
+    console.log(jsonCanvasState.nodes);
+    console.log(jsonCanvasState);
+
+  }
+
+  function decoder() {
+
+  }
 
   onMount(() => {
     localStorage.clear();
-    loadCanvas();
-  })
+    LoadCanvas();
+  });
 
-  // Add a check that the user has to save the canvas before leaving the page if they have any unsaved changes
-  // add another check that the user has to save the canvas before running it
-  // make the sidebar a drawer that shows all the saved canvases
 </script>
 
 <ProtectedRoutes>
@@ -128,8 +152,16 @@
       {/each}
     </select>
     <div class="flex flex-row gap-2">
-      <Button on:click={loadCanvas} class="bg-dark-primary text-dark-background">Load Prev</Button>
-      <Button on:click={saveCanvas} class="bg-dark-primary text-dark-background">Save</Button>
+      <Button on:click={LoadCanvas} class="bg-dark-primary text-dark-background"
+        >Load Prev</Button
+      >
+      <Button on:click={SaveCanvas} class="bg-dark-primary text-dark-background"
+        >Save</Button
+      >
+      <Button
+        on:click={ClearCanvas}
+        class="bg-dark-primary text-dark-background">Clear Pipe</Button
+      >
     </div>
   </div>
   <div class="canvas">

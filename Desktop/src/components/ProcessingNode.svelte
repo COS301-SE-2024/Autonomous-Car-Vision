@@ -1,12 +1,7 @@
 <script>
-  import {
-    Node,
-    Anchor,
-    Slider,
-    Edge,
-    generateInput,
-    generateOutput,
-  } from "svelvet";
+  import { Node, Anchor, Edge, generateInput, generateOutput } from "svelvet";
+  import { Button } from "svelte-materialify";
+  import { createEventDispatcher } from "svelte";
 
   export let identifier = "";
   export let connectors = [];
@@ -14,6 +9,7 @@
   export let operation = "";
   export let label = "Node";
   export let bgColor = "";
+  export let deleteNode = false;
 
   console.log(identifier, ": OPERATION: ", operation);
 
@@ -52,13 +48,15 @@
   // Generate output store
   let output = generateOutput(inputs, processor);
 
-  console.log(label, " ", connectors);
-  console.log(initialData)
-  console.log(inputs)
-
-  $: inputs => {
+  $: (inputs) => {
     inputs = generateInput(initialData);
     output = generateOutput(inputs, processor);
+  };
+
+  const dispatch = createEventDispatcher();
+
+  function DeleteNodeID () {
+    deleteNode = true;
   }
 </script>
 
@@ -71,20 +69,27 @@
   useDefaults
   {label}
   {bgColor}
+  editable={false}
 >
   <div class="node">
     <div class="body">
-      <h1 class="font-bold text-center text-xl capitalize">
-        {label}
-      </h1>
+      <div class="w-full flex flex-row justify-between">
+        <h1 class="font-bold text-left text-xl capitalize">
+          {label}
+        </h1>
+        <!-- Will add this after DEMO 3 -->
+        <!-- <div>
+          <Button rounded class="bg-dark-background text-dark-primary" onclick={DeleteNodeID}>Delete</Button>
+        </div> -->
+      </div>
       <div class="w-full h-full flex items-center flex-col">
         <h1 class="text-base">
           {$output}
         </h1>
         <div class="showImage">
           {#if $output !== "noImage.jpeg"}
-          <!-- svelte-ignore a11y-img-redundant-alt -->
-          <img src={$output} alt="image.jpeg" />
+            <!-- svelte-ignore a11y-img-redundant-alt -->
+            <img src={$output} alt="image.jpeg" />
           {/if}
         </div>
       </div>
@@ -106,8 +111,8 @@
         </Anchor>
       </div>
     </div>
-  </div>
-</Node>
+  </div></Node
+>
 
 <style>
   .node {
