@@ -34,10 +34,19 @@
 </script>
 
 <MaterialApp> 
-  <div class="container min-h-screen flex items-center justify-center bg-theme-dark">
+  
+  <div class="container min-h-screen flex flex-col items-center justify-center bg-theme-dark">
+    
+    <div
+    > <!-- svelte-ignore a11y-missing-attribute -->
+      <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
+      </iframe>
+    </div>
+ 
     <div
       class="modal p-8 rounded-lg shadow-lg w-80 text-theme-dark-primary"
     >
+         
       <h1 class=" text-4xl text-center mb-6 text-bold text-white">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
