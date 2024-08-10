@@ -48,11 +48,18 @@
           </div>
         </div>
             <!-- TODO: Link the send invites button to next page -->
-          <Button
-            class="bg-theme-dark-primary w-2/3 text-theme-dark-white"
-            rounded
-            block>Send Invites</Button
-          >
+                <div> 
+                    <a  
+                        class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
+                        href="#/installGuide"
+                        >
+                        <Button
+                            class="bg-theme-dark-primary w-2/3 text-theme-dark-white"
+                            rounded
+                            block>Send Invites</Button
+                        > 
+                    </a>
+                </div>
           <!-- TODO: Link the skip button to next page -->
           <div  class="ml-96 pl-6 text-theme-dark-white pt-2 rounded">
                 <Button class="rounded">Skip Step</Button>

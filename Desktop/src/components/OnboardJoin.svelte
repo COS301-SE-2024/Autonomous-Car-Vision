@@ -20,14 +20,30 @@
                         <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
 
             <TextField outlined class="border border-dark-primary ">Team Name</TextField>
-                    <!-- TODO: Link the next button to next page -->
-
+            <!-- TODO: Link the next button to next page -->
+            <a
+            class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
+            href="#/installGuide"
+            >
             <Button
               class="bg-theme-dark-primary text-theme-dark-lightText"
               rounded
               block>Next</Button
             >
-          </div>
+            </div>
+            <div> 
+                <a  
+                    class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
+                    href="#/newTeam"
+                >
+                    <!-- TODO: Link the button to next page -->
+                    <div  class="flex flex-row ml-48 pl-4 text-theme-dark-white pt-2 rounded">
+
+                        <p class="pt-1.5 pr-1"> Don't have a team?</p>
+                        <span><Button class="rounded">Create Team</Button></span>
+                    </div> 
+                </a>
+            </div>
           </div>
         
       </div>

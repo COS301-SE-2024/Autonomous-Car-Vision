@@ -58,7 +58,7 @@
         </a>
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary"
-          href="#/signup"
+          href="#/join"
         >
           <Button
             class="text-white "
