@@ -13,6 +13,8 @@ import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
 import Join from './Join.svelte'
+import NewTeam from './NewTeam.svelte'
+import Invite from './Invite.svelte'
 
 
 const routes = {
@@ -29,6 +31,8 @@ const routes = {
     '/video/:VideoUrl': VideoPage,
     '/help': Help,
     '/join': Join,
+    '/newTeam': NewTeam,
+    '/invite': Invite,
 };
 
 export default routes;
