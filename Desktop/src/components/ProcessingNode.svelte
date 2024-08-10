@@ -11,8 +11,6 @@
   export let bgColor = "";
   export let deleteNode = false;
 
-  console.log(identifier, ": OPERATION: ", operation);
-
   /**
    * @typedef {Object} InputStructure
    * @property {number} imageURL

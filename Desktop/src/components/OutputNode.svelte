@@ -85,7 +85,6 @@
       </div>
     </div>
   </div>
-  <Resizer width height rotation />
 </Node>
 
 <style>
