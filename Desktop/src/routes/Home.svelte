@@ -62,7 +62,7 @@
           </button>
         </a>
 
-        <a href="#/join" class="w-full">
+        <a href="#/install" class="w-full">
           <button
             class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >

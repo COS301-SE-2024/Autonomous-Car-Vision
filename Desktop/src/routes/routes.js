@@ -15,6 +15,7 @@ import VideoPage from './video/[videoUrl]/+page.svelte'
 import Join from './Join.svelte'
 import NewTeam from './NewTeam.svelte'
 import Invite from './Invite.svelte'
+import Install from './Install.svelte'
 
 
 const routes = {
@@ -33,6 +34,7 @@ const routes = {
     '/join': Join,
     '/newTeam': NewTeam,
     '/invite': Invite,
+    '/install': Install,
 };
 
 export default routes;
