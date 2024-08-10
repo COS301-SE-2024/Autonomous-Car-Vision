@@ -37,10 +37,10 @@
   
   <div class="container min-h-screen flex flex-col items-center justify-center bg-theme-dark">
     
-    <div
-    > <!-- svelte-ignore a11y-missing-attribute -->
-      <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
-      </iframe>
+    <div> <!-- svelte-ignore a11y-missing-attribute -->
+      <!-- <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
+      </iframe> -->
+      <img src="./images/HomeAnimation.gif"/>
     </div>
  
     <div
