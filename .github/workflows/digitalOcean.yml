@@ -18,9 +18,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 159.89.238.117 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 157.230.191.84 >> ~/.ssh/known_hosts
 
       - name: Deploy to DigitalOcean
         run: |
           echo "Deploying to DigitalOcean..."
-          ssh root@159.89.238.117 'bash -s' ls -a
+          ssh root@157.230.191.84 'bash -s' ls -a
