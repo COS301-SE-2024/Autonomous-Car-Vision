@@ -160,6 +160,22 @@ ipcMain.on('clear-prev-path', (event) => {
     event.returnValue = true;
 });
 
+//! Team Name
+ipcMain.on('store-team-name', (event, teamName) => {
+    store.set('teamName', teamName);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-team-name', (event) => {
+    const teamName = store.get('teamName');
+    event.returnValue = teamName;
+});
+
+ipcMain.on('clear-team-name', (event) => {
+    store.delete('teamName');
+    event.returnValue = true;
+});
+
 ipcMain.on('load-store-process', (event) => {
     const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
     event.returnValue = storeData;

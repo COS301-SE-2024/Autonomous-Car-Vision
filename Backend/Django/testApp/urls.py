@@ -33,6 +33,7 @@ from .views import (
     makeAdmin,
     joinTeam,
     createTeam,
+    send_invite_email,
 )
 
 router = DefaultRouter()
@@ -74,4 +75,5 @@ urlpatterns = [
     path("makeAdmin/", makeAdmin),
     path("joinTeam/", joinTeam),
     path("createTeam/", createTeam),
+    path("sendInviteEmail/", send_invite_email),
 ]

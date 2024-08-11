@@ -11,6 +11,7 @@
     window.electronAPI.clearUname();
     window.electronAPI.clearUemail();
     window.electronAPI.clearPrevPath();
+    window.electronAPI.clearTeamName();
   });
 
   const developerLogin = async () => {

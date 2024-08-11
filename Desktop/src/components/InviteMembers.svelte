@@ -2,6 +2,7 @@
     import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
     import { mdiAccountPlus } from "@mdi/js";
   import { push } from "svelte-spa-router";
+  import axios from "axios";
 
     let add;
     let email = ''; // Variable to store the email address
@@ -14,9 +15,25 @@
         }
     }
 
-    function goToGallery() {
+    const goToGallery = async () => {
         push("/gallery");
     }
+
+    const sendEmails = async () => {
+        console.log("Sending invites");
+        console.log(newMembers);
+        // Send the emails to the new members
+        try {
+            const response = await axios.post("http://localhost:8000/sendInviteEmail/", {
+                newMembers: newMembers,
+                teamName: window.electronAPI.getTeamName(),
+            });
+            console.log(response);
+            push("/gallery");
+        } catch (error) {
+            console.error("Sending invites failed:", error);
+        }
+    };
   
   </script>
 
@@ -61,7 +78,7 @@
                         <Button
                             class="bg-theme-dark-primary w-2/3 text-theme-dark-white"
                             rounded
-                            block>Send Invites</Button
+                            block on:click={sendEmails}>Send Invites</Button
                         > 
                     </a>
                 </div>

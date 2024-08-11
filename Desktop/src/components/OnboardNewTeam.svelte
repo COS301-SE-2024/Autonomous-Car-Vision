@@ -15,6 +15,7 @@
           uid: window.electronAPI.getUid(),
           admin: true,
         });
+      window.electronAPI.storeTeamName(teamName);
         console.log(response);
         push("/invite");
       } catch (error) {

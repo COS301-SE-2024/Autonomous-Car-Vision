@@ -36,6 +36,7 @@
         is_admin: false,
       });
       window.electronAPI.storeUid(JSON.stringify(response.data.uid));
+      window.electronAPI.storeUemail(eToken);
       //! FIX to push to otp
       window.electronAPI.storePrevPath("/signup");
       push("/otp");

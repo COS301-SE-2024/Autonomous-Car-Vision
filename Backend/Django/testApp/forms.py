@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Auth, OTP, Token, Video, Corporation
+from .models import User, Auth, OTP, Token, Video, Corporation, TokenCorporation
 
 
 class UserForm(forms.ModelForm):
@@ -34,4 +34,9 @@ class MediaForm(forms.ModelForm):
 class CorporationForm(forms.ModelForm):
     class Meta:
         model = Corporation
-        fields = ["cname"]
+        fields = ["cname"]        
+        
+class TokenCorporationForm(forms.ModelForm):
+    class Meta:
+        model = TokenCorporation
+        fields = ["token", "email"]        

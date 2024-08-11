@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Auth, OTP, Token, Media, Corporation
+from .models import User, Auth, OTP, Token, Media, Corporation, TokenCorporation
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,3 +41,8 @@ class CorporationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Corporation
         fields = ["cname"]
+        
+class TokenCorporationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenCorporation
+        fields = ["token", "email"]        

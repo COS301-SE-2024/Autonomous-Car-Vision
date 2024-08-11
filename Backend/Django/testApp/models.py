@@ -91,3 +91,14 @@ class Corporation(models.Model):
 
     def __str__(self):
         return self.cname
+    
+class TokenCorporation(models.Model):
+    tid = models.AutoField(primary_key=True)
+    token = models.TextField(unique=True)
+    email = models.TextField(unique=True)
+    
+    class Meta:
+        db_table = "tokencorporation"
+        
+    def __str__(self):
+        return self.token    

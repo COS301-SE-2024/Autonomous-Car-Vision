@@ -5,14 +5,16 @@ from django.shortcuts import render
 import requests
 from rest_framework import viewsets
 from .serializers import (
+    TokenCorporationSerializer,
     TokenSerializer,
     UserSerializer,
     AuthSerializer,
     OTPSerializer,
     MediaSerializer,
-    CorporationSerializer
+    CorporationSerializer,
+    TokenCorporationSerializer,
 )
-from .models import User, Auth, OTP, Token, Media, Corporation
+from .models import User, Auth, OTP, Token, Media, Corporation, TokenCorporation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -290,7 +292,6 @@ def send_otp_email(to_email, otp_code, expiry_date):
         print("Email sent successfully")
     except Exception as e:
         print(f"Failed to send email: {str(e)}")
-
 
 @api_view(["POST"])
 def otpRegenerate(request):
@@ -877,8 +878,13 @@ def joinTeam(request):
     uid = data.get("uid")
     cname = data.get("teamName")
     admin = data.get("admin")
+    token = data.get("token")
+    email = data.get("email")
+    
+    print(data)
 
-    if not uid or not cname:
+    if not uid or not cname or not email or not token:
+        print("error1")
         return Response(
             {"error": "UID and team name are required"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -886,9 +892,19 @@ def joinTeam(request):
     try:
         if(not Corporation.objects.filter(cname=cname).exists()):
             User.objects.get(uid=uid).delete()
+            print("No corporation found")
             return Response(
                 {"error": "Corporation not found"}, status=status.HTTP_404_NOT_FOUND
             )
+            
+        # check if email is in TokenCorporation and token matches
+        if TokenCorporation.objects.filter(email=email, token=token).exists():
+            print("email and token match")
+        else:
+            User.objects.get(uid=uid).delete()
+            return Response(
+                {"error": "Invalid email or token"}, status=status.HTTP_400_BAD_REQUEST
+            ) 
         
         corporation, created = Corporation.objects.get_or_create(cname=cname)
 
@@ -952,3 +968,64 @@ def createTeam(request):
         return Response({"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def send_invite_email(request):
+    data = request.data
+    emails = data.get("newMembers")
+    teamName = data.get("teamName")
+    
+    if not emails or not teamName:
+        return Response(
+            {"error": "Emails and team name are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Generate a token
+    token = ''.join(random.choices(string.ascii_letters + string.digits, k=40))
+    
+    for email in emails:
+        tokencorporation_data = {
+            'token': token,  # Ensure 'token' matches the field name in the serializer/model
+            'email': email
+        }
+        
+        tokencorporation_serializer = TokenCorporationSerializer(data=tokencorporation_data)
+        if tokencorporation_serializer.is_valid():
+            tokencorporation_serializer.save()
+        else:
+            return Response(tokencorporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        
+    try:
+        for email in emails:
+            send_invite(teamName, email, token)
+        return Response(
+            {"message": "Invites sent successfully"}, status=status.HTTP_200_OK
+        )
+        
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+def send_invite(teamName, email, token):
+    from_email = "bitforge.capstone@gmail.com"
+    from_password = os.getenv("APP_PASSWORD")
+    subject = "Join our team!"
+    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://localhost:8000/download \n\n Use the following token to join the team: {token}"
+    message = MIMEMultipart()
+    message["From"] = from_email
+    message["To"] = email
+    message["Subject"] = subject
+    message.attach(MIMEText(body, "plain"))
+    
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(from_email, from_password)
+        text = message.as_string()
+        server.sendmail(from_email, email, text)
+        server.quit()
+        print("Email sent successfully")
+    except Exception as e:
+        print(f"Failed to send email: {str(e)}")

@@ -26,7 +26,12 @@ class Corporation(Base):
     __tablename__ = 'corporations'
     cid = Column(Integer, primary_key=True)
     cname = Column(String, unique=True, nullable=False)  
-
+    
+class TokenCorporation(Base):
+    __tablename__ = 'token_corporation'
+    tid = Column(Integer, primary_key=True)
+    token = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
 class Auth(Base):
     __tablename__ = 'auth'
     id = Column(Integer, primary_key=True)

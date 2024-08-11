@@ -3,8 +3,10 @@
     import { mdiEyeOff, mdiEye } from "@mdi/js";
     import axios from "axios";
     import { push } from "svelte-spa-router";
+  import { token } from "../stores/auth";
 
     let teamName = "";
+    let tokenValue = "";
   
     const submit = async () => {
       console.log("Joining a team");
@@ -15,6 +17,8 @@
           teamName: teamName,
           uid: window.electronAPI.getUid(),
           admin: false,
+          token: tokenValue,
+          email: window.electronAPI.getUemail(),
         });
         console.log(response);
         push("/gallery");
@@ -38,6 +42,7 @@
                         <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
 
             <TextField bind:value={teamName} outlined class="border border-dark-primary ">Team Name</TextField>
+            <TextField bind:value={tokenValue} outlined class="border border-dark-primary ">Token</TextField>
             <!-- TODO: Link the next button to next page -->
             <a
             class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
@@ -49,6 +54,7 @@
               block on:click={submit}>Next</Button
             >
             </div>
+          </div>
             <div> 
                 <a  
                     class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
@@ -66,7 +72,7 @@
         
       </div>
     <!-- </MaterialApp> -->
-    </div>
+    <!-- </div> -->
   
   
   <style>
