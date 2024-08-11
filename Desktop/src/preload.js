@@ -53,4 +53,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPythonScriptDone: (callback) => ipcRenderer.on('python-script-done', callback),
     checkCUDA: () => ipcRenderer.invoke('check-cuda'),
     onProcessChanged: (callback) => ipcRenderer.on('process-changed', callback),
+    selectDrivesDirectory: () => ipcRenderer.invoke('selectDrivesDirectory'),
+    getDrivesDirectory: () => ipcRenderer.invoke('getDrivesDirectory'),
+    getDriveVideos: (directory) => ipcRenderer.invoke('getDriveVideos', directory),
   });

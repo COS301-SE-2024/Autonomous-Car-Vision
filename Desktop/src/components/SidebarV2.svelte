@@ -10,6 +10,7 @@
         mdiAccountCog,
         mdiLogout,
         mdiEyeRefresh,
+        mdiCar
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -24,7 +25,17 @@
     let showAccountPopup = false;
 
     let routes = [
-          {
+        // {
+        //     name: "ThreeD",
+        //     route: "#/threejs",
+        //     iconPath: mdiEyeRefresh,
+        // },
+        {
+            name: "Drive Gallery",
+            route: "#/drivegallery",
+            iconPath: mdiCar,
+        },
+        {
             name: "Visualizer",
             route: "#/visualize",
             iconPath: mdiEyeRefresh,

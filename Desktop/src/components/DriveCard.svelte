@@ -9,57 +9,22 @@
 
   export let videoSource;
   export let videoName;
-  export let isDownloaded;
   export let listType;
 
   let isGalLoading = false;
-  let showMoreModal = false;
   let firstFrameURL = "";
-  let isDownloading = false;
 
   let showTooltip = false;
   let processed = false;
 
-  const handleDownload = async (event) => {
-    event.stopPropagation();
-    // isDownloading.set(true);
-    isDownloading = true;
-    try {
-      const response = await window.electronAPI.downloadVideo(
-        videoName,
-        videoSource
-      );
-      console.log(response.success, response.filePath);
-    } catch (error) {}
-    setTimeout(() => {
-      // isDownloading.set(false);
-      isDownloading = false;
-      showMoreModal = false;
-      isDownloaded = true;
-    }, 10000);
-    console.log("DOWNLOAD BUTTON");
-  };
-
   function goToVideo() {
-    if (!isDownloaded) return;
     console.log("Go to video");
     const encodedPath = encodeURIComponent(videoSource);
     VideoURL.set(videoSource);
     OriginalVideoURL.set(videoSource);
     originalVideoURL.set(videoSource);
-    push(`/video/${encodedPath}`);
-  }
-
-  function handleMore() {
-    console.log("More button clicked");
-    showMoreModal = true;
-    console.log(videoSource);
-  }
-
-  function handleBack(event) {
-    console.log("Back button clicked");
-    event.stopPropagation(); // Stop event propagation
-    showMoreModal = false;
+    console.log(encodedPath);
+    push(`/drive/${encodedPath}`);
   }
 
   function captureSpecificFrame(frameNumber) {
@@ -73,7 +38,7 @@
 
       videoElement.currentTime = targetTime;
     });
-
+    
     videoElement.addEventListener("seeked", () => {
       if (videoElement.readyState >= 2) {
         // Ensure the video is loaded
@@ -93,24 +58,16 @@
 
   onMount(async () => {
     isGalLoading = true;
-    captureSpecificFrame(10); // Specify the frame to get
+    captureSpecificFrame(1);
+
     try {
       processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
       console.log("Processed:", processed);
     } catch (error) {
       console.error("Error checking if video is processed:", error);
     }
-    if (!isDownloaded) {
-      try {
-        const response = await window.electronAPI.getVideoFrame(
-          videoSource,
-          videoName
-        );
-        let videoPaths = response;
-        firstFrameURL = videoPaths[0];
-        console.log(firstFrameURL);
-      } catch (error) {}
-    }
+    // Other fetching logic
+
     setInterval(() => {
       isGalLoading = false;
     }, 1500);
@@ -119,9 +76,10 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="{isDownloaded
-    ? 'cursor-default'
-    : 'notDownloaded'} background-card relative overflow-hidden rounded-lg {listType === 'list' ? 'w-4/6 flex flex-row align-center justify-between' : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+  class="background-card relative overflow-hidden rounded-lg {listType ===
+  'list'
+    ? 'w-4/6 flex flex-row align-center justify-between'
+    : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
   role="button"
   tabindex="0"
@@ -129,13 +87,12 @@
   {#if isGalLoading}
     <div class="flex justify-center items-center h-64">
       <div class="content-loader flex justify-center h-full w-full">
-         <div class="img-content-loader w-full">
-          </div>
+        <div class="img-content-loader w-full"></div>
       </div>
     </div>
   {/if}
   {#if !isGalLoading}
-    <div class="image-container relative">
+    <div class="image-container relative h-auto">
       {#if listType === "grid"}
         <img
           src={firstFrameURL}
@@ -144,39 +101,25 @@
         />
       {:else}
         <img
-        src={firstFrameURL}
-        alt="video preview"
-        class="w-28 object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+          src={firstFrameURL}
+          alt="video preview"
+          class="w-28 object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
         />
       {/if}
       <div
-        class="{isDownloaded
-          ? 'hover:block'
-          : 'hover:hidden'} lg:w-4/12 button-container absolute"
+        class="lg:w-4/12 button-container absolute"
         style="top:40%; left:50%; transform: translate(-50%, 50%);"
       >
-        {#if !isDownloading && !isDownloaded}
-          <button
-            class="more text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
-            on:click={handleDownload}
-          >
-            <Icon path={mdiDownload} size="24" /></button
-          >
-        {:else if !isDownloaded}
-          <div class="flex justify-center relative -top-4">
-            <RingLoader />
-          </div>
-        {/if}
       </div>
       <div class="TT-positioning">
         <Tooltip left bind:active={showTooltip}>
           {#if listType === "grid"}
-          <div
-            class="processed-info"
-            style={processed
-              ? "background-color: #1AFF00;"
-              : "background-color: red;"}
-          ></div>
+            <div
+              class="processed-info"
+              style={processed
+                ? "background-color: #1AFF00;"
+                : "background-color: red;"}
+            ></div>
           {/if}
           <span slot="tip">
             {#if processed}
@@ -194,14 +137,6 @@
       >
         {videoName}
       </p>
-      <div id="playbtn">
-        <Icon
-          class="text-dark-secondary"
-          path={mdiPlayCircle}
-          size={40}
-          on:click={goToVideo}
-        />
-      </div>
     </div>
   {/if}
 </div>
@@ -210,6 +145,7 @@
   img {
     aspect-ratio: 16/9;
   }
+
   .content-loader {
     background-color: #25292b;
     border-radius: 10px;
@@ -234,16 +170,6 @@
     height: 12px;
     color: white;
     border-radius: 50%;
-  }
-
-  .notDownloaded {
-    filter: grayscale(100%);
-    cursor: pointer;
-    shadow: grayscale;
-  }
-
-  .cursor-default {
-    cursor: default;
   }
 
   .details {

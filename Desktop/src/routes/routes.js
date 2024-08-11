@@ -12,7 +12,9 @@ import Gallery from '../pages/GallaryPage.svelte'
 import ChangePassword from "../routes/ChangePassword.svelte"
 import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
-
+import Drives from './drives/[videoUrl]/+page.svelte'
+import DriveGallery from './DriveGallery.svelte'
+import ThreeJS from './ThreeJS.svelte'
 
 const routes = {
     '/': Home,
@@ -27,6 +29,9 @@ const routes = {
     '/changePassword': ChangePassword,
     '/video/:VideoUrl': VideoPage,
     '/help': Help,
+    '/drive/:driveurl': Drives,
+    '/drivegallery': DriveGallery,
+    '/threejs': ThreeJS,
 };
 
 export default routes;
