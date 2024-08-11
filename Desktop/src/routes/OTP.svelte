@@ -1,6 +1,7 @@
 <script>
   import axios from "axios";
   import { push } from "svelte-spa-router";
+  import {Button} from "svelte-materialify"
 
   let email = "";
   let code = Array(6).fill("");
@@ -46,12 +47,12 @@
   }
 </script>
 
-<div class="flex items-center justify-center min-h-screen bg-white">
+<div class="flex shadow-card items-center self-center mx-auto justify-center min-h-screen lg:w-4/12 w-6/12">
   <div
-    class="bg-white p-8 rounded-lg shadow-lg border border-theme-keith-accentone"
+    class="container p-8 rounded-lg shadow-lg"
   >
-    <h2 class="text-xl font-bold mb-2 text-center">We sent you a code.</h2>
-    <p class="text-black text-center mb-4">
+    <h2 class="text-xl font-bold text-white mb-2 text-center">We sent you a code.</h2>
+    <p class="text-white text-center mb-4">
       Please, enter the code below to verify your email<br /><span
         class="text-theme-keith-highlight">{email}</span
       >
@@ -62,7 +63,7 @@
           id={"input-" + index}
           type="text"
           maxlength="1"
-          class="w-10 h-10 ring-1 ring-theme-keith-primary focus:ring-theme-keith-highlight focus:outline-1 focus:outline-none text-theme-keith-accentone text-xl rounded-lg text-center"
+          class="text-white w-10 h-10 ring-1 ring-theme-keith-primary focus:ring-theme-keith-highlight focus:outline-1 focus:outline-none text-theme-keith-accentone text-xl rounded-lg text-center"
           bind:value={code[index]}
           on:input={(e) => handleInput(e, index)}
           on:keydown={(e) => handleInput(e, index)}
@@ -70,14 +71,21 @@
         />
       {/each}
     </div>
-    <button
+    <Button
       on:click={verifyCode}
-      class="w-full py-2 bg-theme-keith-accentone font-bold rounded hover:bg-theme-keith-accenttwo transition"
+      class="w-full py-2 bg-theme-dark-primary text-theme-dark-white font-bold rounded hoverClass transition"
     >
       Verify
-    </button>
+    </Button>
   </div>
 </div>
 
 <style>
+  .container{
+      background-image: linear-gradient(180deg,#181818, #001524 );
+    }
+
+    .hoverClass{
+    background-image: #012431b1;
+}
 </style>

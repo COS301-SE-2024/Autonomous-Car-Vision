@@ -86,9 +86,9 @@
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
-          <TextField bind:value={nToken} outlined class="border border-dark-primary ">Username/Email</TextField>
+          <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary ">Username/Email</TextField>
           <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
+            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitUsername}
             rounded
             block>Next</Button
@@ -114,7 +114,7 @@
             </div>
           </TextField>
           <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
+            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitPassword}
             rounded
             block>Log in</Button

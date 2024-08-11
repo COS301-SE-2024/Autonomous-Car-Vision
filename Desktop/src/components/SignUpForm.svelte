@@ -77,13 +77,13 @@
           id="form"
           class="flex flex-col gap-2 py-3 text-white"
         >
-          <TextField bind:value={eToken} outlined class="border border-dark-primary ">Email</TextField>
-          <TextField bind:value={nToken} outlined class="border border-dark-primary text-theme-dark-white">Username</TextField>
+          <TextField bind:value={eToken} outlined class="pt-4 border-b-2 border-dark-primary ">Email</TextField>
+          <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary text-theme-dark-white">Username</TextField>
           <TextField 
             bind:value={pToken}
             outlined
             type={show ? "text" : "password"}
-            class="border border-dark-primary text-theme-dark-white"
+            class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
           >
             Password
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -100,7 +100,7 @@
             bind:value={ppToken}
             outlined
             type={showConfirm ? "text" : "password"}
-            class="border border-dark-primary text-theme-dark-white"
+            class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
           >
             Confirm password
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -115,7 +115,7 @@
           </TextField>
         </div>
         <Button
-          class="bg-theme-dark-primary text-theme-dark-white hoverClass"
+          class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClass"
           on:click={onSubmit}
           rounded
           block>Sign up</Button
