@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Determine the correct path for the SQLite database
-const isPackaged = process.mainModule.filename.indexOf('app.asar') !== -1;
+const isPackaged = process.env.NODE_ENV === 'production' || process.argv.includes('--app');
 const basePath = isPackaged ? process.resourcesPath : __dirname;
 const databasePath = path.join(basePath, 'database.sqlite');
 
