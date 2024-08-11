@@ -123,7 +123,7 @@
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
             {#if route.subRoutes}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="w-full flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
+                <div class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
                     <Icon path={route.iconPath} />
                     {#if width >= 150}
                         <span class="ml-2">
@@ -221,7 +221,7 @@
         padding: 10px 0 10px 20px;
     }
 
-    .nav-item > a > div {
+    .nav-item > a > div, .sub-nav-item > a > div{
         opacity: 0.5;
     }
 
