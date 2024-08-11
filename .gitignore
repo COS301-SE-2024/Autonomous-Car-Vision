@@ -4,7 +4,7 @@ build
 backendVenv
 modelsVenv
 ModelsVenv
-.pyc
+*.pyc
 .idea
 .env
 .env.local
