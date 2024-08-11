@@ -23,6 +23,8 @@
       alert("Passwords do not match");
       return;
     }
+    
+    //! NEED TO MOVE SOON
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
       const response = await axios.post("http://localhost:8000/signup/", {
@@ -30,10 +32,14 @@
         uemail: eToken,
         password: hash,
         salt: salt,
+        cname: "dev",
+        is_admin: false,
       });
       window.electronAPI.storeUid(JSON.stringify(response.data.uid));
-
+      //! FIX to push to otp
+      window.electronAPI.storePrevPath("/signup");
       push("/otp");
+      // push("/join")
     } catch (error) {
       console.error("Sign-up Failed:", error);
     }

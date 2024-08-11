@@ -30,7 +30,9 @@ from .views import (
     isInCorporation,
     registerCorporation,
     addUserToCorporation,
-    makeAdmin    
+    makeAdmin,
+    joinTeam,
+    createTeam,
 )
 
 router = DefaultRouter()
@@ -70,4 +72,6 @@ urlpatterns = [
     path("registerCorporation/", registerCorporation),
     path("addUserToCorporation/", addUserToCorporation),
     path("makeAdmin/", makeAdmin),
+    path("joinTeam/", joinTeam),
+    path("createTeam/", createTeam),
 ]

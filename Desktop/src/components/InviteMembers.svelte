@@ -1,6 +1,7 @@
 <script>
     import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
     import { mdiAccountPlus } from "@mdi/js";
+  import { push } from "svelte-spa-router";
 
     let add;
     let email = ''; // Variable to store the email address
@@ -11,6 +12,10 @@
         newMembers = [...newMembers, email.trim()]; // Add the email to the array
         email = ''; // Clear the email field
         }
+    }
+
+    function goToGallery() {
+        push("/gallery");
     }
   
   </script>
@@ -62,7 +67,7 @@
                 </div>
           <!-- TODO: Link the skip button to next page -->
           <div  class="ml-96 pl-6 text-theme-dark-white pt-2 rounded">
-                <Button class="rounded">Skip Step</Button>
+                <Button on:click={goToGallery} class="rounded">Skip Step</Button>
             </div>
         </div>
       <!-- </MaterialApp> -->

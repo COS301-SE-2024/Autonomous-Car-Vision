@@ -65,7 +65,7 @@ class Media(models.Model):
     uid = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="video", db_column="uid"
     )
-    media_id = models.TextField(unique=True)
+    mid = models.TextField(unique=True)
     media_name = models.TextField()
     media_url = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)

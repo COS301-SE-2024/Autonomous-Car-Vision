@@ -2,6 +2,25 @@
     import { Button, TextField, Icon, } from "svelte-materialify";
     import axios from "axios";
     import { push } from "svelte-spa-router";
+
+    let teamName = "";
+
+    const submit = async () => {
+      console.log("Creating a new team");
+
+      // check if team exists, if not, create team and add user to team
+      try{
+        const response = await axios.post("http://localhost:8000/createTeam/", {
+          teamName: teamName,
+          uid: window.electronAPI.getUid(),
+          admin: true,
+        });
+        console.log(response);
+        push("/invite");
+      } catch (error) {
+        console.error("Creating a team failed:", error);
+      }
+    };
   
   </script>
   
@@ -17,19 +36,19 @@
        <!-- TODO: check for uniqueness: if not, make box red and button grey. else, fine -->
 
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
-            <TextField outlined class="border border-dark-primary ">Team name
+            <TextField bind:value={teamName} outlined class="border border-dark-primary ">Team name
             </TextField>
 
             <!-- TODO: link next button to next page -->
              <div> 
                 <a
                 class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
-                href="#/invite"
+                href="#/"
                 >
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"
                 rounded
-                block>Next</Button
+                block on:click={submit}>Next</Button
                 >
              </div>
           </div>

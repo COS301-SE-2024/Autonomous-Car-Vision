@@ -190,7 +190,7 @@ def signup(request):
         "uid": uid,
         "uname": data["uname"],
         "uemail": data["uemail"],
-        "cid": data["cid"],
+        "cid": Corporation.objects.get(cname=data["cname"]).cid,
         "is_admin": data["is_admin"],
     }
     user_serializer = UserSerializer(data=user_data)
@@ -237,7 +237,7 @@ def verifyOTP(request):
             {"error": "Invalid UID or OTP"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    if otp_entry.expiry_date < datetime.now(timezone.utc):
+    if otp_entry.expiry_date < datetime.now():
         return Response(
             {"error": "OTP has expired"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -663,15 +663,16 @@ def devLogin(request):
         if corporation_serializer.is_valid():
             corporation_serializer.save()
         else:
-            return Response(corporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            return Response(corporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)    
+
+        
     if not User.objects.filter(uname=uname).exists():
         uid = random.randint(0, 999999999)
         user_data = {
             'uid': uid,
             'uname': "dev",
             'uemail': 'dev@gmail.com',
-            'cid': 1,
+            'cid': Corporation.objects.get(cname='dev').cid,
             'is_admin': True
         }
         
@@ -761,7 +762,7 @@ def uploadFile(request):
         #TODO Must fix this, then ip and other issues will fix too
         media_data = {
             "uid": uid,
-            "media_id": mid,
+            "mid": mid,
             "media_name": mediaName,
             "media_url": mediaUrl,
             "aid": response.json()["aid"],
@@ -868,4 +869,86 @@ def makeAdmin(request):
     else:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     
-                
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def joinTeam(request):
+    data = request.data
+    uid = data.get("uid")
+    cname = data.get("teamName")
+    admin = data.get("admin")
+
+    if not uid or not cname:
+        return Response(
+            {"error": "UID and team name are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    try:
+        if(not Corporation.objects.filter(cname=cname).exists()):
+            User.objects.get(uid=uid).delete()
+            return Response(
+                {"error": "Corporation not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        
+        corporation, created = Corporation.objects.get_or_create(cname=cname)
+
+        user = User.objects.get(uid=uid)
+        user.cid = corporation 
+        user.is_admin = admin
+        user.save()
+        
+        return Response(
+            {"message": "User joined team successfully"}, status=status.HTTP_200_OK
+        )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def createTeam(request):
+    data = request.data
+    cname = data.get("teamName")
+    uid = data.get("uid")
+    admin = data.get("admin", True)
+
+    if not cname or not uid:
+        return Response(
+            {"error": "Team name and UID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        if Corporation.objects.filter(cname=cname).exists():
+            User.objects.get(uid=uid).delete()
+            return Response({"error": "Team already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        corporation_data = {"cname": cname}
+        corporation_serializer = CorporationSerializer(data=corporation_data)
+        if corporation_serializer.is_valid():
+            corporation = corporation_serializer.save()
+
+            user = User.objects.get(uid=uid)
+            user.cid = corporation
+            user.is_admin = admin
+            user.save()
+
+            return Response({
+                "message": "Team created successfully",
+                "team": corporation_serializer.data,
+                "user_updated": {
+                    "uid": user.uid,
+                    "is_admin": user.is_admin
+                }
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response(corporation_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except User.DoesNotExist:
+        return Response({"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -10,6 +10,7 @@
     window.electronAPI.clearUid();
     window.electronAPI.clearUname();
     window.electronAPI.clearUemail();
+    window.electronAPI.clearPrevPath();
   });
 
   const developerLogin = async () => {

@@ -10,7 +10,6 @@ const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-const axios = require('axios');
 
 
 const os = require('os');
@@ -23,7 +22,6 @@ async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
     return new Store();
 }
-
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
@@ -143,6 +141,22 @@ ipcMain.on('get-uemail', (event) => {
 
 ipcMain.on('clear-uemail', (event) => {
     store.delete('uemail');
+    event.returnValue = true;
+});
+
+//! prevPath
+ipcMain.on('store-prev-path', (event, prevPath) => {
+    store.set('prevPath', prevPath);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-prev-path', (event) => {
+    const prevPath = store.get('prevPath');
+    event.returnValue = prevPath;
+});
+
+ipcMain.on('clear-prev-path', (event) => {
+    store.delete('prevPath');
     event.returnValue = true;
 });
 
