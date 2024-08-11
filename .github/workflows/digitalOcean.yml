@@ -26,3 +26,5 @@ jobs:
           echo "Deploying to DigitalOcean..."
           ssh root@157.230.191.84
           sudo apt-get update && sudo apt upgrade -y
+          cd ./Autonomous-Car-Vision
+          git pull origin master
