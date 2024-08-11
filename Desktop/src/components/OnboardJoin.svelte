@@ -31,7 +31,7 @@
   
   <!-- TODO: add error messages -->
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-    <div class="container">
+    <div class="containerClass">
     <!-- <MaterialApp> -->
       <div class="w-full p-4 rounded-md mt-2 text-white shadow-card">
         <div class="text-left">
@@ -76,7 +76,7 @@
   
   
   <style>
-      .container{
+      .containerClass{
         background-image: linear-gradient(180deg,#181818, #001524 );
       }
   </style>

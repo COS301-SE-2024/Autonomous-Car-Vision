@@ -2,7 +2,7 @@
     import SignUpForm from "../components/SignUpForm.svelte";
 </script>
 
-<div>
+<div class="min-h-screen">
     <SignUpForm />
      <!-- TODO: Add error success message depending after successful signUp -->
        <!-- TODO: Add back button -->

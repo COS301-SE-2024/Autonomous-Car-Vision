@@ -56,7 +56,7 @@
 
 <!-- TODO: add error messages -->
 <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-  <div class="container">
+  <div class="containerClass">
   <!-- <MaterialApp> -->
     <div class="flex flex-row ">
       <a
@@ -87,9 +87,9 @@
       </div>
       {#if step === 1}
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
-          <TextField bind:value={nToken} outlined class="border border-dark-primary ">Username/Email</TextField>
+          <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary ">Username/Email</TextField>
           <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
+            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitUsername}
             rounded
             block>Next</Button
@@ -115,7 +115,7 @@
             </div>
           </TextField>
           <Button
-            class="bg-theme-dark-primary text-theme-dark-lightText"
+            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitPassword}
             rounded
             block>Log in</Button
@@ -129,7 +129,7 @@
 
 
 <style>
-    .container{
+    .containerClass{
       background-image: linear-gradient(180deg,#181818, #001524 );
     }
 </style>
