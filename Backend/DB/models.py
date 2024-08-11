@@ -19,6 +19,13 @@ class User(Base):
     uid = Column(Integer, primary_key=True)
     uname = Column(String, unique=True, nullable=False)
     uemail = Column(String, unique=True, nullable=False)
+    cid = Column(Integer, ForeignKey('corporations.cid', ondelete='CASCADE'), nullable=False)
+    is_admin = Column(Boolean, default=False)
+    
+class Corporation(Base):
+    __tablename__ = 'corporations'
+    cid = Column(Integer, primary_key=True)
+    cname = Column(String, unique=True, nullable=False)  
 
 class Auth(Base):
     __tablename__ = 'auth'
