@@ -727,25 +727,26 @@ def download(request):
 def uploadFile(request):
     data = request.data
     uid = data.get("uid")
-    token = data.get("token")
+    utoken = data.get("token")
+    mediaName = data.get("media_name")
+    mediaUrl = data.get("media_url")
+    mid = data.get("mid")
+    command = data.get("command")
 
     #! Commented for dev purposes
-    # if not token:
-    #     return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
+    if not utoken:
+        return Response({'error': 'Token is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # try:
-    #     dataToken = Token.objects.get(uid=uid)
-    # except Token.DoesNotExist:
-    #     return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        dataToken = Token.objects.get(uid=uid)
+    except Token.DoesNotExist:
+        return Response({'error': 'Token not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # if dataToken.token != token:
-    #     return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    if dataToken.token != utoken:
+        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
-    aid = data.get("aid")
     size = data.get("size")
-    utoken = data.get("utoken")
-
-    message = {"aid": aid, "size": size, "utoken": utoken}
+    message = {"size": size, "uid": uid, "utoken": utoken}
 
     print(message)
 
@@ -754,6 +755,23 @@ def uploadFile(request):
     data = response.json()
     print(response.status_code)
     print(response.json())
+    
+    if command == "SEND":
+        #! insert into media table
+        #TODO Must fix this, then ip and other issues will fix too
+        media_data = {
+            "uid": uid,
+            "media_id": mid,
+            "media_name": mediaName,
+            "media_url": mediaUrl,
+            "aid": response.json()["aid"],
+        }
+        
+        media_serializer = MediaSerializer(data=media_data, context={'request': request})
+        if media_serializer.is_valid():
+            media_serializer.save()
+        else:
+            return Response(media_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(
         {"aip": data["aip"], "aport": data["aport"]}, status=status.HTTP_200_OK

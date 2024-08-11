@@ -104,21 +104,21 @@ async def brokerStore(request: Request):
     # gets file size, mid, uid, token,
     message = await request.json()
     print(">>>BrokerStore initiated", message)
-    # print("Getting available agents")
-    # agents = media.get_avail_store_agents(message['size'])
-    # print("avail agents: ", agents)
+    print("Getting available agents")
+    agents = media.get_avail_store_agents(message['size'])
+    print("avail agents: ", agents)
     avail = None
-    # for agent in agents:
-    #     if await charon.ping(agent['aip'], agent['aport']):
-    #         avail = agent
-    #         break
+    for agent in agents:
+        if await charon.ping(agent['aip'], agent['aport']):
+            avail = agent
+            break
     if avail is None:
-        avail = {"aid": 28, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 1, "aport": 8001, "aip": "127.0.0.1"}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}
     print("Agent: ", avail)
-    keys = charon.getECDH(message["aid"])
+    keys = charon.getECDH(avail["aid"])
     print(keys)
     server_ecdh = load_pem_private_key(keys["pem_priv"].encode("utf-8"), password=None)
     agent_ecdh = load_pem_public_key(keys["agent_pem_pub"].encode("utf-8"))

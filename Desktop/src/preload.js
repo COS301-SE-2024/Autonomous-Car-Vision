@@ -37,7 +37,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     extractFrames: (videoPath) => ipcRenderer.invoke('extract-frames', videoPath),
     saveFile: (fileBuffer, fileName) => ipcRenderer.invoke('save-file', fileBuffer, fileName),
     fileExists: (filePath) => fs.existsSync(path.resolve(filePath)),
-    // runPythonScript: (scriptPath, args) => ipcRenderer.invoke('run-python-script', scriptPath, args),
+    runPythonScript: (scriptPath, args) => ipcRenderer.invoke('run-python-script', scriptPath, args),
+    uploadToAgent: (ip, port, filepath, uid, size, token, mname) => ipcRenderer.invoke('upload-to-agent', ip, port, filepath, uid, size, token, mname),
+    downloadToClient: (ip, port, filepath, uid, size, token) => ipcRenderer.invoke('download-to-client', ip, port, filepath, uid, size, token),
     checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
     deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file',filePath),
     getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
@@ -53,4 +55,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onPythonScriptDone: (callback) => ipcRenderer.on('python-script-done', callback),
     checkCUDA: () => ipcRenderer.invoke('check-cuda'),
     onProcessChanged: (callback) => ipcRenderer.on('process-changed', callback),
+    moveVideo: (sourcePath, destFileName) => ipcRenderer.invoke('move-video', sourcePath, destFileName), 
+    openFTP: (event, uid, token, size, media_name, media_url, command) => ipcRenderer.invoke('open-ftp', event, uid, token, size, media_name, media_url, command),
+    getFileSize: (filePath) => ipcRenderer.invoke('get-file-size', filePath),
   });

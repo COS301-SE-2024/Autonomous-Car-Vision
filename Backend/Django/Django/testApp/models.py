@@ -67,7 +67,7 @@ class Media(models.Model):
     )
     mid = models.TextField(unique=True)
     media_name = models.TextField()
-    media_url = models.FileField(upload_to="media/")
+    media_url = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
