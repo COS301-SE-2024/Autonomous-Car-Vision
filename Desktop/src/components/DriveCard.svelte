@@ -76,10 +76,11 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="background-card relative overflow-hidden rounded-lg {listType ===
-  'list'
-    ? 'w-4/6 flex flex-row align-center justify-between'
-    : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+  class="background-card relative overflow-hidden rounded-lg {listType !==
+  'grid'
+    ? 'w-5/6 flex flex-row align-center justify-between'
+    : 'w-10/12 mx-auto'} 
+    m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
   role="button"
   tabindex="0"
@@ -177,11 +178,6 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-  }
-
-  #playbtn {
-    height: fit-content;
-    cursor: pointer;
   }
 
   .background-card {

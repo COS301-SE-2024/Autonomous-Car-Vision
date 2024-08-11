@@ -1,20 +1,19 @@
 <script>
     import ProtectedRoutes from "../../ProtectedRoutes.svelte";
-    import { push, location } from "svelte-spa-router";
+    import Router, { push, location } from "svelte-spa-router";
     import ApexCharts from "apexcharts";
     import { onMount } from "svelte";
     import { Icon, Tooltip } from "svelte-materialify";
-    import { mdiPlay } from "@mdi/js";
+    import { mdiArrowLeft, mdiPlay } from "@mdi/js";
     import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
     import { VideoURL, OriginalVideoURL } from "../../../stores/video";
     import { originalVideoURL } from "../../../stores/processing";
 
     const drive = {
         length: 210,
-        frame_count: 510,
+        frame_count: 471,
         inferences: 221,
-        FPS: 29,
-        first_frame: "images/frame_000000.png",
+        FPS: 10,
         videourl: "test",
     };
 
@@ -29,19 +28,6 @@
 
     function pauseLottie(lottie) {
         lottie?.pause();
-    }
-
-    function captureSpecificFrame(frameNumber) {
-        const videoElement = document.createElement("video");
-        videoElement.src = videoSource;
-        videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
-
-        videoElement.addEventListener("loadedmetadata", () => {
-            const fps = 30; // Assuming the video has 30 frames per second
-            const targetTime = frameNumber / fps;
-
-            videoElement.currentTime = targetTime;
-        });
     }
 
     onMount(() => {
@@ -198,9 +184,16 @@
 
     let show = false;
     let showBB = false;
+
+    function handleBack(){
+        push('/drivegallery')
+    }
 </script>
 
 <ProtectedRoutes>
+    <div class="flex justify-start mx-16 mt-2">
+        <button class="backArrow" on:click={handleBack}><Icon path={mdiArrowLeftTop} size={32} /></button>
+    </div>
     <div class="w-11/12 h-full mx-auto my-6">
         <h1 class="text-center text-4xl font-bold pb-4">Drive Dashboard</h1>
         <div class="flex flex-row justify-between">
@@ -254,7 +247,7 @@
                 class="w-full h-auto p-6 bg-dark-hover rounded-2xl flex flex-col gap-4"
             >
                 <h1 class="text-3xl pb-4">Drive Video</h1>
-                <div class="rounded-sm max-h-64">
+                <div class="rounded-sm max-h-96">
                     <div class="object-contain w-full mx-auto h-full">
                         <video
                             class="rounded-3xl mx-auto"
@@ -354,6 +347,9 @@
 </ProtectedRoutes>
 
 <style>
+    .backArrow:hover {
+        transform: scale(1.2);
+    }
     video {
         aspect-ratio: 16/9;
         height: 100%;
