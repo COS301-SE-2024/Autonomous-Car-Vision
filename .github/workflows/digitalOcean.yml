@@ -22,4 +22,5 @@ jobs:
 
       - name: Deploy to DigitalOcean
         run: |
-          ssh root@159.89.238.117 'bash -s' < deploy.sh
+          chmod +x ./deploy.sh
+          ssh root@159.89.238.117 'bash -s' < ./deploy.sh
