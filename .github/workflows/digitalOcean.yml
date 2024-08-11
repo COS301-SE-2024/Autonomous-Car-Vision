@@ -5,6 +5,7 @@ on:
     branches: ["master", "develop"]
   pull_request:
     branches: ["master", "develop"]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,4 +24,5 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           echo "Deploying to DigitalOcean..."
-          ssh root@157.230.191.84 'bash -s' ls -a
+          ssh root@157.230.191.84
+          sudo apt-get update && sudo apt upgrade -y
