@@ -46,6 +46,7 @@
         password: hash,
       });
       window.electronAPI.storeUid(uid);
+      window.electronAPI.storePrevPath("/login");
       push("/otp");
     } catch (error) {
       console.error("Login Failed:", error);

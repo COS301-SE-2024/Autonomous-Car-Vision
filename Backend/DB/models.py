@@ -26,7 +26,12 @@ class Corporation(Base):
     __tablename__ = 'corporations'
     cid = Column(Integer, primary_key=True)
     cname = Column(String, unique=True, nullable=False)  
-
+    
+class TokenCorporation(Base):
+    __tablename__ = 'token_corporation'
+    tid = Column(Integer, primary_key=True)
+    token = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
 class Auth(Base):
     __tablename__ = 'auth'
     id = Column(Integer, primary_key=True)
@@ -56,7 +61,7 @@ class Media (Base):
     __tablename__ = 'media'
     id = Column(Integer, primary_key=True)
     uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), nullable=False)
-    media_id = Column(String, unique=True, nullable=False)
+    mid = Column(String, unique=True, nullable=False)
     media_name = Column(String, nullable=False)
     media_url = Column(String, nullable=False)
     creation_date = Column(DateTime, default=datetime.utcnow)

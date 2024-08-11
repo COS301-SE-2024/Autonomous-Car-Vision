@@ -67,8 +67,9 @@ class Media(models.Model):
     )
     mid = models.TextField(unique=True)
     media_name = models.TextField()
-    media_url = models.FileField(upload_to="media/")
+    media_url = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
+    aid = models.TextField()
 
     class Meta:
         db_table = "media"
@@ -90,3 +91,14 @@ class Corporation(models.Model):
 
     def __str__(self):
         return self.cname
+    
+class TokenCorporation(models.Model):
+    tid = models.AutoField(primary_key=True)
+    token = models.TextField(unique=True)
+    email = models.TextField(unique=True)
+    
+    class Meta:
+        db_table = "tokencorporation"
+        
+    def __str__(self):
+        return self.token    

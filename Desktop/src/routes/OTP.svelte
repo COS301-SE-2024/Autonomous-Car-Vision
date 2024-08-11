@@ -17,7 +17,12 @@
       console.log(window.electronAPI.getToken());
       // Update Svelte store
       // token.set(response.data.token);
-      push("/gallery");
+      // check if previous url was signup
+      if (window.electronAPI.getPrevPath() === "/signup") {
+        push("/join");
+      } else {
+        push("/gallery");
+      }
     } catch (error) {
       console.error(error);
     }

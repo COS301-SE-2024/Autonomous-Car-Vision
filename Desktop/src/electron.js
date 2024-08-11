@@ -10,7 +10,6 @@ const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-// const express = require('express');
 
 
 const os = require('os');
@@ -23,7 +22,6 @@ async function loadElectronStore() {
     const { default: Store } = await import('electron-store');
     return new Store();
 }
-
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
@@ -58,29 +56,29 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) { }
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) { }
 
 // handler for token storing
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
     return app.getAppPath();
-  });
+});
 
-  // Read directory handler
-  ipcMain.handle('read-directory', async (event, directoryPath) => {
+// Read directory handler
+ipcMain.handle('read-directory', async (event, directoryPath) => {
     return new Promise((resolve, reject) => {
-      fs.readdir(directoryPath, (err, files) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(files);
-        }
-      });
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(files);
+            }
+        });
     });
-  });
+});
 
 //! token
 ipcMain.on('store-token', (event, token) => {
@@ -143,6 +141,38 @@ ipcMain.on('get-uemail', (event) => {
 
 ipcMain.on('clear-uemail', (event) => {
     store.delete('uemail');
+    event.returnValue = true;
+});
+
+//! prevPath
+ipcMain.on('store-prev-path', (event, prevPath) => {
+    store.set('prevPath', prevPath);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-prev-path', (event) => {
+    const prevPath = store.get('prevPath');
+    event.returnValue = prevPath;
+});
+
+ipcMain.on('clear-prev-path', (event) => {
+    store.delete('prevPath');
+    event.returnValue = true;
+});
+
+//! Team Name
+ipcMain.on('store-team-name', (event, teamName) => {
+    store.set('teamName', teamName);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-team-name', (event) => {
+    const teamName = store.get('teamName');
+    event.returnValue = teamName;
+});
+
+ipcMain.on('clear-team-name', (event) => {
+    store.delete('teamName');
     event.returnValue = true;
 });
 
@@ -459,6 +489,8 @@ function runPythonScript(scriptPath, args) {
             windowsHide: true  // Hide the terminal window on Windows
         });
 
+        console.log("Script path: " + scriptPath);
+
         let output = '';
         let error = '';
 
@@ -532,9 +564,77 @@ ipcMain.handle('check-cuda', async () => {
     });
 });
 
+ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
+    const scriptPath = 'src/routes/pythonUpload.py';
+    let rec = await LookupTable.findOne({ where: { mname: mname, localurl: filepath, uid: uid } });
+    const mid = rec.mid;
+    console.log(mid);
+    const args = [ip, port, filepath, uid, size, token, mid];
+
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]); 
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
+    });
+});
+    
+ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
+    const scriptPath = 'src/routes/pythonDownload.py'; 
+    let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
+    const mid = rec.mid;
+    const args = [ip, port, filepath, uid, size, token, mid];
+
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]);
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+        let output = '';
+        let error = '';
+            
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
+    });
+});
+
 ipcMain.handle('resolve-path', (event, ...segments) => {
     return path.resolve(...segments);
-  });
+});
 
 // IPC handler to check if a video file exists
 ipcMain.handle('check-file-existence', async (event, filePath) => {
@@ -591,15 +691,15 @@ ipcMain.handle('delete-video-file', async (event, filePath) => {
 
 ipcMain.handle('get-video-frame', async (event, videoPath) => {
     const videoName = path.basename(videoPath, path.extname(videoPath));
-        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+    const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
 
-        // Checking if the frames are already generated
-        const frameFiles = fs.readdirSync(outputDir);
-        if (frameFiles.length > 0) {
-            console.log('Frames already exist for:', videoPath);
-            const framePaths = frameFiles.map(file => path.join(outputDir, file));
-            return framePaths;
-        }
+    // Checking if the frames are already generated
+    const frameFiles = fs.readdirSync(outputDir);
+    if (frameFiles.length > 0) {
+        console.log('Frames already exist for:', videoPath);
+        const framePaths = frameFiles.map(file => path.join(outputDir, file));
+        return framePaths;
+    }
 });
 
 // IPC handler to move a video file from the Deleted folder to the Downloads folder
@@ -607,7 +707,7 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
     try {
         const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
         const videoFilePath = path.join(deletedDir, `${videoName}`);
-        
+
         if (!fs.existsSync(videoFilePath)) {
             return { success: false, error: 'Video file does not exist' };
         }
@@ -649,6 +749,78 @@ ipcMain.handle('getVideoByURL', async (event, videoURL) => {
     }
 });
 
+ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
+    return new Promise((resolve, reject) => {
+        const appDataPath = app.getPath('userData');
+        const downloadsDir = path.join(appDataPath, 'Downloads');
+        const destFile = path.join(downloadsDir, destFileName);
+
+        console.log("MOVE VIDEO PATH: ", sourcePath);
+        console.log("MOVE downloadsDir PATH: ", downloadsDir);
+        console.log("MOVE Dest PATH: ", destFile);
+
+          fs.renameSync(sourcePath, destFile, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(`File moved to ${destFile}`);
+            }
+          });
+    });
+});
+
+ipcMain.handle('open-ftp', async (event, uid, token, size, media_name, media_url, command) => {
+    let mid = "";
+    if(command == "SEND"){
+        const rec = await LookupTable.create({
+            mname: media_name,
+            localurl: media_url,
+            size: size,
+            uid: uid,
+        });
+    mid = rec.mid;
+    }   
+    const formData = new FormData();
+    formData.append('uid', uid);
+    formData.append('token', token);
+    formData.append('size', size);
+    formData.append('media_name', media_name);
+    formData.append('media_url', media_url);
+    formData.append('mid', mid);
+    formData.append('command', command)
+
+    try {
+        const response = await axios.post('http://localhost:8000/uploadFile/', formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
+
+        console.log('Upload response:', response.data); // Log response for debugging
+        
+        // Extract IP and port from the response
+        const { aip, aport } = response.data;
+        
+        return { success: true, ip: aip, port: aport };
+    } catch (error) {
+        console.error('Error in FTP upload:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('get-file-size', (event, filePath) => {
+    try {
+      const stats = fs.Stats(filePath);
+      console.log('File stats:', stats);
+      let fileSize = stats.size;
+    //   convert to string 
+        return fileSize.toString();
+    //   return stats.size;
+    } catch (error) {
+      console.error('Error getting file size:', error);
+      return null;
+    }
+  });
 // Handler to get processed videos by original video ID
 ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
     try {

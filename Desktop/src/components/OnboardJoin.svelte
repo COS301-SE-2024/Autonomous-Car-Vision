@@ -3,7 +3,29 @@
     import { mdiEyeOff, mdiEye } from "@mdi/js";
     import axios from "axios";
     import { push } from "svelte-spa-router";
+  import { token } from "../stores/auth";
+
+    let teamName = "";
+    let tokenValue = "";
   
+    const submit = async () => {
+      console.log("Joining a team");
+
+      // check if team exists, if not, create team and add user to team
+      try{
+        const response = await axios.post("http://localhost:8000/joinTeam/", {
+          teamName: teamName,
+          uid: window.electronAPI.getUid(),
+          admin: false,
+          token: tokenValue,
+          email: window.electronAPI.getUemail(),
+        });
+        console.log(response);
+        push("/gallery");
+      } catch (error) {
+        console.error("Joining a team failed:", error);
+      }
+    };
    
   </script>
   
@@ -19,18 +41,20 @@
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
                         <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
 
-            <TextField outlined class="border border-dark-primary ">Team Name</TextField>
+            <TextField bind:value={teamName} outlined class="border border-dark-primary ">Team Name</TextField>
+            <TextField bind:value={tokenValue} outlined class="border border-dark-primary ">Token</TextField>
             <!-- TODO: Link the next button to next page -->
             <a
             class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
-            href="#/installGuide"
+            href="#/"
             >
             <Button
               class="bg-theme-dark-primary text-theme-dark-lightText"
               rounded
-              block>Next</Button
+              block on:click={submit}>Next</Button
             >
             </div>
+          </div>
             <div> 
                 <a  
                     class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
@@ -48,7 +72,7 @@
         
       </div>
     <!-- </MaterialApp> -->
-    </div>
+    <!-- </div> -->
   
   
   <style>

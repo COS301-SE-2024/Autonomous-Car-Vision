@@ -21,9 +21,13 @@ const LookupTable = sequelize.define('LookupTable', {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    serverurl: {
-        type: DataTypes.TEXT,
-        allowNull: true
+    size: {
+        type: DataTypes.REAL,
+        allowNull: false
+    },
+    uid: {
+        type: DataTypes.INTEGER,
+        allowNull:false
     }
 });
 

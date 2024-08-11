@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Auth, OTP, Token, Media, Corporation
+from .models import User, Auth, OTP, Token, Media, Corporation, TokenCorporation
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,7 +29,7 @@ class TokenSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ["id", "uid", "mid", "media_name", "media_url"]
+        fields = ["id", "uid", "mid", "media_name", "media_url", "aid"]
 
     def get_media_url(self, obj):
         request = self.context.get("request")
@@ -40,4 +40,9 @@ class MediaSerializer(serializers.ModelSerializer):
 class CorporationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Corporation
-        fields = ["cid", "cname"]
+        fields = ["cname"]
+        
+class TokenCorporationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenCorporation
+        fields = ["token", "email"]        
