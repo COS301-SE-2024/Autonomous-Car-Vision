@@ -125,7 +125,7 @@
 
 
 <style>
-  @import "../assets/base.css";
+  /* @import "../assets/base.css"; */
 
   .background-card {
     /* border: 0.5px solid #012431; */

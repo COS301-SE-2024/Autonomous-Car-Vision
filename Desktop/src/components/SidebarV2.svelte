@@ -10,6 +10,7 @@
         mdiAccountCog,
         mdiLogout,
         mdiEyeRefresh,
+        mdiAccountGroup
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -24,7 +25,12 @@
     let showAccountPopup = false;
 
     let routes = [
-          {
+        {
+            name: "Team",
+            route: "#/team",
+            iconPath: mdiAccountGroup
+        },
+        {
             name: "Visualizer",
             route: "#/visualize",
             iconPath: mdiEyeRefresh,

@@ -8,7 +8,7 @@ module.exports = {
             textHover: "#4D4D4D",
             white: '#FFFFFF', // white
             lightText: '#FFFFFF', // white
-            background: '#181818', // offBlack
+            background: '#001524', // offBlack
             backgroundBlue: '#0C003C',
             bgHover: '#1C008D',
             primary: '#0099ff', // techBlue
@@ -19,7 +19,7 @@ module.exports = {
           },
           'theme-light': {
             lightText: '#FFFFFF',
-            background: '#d9d9d9', // Timberwolf background
+            background: '#001524', // Timberwolf background
             primary: '#28a745', // primary
             secondary: '#218838', // secondary
             error: '#ff0000', // error
@@ -43,12 +43,13 @@ module.exports = {
       colors: {
         'dark' : {
           background: '#011C27', // '#03254E',  // '#001524', '#011C27'
-          primary: '#FFFFFF',
+          primary: '#0099ff',
           secondary: '#007acc' ,// '#3EFF8B',
           hover: '#012A3B',
-          background_secondary: '#000000'
+          background_secondary: '#000000',
+          fill: '#001524'
         },
-        'modal': '#0000009f',
+        'modal': '#0000009f', 
         'white': '#FFFF',
         'black': '#000',
         'red' : '#f44336',

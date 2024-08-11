@@ -54,38 +54,39 @@
 </script>
 
 <!-- TODO: add error messages -->
-<div class="lg:w-4/12 w-6/12 mx-auto py-4 my-4">
-  <MaterialApp>
-    <div class="flex flex-row gap-2">
+<div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
+  <div class="container">
+  <!-- <MaterialApp> -->
+    <div class="flex flex-row ">
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center border border-theme-dark-primary rounded-md"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary "
         href="#/login"
       >
         <Button
-          class="text-black bg-theme-dark-white "
+          class="text-white "
           depressed
           block>Log In</Button
         >
       </a>
       <a
-        class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+        class="w-full h-14 flex flex-col flex-wrap justify-center items-center "
         href="#/signup"
       >
         <Button
-          class="text-theme-dark-white bg-theme-dark-primary"
+          class="text-white "
           depressed
           block>Sign Up</Button
         >
       </a>
     </div>
-    <div class="w-full p-4 rounded-md mt-2 bg-theme-dark-white shadow-card-blue">
+    <div class="w-full p-4 rounded-md mt-2 text-white shadow-card">
       <div class="text-left">
-        <h1 class="text-2xl text-black">Welcome back!</h1>
-        <p class="text-black">Please enter your information.</p>
+        <h1 class="text-2xl text-white">Welcome back!</h1>
+        <p class="text-white">Please enter your information.</p>
       </div>
       {#if step === 1}
-        <div id="form" class="flex flex-col gap-1 py-2">
-          <TextField bind:value={nToken} outlined>Username/Email</TextField>
+        <div id="form" class="flex flex-col gap-2 py-3 text-white">
+          <TextField bind:value={nToken} outlined class="border border-dark-primary ">Username/Email</TextField>
           <Button
             class="bg-theme-dark-primary text-theme-dark-lightText"
             on:click={onSubmitUsername}
@@ -121,5 +122,13 @@
         </div>
       {/if}
     </div>
-  </MaterialApp>
+  <!-- </MaterialApp> -->
+  </div>
 </div>
+
+
+<style>
+    .container{
+      background-image: linear-gradient(180deg,#181818, #001524 );
+    }
+</style>
