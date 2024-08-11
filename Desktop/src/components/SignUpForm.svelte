@@ -43,7 +43,7 @@
 </script>
 
 <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-  <div class="container">
+  <div class="containerClass">
     <!-- <MaterialApp> -->
       <div class="flex flex-row ">
         <a
@@ -131,7 +131,7 @@
     color: #f56565; /* Tailwind CSS red-500 color */
   }
 
-  .container{
+  .containerClass{
   background-image: linear-gradient(180deg,#181818, #001524 );
 }
 

@@ -49,7 +49,7 @@
 
 <div class="flex shadow-card items-center self-center mx-auto justify-center min-h-screen lg:w-4/12 w-6/12">
   <div
-    class="container p-8 rounded-lg shadow-lg"
+    class="containerClass p-8 rounded-lg shadow-lg"
   >
     <h2 class="text-xl font-bold text-white mb-2 text-center">We sent you a code.</h2>
     <p class="text-white text-center mb-4">
@@ -81,7 +81,7 @@
 </div>
 
 <style>
-  .container{
+  .containerClass{
       background-image: linear-gradient(180deg,#181818, #001524 );
     }
 
