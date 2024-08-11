@@ -10,7 +10,11 @@
         mdiAccountCog,
         mdiLogout,
         mdiEyeRefresh,
-        mdiAccountGroup
+        mdiAccountGroup,
+        mdiAccountCheckOutline,
+        mdiLanPending,
+        mdiChevronUp,
+        mdiChevronDown,
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -23,12 +27,24 @@
         "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
 
     let showAccountPopup = false;
+    let showTeamDropdown = false; 
 
     let routes = [
         {
             name: "Team",
-            route: "#/team",
-            iconPath: mdiAccountGroup
+            iconPath: mdiAccountGroup,
+            subRoutes: [  // Subroutes for the Team dropdown
+                {
+                    name: "Team View",
+                    route: "#/team",
+                    iconPath: mdiAccountCheckOutline,
+                },
+                {
+                    name: "Team Network",
+                    route: "#/team/network",
+                    iconPath: mdiLanPending,
+                },
+            ]
         },
         {
             name: "Visualizer",
@@ -75,6 +91,10 @@
         showAccountPopup = false;
     }
 
+    function toggleTeamDropdown() {
+        showTeamDropdown = !showTeamDropdown;
+    }
+
     function handleClickOutside(event) {
         const popup = document.querySelector(".account-popup-content");
         const avatar = document.querySelector(".avatar-container");
@@ -101,17 +121,52 @@
 >
     {#each routes as route}
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
-            <a class="w-full" href={route.route}>
-                <div class="flex justify-start gap-2">
+            {#if route.subRoutes}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div class="w-full flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
                     <Icon path={route.iconPath} />
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
                         </span>
                     {/if}
+                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                </div>
+            {:else}
+            <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+                <div class="flex justify-start gap-2 items-center">
+                    <Icon path={route.iconPath} />
+                    {#if width >= 150}
+                        <span class="ml-2">
+                            {route.name}
+                        </span>
+                    {/if}
+                    {#if route.subRoutes}
+                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                    {/if}
                 </div>
             </a>
+
+            {/if}
         </div>
+        {#if route.subRoutes && showTeamDropdown}
+            <div class="sub-routes ml-8">
+                {#each route.subRoutes as subRoute}
+                    <div class="sub-nav-item {'#' + $location === subRoute.route ? 'active' : ''}">
+                        <a class="w-full" href={subRoute.route}>
+                            <div class="flex justify-start gap-2 items-center">
+                                    <Icon path={subRoute.iconPath} />
+                                {#if width >= 150}
+                                    <span class="ml-0.5">
+                                        {subRoute.name}
+                                    </span>
+                                {/if}
+                            </div>
+                        </a>
+                    </div>
+                {/each}
+            </div>
+        {/if}
     {/each}
         <div
             class="relative cursor-pointer avatar-container m-3 grid {width < 150 ? 'place-items-center' : ''}"
@@ -160,7 +215,7 @@
         overflow: hidden;
     }
 
-    .nav-item {
+    .nav-item, .sub-nav-item {
         display: flex;
         justify-content: start;
         padding: 10px 0 10px 20px;
@@ -170,7 +225,7 @@
         opacity: 0.5;
     }
 
-    .nav-item > a > div:hover {
+    .nav-item > a > div:hover, .sub-nav-item > a > div:hover {
         color: aliceblue;
         opacity: 1;
         font-weight: 600;
@@ -181,6 +236,11 @@
         opacity: 1;
         color: white;
         font-weight: 600;
+    }
+
+    .sub-routes {
+        display: flex;
+        flex-direction: column;
     }
 
     .accountImg {
