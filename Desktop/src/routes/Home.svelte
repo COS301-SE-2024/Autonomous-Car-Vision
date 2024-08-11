@@ -42,7 +42,7 @@
     <div> <!-- svelte-ignore a11y-missing-attribute -->
       <!-- <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
       </iframe> -->
-      <img src="./images/HomeAnimation.gif"/>
+      <img src="./images/HighViz.png" class="w-72 h-72"/>
     </div>
  
     <div
@@ -73,13 +73,13 @@
           </button>
         </a>
 
-        <a href="#/install" class="w-full">
+        <!-- <a href="#/install" class="w-full">
           <button
             class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             WIP
           </button>
-        </a>
+        </a> -->
       </div>
     </div>
   </div>

@@ -46,14 +46,14 @@
         border-radius:15px;
         color: var(--theme-dark-primary);
     }
-    .container{
+    .containerClass{
       background-image: linear-gradient(180deg,#181818, #001524 );
     }
 </style>
 
 
 <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-    <div class="container text-white">
+    <div class="containerClass text-white">
         <div class="slide">
             <h2 class="text-xl">{steps[currentStep]}</h2>
             <p class="p-2"> More information goes here... <br> and most probably images <br> but you get the point though....</p>
