@@ -24,7 +24,8 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           echo "Deploying to DigitalOcean..."
-          ssh root@157.230.191.84
-          sudo apt-get update && sudo apt upgrade -y
-          cd ./Autonomous-Car-Vision
-          git pull origin master
+          ssh root@157.230.191.84 << 'EOF'
+            sudo apt-get update && sudo apt-get upgrade -y
+            cd ./Autonomous-Car-Vision
+            git pull origin master
+            EOF
