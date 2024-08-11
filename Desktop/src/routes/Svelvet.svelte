@@ -39,6 +39,12 @@
       operation: "yoloseg",
     },
     {
+      type: "Infusr",
+      label: "Infusr",
+      bgColor: "white",
+      operation: "infusr",
+    },
+    {
       type: "HV1",
       label: "High-Viz v1",
       bgColor: "lightyellow",
