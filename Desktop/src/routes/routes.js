@@ -16,6 +16,7 @@ import Join from './Join.svelte'
 import NewTeam from './NewTeam.svelte'
 import Invite from './Invite.svelte'
 import Install from './Install.svelte'
+import Team from './Team.svelte'
 
 
 const routes = {
@@ -35,6 +36,7 @@ const routes = {
     '/newTeam': NewTeam,
     '/invite': Invite,
     '/install': Install,
+    '/team': Team,
 };
 
 export default routes;

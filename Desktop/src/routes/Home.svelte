@@ -35,7 +35,7 @@
 
 <MaterialApp> 
   
-  <div class="container min-h-screen flex flex-col items-center justify-center bg-theme-dark">
+  <div class="homeContainer min-h-screen flex flex-col items-center justify-center bg-theme-dark">
     
     <div> <!-- svelte-ignore a11y-missing-attribute -->
       <!-- <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
@@ -85,7 +85,7 @@
 
 
 <style>
-.container{
+.homeContainer{
   background-image: linear-gradient(180deg, #001524, #181818);
 }
 
