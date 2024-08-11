@@ -36,12 +36,12 @@
             subRoutes: [  // Subroutes for the Team dropdown
                 {
                     name: "Team View",
-                    route: "#/team",
+                    route: "#/teamView",
                     iconPath: mdiAccountCheckOutline,
                 },
                 {
                     name: "Team Network",
-                    route: "#/team/network",
+                    route: "#/teamNetwork",
                     iconPath: mdiLanPending,
                 },
             ]
