@@ -19,12 +19,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 157.230.191.84 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 206.189.188.197 >> ~/.ssh/known_hosts
 
       - name: Deploy to DigitalOcean
         run: |
           echo "Deploying to DigitalOcean..."
-          ssh root@157.230.191.84 << 'EOF'
+          ssh root@206.189.188.197 << 'EOF'
             sudo apt-get update && sudo apt-get upgrade -y
             cd ./Autonomous-Car-Vision
             git pull origin master
