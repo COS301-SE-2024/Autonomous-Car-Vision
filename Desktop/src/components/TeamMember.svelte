@@ -1,7 +1,7 @@
 <script>
 
     import {mdiMinusBox} from "@mdi/js";
-    import { Icon } from "svelte-materialify";
+    import { Icon,Button } from "svelte-materialify";
     export let name;
     export let role;
     export let email;
@@ -15,7 +15,7 @@
 
 <div class="grid grid-cols-4 border-b rounded-lg shadow-card border-gray-dark align-center items-center px-3 py-6">
     <div class="flex items-center col-span-2">
-        <button class="red"> <Icon path={mdiMinusBox} /></button>
+        <Button class="text-red border-none rounded cursor-pointer px-0"> <Icon path={mdiMinusBox} /></Button>
         <img src="https://via.placeholder.com/50" alt={name} class="user-avatar px-2"/>
         <div class="flex flex-col text-white">
             <div class="text-bold">{name}</div>
