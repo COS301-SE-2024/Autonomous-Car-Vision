@@ -1,7 +1,10 @@
+from dataToken import DataToken
 class Pipe:
-    def __init__(self):
+    def __init__(self, sensors):
         self.entry_point = None
         self.exit_point = None
+        self.sensors = None
+        self.dataToken = DataToken(sensors)
 
     def set_entry_point(self, unit):
         self.entry_point = unit

@@ -25,7 +25,7 @@ def create_unit(unit_type, init_args):
 
 def build_pipeline(input_string):
     tokens = input_string.split(',')
-    pipeline = pipe.Pipe()
+    pipeline = pipe.Pipe({'camera','lidar'})
 
     for token in tokens:
         unit_type, init_args = parse_token(token)
@@ -33,6 +33,4 @@ def build_pipeline(input_string):
         pipeline.add_unit(unit)
 
     return pipeline
-
-# Example usage
 
