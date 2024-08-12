@@ -17,8 +17,9 @@
         videourl: "test",
     };
 
+    let videoElement;
     let videoPath;
-    let chartInferences, chartFPS;
+    let chartData, chartFPS;
     let dotLottie1, dotLottie2, dotLottie3;
     let lottieElement1, lottieElement2, lottieElement3;
 
@@ -36,72 +37,62 @@
         console.log(videoPath);
         drive.videourl = videoPath;
         console.log(drive.videourl);
+        videoElement.addEventListener("loadedmetadata", () => {
+            drive.length = videoElement.duration;
+            console.log("Video Length: ", drive.length, "seconds");
+        });
 
         const inferencesOptions = {
-            chart: {
-                type: "line",
-                height: 80,
-                sparkline: {
-                    enabled: true,
-                },
-            },
             series: [
                 {
+                    name: "Speed",
                     data: [5, 15, 10, 20, 30, 25, 35, 40, 50],
                 },
-            ],
-            stroke: {
-                curve: "smooth",
-            },
-            tooltip: {
-                custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                    return (
-                        "<div class='text-black'>" +
-                        series[seriesIndex][dataPointIndex] +
-                        "</div>"
-                    );
+                {
+                    name: "Inferences",
+                    data: [22, 19, 24, 28, 22, 25, 32, 38, 30],
                 },
-            },
-        };
-
-        const fpsOptions = {
+                {
+                    name: "FPS",
+                    data: [10, 10, 10, 10, 10, 10, 10, 10, 10],
+                },
+            ],
             chart: {
-                type: "line",
-                height: 80,
+                height: 240,
+                type: "area",
+                stacked: false,
                 sparkline: {
                     enabled: true,
                 },
             },
-            series: [
-                {
-                    data: [60, 62, 70, 55, 50, 49, 50, 50, 46],
-                },
-            ],
+            tooltip: {
+                enabled: true,
+            },
+            dataLabels: {
+                enabled: false,
+            },
             stroke: {
                 curve: "smooth",
             },
-            tooltip: {
-                custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                    return (
-                        "<div class='text-black'>" +
-                        series[seriesIndex][dataPointIndex] +
-                        "</div>"
-                    );
+            xaxis: {
+                tooltip: {
+                    enabled: true,
+                },
+                labels: {
+                    show: false,
+                },
+                axisTicks: {
+                    show: false,
                 },
             },
         };
 
-        chartInferences = new ApexCharts(
-            document.querySelector("#driveInferences"),
+        chartData = new ApexCharts(
+            document.querySelector("#driveData"),
             inferencesOptions,
         );
-        chartFPS = new ApexCharts(
-            document.querySelector("#driveFPS"),
-            fpsOptions,
-        );
 
-        chartInferences.render();
-        chartFPS.render();
+        chartData.render();
 
         // Adding event listeners
         lottieElement1.addEventListener("mouseenter", () =>
@@ -185,17 +176,18 @@
     let show = false;
     let showBB = false;
 
-    function handleBack(){
-        push('/drivegallery')
+    function handleBack() {
+        push("/drivegallery");
     }
 </script>
 
 <ProtectedRoutes>
     <div class="flex justify-start mx-16 mt-2">
-        <button class="backArrow" on:click={handleBack}><Icon path={mdiArrowLeftTop} size={32} /></button>
+        <button class="backArrow" on:click={handleBack}
+            ><Icon path={mdiArrowLeft} size={32} /></button
+        >
     </div>
     <div class="w-11/12 h-full mx-auto my-6">
-        <h1 class="text-center text-4xl font-bold pb-4">Drive Dashboard</h1>
         <div class="flex flex-row justify-between">
             <div
                 id="drive"
@@ -226,30 +218,24 @@
                 <div class="text-3xl font-bold">{drive.FPS}</div>
             </div>
         </div>
-        <div class="pt-10 grid grid-cols-2 gap-10">
+        <div class="pt-10 grid grid-cols-1 pb-10">
             <div
-                class="w-full h-60 bg-dark-hover rounded-2xl flex flex-col justify-center"
+                class="w-full h-80 gradient-card rounded-2xl flex flex-col justify-evenly"
             >
-                <h1 class="pl-12 text-3xl text-left">Drive FPS</h1>
+                <h1 class="pl-12 text-3xl text-left">Drive Data</h1>
                 <div class="flex justify-center">
-                    <div class="graph" id="driveFPS"></div>
+                    <div class="graph" id="driveData"></div>
                 </div>
             </div>
+        </div>
+        <div class="grid grid-cols-2 gap-10">
             <div
-                class="w-full h-60 bg-dark-hover rounded-2xl flex flex-col justify-center"
+                class="w-full h-auto p-6 gradient-card rounded-2xl flex flex-col justify-center"
             >
-                <h1 class="pl-12 text-3xl text-left">Drive Inferences</h1>
-                <div class="flex justify-center">
-                    <div class="graph" id="driveInferences"></div>
-                </div>
-            </div>
-            <div
-                class="w-full h-auto p-6 bg-dark-hover rounded-2xl flex flex-col gap-4"
-            >
-                <h1 class="text-3xl pb-4">Drive Video</h1>
-                <div class="rounded-sm max-h-96">
+                <div class="rounded-sm max-h-96 w-full">
                     <div class="object-contain w-full mx-auto h-full">
                         <video
+                            bind:this={videoElement}
                             class="rounded-3xl mx-auto"
                             src={drive.videourl}
                             alt="drive_frame_preview"
@@ -263,21 +249,14 @@
             </div>
             <!-- Control panel div -->
             <div
-                class="w-full h-full bg-dark-hover rounded-2xl flex flex-col justify-center"
+                class="w-full h-full gradient-card rounded-2xl flex flex-col justify-center"
             >
                 <div class="grid grid-cols-2 gap-6 place-content-center m-6">
                     <div class="control-center w-full h-auto">
                         <div class="h-full flex items-center">
-                            <button
-                                class="hoverPlay"
-                                on:click={goToVideo}
-                                on:focus={() => (show = !show)}
-                            >
-                                <Tooltip bottom bind:active={show}>
-                                    <h1 class="text-xl">Play Video</h1>
-                                    <Icon path={mdiPlay} size={72} />
-                                    <span slot="tip">View video</span>
-                                </Tooltip>
+                            <h1 class="text-3xl">Play Video</h1>
+                            <button class="hoverPlay" on:click={goToVideo}>
+                                <Icon path={mdiPlay} size={72} />
                             </button>
                         </div>
                     </div>
@@ -319,7 +298,6 @@
                             on:focus={() => (showBB = !showBB)}
                         >
                             <Tooltip bottom bind:active={showBB}>
-                                <!-- ADD 'a' tag to go to the blackbox feature -->
                                 <h1 class="text-3xl">Blackbox</h1>
                                 <div class="h-full flex justify-center">
                                     <div
@@ -347,6 +325,10 @@
 </ProtectedRoutes>
 
 <style>
+    .gradient-card {
+        background-image: linear-gradient(45deg, #007acc, #012a3b);
+    }
+
     .backArrow:hover {
         transform: scale(1.2);
     }
@@ -357,7 +339,7 @@
 
     .control-center {
         border-radius: 15px;
-        background-color: #002e4d;
+        background-image: linear-gradient(270deg, #007acc, #002e4d);
         padding: 1rem;
         margin: 0 auto 0 0;
         display: flex;
@@ -394,6 +376,7 @@
     .graph {
         height: 10rem;
         width: 80%;
+        color: black;
     }
 
     .hoverPlay:hover {
