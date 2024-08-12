@@ -33,23 +33,6 @@
 
     let routes = [
         {
-            name: "Team",
-            iconPath: mdiAccountGroup,
-            subRoutes: [
-                // Subroutes for the Team dropdown
-                {
-                    name: "Team View",
-                    route: "#/teamView",
-                    iconPath: mdiAccountCheckOutline,
-                },
-                {
-                    name: "Team Network",
-                    route: "#/teamNetwork",
-                    iconPath: mdiLanPending,
-                },
-            ],
-        },
-        {
             name: "Drive Gallery",
             route: "#/drivegallery",
             iconPath: mdiCar,
@@ -58,11 +41,6 @@
             name: "Pipes",
             route: "#/svelvet",
             iconPath: mdiPipeDisconnected,
-        },
-        {
-            name: "Visualizer",
-            route: "#/visualize",
-            iconPath: mdiEyeRefresh,
         },
         {
             name: "Gallery",

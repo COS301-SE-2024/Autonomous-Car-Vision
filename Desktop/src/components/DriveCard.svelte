@@ -76,7 +76,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="background-card relative overflow-hidden rounded-lg {listType !==
+  class="background-card text-white relative overflow-hidden rounded-lg {listType !==
   'grid'
     ? 'w-5/6 flex flex-row align-center justify-between'
     : 'w-10/12 mx-auto'} 
