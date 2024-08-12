@@ -157,7 +157,7 @@
             position: "top-center",
         });
 
-        // encoder();
+        encoder();
     }
 
     async function LoadCanvas() {
@@ -261,7 +261,7 @@
         let hasInfusrUnit = false;
         let hasTaggrUnit = false;
         if (tokens[0] !== "inputUnit" || tokens[tokens.length - 1] !== "outputUnit") {
-            console.error(
+            toast.error(
                 "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'."
             );
             return false;
@@ -275,7 +275,7 @@
                 hasInfusrUnit = true;
             } else if (token === "taggrUnit") {
                 if (!hasYoloUnit || !hasInfusrUnit) {
-                    console.error(
+                    toast.error(
                         "Error: taggrUnit must come after both a yoloUnit and an infusrUnit."
                     );
                     return false;
@@ -288,7 +288,7 @@
             hasTaggrUnit &&
             (!hasYoloUnit || !hasInfusrUnit)
         ) {
-            console.error(
+            toast.error(
                 "Error: taggrUnit is present but either yoloUnit or infusrUnit is missing."
             );
             return false;
@@ -297,7 +297,7 @@
         return true;
     }
 
-    function encoder() {
+    async function encoder() {
         const pipe = generatePipeString($edges);
         console.log("Generated Pipe:", pipe);
 
@@ -306,7 +306,7 @@
 
         // Check if the first and last units are inputUnit and outputUnit
         if (units[0] !== "inputUnit" || units[units.length - 1] !== "outputUnit") {
-            console.error(
+            toast.error(
                 "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
             );
             return;
@@ -342,6 +342,9 @@
         const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
 
         console.log("Labeled Pipe String:", labeledPipeString);
+        if (validatePipe(labeledPipeString))
+            await window.electronAPI.savePipeJson(labeledPipeString);
+        else toast.error("Invalid pipe");
 
         // You can return or use `labeledPipeString` elsewhere if needed
     }
