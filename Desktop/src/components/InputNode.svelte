@@ -73,14 +73,14 @@
       </div>
       <div class="showImage">
         {#if $inputs.image}
-          <img src={$output} alt="ImageUploaded" />
+          <!-- <img src={$output} alt="ImageUploaded" /> -->
         {:else}
-          <img
+          <!-- <img
             src="https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif"
             alt="inputImage"
-          />
+          /> -->
         {/if}
-        <img
+        <!-- <img
           class="upload"
           src="https://static.thenounproject.com/png/625182-200.png"
           alt=""
@@ -88,8 +88,8 @@
             fileinput.click();
           }}
           on:keydown
-        />
-        <div
+        /> -->
+        <!-- <div
           class="chan"
           on:keydown
           on:click={() => {
@@ -104,12 +104,12 @@
           accept=".jpg, .jpeg, .png"
           on:change={(e) => onFileSelected(e)}
           bind:this={fileinput}
-        />
+        /> -->
       </div>
     </div>
-    <div class="input-anchors">
+    <!-- <div class="input-anchors">
       <Anchor bgColor="green" {key} inputsStore={inputs} input />
-    </div>
+    </div> -->
     <div class="output">
       <div class="output-anchors">
         <Anchor
@@ -120,7 +120,9 @@
           outputStore={output}
           output
         >
-          <Edge slot="edge" color="red" label={$output} />
+          <Edge slot="edge" color="red" 
+          />
+          <!-- label={$output}  -->
         </Anchor>
       </div>
     </div>

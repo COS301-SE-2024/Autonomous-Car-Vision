@@ -7,16 +7,25 @@
 
   import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
-  import { Button } from "svelte-materialify";
+  import ThreeJS from "./ThreeJS.svelte";
+  import { Button, Icon } from "svelte-materialify";
+  import { mdiClose } from "@mdi/js";
   import { get } from "svelte/store";
   import { canvas } from "../stores/store";
   import toast, { Toaster } from "svelte-french-toast";
+  import ThreeJs from "./ThreeJS.svelte";
 
   let nodes = writable([]);
   let edges = writable([]);
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
+  let pipeRunModal = true;
+  let preProcessImg =
+    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
+  let postProcessImg =
+    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
+  let dotPLYFile = "";
 
   let nodeTypes = [
     {
@@ -183,7 +192,7 @@
           return !currentEdges.some(
             (currentEdge) =>
               currentEdge.sourceNode.id === savedEdge.sourceNode.id &&
-              currentEdge.targetNode.id === savedEdge.targetNode.id
+              currentEdge.targetNode.id === savedEdge.targetNode.id,
           );
         }), // Add new edges from saved data
       ];
@@ -235,14 +244,14 @@
             edge.sourceNode.id === event.detail.sourceNode.id &&
             edge.targetAnchor === event.detail.targetAnchor &&
             edge.targetNode.id === event.detail.targetNode.id
-          )
+          ),
       );
     });
   }
 
   function deleteNode(nodeId) {
     nodes.update((currentNodes) =>
-      currentNodes.filter((node) => node.id !== nodeId)
+      currentNodes.filter((node) => node.id !== nodeId),
     );
   }
 
@@ -264,7 +273,7 @@
       tokens[tokens.length - 1] !== "outputUnit"
     ) {
       toast.error(
-        "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'."
+        "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
       );
       return false;
     }
@@ -278,7 +287,7 @@
       } else if (token === "taggrUnit") {
         if (!hasYoloUnit || !hasInfusrUnit) {
           toast.error(
-            "Error: taggrUnit must come after both a yoloUnit and an infusrUnit."
+            "Error: taggrUnit must come after both a yoloUnit and an infusrUnit.",
           );
           return false;
         }
@@ -288,7 +297,7 @@
 
     if (hasTaggrUnit && (!hasYoloUnit || !hasInfusrUnit)) {
       toast.error(
-        "Error: taggrUnit is present but either yoloUnit or infusrUnit is missing."
+        "Error: taggrUnit is present but either yoloUnit or infusrUnit is missing.",
       );
       return false;
     }
@@ -304,8 +313,9 @@
 
     if (units[0] !== "inputUnit" || units[units.length - 1] !== "outputUnit") {
       toast.error(
-        "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'."
+        "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
       );
+      savedCanvas = null;
       return;
     }
 
@@ -313,7 +323,7 @@
 
     const labeledUnits = intermediateUnits.map((id) => {
       const node = savedCanvas.nodes.find(
-        (n) => n.id.replace(/^N-/, "") === id
+        (n) => n.id.replace(/^N-/, "") === id,
       );
       if (node) {
         if (node.label.includes("Nano")) {
@@ -421,6 +431,15 @@
     nodes.set([inputNode, outputNode]);
   }
 
+  function toggleRunModal() {
+    pipeRunModal = !pipeRunModal;
+  }
+
+  function runPipe() {
+    // Open modal of images
+    toggleRunModal();
+  }
+
   onMount(() => {
     setCanvas();
     LoadCanvas();
@@ -448,16 +467,32 @@
             > -->
       <Button
         rounded
-        on:click={SaveCanvas}
-        class="bg-dark-primary text-dark-background"
-        >Save Pipe
-      </Button>
-      <Button
-        rounded
         on:click={ClearCanvas}
         class="bg-dark-primary text-dark-background"
         >Clear Pipe
       </Button>
+      <Button
+        rounded
+        on:click={SaveCanvas}
+        class="bg-dark-primary text-dark-background"
+        >Save Pipe
+      </Button>
+      {#if savedCanvas}
+        <Button
+          rounded
+          on:click={runPipe}
+          class="bg-dark-primary text-dark-background"
+          >Run Pipe
+        </Button>
+      {:else}
+        <Button
+          disabled
+          rounded
+          on:click={runPipe}
+          class="bg-dark-primary text-dark-background"
+          >Run Pipe
+        </Button>
+      {/if}
     </div>
   </div>
   <div class="canvas">
@@ -484,6 +519,25 @@
       {/each}
     </Svelvet>
   </div>
+  {#if pipeRunModal}
+    <div class="runPipe w-3/4 h-3/4">
+      <div>
+        <Button text on:click={() => (pipeRunModal = !pipeRunModal)}>
+          <Icon path={mdiClose} size={38}></Icon>
+        </Button>
+      </div>
+      <div class="flex items-center h-full">
+        <div class="w-full flex justify-between gap-10">
+          <div class="inputImagePre">
+            <img src={preProcessImg} alt={preProcessImg} />
+          </div>
+          <div class="outputImagePost">
+            <img src={postProcessImg} alt={postProcessImg} />
+          </div>
+        </div>
+      </div>
+    </div>
+  {/if}
 </ProtectedRoutes>
 
 <style>
@@ -508,5 +562,19 @@
     justify-content: center;
     border: 1px solid #ccc;
     margin-top: 10px;
+  }
+
+  .runPipe {
+    background-color: #cccccc56;
+    border-radius: 12px;
+    position: fixed;
+    top: 50%;
+    left: 55%;
+    transform: translate(-55%, -50%);
+  }
+
+  .threeJSwindow {
+    height: 100%;
+    width: 100%;
   }
 </style>

@@ -80,7 +80,7 @@
       <div class="output">
         {#if $output !== "noImage.jpeg"}
           <!-- svelte-ignore a11y-img-redundant-alt -->
-          <img src={$output} alt="image.jpeg" />
+          <!-- <img src={$output} alt="image.jpeg" /> -->
         {/if}
       </div>
     </div>
