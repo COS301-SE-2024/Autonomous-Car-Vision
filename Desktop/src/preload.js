@@ -56,4 +56,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     selectDrivesDirectory: () => ipcRenderer.invoke('selectDrivesDirectory'),
     getDrivesDirectory: () => ipcRenderer.invoke('getDrivesDirectory'),
     getDriveVideos: (directory) => ipcRenderer.invoke('getDriveVideos', directory),
+    readDriveLog: (directory) => ipcRenderer.invoke('readDriveLog', directory),
   });

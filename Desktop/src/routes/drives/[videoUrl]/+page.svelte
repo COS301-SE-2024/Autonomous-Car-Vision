@@ -17,8 +17,17 @@
         videourl: "test",
     };
 
+    let driveData = {};
+
     let videoElement;
     let videoPath;
+    let timestamps;
+    let preprocessTimes;
+    let inferenceTimes;
+    let postprocessTimes;
+    let totalTimes;
+    let fpsValues;
+
     let chartData, chartFPS;
     let dotLottie1, dotLottie2, dotLottie3;
     let lottieElement1, lottieElement2, lottieElement3;
@@ -31,7 +40,42 @@
         lottie?.pause();
     }
 
-    onMount(() => {
+    function calculateStatistics(driveData) {
+        if (!driveData || !driveData.length || !driveData[0].data.length) {
+            throw new Error("Invalid driveData format");
+        }
+
+        // Extract the data
+        const data = driveData[0].data;
+
+        // Calculate total frames
+        const totalFrames = data.length;
+
+        // Calculate total inference time and total FPS
+        let totalInferenceTime = 0;
+        let totalFps = 0;
+
+        data.forEach((entry) => {
+            totalInferenceTime += entry.inference_time;
+            totalFps += entry.fps;
+        });
+
+        // Calculate averages
+        const averageInferenceTime = totalInferenceTime / totalFrames;
+        const averageFps = totalFps / totalFrames;
+
+        drive.FPS = averageFps.toFixed(2);
+        drive.inferences = averageInferenceTime.toFixed(3);
+        drive.frame_count = totalFrames;
+
+        return {
+            averageFps: averageFps.toFixed(2), // rounding to 2 decimal places
+            averageInferenceTime: averageInferenceTime.toFixed(3), // rounding to 3 decimal places
+            totalFrames,
+        };
+    }
+
+    onMount(async () => {
         videoPath = $location.replace("/drive/", "");
         videoPath = decodeURIComponent(videoPath);
         console.log(videoPath);
@@ -42,24 +86,58 @@
             console.log("Video Length: ", drive.length, "seconds");
         });
 
+        try {
+            const driveDirectory =
+                await window.electronAPI.getDrivesDirectory();
+            driveData = await window.electronAPI.readDriveLog(driveDirectory);
+            calculateStatistics(driveData);
+            console.log(driveData);
+            driveData = driveData[0].data.slice(1)
+            console.log(driveData)
+
+            timestamps = driveData.map((entry) => entry.timestamp);
+            preprocessTimes = driveData.map(
+                (entry) => entry.preprocess_time,
+            );
+            inferenceTimes = driveData.map(
+                (entry) => entry.inference_time,
+            );
+            postprocessTimes = driveData.map(
+                (entry) => entry.postprocess_time,
+            );
+            totalTimes = driveData.map((entry) => entry.total_time);
+            fpsValues = driveData.map((entry) => entry.fps);
+            
+        } catch (error) {
+            console.error(error);
+        }
+
         const inferencesOptions = {
             series: [
                 {
-                    name: "Speed",
-                    data: [5, 15, 10, 20, 30, 25, 35, 40, 50],
+                    name: "Preprocess Time",
+                    data: preprocessTimes,
                 },
                 {
-                    name: "Inferences",
-                    data: [22, 19, 24, 28, 22, 25, 32, 38, 30],
+                    name: "Inference Time",
+                    data: inferenceTimes,
                 },
+                {
+                    name: "Postprocess Time",
+                    data: postprocessTimes,
+                },
+                // {
+                //     name: "Total Time",
+                //     data: totalTimes,
+                // },
                 {
                     name: "FPS",
-                    data: [10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    data: fpsValues,
                 },
             ],
             chart: {
                 height: 240,
-                type: "area",
+                type: "line",
                 stacked: false,
                 sparkline: {
                     enabled: true,
@@ -193,7 +271,7 @@
                 id="drive"
                 class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
-                <p class="text-xl text-center">Drive Length</p>
+                <p class="text-xl text-center">Length</p>
                 <div class="text-3xl font-bold">{drive.length}</div>
             </div>
             <div

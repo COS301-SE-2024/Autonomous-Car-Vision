@@ -16,6 +16,8 @@ const ffprobePath = require('ffprobe-static').path;
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
 const { getVideoFiles } = require('./videoScanner');
+const { getJsonData } = require('./getJsonData');
+
 
 let mainWindow;
 let store;
@@ -724,5 +726,14 @@ ipcMain.handle('getDriveVideos', async (event, directory) => {
     } catch (error) {
         console.error('Error getting video files:', error);
         return [];
+    }
+});
+
+ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
+    try {
+        return await getJsonData(driveDirectory);
+    } catch (error) {
+        console.error('Failed to read drive log:', error);
+        return { error: 'Failed to read drive log' };
     }
 });
