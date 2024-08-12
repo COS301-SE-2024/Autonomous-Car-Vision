@@ -48,8 +48,8 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
-- **Installation Manual:** [View Installation Manual](<>)
-- **User Manual:** [View User Manual](<>)
+- **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
+- **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
 - **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1_-aVUgu6myCXf3xeL3x6jl85uQNEHegc/view?usp=sharing>)
 - **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
 - **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
