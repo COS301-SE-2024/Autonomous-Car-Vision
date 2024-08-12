@@ -43,4 +43,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
     downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
     getAIModels: () => ipcRenderer.invoke('get-ai-models'),
+    savePipeJson: async (jsonString) => { const result = await ipcRenderer.invoke('save-pipe-json', jsonString);  return result;}
   });

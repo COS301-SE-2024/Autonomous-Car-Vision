@@ -482,3 +482,46 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
+
+// Ipc handler to save json pipe file
+ipcMain.handle('save-pipe-json', async (event, jsonString) => {
+    try {
+        // Determine the base directory based on the operating system
+        let baseDirectory;
+        const platform = os.platform();
+        if (platform === 'win32') {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
+        } else if (platform === 'linux') {
+            baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
+        } else {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); // Default to Windows for unsupported OS
+        }
+
+        // Ensure the 'pipes' directory exists
+        const pipesDirectory = path.join(baseDirectory, 'pipes');
+        if (!fs.existsSync(pipesDirectory)) {
+            fs.mkdirSync(pipesDirectory, { recursive: true });
+        }
+
+        // File path for the pipes.json
+        const filePath = path.join(pipesDirectory, 'pipes.json');
+
+        // Read the existing JSON data if the file exists
+        let existingData = [];
+        if (fs.existsSync(filePath)) {
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+            existingData = JSON.parse(fileContent);
+        }
+
+        // Append the new JSON data
+        existingData.push(JSON.parse(jsonString));
+
+        // Write the updated data back to the file
+        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), 'utf-8');
+
+        return { success: true, message: 'JSON data saved successfully!' };
+    } catch (error) {
+        console.error('Error saving JSON data:', error);
+        return { success: false, message: 'Failed to save JSON data.' };
+    }
+});
