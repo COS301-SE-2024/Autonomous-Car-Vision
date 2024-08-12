@@ -8,7 +8,7 @@ module.exports = {
             textHover: "#4D4D4D",
             white: '#FFFFFF', // white
             lightText: '#FFFFFF', // white
-            background: '#181818', // offBlack
+            background: '#001524', // offBlack
             backgroundBlue: '#0C003C',
             bgHover: '#1C008D',
             primary: '#0099ff', // techBlue
@@ -19,7 +19,7 @@ module.exports = {
           },
           'theme-light': {
             lightText: '#FFFFFF',
-            background: '#d9d9d9', // Timberwolf background
+            background: '#001524', // Timberwolf background
             primary: '#28a745', // primary
             secondary: '#218838', // secondary
             error: '#ff0000', // error
@@ -35,7 +35,7 @@ module.exports = {
       fontFamily: {
         custom: ['var(--font-custom)', 'sans-serif'],
         heading: ['var(--font-heading)', 'sans-serif'],
-        special: ['var(--font-special)', 'sans-serif'],
+        special: ['var(--font-special)', 'sans-serif'], 
         body: ['var(--font-body)', 'sans-serif'],
         light: ['var(--font-light)', 'sans-serif'],
         lighter: ['var(--font-light-light)', 'sans-serif'],
@@ -43,45 +43,13 @@ module.exports = {
       colors: {
         'dark' : {
           background: '#011C27', // '#03254E',  // '#001524', '#011C27'
-          primary: '#FFFFFF',
-          secondary: '',
+          primary: '#0099ff',
+          secondary: '#007acc' ,// '#3EFF8B',
           hover: '#012A3B',
-          background_secondary: '#000000'
+          background_secondary: '#000000',
+          fill: '#001524'
         },
-        'theme-green': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#094400',
-          secondary: '#07873A',
-        },
-        'theme-blue': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#0C3E63',
-          secondary: '#5078A0',
-        },
-        'theme-red': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#730D0D',
-          secondary: '#9B1D1D',
-        },
-        'theme-keith':{
-          jet: '#D3D3D3',
-          timber: '#343434',
-          primary: '#344e41',
-          secondary:'#3a5a40',
-          accentone:'#588157',
-          accenttwo:'#a3b18a',
-          highlight:'#dad7cd',
-        },
-        'theme-purple': {
-          light:'#343434', //Timber wolf
-          dark:'#D3D3D3', //Jet
-          primary: '#400F65',
-          secondary: '#83468F',
-        },
-        'modal': '#0000009f',
+        'modal': '#0000009f', 
         'white': '#FFFF',
         'black': '#000',
         'red' : '#f44336',

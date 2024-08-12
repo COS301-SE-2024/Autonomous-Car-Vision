@@ -30,7 +30,7 @@
 
 <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
   <div
-    class="bg-white p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
+    class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
   >
     <div class="flex flex-col boder border-theme-dark-backgroundBlue">
       <p class="text-md">

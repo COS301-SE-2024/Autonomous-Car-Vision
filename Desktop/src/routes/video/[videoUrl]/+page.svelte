@@ -1,15 +1,26 @@
 <script>
   import { location, push } from "svelte-spa-router";
 
-  import { writable } from "svelte/store";
+  import { writable, get } from "svelte/store";
 
   import { VideoURL } from "../../../stores/video";
   import { OriginalVideoURL } from "../../../stores/video";
 
   import { onMount } from "svelte";
 
+  import toast, { Toaster } from "svelte-french-toast";
+
+  import {
+    processing,
+    videoUrl,
+    localProcess,
+    originalVideoURL,
+    processingQueue,
+    loadState,
+  } from "../../../stores/processing";
+
   import { isLoading } from "../../../stores/loading";
-  import Spinner from "../../../components/Spinner.svelte";
+  import QuantamLoader from "../../../components/QuantamLoader.svelte";
 
   import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
@@ -46,7 +57,7 @@
 
   async function getVideoDetails() {
     return new Promise((resolve) => {
-      VideoURL.subscribe(async (value) => {
+      originalVideoURL.subscribe(async (value) => {
         appPath = await window.electronAPI.getAppPath();
         videoPath = value;
         videoName = await getFileName(videoPath);
@@ -56,7 +67,7 @@
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
-          ".."
+          "..",
         );
         scriptPath = `${appDirectory}/Models/processVideo.py`;
         modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
@@ -70,42 +81,53 @@
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
       const files = await window.electronAPI.readDirectory(outputDir);
 
-      // Start with the original video
-      outputFiles = [
-        {
-          id: 0,
+      await loadState();
+
+      // Fetch the original video details from the database
+      let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+
+      console.log("Original video:", originalVideo);
+
+      // If the original video is not found, add it to the database
+      if (!originalVideo) {
+        const newOriginalVideo = {
           label: "Original",
           profileImgURL: "https://placekitten.com/300/300",
           videoURL: videoPath,
+          originalVidID: 0, // Original videos have their originalVidID set to 0 or null
+        };
+        originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
+        console.log("Original video add:", originalVideo);
+      }
+
+      // Start with the original video
+      outputFiles = [
+        {
+          id: originalVideo.videoID,
+          label: "Original",
+          profileImgURL: originalVideo.profileImgURL,
+          videoURL: originalVideo.videoURL,
         },
       ];
 
+      // Fetch processed videos linked to the original video
+      const processedVideos = await window.electronAPI.getProcessedVideos(
+        originalVideo.videoID
+      );
+
       // Add processed videos
-      const processedFiles = files
-        .map((file, index) => {
-          // Extract the model name from the file name (assuming the model name is part of the file name)
-          const modelNameMatch = file.match(/_processed_([\w-]+)\./);
-          if (!modelNameMatch) {
-            return null; // Skip files that do not match the pattern
-          }
-          const modelName = modelNameMatch[1];
-
-          return {
-            id: index + 1,
-            label: modelName,
-            profileImgURL:
-              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            videoURL: `${outputDir}/${file}`,
-          };
-        })
-        .filter((file) => file !== null); // Remove null values from the array
-
-      // Combine original and processed videos
-      outputFiles = outputFiles.concat(processedFiles);
+      processedVideos.forEach((video) => {
+        outputFiles.push({
+          id: video.videoID,
+          label: video.label,
+          profileImgURL: video.profileImgURL,
+          videoURL: video.videoURL,
+        });
+      });
 
       console.log("Output files:", outputFiles);
     } catch (error) {
-      console.error("Error reading output directory:", error);
+      console.error("Error fetching output files:", error);
     }
   }
 
@@ -128,11 +150,14 @@
   onMount(async () => {
     await fetchModels();
     await getVideoDetails();
-    await getOutputFiles();
+    // await getOutputFiles();
+    await loadState(); // Load state on mount
 
-    if (outputFiles.length > 1) {
-      showModelList.set(true);
-    }
+    console.log("Test Video URL page: ", get(videoUrl));
+
+    // if (outputFiles.length > 1) {
+    //   showModelList.set(true);
+    // }
     console.log($location);
   });
 
@@ -140,26 +165,64 @@
 
   async function processVideo(event) {
     modelName = event.detail.modelName;
-    isLoading.set(true);
     showProcessPopup = false;
     try {
       await getVideoDetails();
+
       console.log(isLoading, "isLoading");
 
-      OriginalVideoURL.set(videoPath);
-
-      output = await window.electronAPI.runPythonScript(scriptPath, [
+      const videoDetails = {
+        scriptPath,
         videoPath,
         outputVideoPath,
-        modelsPath,
-      ]);
-      console.log("Python Script Output:", output);
+        modelPath: modelsPath,
+        localProcess: get(localProcess),
+      };
+
       setInterval(() => {
         isLoading.set(false);
-      }, 5000);
+      }, 15000);
+      showModelList.set(true);
+
+      await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
+
+      toast.success("Video queued for processing", {
+        duration: 5000,
+        position: "top-center",
+      });
+
+      await loadState(); // Load state after adding the video to the queue
+
+      console.log("Queued video for processing now:", videoDetails);
+
+      // Add processed video information to the database
+      const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+      if (originalVideo) {
+        const processedVideoURL = outputVideoPath;
+        const existingProcessedVideo =
+          await window.electronAPI.getVideoByURL(processedVideoURL);
+
+        // Video added to the local database
+        if (!existingProcessedVideo) {
+          const newProcessedVideo = {
+            label: modelName,
+            profileImgURL:
+              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            videoURL: processedVideoURL,
+            originalVidID: originalVideo.videoID,
+          };
+          await window.electronAPI.addVideo(newProcessedVideo);
+        } else {
+          console.log(
+            "Processed video already exists in the database, video will be reprocessed."
+          );
+        }
+      } else {
+        console.error("Original video not found in the database");
+      }
     } catch (error) {
       output = error.message;
-      console.error("Python Script Error:", output);
+      console.error("Error:", output);
     }
     console.log("Processing video");
     processed = true;
@@ -205,15 +268,11 @@
 </script>
 
 <ProtectedRoutes>
-  <div class="grid grid-cols-5">
-    <div class="{processed ? 'col-span-4' : 'col-span-5'} ">
-      {#if $isLoading}
-        <div class="flex justify-center fixed top-8 z-50">
-          <Spinner />
-        </div>
-      {/if}
+  <Toaster />
+  <div class="grid grid-cols-5 h-4/5">
+    <div class="col-span-5 h-full">
       <ViewVideoComponent videoPath={$location} />
-      <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue">
+      <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue" >
         <button
           class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
           on:click={() => (showProcessPopup = true)}>Process</button
@@ -230,7 +289,7 @@
           />
         {/if}
         <div>
-          <button
+          <!-- <button
             class="text-white p-0.5 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
             on:click={toggleModelList}
           >
@@ -247,32 +306,23 @@
                 class="w-12 h-12 rounded-full"
               />
             {/if}
-          </button>
-          {#if $showModelList}
+          </button> -->
+          <!-- {#if $showModelList}
             <ModelList
               on:select={handleModelSelect}
-              processedVideos={outputFiles}
             />
-          {/if}
+          {/if} -->
         </div>
       </div>
       {#if showProcessPopup}
         <ProcessPopup
-        on:closePopup={closeProcessPopup}
-        on:processVideo={processVideo}
-        showProcessPopup={showProcessPopup}
-        models={models}
-        selectedModelName={selectedModelName}
+          on:closePopup={closeProcessPopup}
+          on:processVideo={processVideo}
+          {showProcessPopup}
+          {models}
+          {selectedModelName}
         />
       {/if}
     </div>
-
-    <!--Put video and editor and buttons-->
-    {#if false}
-      <div class="col-span-1">
-        <NestedTimeline />
-        <!--style-->
-      </div>
-    {/if}
   </div>
 </ProtectedRoutes>

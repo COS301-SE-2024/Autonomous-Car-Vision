@@ -1,0 +1,33 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: ["master", "develop"]
+  pull_request:
+    branches: ["master", "develop"]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DO_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 206.189.188.197 >> ~/.ssh/known_hosts
+
+      - name: Deploy to DigitalOcean
+        run: |
+          echo "Deploying to DigitalOcean..."
+          ssh root@206.189.188.197 << 'EOF'
+            sudo apt-get update && sudo apt-get upgrade -y
+            cd ./Autonomous-Car-Vision
+            git pull origin master
+            docker pull bitforgecapstone636/db:latest
+            docker run -d bitforgecapstone636/db
+            docker ps

@@ -3,6 +3,7 @@ import socket
 import os
 import requests
 import json
+import multiprocessing
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
@@ -70,12 +71,6 @@ async def startup_event():
 @app.get("/install")
 async def install():
     async with httpx.AsyncClient() as client:
-        # # get my agent details
-        # response = await client.get('http://127.0.0.1:8006/agent')
-        # if response.status_code != 200:
-        #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
-        # print("Response:", response.json())
-
         # encrypt my public ecd key
         init_elyptic = cerberus.elyptic(True)
         agent_public = init_elyptic["public"]
@@ -95,10 +90,9 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC2")
-        print("Test ---------->\n", test )
+        test = os.getenv("PUBLIC")
         test = base64.b64decode(test)
-        print("Test ---------->\n", test )
+
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
         print("Encrypted message: ", encrypted_message)
 
@@ -149,8 +143,8 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = "127.0.0.1"
-    # ip = socket.gethostbyname(socket.gethostname())
+    ip = socket.gethostbyname(socket.gethostname())
+    # ip = "127.0.0.1"
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
@@ -161,7 +155,7 @@ def findOpenPort():
     return ip, port
 
 
-def startFTP(ip, port, old_uid, old_size, old_token):
+def startFTP(ip: str, port: int, old_uid: str, old_size: str, old_token: str):
     def receive_until_null(conn):
         data = b""
         while True:
@@ -172,79 +166,94 @@ def startFTP(ip, port, old_uid, old_size, old_token):
         return data.decode()
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind((ip, port))
         s.listen()
         print(f"Server started and listening on {ip}:{port}")
         while True:
             conn, addr = s.accept()
-            with conn:
-                data = receive_until_null(conn)
-                data = json.loads(data)
-                print(f"DATA: {data}")
+            try:
+                with conn:
+                    data = receive_until_null(conn)
+                    data = json.loads(data)
+                    print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
-                size = data["size"]
-                token = data["token"]
-                command = data["command"]
+                    uid = data.get('uid')
+                    size = data['size']
+                    token = data['token']
+                    command = data['command']
+                    mid = data['mid']
 
-                directory = f"./Download/{uid}/"
-                os.makedirs(directory, exist_ok=True)
-                print(f"Directory {directory} created to store information.")
+                    directory = f"./Download/{uid}/"
+                    os.makedirs(directory, exist_ok=True)
+                    print(f"Directory {directory} created to store information.")
 
-                print(f"Connected by {addr}")
+                    print(f"Connected by {addr}")
 
-                if command == "SEND":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    if command == "SEND":
+                        filename = receive_until_null(conn)
+                        print(f"File name: {filename}")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+                        if not mid:
+                            break
+                        filepath = os.path.join(directory, mid)
+                        filepath = filepath + '.mp4'
 
-                    with open(filepath, "wb") as f:
-                        print(f"Receiving file {filename}...")
-                        while True:
-                            data = conn.recv(1024)
-                            if not data:
-                                break
-                            f.write(data)
-                    print(f"File {filename} received and saved to {filepath}")
-
-                elif command == "RETR":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
-
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
-
-                    if os.path.exists(filepath):
-                        with open(filepath, "rb") as f:
-                            print(f"Sending file {filename}...")
+                        with open(filepath, "wb") as f:
+                            print(f"Receiving file {filename}...")
                             while True:
-                                data = f.read(1024)
+                                data = conn.recv(1024)
                                 if not data:
                                     break
-                                conn.sendall(data)
-                        print(f"File {filename} sent successfully.")
-                    else:
-                        print(f"File {filename} does not exist.")
+                                f.write(data)
+                        print(f"File {filename} received and saved to {filepath}")
 
-    s.close()
+                    elif command == "RETR":
+                        filename = receive_until_null(conn)
+                        print(f"File name: {filename}")
+
+                        if not mid:
+                            break
+                        filepath = os.path.join(directory, mid)
+                        filepath = filepath + '.mp4'
+
+                        if os.path.exists(filepath):
+                            with open(filepath, "rb") as f:
+                                print(f"Sending file {filename}...")
+                                while True:
+                                    data = f.read(1024)
+                                    if not data:
+                                        break
+                                    conn.sendall(data)
+                            print(f"File {filename} sent successfully.")
+                        else:
+                            print(f"File {filename} does not exist.")
+            except Exception as e:
+                print(f"Error during connection handling: {e}")
+            finally:
+                conn.close()
+                print("Connection closed")
+                break
+
+        print("Exiting loop, closing socket.")
+        s.close()
+        print("Socket closed")
+
     return "Operation completed successfully."
 
-
 @app.post("/startupFTPListener/")
-async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request):
+async def startupFTPListener(background_tasks: BackgroundTasks, request: Request):
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
-    aid = "STUMPED"
+    aid = os.getenv("AID")
     size = "STUMPED"
     utoken = "STUMPED"
-    backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
-    return {"aip": ip, "aport": port}
+    background_tasks.add_task(startFTP, ip, port, aid, size, utoken)
+    # process = multiprocessing.Process(target=startFTP, args=(ip, port, aid, size, utoken))
+    # process.start()
+    return {"aip": ip, "aport": port, "aid": aid}
+
 
 
 @app.post("/process/")
@@ -263,17 +272,14 @@ async def process(request: Request):
     except:
         return JSONResponse(status_code=400, content={"message": "Invalid request"})
 
-
-def verifyOTP(otp):
-    otp = "1234"
-    if otp == "1234":
-        return True
-    else:
-        return False
-
-
 @app.post("/listen")
 async def listen(request: Request):
     message = await request.json()
     print(message)
     return {"message": "ill start listening thanks"}
+
+
+# if __name__ == "__main__":
+#     multiprocessing.freeze_support()
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8001)

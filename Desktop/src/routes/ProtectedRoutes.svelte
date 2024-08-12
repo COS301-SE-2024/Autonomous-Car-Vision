@@ -41,11 +41,13 @@
   }
 
   function handleMouseUp() {
+    document.querySelector('.handle-inner').classList.remove('highlighted');
     window.removeEventListener("mousemove", handleMouseMove);
     window.removeEventListener("mouseup", handleMouseUp);
   }
 
   function handleMouseDown() {
+    document.querySelector('.handle-inner').classList.add('highlighted');
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
   }
@@ -67,17 +69,18 @@
     <div class="sidebar" style="width: {$sidebarWidth}px;">
       <SidebarV2 width={$sidebarWidth} />
     </div>
-    <div class="handle" on:mousedown={handleMouseDown}></div>
+    <div class="handle" on:mousedown={handleMouseDown} role="button" tabindex="0">
+      <div class="handle-inner"></div>
+    </div>
   </div>
   <div class="pr-2 pt-2 pb-2 h-screen">
-    <div class="content" style="margin-left: {$sidebarWidth + 15}px;">
+    <div class="main-content" style="margin-left: {$sidebarWidth + 10}px;">
       <slot />
     </div>
   </div>
 </div>
 
 <style>
-  
   .side {
     position: relative;
     top: 0;
@@ -89,26 +92,41 @@
     height: 100vh;
     background: none;
     overflow: hidden;
-    padding: 0.5rem 0 0.5rem 0.5rem;
+    padding: 10px 0 10px 10px;
   }
   
   .handle {
     float: left;
-    width: 15px;
+    width: 10px;
     height: 100vh;
-    background: transparent;
-    cursor: ew-resize;
+    cursor: grab;
+    display: grid;
+    place-items: center;
+  }
+
+  .handle-inner {
+    height: 95%;
+    padding-right: 1px;
+    padding-left: 1px;
+    border-radius: 15px;
+  }
+
+  .handle:hover  .handle-inner {
+    background-color: #fff;
+  }
+
+  .handle-inner.highlighted {
+    background-color: #fff;
   }
   
-  .content {
+  .main-content {
     height: 100%;
     overflow: auto;
     background-image: linear-gradient(180deg, #001524, #181818);
     border-radius: 15px;
-    padding: 0.5rem;
   }
   
-  .content::-webkit-scrollbar {
+  .main-content::-webkit-scrollbar {
     display: none;
   }
 </style>

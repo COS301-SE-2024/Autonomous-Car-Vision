@@ -10,6 +10,7 @@
 
   import { isUploadLoading } from "../stores/uploadLoading";
   import RingLoader from "../components/RingLoader.svelte";
+  import axios from "axios";
 
   export let videoSource = "";
   let filename = "";
@@ -54,10 +55,42 @@
 
     // isUploadLoading.set(true);
     isUploading = true;
-    setInterval(() => {
+    setInterval(async () => {
       // isUploadLoading.set(true);
       isUploading = false;
-    }, 6000);
+      }, 6000);
+    
+    let uid = window.electronAPI.getUid();
+    let token = window.electronAPI.getToken();
+    // let size = "10";
+    // let size = window.electronAPI.getFileSize(file.path);
+    let sizeInBytes = file.size;
+  
+  // Convert size to MB and round to 2 decimal places
+  let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
+    let aip = "";
+    let aport = "";
+      let command = "SEND";
+    try {
+    let response = await window.electronAPI.openFTP(uid, token, size, filename, file.path, command);
+    console.log("Response: ", response);
+    
+    if (response.success) {
+        console.log("IP:", response.ip);
+        console.log("Port:", response.port);
+        aip = response.ip;
+        aport = response.port;
+        // You can now use response.ip and response.port as needed
+    } else {
+        console.error("Error:", response.error);
+    }
+} catch (error) {
+    console.error("Error calling openFTP:", error);
+}
+
+
+    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
+
     try {
       // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
@@ -65,7 +98,6 @@
         mname: filename,
         localurl: videoSource,
       };
-
       // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
       console.log("resp1", response1);
@@ -83,6 +115,7 @@
       // sleep for 5 seconds
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
+
       console.log("TESTING SAVE before IF");
 
       if (response2.success) {
@@ -91,6 +124,7 @@
         const token = window.electronAPI.getToken();
 
         console.log($location);
+
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }
@@ -129,7 +163,7 @@
         <div class="w-full flex items-center mt-4">
           <span class="flex-grow"></span>
           <button
-            class="bg-theme-dark-backgroundBlue text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            class="bg-theme-dark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
             on:click={saveVideo}
             >Save
           </button>

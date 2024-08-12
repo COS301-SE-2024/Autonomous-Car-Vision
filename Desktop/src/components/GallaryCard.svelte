@@ -1,57 +1,94 @@
 <script>
   import { onMount } from "svelte";
-  import GallaryMore from "./GallaryMore.svelte";
-  import PingLoader from "../components/PingLoader.svelte";
-  import { VideoURL } from "../stores/video";
-  import { writable } from "svelte/store";
-  import { mdiDownload } from "@mdi/js";
-  import { Icon } from "svelte-materialify";
-
-  // import { isDownloading } from "../stores/loading";
+  import { VideoURL, OriginalVideoURL } from "../stores/video";
+  import { originalVideoURL } from "../stores/processing";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
+  import axios from "axios";
+  import { mdiDownload, mdiPlayCircle } from "@mdi/js";
+  import { Icon, Tooltip } from "svelte-materialify";
 
-  export let VideoSource;
-  export let VideoName;
+  export let videoSource;
+  export let videoName;
   export let isDownloaded;
+  export let listType;
 
   let isGalLoading = false;
   let showMoreModal = false;
   let firstFrameURL = "";
   let isDownloading = false;
 
+  let showTooltip = false;
+  let processed = false;
+
   const handleDownload = async (event) => {
     event.stopPropagation();
     // isDownloading.set(true);
     isDownloading = true;
+
+    let uid = window.electronAPI.getUid();
+    let token = window.electronAPI.getToken();
+    let size = "10";
+    let aip = "";
+    let aport = "";
+
     try {
-      const response = await window.electronAPI.downloadVideo(
-        VideoName,
-        VideoSource
-      );
-      console.log(response.success, response.filePath);
-    } catch (error) {}
-    setTimeout(() => {
-      // isDownloading.set(false);
+    let response = await window.electronAPI.openFTP(uid, token, size, "FAKENAME", "FAKEURL", "RETR");
+    console.log("Response: ", response);
+    
+    if (response.success) {
+        console.log("IP:", response.ip);
+        console.log("Port:", response.port);
+        aip = response.ip;
+        aport = response.port;
+    } else {
+        console.error("Error:", response.error);
+    }
+} catch (error) {
+    console.error("Error calling openFTP:", error);
+}
+
+
+    await window.electronAPI.downloadToClient(aip, aport, VideoName, uid, size, token);
+    
+    // move the video to the download folder
+    let currentFilePath = VideoName;
+    console.log("Current File Path: ", currentFilePath);
+    console.log("videoSource: ", VideoSource);
+
+    await window.electronAPI.moveVideo(currentFilePath, VideoName);
+
+    // try {
+    //   const response = await window.electronAPI.downloadVideo(
+    //     VideoName,
+    //     VideoSource
+    //   );
+    //   console.log(response.success, response.filePath);
+    // } catch (error) {}
+    // setTimeout(() => {
+    //   // isDownloading.set(false);
+    // }, 1000);
       isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
-    }, 10000);
+
     console.log("DOWNLOAD BUTTON");
   };
 
   function goToVideo() {
     if (!isDownloaded) return;
     console.log("Go to video");
-    const encodedPath = encodeURIComponent(VideoSource);
-    VideoURL.set(VideoSource);
+    const encodedPath = encodeURIComponent(videoSource);
+    VideoURL.set(videoSource);
+    OriginalVideoURL.set(videoSource);
+    originalVideoURL.set(videoSource);
     push(`/video/${encodedPath}`);
   }
 
   function handleMore() {
     console.log("More button clicked");
     showMoreModal = true;
-    console.log(VideoSource);
+    console.log(videoSource);
   }
 
   function handleBack(event) {
@@ -62,7 +99,7 @@
 
   function captureSpecificFrame(frameNumber) {
     const videoElement = document.createElement("video");
-    videoElement.src = VideoSource;
+    videoElement.src = videoSource;
     videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
 
     videoElement.addEventListener("loadedmetadata", () => {
@@ -92,12 +129,17 @@
   onMount(async () => {
     isGalLoading = true;
     captureSpecificFrame(10); // Specify the frame to get
-    console.log("Video Source Path", VideoSource, "Video Name: ", VideoName);
+    try {
+      processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
+      console.log("Processed:", processed);
+    } catch (error) {
+      console.error("Error checking if video is processed:", error);
+    }
     if (!isDownloaded) {
       try {
         const response = await window.electronAPI.getVideoFrame(
-          VideoSource,
-          VideoName
+          videoSource,
+          videoName
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
@@ -106,7 +148,7 @@
     }
     setInterval(() => {
       isGalLoading = false;
-    }, 3000);
+    }, 1500);
   });
 </script>
 
@@ -114,62 +156,118 @@
 <div
   class="{isDownloaded
     ? 'cursor-default'
-    : 'notDownloaded'} shadow-card-blue relative overflow-hidden rounded-lg p-2 w-10/12 shadow-md shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+    : 'notDownloaded'} background-card relative overflow-hidden rounded-lg {listType === 'list' ? 'w-4/6 flex flex-row align-center justify-between' : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
+  role="button"
+  tabindex="0"
 >
   {#if isGalLoading}
-    <div class="flex justify-center items-center h-44">
-      <div class="flex justify-center">
-        <PingLoader />
+    <div class="flex justify-center items-center h-64">
+      <div class="content-loader flex justify-center h-full w-full">
+         <div class="img-content-loader w-full">
+          </div>
       </div>
     </div>
   {/if}
   {#if !isGalLoading}
     <div class="image-container relative">
-      <!-- style="filter: {!isDownloaded ? 'grayscale(1);' : ''}" add grayscale when notDownloaded current solution doesn't work -->
-      <img
+      {#if listType === "grid"}
+        <img
+          src={firstFrameURL}
+          alt="video preview"
+          class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {:else}
+        <img
         src={firstFrameURL}
         alt="video preview"
-        class="h-40 w-full rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-      />
+        class="w-28 object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {/if}
       <div
         class="{isDownloaded
           ? 'hover:block'
-          : 'hover:hidden'} lg:w-4/12 button-container absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        style="top:50%; left:50%; transform: translate(-50%, 50%);"
+          : 'hover:hidden'} lg:w-4/12 button-container absolute"
+        style="top:40%; left:50%; transform: translate(-50%, 50%);"
       >
         {#if !isDownloading && !isDownloaded}
           <button
-            class="more bg-theme-dark-download text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
+            class="more text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
             on:click={handleDownload}
           >
             <Icon path={mdiDownload} size="24" /></button
           >
         {:else if !isDownloaded}
-          <div class="flex justify-center">
+          <div class="flex justify-center relative -top-4">
             <RingLoader />
           </div>
         {/if}
       </div>
+      <div class="TT-positioning">
+        <Tooltip left bind:active={showTooltip}>
+          {#if listType === "grid"}
+          <div
+            class="processed-info"
+            style={processed
+              ? "background-color: #1AFF00;"
+              : "background-color: red;"}
+          ></div>
+          {/if}
+          <span slot="tip">
+            {#if processed}
+              Processed
+            {:else}
+              Unprocessed
+            {/if}
+          </span>
+        </Tooltip>
+      </div>
     </div>
     <div class="details p-2">
-      <p class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText">{VideoName}</p>
+      <p
+        class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText"
+      >
+        {videoName}
+      </p>
+      <div id="playbtn">
+        <Icon
+          class="text-dark-secondary"
+          path={mdiPlayCircle}
+          size={40}
+          on:click={goToVideo}
+        />
+      </div>
     </div>
   {/if}
 </div>
 
-{#if showMoreModal && isDownloaded}
-  <div>
-    <GallaryMore
-      imgSource={firstFrameURL}
-      videoSource={VideoSource}
-      videoName={VideoName}
-      on:close={handleBack}
-    />
-  </div>
-{/if}
-
 <style>
+  .content-loader {
+    background-color: #25292b;
+    border-radius: 10px;
+    animation: pulse 1.5s infinite;
+  }
+
+  .img-content-loader {
+    background-color: #3d3d3d;
+    border-radius: 10px;
+    height: 83.333%;
+    animation: pulse 1.5s infinite;
+  }
+
+  .TT-positioning {
+    position: absolute;
+    top: 5px;
+    right: 12px;
+  }
+
+  .processed-info {
+    width: 12px;
+    height: 12px;
+    color: white;
+    border-radius: 50%;
+  }
+
   .notDownloaded {
     filter: grayscale(100%);
     cursor: pointer;
@@ -178,5 +276,26 @@
 
   .cursor-default {
     cursor: default;
+  }
+
+  .details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #playbtn {
+    height: fit-content;
+    cursor: pointer;
+  }
+
+  .background-card {
+    /* border: 0.5px solid #012431; */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .background-card:hover {
+    background-color: #012431b1;
   }
 </style>

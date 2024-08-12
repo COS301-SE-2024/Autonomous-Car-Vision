@@ -125,7 +125,7 @@
         </div>
 
         <!-- Edit Email -->
-        <div class="mb-4 text-black w-1/2">
+        <div class="mb-4 w-1/2">
           <label for="email" class="block text-theme-keith-secondary mb-1"
             >Email</label
           >
