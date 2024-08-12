@@ -244,7 +244,7 @@
     function handleVideoHover(event) {
         const video = event.currentTarget;
         video.currentTime = 0; // Start from the beginning
-        video.playbackRate = 2; // Slow down the playback
+        video.playbackRate = 1; // Slow down the playback
         video.play(); // Play the video
     }
 
@@ -290,7 +290,7 @@
             <Icon path={mdiArrowLeft} size={32} />
         </button>
     </div>
-    <div class="w-11/12 h-full mx-auto my-6">
+    <div class="w-11/12 h-full mx-auto my-6 text-white">
         <div class="flex flex-row justify-between">
             <div
                 id="drive"
@@ -484,7 +484,7 @@
     .graph {
         height: 10rem;
         width: 80%;
-        color: rgb(230, 0, 0);
+        color: rgb(0, 0, 0);
     }
 
     .hoverPlay:hover {
