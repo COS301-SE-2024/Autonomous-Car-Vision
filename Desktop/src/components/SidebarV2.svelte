@@ -42,27 +42,27 @@
             route: "#/svelvet",
             iconPath: mdiPipeDisconnected,
         },
-        {
-            name: "Team",
-            iconPath: mdiAccountGroup,
-            subRoutes: [  // Subroutes for the Team dropdown
-                {
-                    name: "Team View",
-                    route: "#/teamView",
-                    iconPath: mdiAccountCheckOutline,
-                },
-                {
-                    name: "Team Network",
-                    route: "#/teamNetwork",
-                    iconPath: mdiLanPending,
-                },
-            ]
-        },
-        {
-            name: "Visualizer",
-            route: "#/visualize",
-            iconPath: mdiEyeRefresh,
-        },
+        // {
+        //     name: "Team",
+        //     iconPath: mdiAccountGroup,
+        //     subRoutes: [  // Subroutes for the Team dropdown
+        //         {
+        //             name: "Team View",
+        //             route: "#/teamView",
+        //             iconPath: mdiAccountCheckOutline,
+        //         },
+        //         {
+        //             name: "Team Network",
+        //             route: "#/teamNetwork",
+        //             iconPath: mdiLanPending,
+        //         },
+        //     ]
+        // },
+        // {
+        //     name: "Visualizer",
+        //     route: "#/visualize",
+        //     iconPath: mdiEyeRefresh,
+        // },
         {
             name: "Gallery",
             route: "#/gallery",
