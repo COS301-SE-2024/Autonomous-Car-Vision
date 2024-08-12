@@ -3,6 +3,8 @@ import open3d.visualization.gui as gui
 import open3d.visualization.rendering as rendering
 import numpy as np
 import matplotlib.cm as cm
+import os
+import sys
 
 def apply_jet_colormap(pcd):
     points = np.asarray(pcd.points)
@@ -52,5 +54,15 @@ def visualize_point_cloud(filepath):
     app.run()
 
 if __name__ == "__main__":
-    point_cloud_file = "output_frames/combined_map.ply"
+    if len(sys.argv) < 2:
+        print("Please provide the directory containing 'combined_map.ply' as an argument.")
+        sys.exit(1)
+
+    directory = sys.argv[1]
+    point_cloud_file = os.path.join(directory, "combined_map.ply")
+
+    if not os.path.exists(point_cloud_file):
+        print(f"Error: 'combined_map.ply' not found in directory {directory}.")
+        sys.exit(1)
+
     visualize_point_cloud(point_cloud_file)

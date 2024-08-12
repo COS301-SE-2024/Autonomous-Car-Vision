@@ -258,6 +258,7 @@
     let showBB = false;
     let appPath;
     let scriptPath;
+    let scriptPath1;
     let vidpath;
 
     async function spawnP() {
@@ -272,6 +273,12 @@
             scriptPath,
             [dirPath]
         );
+        scriptPath1 = `${appDirectory}/Process/pipe4/viz4.py`;
+        window.electronAPI.runPythonScript2(
+            scriptPath1,
+            [dirPath]
+        );
+
     }
 
     function getDirectoryPath(filepath) {

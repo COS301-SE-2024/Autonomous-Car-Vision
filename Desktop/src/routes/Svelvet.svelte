@@ -478,7 +478,7 @@
         class="bg-dark-primary text-dark-background"
         >Save Pipe
       </Button>
-      {#if savedCanvas}
+      <!-- {#if savedCanvas}
         <Button
           rounded
           on:click={runPipe}
@@ -493,7 +493,7 @@
           class="bg-dark-primary text-dark-background"
           >Run Pipe
         </Button>
-      {/if}
+      {/if} -->
     </div>
   </div>
   <div class="canvas">
