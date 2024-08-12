@@ -27,7 +27,7 @@ jobs:
           ssh root@206.189.188.197 << 'EOF'
             sudo apt-get update && sudo apt-get upgrade -y
             cd ./Autonomous-Car-Vision
-            git pull origin master
+            git pull origin develop
             docker pull bitforgecapstone636/db:latest
             docker run -d bitforgecapstone636/db
             docker ps
