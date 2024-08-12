@@ -9,8 +9,9 @@ from .serializers import (
     AuthSerializer,
     OTPSerializer,
     MediaSerializer,
+    CorporationSerializer,
 )
-from .models import User, Auth, OTP, Token, Media
+from .models import User, Auth, OTP, Token, Media, Corporation
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -183,6 +184,8 @@ def signup(request):
         "uid": uid,
         "uname": data["uname"],
         "uemail": data["uemail"],
+        "cid": data["cid"],
+        "is_admin": data["is_admin"],
     }
     user_serializer = UserSerializer(data=user_data)
     if user_serializer.is_valid():
@@ -228,7 +231,7 @@ def verifyOTP(request):
             {"error": "Invalid UID or OTP"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    if otp_entry.expiry_date < datetime.now():
+    if otp_entry.expiry_date < datetime.now().strftime("%Y-%m-%d %H:%M:%S"):
         return Response(
             {"error": "OTP has expired"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -622,3 +625,38 @@ def verifyToken(uid, token):
 
     if dataToken.token != token:
         return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def joinTeam(request):
+    data = request.data
+    uid = data.get("uid")
+    cname = data.get("teamName")
+
+    if not uid or not cname:
+        return Response(
+            {"error": "UID and CID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    # create corporation using serializer
+    # Corporation.objects.create(cname=cname)
+    # check if team exists
+    if not Corporation.objects.filter(cname=cname).exists():
+        return Response(
+            {"error": "Invalid team name"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    cid = Corporation.objects.get(cname=cname).cid
+
+    try:
+        user = User.objects.get(uid=uid)
+        user.cid = cid
+        user.is_admin = True
+        user.save()
+        return Response(
+            {"message": "User joined team successfully"}, status=status.HTTP_200_OK
+        )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        

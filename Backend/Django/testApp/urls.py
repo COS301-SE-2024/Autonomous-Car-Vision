@@ -26,6 +26,14 @@ from .views import (
     devLogin,
     download,
     uploadFile,
+    getCID,
+    isInCorporation,
+    registerCorporation,
+    addUserToCorporation,
+    makeAdmin,
+    joinTeam,
+    createTeam,
+    send_invite_email,
 )
 
 router = DefaultRouter()
@@ -58,6 +66,14 @@ urlpatterns = [
     path("videos/", list_videos, name="list_videos"),
     path("lookup/", lookup, name="lookup"),
     path("devLogin/", devLogin),
-    path("downloadMSI/", download),
+    path("download/", download),
     path("uploadFile/", uploadFile),
+    path("getCID/", getCID),
+    path("isInCorporation/", isInCorporation),
+    path("registerCorporation/", registerCorporation),
+    path("addUserToCorporation/", addUserToCorporation),
+    path("makeAdmin/", makeAdmin),
+    path("joinTeam/", joinTeam),
+    path("createTeam/", createTeam),
+    path("sendInviteEmail/", send_invite_email),
 ]

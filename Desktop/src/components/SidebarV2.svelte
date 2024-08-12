@@ -9,6 +9,14 @@
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
+        mdiEyeRefresh,
+        mdiCar,
+        mdiAccountGroup,
+        mdiAccountCheckOutline,
+        mdiLanPending,
+        mdiChevronUp,
+        mdiChevronDown,
+        mdiPipeDisconnected,
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -21,12 +29,40 @@
         "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
 
     let showAccountPopup = false;
+    let showTeamDropdown = false;
 
     let routes = [
-          {
-            name: "Models TEST",
-            route: "#/modelsPage",
-            iconPath: mdiViewGallery,
+        {
+            name: "Team",
+            iconPath: mdiAccountGroup,
+            subRoutes: [
+                // Subroutes for the Team dropdown
+                {
+                    name: "Team View",
+                    route: "#/teamView",
+                    iconPath: mdiAccountCheckOutline,
+                },
+                {
+                    name: "Team Network",
+                    route: "#/teamNetwork",
+                    iconPath: mdiLanPending,
+                },
+            ],
+        },
+        {
+            name: "Drive Gallery",
+            route: "#/drivegallery",
+            iconPath: mdiCar,
+        },
+        {
+            name: "Pipes",
+            route: "#/svelvet",
+            iconPath: mdiPipeDisconnected,
+        },
+        {
+            name: "Visualizer",
+            route: "#/visualize",
+            iconPath: mdiEyeRefresh,
         },
         {
             name: "Gallery",
@@ -61,11 +97,14 @@
 
     function toggleAccountPopup() {
         showAccountPopup = !showAccountPopup;
-        console.log("TOGGLE: ", showAccountPopup);
     }
 
     function closeAccountPopup() {
         showAccountPopup = false;
+    }
+
+    function toggleTeamDropdown() {
+        showTeamDropdown = !showTeamDropdown;
     }
 
     function handleClickOutside(event) {
@@ -94,53 +133,110 @@
 >
     {#each routes as route}
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
-            <a class="w-full" href={route.route}>
-                <div class="flex justify-start gap-2">
+            {#if route.subRoutes}
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <div
+                    class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer"
+                    on:click={toggleTeamDropdown}
+                >
                     <Icon path={route.iconPath} />
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
                         </span>
                     {/if}
+                    <Icon
+                        path={showTeamDropdown ? mdiChevronUp : mdiChevronDown}
+                    />
                 </div>
-            </a>
-        </div>
-    {/each}
-        <div
-            class="relative cursor-pointer avatar-container m-3 grid {width < 150 ? 'place-items-center' : ''}"
-            on:click={toggleAccountPopup}
-            on:keydown
-        >
-            <div
-                style="width: {width < 150 ? 'fit-content' : 'auto'};"
-                class="{'/accountsettings' === $location ||
-                '/changepassword' === $location
-                    ? 'bg-dark-background'
-                    : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
-            >
-                <Avatar
-                    size="34px"
-                    class="bg-gray rounded-full content-center w-fit"
+            {:else}
+                <a
+                    class="w-full"
+                    href={route.route}
+                    on:click={route.subRoutes ? toggleTeamDropdown : undefined}
                 >
-                    <img class="accountImg" src={profileImg} alt="img" />
-                </Avatar>
-                {#if width >= 150}
-                    <div class="w-auto flex flex-col justify-start items-center">
-                        <span class="w-fit text-left text-xs font-bold"
-                            >{username}</span
-                        >
-                        <span class="w-fit text-left text-xs">{name}</span>
+                    <div class="flex justify-start gap-2 items-center">
+                        <Icon path={route.iconPath} />
+                        {#if width >= 150}
+                            <span class="ml-2">
+                                {route.name}
+                            </span>
+                        {/if}
+                        {#if route.subRoutes}
+                            <Icon
+                                path={showTeamDropdown
+                                    ? mdiChevronUp
+                                    : mdiChevronDown}
+                            />
+                        {/if}
                     </div>
-                {/if}   
-            </div>
+                </a>
+            {/if}
         </div>
-        {#if showAccountPopup}
-            <div
-                class="popupAcc z-20 mt-2 account-popup-content" style="left: {width + 10}px;"
-            >
-                <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
+        {#if route.subRoutes && showTeamDropdown}
+            <div class="sub-routes ml-8">
+                {#each route.subRoutes as subRoute}
+                    <div
+                        class="sub-nav-item {'#' + $location === subRoute.route
+                            ? 'active'
+                            : ''}"
+                    >
+                        <a class="w-full" href={subRoute.route}>
+                            <div class="flex justify-start gap-2 items-center">
+                                <Icon path={subRoute.iconPath} />
+                                {#if width >= 150}
+                                    <span class="ml-0.5">
+                                        {subRoute.name}
+                                    </span>
+                                {/if}
+                            </div>
+                        </a>
+                    </div>
+                {/each}
             </div>
         {/if}
+    {/each}
+    <div
+        class="relative cursor-pointer avatar-container m-3 grid {width < 150
+            ? 'place-items-center'
+            : ''}"
+        on:click={toggleAccountPopup}
+        on:keydown
+    >
+        <div
+            style="width: {width < 150 ? 'fit-content' : 'auto'};"
+            class="{'/accountsettings' === $location ||
+            '/changepassword' === $location
+                ? 'bg-dark-background'
+                : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
+        >
+            <Avatar
+                size="34px"
+                class="bg-gray rounded-full content-center w-fit"
+            >
+                <img class="accountImg" src={profileImg} alt="img" />
+            </Avatar>
+            {#if width >= 150}
+                <div class="w-auto flex flex-col justify-start items-center">
+                    <span class="w-fit text-left text-xs font-bold"
+                        >{username}</span
+                    >
+                    <span class="w-fit text-left text-xs">{name}</span>
+                </div>
+            {/if}
+        </div>
+    </div>
+    {#if showAccountPopup}
+        <div
+            class="popupAcc z-20 mt-2 account-popup-content"
+            style="left: {width + 10}px;"
+        >
+            <AccountPopup
+                items={accountPopupItems}
+                on:close={closeAccountPopup}
+            />
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -153,17 +249,20 @@
         overflow: hidden;
     }
 
-    .nav-item {
+    .nav-item,
+    .sub-nav-item {
         display: flex;
         justify-content: start;
         padding: 10px 0 10px 20px;
     }
 
-    .nav-item > a > div {
+    .nav-item > a > div,
+    .sub-nav-item > a > div {
         opacity: 0.5;
     }
 
-    .nav-item > a > div:hover {
+    .nav-item > a > div:hover,
+    .sub-nav-item > a > div:hover {
         color: aliceblue;
         opacity: 1;
         font-weight: 600;
@@ -174,6 +273,11 @@
         opacity: 1;
         color: white;
         font-weight: 600;
+    }
+
+    .sub-routes {
+        display: flex;
+        flex-direction: column;
     }
 
     .accountImg {

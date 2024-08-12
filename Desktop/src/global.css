@@ -2,3 +2,14 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+
+.slider-input.connected {
+    display: flex;
+    justify-content: center;
+    gap: 10px !important;
+  }
+
+  .apexcharts-legend-text {
+    color: white !important;
+  }
