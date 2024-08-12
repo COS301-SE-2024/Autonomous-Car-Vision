@@ -21,7 +21,7 @@
           email: window.electronAPI.getUemail(),
         });
         console.log(response);
-        push("/gallery");
+        push("/install");
       } catch (error) {
         console.error("Joining a team failed:", error);
       }
@@ -41,21 +41,21 @@
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
                         <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
 
-            <TextField bind:value={teamName} outlined class="border border-dark-primary ">Team Name</TextField>
-            <TextField bind:value={tokenValue} outlined class="border border-dark-primary ">Token</TextField>
+            <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team Name</TextField>
+            <TextField bind:value={tokenValue} outlined class="border-b border-dark-primary ">Token</TextField>
             <!-- TODO: Link the next button to next page -->
             <a
             class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
             href="#/"
             >
             <Button
-              class="bg-theme-dark-primary text-theme-dark-lightText"
+              class="bg-theme-dark-primary text-theme-dark-lightText mt-4"
               rounded
               block on:click={submit}>Next</Button
             >
             </div>
           </div>
-            <div> 
+            <div class="m-2"> 
                 <a  
                     class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
                     href="#/newTeam"

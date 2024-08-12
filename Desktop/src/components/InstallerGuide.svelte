@@ -1,6 +1,7 @@
 <script>
     import { Button, Icon  } from "svelte-materialify";
     import { mdiEyeOff, mdiEye } from "@mdi/js";
+  import { push } from "svelte-spa-router";
 
     let currentStep = 0;
     const steps = [
@@ -47,6 +48,7 @@
         } else {
             // Logic to move to the rest of the application can go here
             alert("Installation complete! Moving on to the rest of the application...");
+            push("/gallery");
         }
     }
 
