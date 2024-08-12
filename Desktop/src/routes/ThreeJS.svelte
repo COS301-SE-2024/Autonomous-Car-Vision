@@ -11,6 +11,7 @@
     let mouseX = 0,
         mouseY = 0;
     let pitchObject, yawObject;
+
     export let plyFile;
 
     function applyJetColormap(geometry) {

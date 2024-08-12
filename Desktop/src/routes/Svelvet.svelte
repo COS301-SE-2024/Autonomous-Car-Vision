@@ -20,7 +20,7 @@
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
-  let pipeRunModal = true;
+  let pipeRunModal = false;
   let preProcessImg =
     "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
   let postProcessImg =

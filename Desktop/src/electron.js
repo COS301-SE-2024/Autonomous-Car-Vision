@@ -14,6 +14,9 @@ const ffprobePath = require('ffprobe-static').path;
 
 const os = require('os');
 const { Worker, isMainThread } = require('worker_threads');
+const { getVideoFiles } = require('./videoScanner');
+const { getJsonData } = require('./getJsonData');
+
 
 let mainWindow;
 let store;
@@ -177,7 +180,7 @@ ipcMain.on('clear-team-name', (event) => {
 });
 
 ipcMain.on('load-store-process', (event) => {
-    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    const storeData = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
     event.returnValue = storeData;
 });
 
@@ -187,7 +190,7 @@ ipcMain.handle('save-store-process', async (event, state) => {
 
 // Helper function to update the store state
 function updateState(updates) {
-    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    const currentState = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
     const newState = { ...currentState, ...updates };
     console.log('Updated state:', newState);
     store.set('appProcessing', newState);
@@ -326,7 +329,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
         }
 
         const MAX_FRAMES = 120;
-        const framesRequired = 20                   ;
+        const framesRequired = 20;
         const MinFrames = Math.max(framesRequired, Math.floor(duration * 0.5));
         const maxFrameCount = Math.min(MinFrames, MAX_FRAMES);
         const frameRate = maxFrameCount / duration;
@@ -402,11 +405,11 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
 // Function to process the queue
 async function processQueue() {
     console.log("In process -----------------------------------------------");
-    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+    const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
     if (processing || processingQueue.length === 0) return;
 
     const nextVideo = processingQueue.shift();
-    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+    updateState({ processing: true, cuda: cuda, localProcess: localProcess, videoUrl: nextVideo.outputVideoPath, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
 
     try {
         //call the run-python-script IPC handler
@@ -417,8 +420,8 @@ async function processQueue() {
             nextVideo.modelPath,
         ]);
         console.log("Python Script Output:", output);
-        const { cuda, localProcess, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
-        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        const { cuda, localProcess, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
+        updateState({ processing: false, cuda: cuda, localProcess: localProcess, videoUrl: '', originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
         processQueue(); // Process the next video in the queue
     } catch (error) {
         console.error("Python Script Error:", error);
@@ -432,14 +435,14 @@ ipcMain.handle('queue-video', async (event, videoDetails) => {
     let local = videoDetails.localProcess;
     console.log('Video Details being added:', videoDetails);
     if (local) {
-        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
         processingQueue.push(videoDetails);
-        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
         processQueue();
     } else {
-        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
         remoteProcessingQueue.push(videoDetails);
-        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+        updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
         // Process video remotely
         processVideoRemotely(videoDetails);
     }
@@ -469,11 +472,11 @@ async function processVideoRemotely(videoDetails) {
 
     // Wait for 15 seconds then remove the video details from the remote processing queue
     setTimeout(() => {
-        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: []});
+        const { processing, cuda, localProcess, videoUrl, originalVideoURL, processingQueue, remoteProcessingQueue } = store.get('appProcessing', { processing: false, cuda: false, localProcess: false, videoUrl: '', originalVideoURL: '', processingQueue: [], remoteProcessingQueue: [] });
         const index = remoteProcessingQueue.findIndex(video => video.outputVideoPath === videoDetails.outputVideoPath);
         if (index !== -1) {
             remoteProcessingQueue.splice(index, 1);
-            updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue});
+            updateState({ processing: processing, cuda: cuda, localProcess: localProcess, videoUrl: videoUrl, originalVideoURL: originalVideoURL, processingQueue: processingQueue, remoteProcessingQueue: remoteProcessingQueue });
         }
     }, 15000);
 }
@@ -835,7 +838,7 @@ ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
         // Fetch all videos with the given original video ID
         const videos = await VideoTable.findOne({ where: { originalVidID: originalID } });
         // Return true if at least one video is processed, else return false
-        if(videos) return true;
+        if (videos) return true;
         else return false;
     } catch (error) {
         console.error("Error fetching video by URL:", error);
@@ -868,25 +871,46 @@ ipcMain.handle('addVideo', async (event, videoData) => {
 function removeVideo(videoUrl) {
     return VideoTable.destroy({ where: { videoURL: videoUrl } });
 }
-// const server = express();
-// const PORT = 3000;
 
-// server.use((req, res, next) => {
-//     const type = mime.getType(req.path);
-//     if (type) {
-//         res.setHeader('Content-Type', type);
-//     }
-//     next();
-// });
-//
-// // Serve static files from the "public" directory
-// server.use(express.static(path.join(__dirname, 'public')));
-//
-// // Fallback to index.html for single-page applications
-// server.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
-// Ipc handler to save json pipe file
+ipcMain.handle('selectDrivesDirectory', async (event) => {
+    const directoryPathFile = path.join(app.getPath('userData'), 'drivesDirectory.txt');
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'],
+    });
+    if (result.filePaths.length > 0) {
+        fs.writeFileSync(directoryPathFile, result.filePaths[0]);
+        return result.filePaths[0];
+    }
+    return null;
+})
+
+ipcMain.handle('getDrivesDirectory', () => {
+    const directoryPathFile = path.join(app.getPath('userData'), 'drivesDirectory.txt');
+    if (fs.existsSync(directoryPathFile)) {
+        return fs.readFileSync(directoryPathFile, 'utf-8');
+    }
+    return null;
+});
+
+ipcMain.handle('getDriveVideos', async (event, directory) => {
+    try {
+        return await getVideoFiles(directory);
+    } catch (error) {
+        console.error('Error getting video files:', error);
+        return [];
+    }
+});
+
+ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
+    try {
+        return await getJsonData(driveDirectory);
+    } catch (error) {
+        console.error('Failed to read drive log:', error);
+        return { error: 'Failed to read drive log' };
+    }
+});
+
+      // Ipc handler to save json pipe file
 ipcMain.handle('save-pipe-json', async (event, jsonString) => {
     try {
         // Determine the base directory based on the operating system

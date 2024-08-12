@@ -10,6 +10,7 @@
         mdiAccountCog,
         mdiLogout,
         mdiEyeRefresh,
+        mdiCar
         mdiAccountGroup,
         mdiAccountCheckOutline,
         mdiLanPending,
@@ -31,6 +32,10 @@
     let showTeamDropdown = false;
 
     let routes = [
+        {
+            name: "Drive Gallery",
+            route: "#/drivegallery",
+            iconPath: mdiCar,
         {
             name: "Pipes",
             route: "#/svelvet",
