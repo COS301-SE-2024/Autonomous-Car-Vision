@@ -242,6 +242,9 @@
 </div>
 
 <style>
+  img {
+    aspect-ratio: 16/9;
+  }
   .content-loader {
     background-color: #25292b;
     border-radius: 10px;
