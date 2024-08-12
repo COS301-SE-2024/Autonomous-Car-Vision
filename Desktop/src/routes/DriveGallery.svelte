@@ -1,13 +1,10 @@
 <script>
   import { onMount } from "svelte";
-
   import DriveCard from "../components/DriveCard.svelte";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
   import { filteredItems } from "../stores/filteredItems";
-
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
-
   import { Icon } from "svelte-materialify";
   import { mdiViewList, mdiViewGrid } from "@mdi/js";
 
@@ -18,23 +15,16 @@
   let videoNames = [];
 
   let listType = "grid";
-
   let searchQuery = "";
   let sortCategory = "All";
 
   let videoURLToNameMap = {};
-
-  videoURLs.forEach((url, index) => {
-    videoURLToNameMap[url] = videoNames[index];
-  });
 
   async function openDirectory() {
     directoryPath = await window.electronAPI.selectDrivesDirectory();
     // Update state or do something with the new directory path
   }
 
-  // Fetch the video records from the database
-  //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
     try {
@@ -48,7 +38,7 @@
 
         // Populate videoURLs and videoNames
         videoURLs = videos.map((video) => video.path);
-        videoNames = videoURLs.map((url) => url.split("/").pop());
+        videoNames = videos.map((video) => video.name);
 
         // Create a map for easy lookup of names by URL
         videoURLToNameMap = videoURLs.reduce((acc, url, index) => {
@@ -76,31 +66,16 @@
     return { message: "Data loaded successfully" };
   }
 
-  // $: filteredItems = videoURLs.filter(item => {
-  //  const searchRegex = new RegExp(searchQuery, 'i');
-
-  //   if (filterCategory === 'Name') {
-  //    return searchRegex.test(videoNames[item]); //TODO: check this (maybe meant to be mname)
-  //  } else if (filterCategory === 'Date') {
-  //    return searchRegex.test(item.date); //check the returned value
-  //  } else if (filterCategory === 'Model Name') {
-  //    return searchRegex.test(item.modelName); //check the returned value
-  //  }
-  //  return true;
-  // });
-
-  async function handleSearch(event) {
+  function handleSearch(event) {
     searchQuery = event.target.value;
     filteredItems.update(() => {
       if (searchQuery === "") {
-        // If search query is empty, display all videos
         return videoURLs;
       } else {
         const searchRegex = new RegExp(searchQuery, "i");
-        const newItems = videoURLs.filter((url) =>
-          searchRegex.test(videoURLToNameMap[url]),
+        return videoURLs.filter((url) =>
+          searchRegex.test(videoURLToNameMap[url])
         );
-        return newItems;
       }
     });
   }
@@ -110,11 +85,12 @@
       let sortedItems;
       if (sortCategory === "Name") {
         sortedItems = [...items].sort((a, b) =>
-          videoURLToNameMap[a].name.compare(videoURLToNameMap[b].name),
+          videoURLToNameMap[a].localeCompare(videoURLToNameMap[b])
         );
       } else if (sortCategory === "Date") {
+        // Assume date info is available and parse appropriately
         sortedItems = [...items].sort(
-          (a, b) => videoURLToNameMap[b].date - videoURLToNameMap[a].date,
+          (a, b) => videoURLToNameMap[b].date - videoURLToNameMap[a].date
         );
       } else {
         sortedItems = items;
@@ -143,7 +119,6 @@
     <div class="items-center">
       <div>
         <div class="flex justify-start gap-2 items-center w-full mb-4 p-4">
-          <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
               on:click={() => handleListTypeChange("grid")}
@@ -181,7 +156,7 @@
             <div
               class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
             >
-              {#each $filteredItems as url, index}
+              {#each $filteredItems as url}
                 <DriveCard
                   {listType}
                   videoSource={url}
@@ -200,7 +175,7 @@
           {/if}
         {:else}
           <div class="grid grid-cols-1 gap-4">
-            {#each $filteredItems as url, index}
+            {#each $filteredItems as url}
               <DriveCard
                 {listType}
                 videoSource={url}

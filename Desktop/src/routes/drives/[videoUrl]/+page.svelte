@@ -64,7 +64,7 @@
         const averageInferenceTime = totalInferenceTime / totalFrames;
         const averageFps = totalFps / totalFrames;
 
-        drive.FPS = averageFps.toFixed(2);
+        drive.FPS = averageFps.toFixed(2) * totalFrames;
         drive.inferences = averageInferenceTime.toFixed(3);
         drive.frame_count = totalFrames;
 
@@ -92,22 +92,15 @@
             driveData = await window.electronAPI.readDriveLog(driveDirectory);
             calculateStatistics(driveData);
             console.log(driveData);
-            driveData = driveData[0].data.slice(1)
-            console.log(driveData)
+            driveData = driveData[0].data.slice(1);
+            console.log(driveData);
 
             timestamps = driveData.map((entry) => entry.timestamp);
-            preprocessTimes = driveData.map(
-                (entry) => entry.preprocess_time,
-            );
-            inferenceTimes = driveData.map(
-                (entry) => entry.inference_time,
-            );
-            postprocessTimes = driveData.map(
-                (entry) => entry.postprocess_time,
-            );
+            preprocessTimes = driveData.map((entry) => entry.preprocess_time);
+            inferenceTimes = driveData.map((entry) => entry.inference_time);
+            postprocessTimes = driveData.map((entry) => entry.postprocess_time);
             totalTimes = driveData.map((entry) => entry.total_time);
             fpsValues = driveData.map((entry) => entry.fps);
-            
         } catch (error) {
             console.error(error);
         }
@@ -126,10 +119,10 @@
                     name: "Postprocess Time",
                     data: postprocessTimes,
                 },
-                // {
-                //     name: "Total Time",
-                //     data: totalTimes,
-                // },
+                {
+                    name: "Total Time",
+                    data: totalTimes,
+                },
                 {
                     name: "FPS",
                     data: fpsValues,
@@ -139,8 +132,13 @@
                 height: 240,
                 type: "line",
                 stacked: false,
-                sparkline: {
+                zoom: {
+                    type: "x",
                     enabled: true,
+                    autoScaleYaxis: true,
+                },
+                toolbar: {
+                    autoSelected: "zoom",
                 },
             },
             tooltip: {
@@ -151,6 +149,11 @@
             },
             stroke: {
                 curve: "smooth",
+            },
+            yaxis: {
+                labels: {
+                    show: false,
+                },
             },
             xaxis: {
                 tooltip: {
@@ -272,7 +275,7 @@
                 class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
                 <p class="text-xl text-center">Length</p>
-                <div class="text-3xl font-bold">{drive.length}</div>
+                <div class="text-3xl font-bold">{drive.length}s</div>
             </div>
             <div
                 id="frameCount"
@@ -285,8 +288,8 @@
                 id="Inferences"
                 class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
-                <p class="text-xl text-center">Inferences</p>
-                <div class="text-3xl font-bold">{drive.inferences}</div>
+                <p class="text-xl text-center">Average Inference Time</p>
+                <div class="text-3xl font-bold">{drive.inferences}s</div>
             </div>
             <div
                 id="FPS"
@@ -454,7 +457,7 @@
     .graph {
         height: 10rem;
         width: 80%;
-        color: black;
+        color: rgb(230, 0, 0);
     }
 
     .hoverPlay:hover {
