@@ -13,13 +13,14 @@
   import { get } from "svelte/store";
   import { canvas } from "../stores/store";
   import toast, { Toaster } from "svelte-french-toast";
-  import ThreeJs from "./ThreeJS.svelte";
 
   let nodes = writable([]);
   let edges = writable([]);
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
+
+  // Variables for when you need to put the images inside after running the pipe
   let pipeRunModal = false;
   let preProcessImg =
     "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
@@ -520,7 +521,7 @@
     </Svelvet>
   </div>
   {#if pipeRunModal}
-    <div class="runPipe w-3/4 h-3/4">
+    <div class="runPipe w-2/4 h-2/5 p-6">
       <div>
         <Button text on:click={() => (pipeRunModal = !pipeRunModal)}>
           <Icon path={mdiClose} size={38}></Icon>
@@ -529,10 +530,16 @@
       <div class="flex items-center h-full">
         <div class="w-full flex justify-between gap-10">
           <div class="inputImagePre">
-            <img src={preProcessImg} alt={preProcessImg} />
+            <h1 class="pb-10 text-3xl text-black text-center">
+              Input
+            </h1>
+            <img class="rounded-xl" src={preProcessImg} alt={preProcessImg} />
           </div>
           <div class="outputImagePost">
-            <img src={postProcessImg} alt={postProcessImg} />
+            <h1 class="pb-10 text-3xl text-black text-center">
+              Output
+            </h1>
+            <img class="rounded-xl" src={postProcessImg} alt={postProcessImg} />
           </div>
         </div>
       </div>
@@ -565,7 +572,7 @@
   }
 
   .runPipe {
-    background-color: #cccccc56;
+    background-color: #ccccccc0;
     border-radius: 12px;
     position: fixed;
     top: 50%;

@@ -1,13 +1,13 @@
 <script>
     import ProtectedRoutes from "../../ProtectedRoutes.svelte";
-    import Router, {push, location} from "svelte-spa-router";
+    import Router, { push, location } from "svelte-spa-router";
     import ApexCharts from "apexcharts";
-    import {onMount} from "svelte";
-    import {Icon, Tooltip} from "svelte-materialify";
-    import {mdiArrowLeft, mdiPlay} from "@mdi/js";
-    import {DotLottieSvelte} from "@lottiefiles/dotlottie-svelte";
-    import {VideoURL, OriginalVideoURL} from "../../../stores/video";
-    import {originalVideoURL} from "../../../stores/processing";
+    import { onMount } from "svelte";
+    import { Icon, Tooltip } from "svelte-materialify";
+    import { mdiArrowLeft, mdiPlay } from "@mdi/js";
+    import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
+    import { VideoURL, OriginalVideoURL } from "../../../stores/video";
+    import { originalVideoURL } from "../../../stores/processing";
 
     const drive = {
         length: 210,
@@ -258,16 +258,25 @@
     let showBB = false;
     let appPath;
     let scriptPath;
-    let vidpath
+    let vidpath;
 
     async function spawnP() {
+        const dirPath = getDirectoryPath(drive.videourl);
         appPath = await window.electronAPI.getAppPath();
         const appDirectory = await window.electronAPI.resolvePath(
             appPath,
             "..",
         );
         scriptPath = `${appDirectory}/Process/pipe4/weaver.py`;
-        window.electronAPI.runPythonScript2(scriptPath,```scriptPath,pass me file path to dir of drive```);
+        window.electronAPI.runPythonScript2(
+            scriptPath,
+            [dirPath]
+        );
+    }
+
+    function getDirectoryPath(filepath) {
+        const lastSlashIndex = filepath.lastIndexOf("/");
+        return filepath.substring(0, lastSlashIndex + 1);
     }
 
     function handleBack() {
@@ -277,38 +286,36 @@
 
 <ProtectedRoutes>
     <div class="flex justify-start mx-16 mt-2">
-        <button class="backArrow" on:click={handleBack}
-        >
-            <Icon path={mdiArrowLeft} size={32}/>
-        </button
-        >
+        <button class="backArrow" on:click={handleBack}>
+            <Icon path={mdiArrowLeft} size={32} />
+        </button>
     </div>
     <div class="w-11/12 h-full mx-auto my-6">
         <div class="flex flex-row justify-between">
             <div
-                    id="drive"
-                    class="drive-card flex lg:flex-row flex-col justify-between items-center"
+                id="drive"
+                class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
                 <p class="text-xl text-center">Length</p>
                 <div class="text-3xl font-bold">{drive.length}s</div>
             </div>
             <div
-                    id="frameCount"
-                    class="drive-card flex lg:flex-row flex-col justify-between items-center"
+                id="frameCount"
+                class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
                 <p class="text-xl text-center">Frame Count</p>
                 <div class="text-3xl font-bold">{drive.frame_count}</div>
             </div>
             <div
-                    id="Inferences"
-                    class="drive-card flex lg:flex-row flex-col justify-between items-center"
+                id="Inferences"
+                class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
                 <p class="text-xl text-center">Average Inference Time</p>
                 <div class="text-3xl font-bold">{drive.inferences}s</div>
             </div>
             <div
-                    id="FPS"
-                    class="drive-card flex lg:flex-row flex-col justify-between items-center"
+                id="FPS"
+                class="drive-card flex lg:flex-row flex-col justify-between items-center"
             >
                 <p class="text-xl text-center">FPS</p>
                 <div class="text-3xl font-bold">{drive.FPS}</div>
@@ -316,7 +323,7 @@
         </div>
         <div class="pt-10 grid grid-cols-1 pb-10">
             <div
-                    class="w-full h-80 gradient-card rounded-2xl flex flex-col justify-evenly"
+                class="w-full h-80 gradient-card rounded-2xl flex flex-col justify-evenly"
             >
                 <h1 class="pl-12 text-3xl text-left">Drive Data</h1>
                 <div class="flex justify-center">
@@ -326,33 +333,33 @@
         </div>
         <div class="grid grid-cols-2 gap-10">
             <div
-                    class="w-full h-auto p-6 gradient-card rounded-2xl flex flex-col justify-center"
+                class="w-full h-auto p-6 gradient-card rounded-2xl flex flex-col justify-center"
             >
                 <div class="rounded-sm max-h-96 w-full">
                     <div class="object-contain w-full mx-auto h-full">
                         <video
-                                bind:this={videoElement}
-                                class="rounded-3xl mx-auto"
-                                src={drive.videourl}
-                                alt="drive_frame_preview"
-                                muted
-                                preload="metadata"
-                                on:mouseenter={handleVideoHover}
-                                on:mouseleave={handleVideoLeave}
+                            bind:this={videoElement}
+                            class="rounded-3xl mx-auto"
+                            src={drive.videourl}
+                            alt="drive_frame_preview"
+                            muted
+                            preload="metadata"
+                            on:mouseenter={handleVideoHover}
+                            on:mouseleave={handleVideoLeave}
                         ></video>
                     </div>
                 </div>
             </div>
             <!-- Control panel div -->
             <div
-                    class="w-full h-full gradient-card rounded-2xl flex flex-col justify-center"
+                class="w-full h-full gradient-card rounded-2xl flex flex-col justify-center"
             >
                 <div class="grid grid-cols-2 gap-6 place-content-center m-6">
                     <div class="control-center w-full h-auto">
                         <div class="h-full flex items-center">
                             <h1 class="text-3xl">Play Video</h1>
                             <button class="hoverPlay" on:click={goToVideo}>
-                                <Icon path={mdiPlay} size={72}/>
+                                <Icon path={mdiPlay} size={72} />
                             </button>
                         </div>
                     </div>
@@ -362,51 +369,55 @@
                                 <h1 class="text-3xl">Piping</h1>
                                 <div bind:this={lottieElement1} class="w-full">
                                     <DotLottieSvelte
-                                            src="https://lottie.host/f0d46bc9-9504-414d-8909-bc4ebd9b3745/dIFAt1lMbR.json"
-                                            loop={true}
-                                            autoplay={false}
-                                            dotLottieRefCallback={(ref) =>
+                                        src="https://lottie.host/f0d46bc9-9504-414d-8909-bc4ebd9b3745/dIFAt1lMbR.json"
+                                        loop={true}
+                                        autoplay={false}
+                                        dotLottieRefCallback={(ref) =>
                                             (dotLottie1 = ref)}
-                                            autoResizeCanvas
+                                        autoResizeCanvas
                                     />
                                 </div>
                             </a>
                         </div>
                     </div>
                     <div class="control-center w-full h-auto">
-                        <div on:click={spawnP} class="w-10/12 flex flex-col">
+                        <div
+                            on:click={spawnP}
+                            on:keypress
+                            class="w-10/12 flex flex-col"
+                        >
                             <h1 class="text-3xl">Weaver</h1>
                             <div bind:this={lottieElement2} class="w-full">
                                 <DotLottieSvelte
-                                        src="https://lottie.host/3c802195-f445-4f03-ba05-b24152f79226/WUP1NpZe2T.json"
-                                        loop={true}
-                                        autoplay={true}
-                                        dotLottieRefCallback={(ref) =>
+                                    src="https://lottie.host/3c802195-f445-4f03-ba05-b24152f79226/WUP1NpZe2T.json"
+                                    loop={true}
+                                    autoplay={true}
+                                    dotLottieRefCallback={(ref) =>
                                         (dotLottie2 = ref)}
-                                        autoResizeCanvas
+                                    autoResizeCanvas
                                 />
                             </div>
                         </div>
                     </div>
                     <div class="control-center w-full h-auto">
                         <div
-                                class="w-10/12 flex flex-col"
-                                on:focus={() => (showBB = !showBB)}
+                            class="w-10/12 flex flex-col"
+                            on:focus={() => (showBB = !showBB)}
                         >
                             <Tooltip bottom bind:active={showBB}>
                                 <h1 class="text-3xl">Blackbox</h1>
                                 <div class="h-full flex justify-center">
                                     <div
-                                            bind:this={lottieElement3}
-                                            class="w-1/2 mx-auto my-auto"
+                                        bind:this={lottieElement3}
+                                        class="w-1/2 mx-auto my-auto"
                                     >
                                         <DotLottieSvelte
-                                                src="https://lottie.host/3a913257-6101-499c-9905-2126141eca33/iE9rq5CLvE.json"
-                                                loop={true}
-                                                autoplay={false}
-                                                dotLottieRefCallback={(ref) =>
+                                            src="https://lottie.host/3a913257-6101-499c-9905-2126141eca33/iE9rq5CLvE.json"
+                                            loop={true}
+                                            autoplay={false}
+                                            dotLottieRefCallback={(ref) =>
                                                 (dotLottie3 = ref)}
-                                                autoResizeCanvas
+                                            autoResizeCanvas
                                         />
                                     </div>
                                 </div>

@@ -16,7 +16,7 @@
         mdiLanPending,
         mdiChevronUp,
         mdiChevronDown,
-        mdiPipeDisconnected
+        mdiPipeDisconnected,
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -33,19 +33,10 @@
 
     let routes = [
         {
-            name: "Drive Gallery",
-            route: "#/drivegallery",
-            iconPath: mdiCar,
-        },
-        {
-            name: "Pipes",
-            route: "#/svelvet",
-            iconPath: mdiPipeDisconnected,
-        },
-        {
             name: "Team",
             iconPath: mdiAccountGroup,
-            subRoutes: [  // Subroutes for the Team dropdown
+            subRoutes: [
+                // Subroutes for the Team dropdown
                 {
                     name: "Team View",
                     route: "#/teamView",
@@ -56,7 +47,17 @@
                     route: "#/teamNetwork",
                     iconPath: mdiLanPending,
                 },
-            ]
+            ],
+        },
+        {
+            name: "Drive Gallery",
+            route: "#/drivegallery",
+            iconPath: mdiCar,
+        },
+        {
+            name: "Pipes",
+            route: "#/svelvet",
+            iconPath: mdiPipeDisconnected,
         },
         {
             name: "Visualizer",
@@ -134,39 +135,55 @@
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
             {#if route.subRoutes}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
+                <div
+                    class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer"
+                    on:click={toggleTeamDropdown}
+                >
                     <Icon path={route.iconPath} />
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
                         </span>
                     {/if}
-                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                    <Icon
+                        path={showTeamDropdown ? mdiChevronUp : mdiChevronDown}
+                    />
                 </div>
             {:else}
-            <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
-                <div class="flex justify-start gap-2 items-center">
-                    <Icon path={route.iconPath} />
-                    {#if width >= 150}
-                        <span class="ml-2">
-                            {route.name}
-                        </span>
-                    {/if}
-                    {#if route.subRoutes}
-                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
-                    {/if}
-                </div>
-            </a>
-
+                <a
+                    class="w-full"
+                    href={route.route}
+                    on:click={route.subRoutes ? toggleTeamDropdown : undefined}
+                >
+                    <div class="flex justify-start gap-2 items-center">
+                        <Icon path={route.iconPath} />
+                        {#if width >= 150}
+                            <span class="ml-2">
+                                {route.name}
+                            </span>
+                        {/if}
+                        {#if route.subRoutes}
+                            <Icon
+                                path={showTeamDropdown
+                                    ? mdiChevronUp
+                                    : mdiChevronDown}
+                            />
+                        {/if}
+                    </div>
+                </a>
             {/if}
         </div>
         {#if route.subRoutes && showTeamDropdown}
             <div class="sub-routes ml-8">
                 {#each route.subRoutes as subRoute}
-                    <div class="sub-nav-item {'#' + $location === subRoute.route ? 'active' : ''}">
+                    <div
+                        class="sub-nav-item {'#' + $location === subRoute.route
+                            ? 'active'
+                            : ''}"
+                    >
                         <a class="w-full" href={subRoute.route}>
                             <div class="flex justify-start gap-2 items-center">
-                                    <Icon path={subRoute.iconPath} />
+                                <Icon path={subRoute.iconPath} />
                                 {#if width >= 150}
                                     <span class="ml-0.5">
                                         {subRoute.name}
@@ -179,41 +196,47 @@
             </div>
         {/if}
     {/each}
+    <div
+        class="relative cursor-pointer avatar-container m-3 grid {width < 150
+            ? 'place-items-center'
+            : ''}"
+        on:click={toggleAccountPopup}
+        on:keydown
+    >
         <div
-            class="relative cursor-pointer avatar-container m-3 grid {width < 150 ? 'place-items-center' : ''}"
-            on:click={toggleAccountPopup}
-            on:keydown
+            style="width: {width < 150 ? 'fit-content' : 'auto'};"
+            class="{'/accountsettings' === $location ||
+            '/changepassword' === $location
+                ? 'bg-dark-background'
+                : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
         >
-            <div
-                style="width: {width < 150 ? 'fit-content' : 'auto'};"
-                class="{'/accountsettings' === $location ||
-                '/changepassword' === $location
-                    ? 'bg-dark-background'
-                    : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
+            <Avatar
+                size="34px"
+                class="bg-gray rounded-full content-center w-fit"
             >
-                <Avatar
-                    size="34px"
-                    class="bg-gray rounded-full content-center w-fit"
-                >
-                    <img class="accountImg" src={profileImg} alt="img" />
-                </Avatar>
-                {#if width >= 150}
-                    <div class="w-auto flex flex-col justify-start items-center">
-                        <span class="w-fit text-left text-xs font-bold"
-                            >{username}</span
-                        >
-                        <span class="w-fit text-left text-xs">{name}</span>
-                    </div>
-                {/if}
-            </div>
+                <img class="accountImg" src={profileImg} alt="img" />
+            </Avatar>
+            {#if width >= 150}
+                <div class="w-auto flex flex-col justify-start items-center">
+                    <span class="w-fit text-left text-xs font-bold"
+                        >{username}</span
+                    >
+                    <span class="w-fit text-left text-xs">{name}</span>
+                </div>
+            {/if}
         </div>
-        {#if showAccountPopup}
-            <div
-                class="popupAcc z-20 mt-2 account-popup-content" style="left: {width + 10}px;"
-            >
-                <AccountPopup items={accountPopupItems} on:close={closeAccountPopup} />
-            </div>
-        {/if}
+    </div>
+    {#if showAccountPopup}
+        <div
+            class="popupAcc z-20 mt-2 account-popup-content"
+            style="left: {width + 10}px;"
+        >
+            <AccountPopup
+                items={accountPopupItems}
+                on:close={closeAccountPopup}
+            />
+        </div>
+    {/if}
 </div>
 
 <style>
@@ -226,17 +249,20 @@
         overflow: hidden;
     }
 
-    .nav-item, .sub-nav-item {
+    .nav-item,
+    .sub-nav-item {
         display: flex;
         justify-content: start;
         padding: 10px 0 10px 20px;
     }
 
-    .nav-item > a > div, .sub-nav-item > a > div{
+    .nav-item > a > div,
+    .sub-nav-item > a > div {
         opacity: 0.5;
     }
 
-    .nav-item > a > div:hover, .sub-nav-item > a > div:hover {
+    .nav-item > a > div:hover,
+    .sub-nav-item > a > div:hover {
         color: aliceblue;
         opacity: 1;
         font-weight: 600;
