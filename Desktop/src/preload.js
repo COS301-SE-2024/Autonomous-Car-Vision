@@ -69,4 +69,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     openFTP: (event, uid, token, size, media_name, media_url, command) => ipcRenderer.invoke('open-ftp', event, uid, token, size, media_name, media_url, command),
     getFileSize: (filePath) => ipcRenderer.invoke('get-file-size', filePath),
     savePipeJson: async (jsonString) => { const result = await ipcRenderer.invoke('save-pipe-json', jsonString);  return result;},
-  });
+    runPythonScript2: (scriptPath, args = []) => ipcRenderer.invoke('run-python-script2', scriptPath, args),
+
+    // Optional: Listen for the script completion event
+
+});
