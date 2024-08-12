@@ -12,6 +12,8 @@
         mouseY = 0;
     let pitchObject, yawObject;
 
+    export let plyFile;
+
     function applyJetColormap(geometry) {
         const positions = geometry.attributes.position.array;
         const colors = new Float32Array(positions.length);
@@ -53,7 +55,7 @@
         controls = new PointerLockControls(camera, renderer.domElement);
 
         const loader = new PLYLoader();
-        loader.load("maps/combined_map.ply", (geometry) => {
+        loader.load(plyFile, (geometry) => {
             geometry.computeBoundingBox();
             applyJetColormap(geometry);
 

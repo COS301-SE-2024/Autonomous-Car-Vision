@@ -10,7 +10,6 @@ const { Sequelize } = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-// const express = require('express');
 
 
 const os = require('os');
@@ -61,11 +60,10 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) { }
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) { }
 
-// handler for token storing
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
@@ -146,6 +144,38 @@ ipcMain.on('get-uemail', (event) => {
 
 ipcMain.on('clear-uemail', (event) => {
     store.delete('uemail');
+    event.returnValue = true;
+});
+
+//! prevPath
+ipcMain.on('store-prev-path', (event, prevPath) => {
+    store.set('prevPath', prevPath);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-prev-path', (event) => {
+    const prevPath = store.get('prevPath');
+    event.returnValue = prevPath;
+});
+
+ipcMain.on('clear-prev-path', (event) => {
+    store.delete('prevPath');
+    event.returnValue = true;
+});
+
+//! Team Name
+ipcMain.on('store-team-name', (event, teamName) => {
+    store.set('teamName', teamName);
+    event.returnValue = true;
+});
+
+ipcMain.on('get-team-name', (event) => {
+    const teamName = store.get('teamName');
+    event.returnValue = teamName;
+});
+
+ipcMain.on('clear-team-name', (event) => {
+    store.delete('teamName');
     event.returnValue = true;
 });
 
@@ -462,6 +492,8 @@ function runPythonScript(scriptPath, args) {
             windowsHide: true  // Hide the terminal window on Windows
         });
 
+        console.log("Script path: " + scriptPath);
+
         let output = '';
         let error = '';
 
@@ -531,6 +563,74 @@ ipcMain.handle('check-cuda', async () => {
 
         python.on('error', (err) => {
             reject(new Error(`Failed to start Python script: ${err.message}`));
+        });
+    });
+});
+
+ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
+    const scriptPath = 'src/routes/pythonUpload.py';
+    let rec = await LookupTable.findOne({ where: { mname: mname, localurl: filepath, uid: uid } });
+    const mid = rec.mid;
+    console.log(mid);
+    const args = [ip, port, filepath, uid, size, token, mid];
+
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]);
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
+        });
+    });
+});
+
+ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
+    const scriptPath = 'src/routes/pythonDownload.py';
+    let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
+    const mid = rec.mid;
+    const args = [ip, port, filepath, uid, size, token, mid];
+
+    return new Promise((resolve, reject) => {
+        const { spawn } = require('child_process');
+        const python = spawn('python', [scriptPath, ...args]);
+
+        console.log("Script path: " + scriptPath);
+        console.log("Args: " + args.join(" "));
+        let output = '';
+        let error = '';
+
+        python.stdout.on('data', (data) => {
+            output += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            error += data.toString();
+        });
+
+        python.on('close', (code) => {
+            if (code === 0) {
+                resolve(output);
+            } else {
+                reject(new Error(error));
+            }
         });
     });
 });
@@ -652,6 +752,78 @@ ipcMain.handle('getVideoByURL', async (event, videoURL) => {
     }
 });
 
+ipcMain.handle('move-video', async (event, sourcePath, destFileName) => {
+    return new Promise((resolve, reject) => {
+        const appDataPath = app.getPath('userData');
+        const downloadsDir = path.join(appDataPath, 'Downloads');
+        const destFile = path.join(downloadsDir, destFileName);
+
+        console.log("MOVE VIDEO PATH: ", sourcePath);
+        console.log("MOVE downloadsDir PATH: ", downloadsDir);
+        console.log("MOVE Dest PATH: ", destFile);
+
+          fs.renameSync(sourcePath, destFile, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(`File moved to ${destFile}`);
+            }
+          });
+    });
+});
+
+ipcMain.handle('open-ftp', async (event, uid, token, size, media_name, media_url, command) => {
+    let mid = "";
+    if(command == "SEND"){
+        const rec = await LookupTable.create({
+            mname: media_name,
+            localurl: media_url,
+            size: size,
+            uid: uid,
+        });
+    mid = rec.mid;
+    }
+    const formData = new FormData();
+    formData.append('uid', uid);
+    formData.append('token', token);
+    formData.append('size', size);
+    formData.append('media_name', media_name);
+    formData.append('media_url', media_url);
+    formData.append('mid', mid);
+    formData.append('command', command)
+
+    try {
+        const response = await axios.post('http://localhost:8000/uploadFile/', formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
+
+        console.log('Upload response:', response.data); // Log response for debugging
+
+        // Extract IP and port from the response
+        const { aip, aport } = response.data;
+
+        return { success: true, ip: aip, port: aport };
+    } catch (error) {
+        console.error('Error in FTP upload:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('get-file-size', (event, filePath) => {
+    try {
+      const stats = fs.Stats(filePath);
+      console.log('File stats:', stats);
+      let fileSize = stats.size;
+    //   convert to string
+        return fileSize.toString();
+    //   return stats.size;
+    } catch (error) {
+      console.error('Error getting file size:', error);
+      return null;
+    }
+  });
 // Handler to get processed videos by original video ID
 ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
     try {
@@ -735,5 +907,48 @@ ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
     } catch (error) {
         console.error('Failed to read drive log:', error);
         return { error: 'Failed to read drive log' };
+    }
+});
+
+      // Ipc handler to save json pipe file
+ipcMain.handle('save-pipe-json', async (event, jsonString) => {
+    try {
+        // Determine the base directory based on the operating system
+        let baseDirectory;
+        const platform = os.platform();
+        if (platform === 'win32') {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
+        } else if (platform === 'linux') {
+            baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
+        } else {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); // Default to Windows for unsupported OS
+        }
+
+        // Ensure the 'pipes' directory exists
+        const pipesDirectory = path.join(baseDirectory, 'pipes');
+        if (!fs.existsSync(pipesDirectory)) {
+            fs.mkdirSync(pipesDirectory, { recursive: true });
+        }
+
+        // File path for the pipes.json
+        const filePath = path.join(pipesDirectory, 'pipes.json');
+
+        // Read the existing JSON data if the file exists
+        let existingData = [];
+        if (fs.existsSync(filePath)) {
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+            existingData = JSON.parse(fileContent);
+        }
+
+        // Append the new JSON data
+        existingData.push(JSON.parse(jsonString));
+
+        // Write the updated data back to the file
+        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), 'utf-8');
+
+        return { success: true, message: 'JSON data saved successfully!' };
+    } catch (error) {
+        console.error('Error saving JSON data:', error);
+        return { success: false, message: 'Failed to save JSON data.' };
     }
 });

@@ -1,11 +1,11 @@
 from django.db import models
-import uuid
-
 
 class User(models.Model):
     uid = models.IntegerField(primary_key=True)
     uname = models.TextField(unique=True)
     uemail = models.TextField(unique=True)
+    cid = models.ForeignKey("Corporation", on_delete=models.CASCADE, db_column="cid")
+    is_admin = models.BooleanField(default=False)
 
     class Meta:
         db_table = "users"
@@ -67,8 +67,9 @@ class Media(models.Model):
     )
     mid = models.TextField(unique=True)
     media_name = models.TextField()
-    media_url = models.FileField(upload_to="media/")
+    media_url = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
+    aid = models.TextField()
 
     class Meta:
         db_table = "media"
@@ -80,3 +81,24 @@ class Media(models.Model):
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return f"media/user_{instance.uid.id}/{filename}"
+
+class Corporation(models.Model):
+    cid = models.AutoField(primary_key=True)
+    cname = models.TextField(unique=True)
+
+    class Meta:
+        db_table = "corporations"
+
+    def __str__(self):
+        return self.cname
+    
+class TokenCorporation(models.Model):
+    tid = models.AutoField(primary_key=True)
+    token = models.TextField(unique=True)
+    email = models.TextField(unique=True)
+    
+    class Meta:
+        db_table = "tokencorporation"
+        
+    def __str__(self):
+        return self.token    
