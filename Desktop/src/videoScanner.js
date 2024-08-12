@@ -15,7 +15,7 @@ function getVideoFiles(directory) {
             const fullPath = path.join(dir, entry.name);
             if (entry.isDirectory() && entry.name.toLowerCase().includes('drive')) {
               return readDirectory(fullPath);
-            } else if (entry.isFile() && path.extname(entry.name).toLowerCase() === '.mp4') {
+            } else if (entry.isFile() && path.extname(entry.name).toLowerCase() === '.mp4' || entry.isFile() && path.extname(entry.name).toLowerCase() === '.avi') {
               return Promise.resolve({
                 path: fullPath,
                 name: path.basename(dir)  // Use folder name as video name

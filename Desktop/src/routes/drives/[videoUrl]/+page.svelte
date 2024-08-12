@@ -372,7 +372,7 @@
                     </div>
                     <div class="control-center w-full h-auto">
                         <div class="w-10/12 flex flex-col">
-                            <a href="/pipe">
+                            <a href="#/svelvet">
                                 <h1 class="text-3xl">Piping</h1>
                                 <div bind:this={lottieElement1} class="w-full">
                                     <DotLottieSvelte
