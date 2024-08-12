@@ -23,6 +23,7 @@ ModelsVenv/
 agentVenv/
 brokerVenv/
 processVenv/
+.venv/
 
 # IDE specific
 .idea

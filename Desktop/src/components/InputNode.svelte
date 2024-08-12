@@ -68,18 +68,18 @@
 >
   <div class="node">
     <div class="body">
-      <div class="header w-full text-center">
-        <h1 class="text-xl font-bold">{label}</h1>
+      <div class="header w-full h-full text-center flex justify-center align-center" >
+        <h1 class="text-3xl font-bold">{label}</h1>
       </div>
-      <div class="showImage">
-        {#if $inputs.image}
+      <!-- <div class="showImage">
+        {#if $inputs.image} -->
           <!-- <img src={$output} alt="ImageUploaded" /> -->
-        {:else}
+        <!-- {:else} -->
           <!-- <img
             src="https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif"
             alt="inputImage"
           /> -->
-        {/if}
+        <!-- {/if} -->
         <!-- <img
           class="upload"
           src="https://static.thenounproject.com/png/625182-200.png"
@@ -105,7 +105,7 @@
           on:change={(e) => onFileSelected(e)}
           bind:this={fileinput}
         /> -->
-      </div>
+      <!-- </div> -->
     </div>
     <!-- <div class="input-anchors">
       <Anchor bgColor="green" {key} inputsStore={inputs} input />

@@ -18,6 +18,7 @@ import shutil
 import datetime
 import platform
 import logging
+import imageio
 
 try:
     sys.path.append(glob.glob('../carla/dist/carla-*%d.%d-%s.egg' % (
@@ -75,17 +76,18 @@ def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
     if not images:
         return
 
-    first_frame = cv2.imread(os.path.join(output_folder, images[0]))
-    height, width, layers = first_frame.shape
+    # Assuming all images have the same resolution
+    first_frame = imageio.imread(os.path.join(output_folder, images[0]))
+    height, width = first_frame.shape[:2]
 
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    video_writer = cv2.VideoWriter(video_filename, fourcc, calculated_fps, (width, height))
+    # Create a writer object using imageio
+    writer = imageio.get_writer(video_filename, fps=calculated_fps, codec='libx264', pixelformat='yuv420p')
 
     for image in images:
-        frame = cv2.imread(os.path.join(output_folder, image))
-        video_writer.write(frame)
+        frame = imageio.imread(os.path.join(output_folder, image))
+        writer.append_data(frame)
 
-    video_writer.release()
+    writer.close()
 
 
 class CarlaSyncMode:
@@ -506,7 +508,7 @@ def main():
         print(f"Calculated FPS: {calculated_fps}")
 
         # Stitch frames into a video
-        video_filename = os.path.join(output_folder, "output_video.mp4")
+        video_filename = os.path.join(output_folder, "output_video.avi")
         stitch_video_from_frames(output_folder, video_filename, calculated_fps)
         create_directory_and_move_files("output_frames")
         print('done.')

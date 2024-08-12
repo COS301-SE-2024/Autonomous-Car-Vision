@@ -70,19 +70,19 @@
   {bgColor}
 >
   <div class="node" class:selected>
-    <div class="body">
+    <div class="body h-full">
       <div class="header w-full text-center">
-        <h1 class="text-xl font-bold">{label}</h1>
+        <h1 class="text-3xl font-bold">{label}</h1>
       </div>
       <div class="input-anchors">
         <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
       </div>
-      <div class="output">
-        {#if $output !== "noImage.jpeg"}
+      <!-- <div class="output">
+        {#if $output !== "noImage.jpeg"} -->
           <!-- svelte-ignore a11y-img-redundant-alt -->
           <!-- <img src={$output} alt="image.jpeg" /> -->
-        {/if}
-      </div>
+        <!-- {/if} -->
+      <!-- </div> -->
     </div>
   </div>
 </Node>

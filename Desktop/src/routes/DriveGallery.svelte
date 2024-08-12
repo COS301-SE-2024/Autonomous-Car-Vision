@@ -148,7 +148,7 @@
             on:click={openDirectory}>Select Directory</button
           >
           {#if directoryPath}
-            <p>Selected Directory: {directoryPath}</p>
+            <p class="text-white">Selected Directory: {directoryPath}</p>
           {/if}
         </div>
         {#if listType === "grid"}
