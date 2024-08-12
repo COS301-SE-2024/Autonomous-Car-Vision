@@ -3,10 +3,15 @@
 </p>
 <h1 align="center"> High-Viz </h1>
 
+<div align="center">
+	<h3>Download the HighViz Application <a href="http://206.189.188.197:8000/download/">here </a></h3>
+	<br>
+</div>
+
 <p align="center"> 
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
 		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml/badge.svg">
-	</a>
+	</a> 
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml">
 		<img alt="Tester" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml/badge.svg">
 	</a>
@@ -20,11 +25,23 @@
 
 ## Project Description
 
-The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
-
+HighViz a comprehensive suite of AI tools for autonomous car vision that aims to imporove the driving experience by providing a host of feature such as terrain mapping, driver assistacne, and trajectory analysis.
 ## Project Features
+<table align="center">
+  <tr>
+    <td><p> Unity </p></td>
+    <td><img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/Unity.gif" width="380" height="230"/></td>
+  </tr>
+  <tr>
+    <td> <p> Weaver </p> </td>
+    <td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/weaver.gif" width="380" height="230"/> </td>
+  </tr>
+  <tr>
+	<td><p> Piper </p></td>  
+	<td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/piper.gif" width="380" height="230"/> </td>
+  </tr>
+</table>
 
-keith, this is where the demo videos will go :)
 
 ## Demo Presentations
 - **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
