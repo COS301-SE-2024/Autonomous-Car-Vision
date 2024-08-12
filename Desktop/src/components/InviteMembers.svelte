@@ -15,8 +15,8 @@
         }
     }
 
-    const goToGallery = async () => {
-        push("/gallery");
+    const goToTutorial = async () => {
+        push("/install");
     }
 
     const sendEmails = async () => {
@@ -29,7 +29,7 @@
                 teamName: window.electronAPI.getTeamName(),
             });
             console.log(response);
-            push("/gallery");
+            push("/install");
         } catch (error) {
             console.error("Sending invites failed:", error);
         }
@@ -49,7 +49,7 @@
             <TextField 
                 bind:value={email}
                 outlined 
-                class="border border-dark-primary ">Email address
+                class="border-b border-dark-primary ">Email address
 
                  <!-- svelte-ignore a11y-click-events-have-key-events -->
                  <div
@@ -63,7 +63,7 @@
 
           <div class="flex gap-2 newMember content-fit">
             {#each newMembers as member}
-                <p class="bg-theme-dark-primary rounded-lg px-1 text-theme-dark-white hoverClass">{member}</p>
+                <p class="bg-theme-dark-primary rounded-lg px-1 mt-2 text-theme-dark-white hoverClass">{member}</p>
              {/each}
             <p class="bg-theme-dark-primary rounded-lg px-1 text-theme-dark-white hoverClass"> tester@gmail.com </p>
 
@@ -76,7 +76,7 @@
                         href="#/installGuide"
                         >
                         <Button
-                            class="bg-theme-dark-primary w-2/3 text-theme-dark-white"
+                            class="bg-theme-dark-primary mt-4 w-2/3 text-theme-dark-white"
                             rounded
                             block on:click={sendEmails}>Send Invites</Button
                         > 
@@ -84,7 +84,7 @@
                 </div>
           <!-- TODO: Link the skip button to next page -->
           <div  class="ml-96 pl-6 text-theme-dark-white pt-2 rounded">
-                <Button on:click={goToGallery} class="rounded">Skip Step</Button>
+                <Button on:click={goToTutorial} class="rounded">Skip Step</Button>
             </div>
         </div>
       <!-- </MaterialApp> -->

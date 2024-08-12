@@ -37,14 +37,14 @@
        <!-- TODO: check for uniqueness: if not, make box red and button grey. else, fine -->
 
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
-            <TextField bind:value={teamName} outlined class="border border-dark-primary ">Team name
+            <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team name
             </TextField>
 
             <!-- TODO: link next button to next page -->
              <div> 
                 <a
-                class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
-                href="#/"
+                class="w-full mt-4 h-8 flex flex-col flex-wrap justify-center items-center"
+                href="#/invite"
                 >
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"

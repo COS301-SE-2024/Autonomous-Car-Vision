@@ -27,18 +27,18 @@
     
     <!-- Model Name and Description -->
     <div class="flex flex-col p-4 col-span-1 row-span-1">
-      <div class="text-2xl  text-theme-dark-lightText font-bold justify-center ">{Model.mName}</div>
-      <div class=" text-theme-dark-lightText text-base">{Model.mDescription}</div>
-      <div class="align-right font-bold text-theme-dark justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
+      <div class="text-2xl  text-dark-primary font-bold justify-center ">{Model.mName}</div>
+      <div class=" text-theme-dark-white text-base">{Model.mDescription}</div>
+      <div class="align-right font-bold text-theme-dark-white justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
     </div>
 
     <!-- Placeholder for Dashboard -->
     <div class="text-theme-dark bg-theme-dark-primary rounded-lg flex items-center justify-center col-span-1 row-span-3">
-      <span>placeholder for dashboard {Model.mName}</span>
+      <span>placeholder for {Model.mName} dashboard </span>
     </div>
 
      <!-- Summary -->
-     <div class="text-theme-dark p-4 text-xl col-span-1 row-span-2">
+     <div class="text-white p-4 text-xl col-span-1 row-span-2">
       {Model.mSummary}
     </div>
   </div>

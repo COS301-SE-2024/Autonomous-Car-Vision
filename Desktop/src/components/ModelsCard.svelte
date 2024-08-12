@@ -90,7 +90,7 @@
 <div class="cursor-pointer relative grid rounded-lg grid-cols-8 gap-0 flex p-4 shadow-lg background-card w-72 h-96" 
    on:click={handleClick}
    on:mouseenter={handleHover}>
-    <div class="texto col-span-1 transform rotate-180 ">
+    <div class="texto col-span-1 transform rotate-180 text-dark-primary">
       {Model.mDescription}
     </div>
     <div class="flex col-span-7 flex-col justify-center w-full h-full">
