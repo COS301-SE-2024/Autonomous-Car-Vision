@@ -1,4 +1,7 @@
-<h1 align="center"> Autonamous Car Vision </h1>
+<p align="center">
+	<img  src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/develop/Desktop/public/images/HighViz.png" width="250" height="250" alt="Logo">
+</p>
+<h1 align="center"> High-Viz </h1>
 
 <p align="center"> 
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
@@ -15,15 +18,21 @@
 	</a>
 </p>
 
-## Project Information
+## Project Description
 
 The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
+
+## Project Features
+
+keith, this is where the demo videos will go :)
 
 ## Demo Presentations
 - **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
+- **Installation Manual:** [View Installation Manual](<>)
+- **User Manual:** [View User Manual](<>)
 - **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1_-aVUgu6myCXf3xeL3x6jl85uQNEHegc/view?usp=sharing>)
 - **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
 - **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
