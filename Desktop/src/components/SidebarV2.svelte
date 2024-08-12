@@ -10,7 +10,7 @@
         mdiAccountCog,
         mdiLogout,
         mdiEyeRefresh,
-        mdiCar
+        mdiCar,
         mdiAccountGroup,
         mdiAccountCheckOutline,
         mdiLanPending,
@@ -36,11 +36,11 @@
             name: "Drive Gallery",
             route: "#/drivegallery",
             iconPath: mdiCar,
+        },
         {
             name: "Pipes",
             route: "#/svelvet",
             iconPath: mdiPipeDisconnected,
-            // mdiMolecule,
         },
         {
             name: "Team",
