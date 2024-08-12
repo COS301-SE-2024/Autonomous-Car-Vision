@@ -22,6 +22,7 @@ from .views import (
     upload_video,
     list_videos,
     lookup,
+    joinTeam,
 )
 
 router = DefaultRouter()
@@ -52,4 +53,5 @@ urlpatterns = [
     path("upload/success/", upload_success, name="upload_success"),
     path("videos/", list_videos, name="list_videos"),
     path("lookup/", lookup, name="lookup"),
+    path("joinTeam/", joinTeam),
 ]

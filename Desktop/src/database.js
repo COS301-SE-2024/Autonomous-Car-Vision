@@ -14,7 +14,7 @@ if (!fs.existsSync(path.dirname(databasePath))) {
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: databasePath
+    storage: path.join(__dirname, 'database.sqlite')
 });
 
 const LookupTable = sequelize.define('LookupTable', {
@@ -32,9 +32,13 @@ const LookupTable = sequelize.define('LookupTable', {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    serverurl: {
-        type: DataTypes.TEXT,
-        allowNull: true
+    size: {
+        type: DataTypes.REAL,
+        allowNull: false
+    },
+    uid: {
+        type: DataTypes.INTEGER,
+        allowNull:false
     }
 });
 

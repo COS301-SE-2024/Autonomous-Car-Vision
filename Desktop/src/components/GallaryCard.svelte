@@ -4,6 +4,7 @@
   import { originalVideoURL } from "../stores/processing";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
+  import axios from "axios";
   import { mdiDownload, mdiPlayCircle } from "@mdi/js";
   import { Icon, Tooltip } from "svelte-materialify";
 
@@ -24,19 +25,53 @@
     event.stopPropagation();
     // isDownloading.set(true);
     isDownloading = true;
+
+    let uid = window.electronAPI.getUid();
+    let token = window.electronAPI.getToken();
+    let size = "10";
+    let aip = "";
+    let aport = "";
+
     try {
-      const response = await window.electronAPI.downloadVideo(
-        videoName,
-        videoSource
-      );
-      console.log(response.success, response.filePath);
-    } catch (error) {}
-    setTimeout(() => {
-      // isDownloading.set(false);
+    let response = await window.electronAPI.openFTP(uid, token, size, "FAKENAME", "FAKEURL", "RETR");
+    console.log("Response: ", response);
+    
+    if (response.success) {
+        console.log("IP:", response.ip);
+        console.log("Port:", response.port);
+        aip = response.ip;
+        aport = response.port;
+    } else {
+        console.error("Error:", response.error);
+    }
+} catch (error) {
+    console.error("Error calling openFTP:", error);
+}
+
+
+    await window.electronAPI.downloadToClient(aip, aport, VideoName, uid, size, token);
+    
+    // move the video to the download folder
+    let currentFilePath = VideoName;
+    console.log("Current File Path: ", currentFilePath);
+    console.log("videoSource: ", VideoSource);
+
+    await window.electronAPI.moveVideo(currentFilePath, VideoName);
+
+    // try {
+    //   const response = await window.electronAPI.downloadVideo(
+    //     VideoName,
+    //     VideoSource
+    //   );
+    //   console.log(response.success, response.filePath);
+    // } catch (error) {}
+    // setTimeout(() => {
+    //   // isDownloading.set(false);
+    // }, 1000);
       isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
-    }, 10000);
+
     console.log("DOWNLOAD BUTTON");
   };
 
@@ -207,6 +242,9 @@
 </div>
 
 <style>
+  img {
+    aspect-ratio: 16/9;
+  }
   .content-loader {
     background-color: #25292b;
     border-radius: 10px;

@@ -2,6 +2,10 @@
 .yarn
 node_modules
 build
+backendVenv
+modelsVenv
+ModelsVenv
+*.pyc
 .svelte-kit
 .pnp.*
 .yarnrc.yml
@@ -21,7 +25,6 @@ brokerVenv/
 processVenv/
 
 # IDE specific
-.pyc
 .idea
 .vscode
 
@@ -39,6 +42,9 @@ database.sqlite
 # Django specific
 /Django/__pycache__
 
-# Dev Specific
-
-yarn.lock
+# Other specific folders and files
+frames
+Process/pipe/petal.mp4
+Process/pipe/output.mp4
+Process/pipe/*.pt
+/Desktop/outputVideos
