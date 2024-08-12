@@ -244,7 +244,7 @@
     function handleVideoHover(event) {
         const video = event.currentTarget;
         video.currentTime = 0; // Start from the beginning
-        video.playbackRate = 2; // Slow down the playback
+        video.playbackRate = 1; // Slow down the playback
         video.play(); // Play the video
     }
 
@@ -256,6 +256,35 @@
 
     let show = false;
     let showBB = false;
+    let appPath;
+    let scriptPath;
+    let scriptPath1;
+    let vidpath;
+
+    async function spawnP() {
+        const dirPath = getDirectoryPath(drive.videourl);
+        appPath = await window.electronAPI.getAppPath();
+        const appDirectory = await window.electronAPI.resolvePath(
+            appPath,
+            "..",
+        );
+        scriptPath = `${appDirectory}/Process/pipe4/weaver.py`;
+        window.electronAPI.runPythonScript2(
+            scriptPath,
+            [dirPath]
+        );
+        scriptPath1 = `${appDirectory}/Process/pipe4/viz4.py`;
+        window.electronAPI.runPythonScript2(
+            scriptPath1,
+            [dirPath]
+        );
+
+    }
+
+    function getDirectoryPath(filepath) {
+        const lastSlashIndex = filepath.lastIndexOf("/");
+        return filepath.substring(0, lastSlashIndex + 1);
+    }
 
     function handleBack() {
         push("/drivegallery");
@@ -264,11 +293,11 @@
 
 <ProtectedRoutes>
     <div class="flex justify-start mx-16 mt-2">
-        <button class="backArrow" on:click={handleBack}
-            ><Icon path={mdiArrowLeft} size={32} /></button
-        >
+        <button class="backArrow" on:click={handleBack}>
+            <Icon path={mdiArrowLeft} size={32} />
+        </button>
     </div>
-    <div class="w-11/12 h-full mx-auto my-6">
+    <div class="w-11/12 h-full mx-auto my-6 text-white">
         <div class="flex flex-row justify-between">
             <div
                 id="drive"
@@ -343,7 +372,7 @@
                     </div>
                     <div class="control-center w-full h-auto">
                         <div class="w-10/12 flex flex-col">
-                            <a href="/pipe">
+                            <a href="#/svelvet">
                                 <h1 class="text-3xl">Piping</h1>
                                 <div bind:this={lottieElement1} class="w-full">
                                     <DotLottieSvelte
@@ -359,7 +388,11 @@
                         </div>
                     </div>
                     <div class="control-center w-full h-auto">
-                        <div class="w-10/12 flex flex-col">
+                        <div
+                            on:click={spawnP}
+                            on:keypress
+                            class="w-10/12 flex flex-col"
+                        >
                             <h1 class="text-3xl">Weaver</h1>
                             <div bind:this={lottieElement2} class="w-full">
                                 <DotLottieSvelte
@@ -413,6 +446,7 @@
     .backArrow:hover {
         transform: scale(1.2);
     }
+
     video {
         aspect-ratio: 16/9;
         height: 100%;
@@ -457,7 +491,7 @@
     .graph {
         height: 10rem;
         width: 80%;
-        color: rgb(230, 0, 0);
+        color: rgb(0, 0, 0);
     }
 
     .hoverPlay:hover {

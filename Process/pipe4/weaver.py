@@ -1,4 +1,5 @@
 import os
+import sys
 import numpy as np
 import json
 import open3d as o3d
@@ -116,5 +117,9 @@ def weave_point_clouds(output_dir):
         print(f"Error in weave_point_clouds: {e}")
 
 if __name__ == "__main__":
-    output_dir = "output_frames/"  # Replace with your actual output directory
+    if len(sys.argv) < 2:
+        print("Please provide the output directory as an argument.")
+        sys.exit(1)
+
+    output_dir = sys.argv[1]
     weave_point_clouds(output_dir)
