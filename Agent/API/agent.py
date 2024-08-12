@@ -90,7 +90,7 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC")       
+        test = os.getenv("PUBLIC")
         test = base64.b64decode(test)
 
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)

@@ -18,7 +18,7 @@ import Invite from './Invite.svelte'
 import Install from './Install.svelte'
 import TeamView from './TeamView.svelte'
 import TeamNetwork from './TeamNetwork.svelte'
-
+import Svelvet from './Svelvet.svelte'
 
 const routes = {
     '/': Home,
@@ -39,6 +39,7 @@ const routes = {
     '/install': Install,
     '/teamView': TeamView,
     '/teamNetwork': TeamNetwork,
+    '/svelvet': Svelvet,
 };
 
 export default routes;

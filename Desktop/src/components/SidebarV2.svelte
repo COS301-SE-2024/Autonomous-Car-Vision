@@ -15,6 +15,7 @@
         mdiLanPending,
         mdiChevronUp,
         mdiChevronDown,
+        mdiPipeDisconnected
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
@@ -27,9 +28,15 @@
         "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
 
     let showAccountPopup = false;
-    let showTeamDropdown = false; 
+    let showTeamDropdown = false;
 
     let routes = [
+        {
+            name: "Pipes",
+            route: "#/svelvet",
+            iconPath: mdiPipeDisconnected,
+            // mdiMolecule,
+        },
         {
             name: "Team",
             iconPath: mdiAccountGroup,
@@ -84,7 +91,6 @@
 
     function toggleAccountPopup() {
         showAccountPopup = !showAccountPopup;
-        console.log("TOGGLE: ", showAccountPopup);
     }
 
     function closeAccountPopup() {
@@ -193,7 +199,7 @@
                         >
                         <span class="w-fit text-left text-xs">{name}</span>
                     </div>
-                {/if}   
+                {/if}
             </div>
         </div>
         {#if showAccountPopup}

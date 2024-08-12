@@ -88,5 +88,15 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     axios: "npm:^1.7.2"
+    svelvet: "npm:^10.0.2"
   languageName: unknown
   linkType: soft
+
+"svelvet@npm:^10.0.2":
+  version: 10.0.2
+  resolution: "svelvet@npm:10.0.2"
+  peerDependencies:
+    svelte: ">=3.59.2 || ^4.0.0"
+  checksum: 10c0/cdb01e2bd7fc065d035d8e1d764b7425c4621c5541e20f1c9ed21f9b40394d4bbab0fa04391ef13e8bbc452f6062ea28c4a503358b578a6ac9541c50ad77521d
+  languageName: node
+  linkType: hard
