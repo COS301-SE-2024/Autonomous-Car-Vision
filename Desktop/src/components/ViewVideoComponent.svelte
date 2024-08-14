@@ -196,24 +196,6 @@
   }
 
   let sideAIinfo = [
-    // {
-    //     id: "1",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "06/07/2024",
-    // },
-    // {
-    //     id: "2",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "07/07/2024",
-    // },
-    // {
-    //     id: "3",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "08/07/2024",
-    // },
   ];
 
   async function getAIinfo() {
@@ -406,14 +388,12 @@
   .sideButton {
     width: 42px;
     height: 42px;
-    position: absolute;
-    top: 0%;
+    position: fixed;
+    top: 1.5%;
     right: 0%;
     transition: test 1s;
     background-color: #03191ec6;
     margin: 5px;
-    /* border-top-left-radius: 15px; */
-    /* border-bottom-left-radius: 15px; */
     border-radius: 50%;
     transition: ease-in-out 1s;
   }
@@ -421,8 +401,8 @@
   .sidevideo {
     width: 20%;
     height: fit-content;
-    top: 0;
-    position: absolute;
+    top: 1.5%;
+    position: fixed;
     right: -25%;
     margin: 5px;
     background-color: #03191ec6;
@@ -436,7 +416,7 @@
   }
 
   .sideButton.move-right {
-    right: 20.5%;
+    right: 21%;
   }
 
   ::-webkit-scrollbar {
@@ -554,7 +534,7 @@
 
   video {
     width: 100%;
-    height: 60%;
-    aspect-ratio: 16 / 9;
+    /* height: 60%; */
+    aspect-ratio: 17 / 9;
   }
 </style>

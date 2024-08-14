@@ -20,13 +20,10 @@
   } from "../../../stores/processing";
 
   import { isLoading } from "../../../stores/loading";
-  import QuantamLoader from "../../../components/QuantamLoader.svelte";
 
-  import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
   import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
   import DeleteModal from "../../../components/DeleteModal.svelte";
-  import ModelList from "../../../components/ModelList.svelte";
 
   import ProcessPopup from "../../../components/ProcessPopup.svelte";
   let showProcessPopup = false;
@@ -269,8 +266,8 @@
 
 <ProtectedRoutes>
   <Toaster />
-  <div class="grid grid-cols-5 h-4/5">
-    <div class="col-span-5 h-full">
+  <div class="grid grid-cols-5">
+    <div class="col-span-5 h-11/12">
       <ViewVideoComponent videoPath={$location} />
       <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue" >
         <button
@@ -288,31 +285,6 @@
             {videoPath}
           />
         {/if}
-        <div>
-          <!-- <button
-            class="text-white p-0.5 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
-            on:click={toggleModelList}
-          >
-            {#if selectedModel}
-              <img
-                src={selectedModel.profileImgURL}
-                alt="Selected Model"
-                class="w-12 h-12 rounded-full"
-              />
-            {:else}
-              <img
-                src={modalDefault}
-                alt="default Model"
-                class="w-12 h-12 rounded-full"
-              />
-            {/if}
-          </button> -->
-          <!-- {#if $showModelList}
-            <ModelList
-              on:select={handleModelSelect}
-            />
-          {/if} -->
-        </div>
       </div>
       {#if showProcessPopup}
         <ProcessPopup
