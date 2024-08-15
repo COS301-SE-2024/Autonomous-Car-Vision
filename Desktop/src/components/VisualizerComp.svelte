@@ -8,20 +8,19 @@
 
     
 <div class="relative h-screen flex justify-center items-center bg-gray-100">
- <iframe
+ <webview
   id="visualizer"
   title="Netron App"
-  src="https://netron.app"/> 
+  src="https://netron.app"/>
 </div>
   
 
 
   <style>
-  iframe{
-    border: 1px solid black;
+  webview{
+    border: 1px solid rgb(255, 255, 255);
     width: 100%;
-    height:90%;
-    border-radius: 8px;
+    height: 85%;
   }
   </style>
   
