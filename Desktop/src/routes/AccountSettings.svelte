@@ -11,10 +11,11 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
-  let username = "";
-  let email = "";
+  let username = "myUsername";
+  let email = "username@gmail.com";
   let profilePicture = "";
   let isHovered = false;   // To track hover state
+  let fileInput; // For referencing the file input element
 
   const handleHover = () => {
     isHovered = true;
@@ -24,9 +25,24 @@
     isHovered = false;
   };
 
-  function updateProfilePicture() {
-    // Function to handle profile picture update
-  }
+  const updateProfilePicture = () => {
+    // Trigger file input click
+    fileInput.click();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]; // Get the first selected file
+    if (file) {
+      const reader = new FileReader();
+
+      // Load the selected image and update profilePicture
+      reader.onload = (e) => {
+        profilePicture = e.target.result;
+      };
+
+      reader.readAsDataURL(file); // Read the file as a data URL (base64)
+    }
+  };
 
   function changePassword() {
     push("/changePassword");
@@ -105,10 +121,10 @@
         <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
         <!-- Profile Picture -->
-        <div class="cursor-pointer flex flex-col items-center mb-4 space-y-3 rounded-full border"  on:mouseenter={handleHover} on:mouseleave={handleMouseLeave}>
+        <div class="cursor-pointer flex flex-col items-center mb-4 space-y-3 rounded-full border avatar-image"  on:mouseenter={handleHover} on:mouseleave={handleMouseLeave}>
           {#if profilePicture != ""}
             <Avatar size="15rem">
-              <img src={profilePicture} alt="Avatar" class="object-cover  avatar-image"/>
+              <img src={profilePicture} alt="Avatar" class="avatar-image"/>
               {#if isHovered}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div
@@ -120,7 +136,7 @@
             </Avatar>
           {:else}
             <Avatar size="15rem" class="bg-theme-keith-jet">
-              <Icon path={mdiAccount} class="object-cover  avatar-image"/>
+              <Icon path={mdiAccount} class="avatar-image"/>
                 {#if isHovered}
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div
@@ -132,13 +148,22 @@
             </Avatar>
           {/if}
         </div>
+          <!-- Hidden file input for image selection -->
+        <input
+        type="file"
+        accept="image/*"
+        containerStyles="border-color: #8492a6; color: black"
+        style="display:none;"
+        bind:this={fileInput}
+        on:change={handleFileChange}
+      />
 
         <!-- Edit Username -->
         <div class="mb-4 w-1/2">
           <!-- <label for="username" class="block text-theme-keith-secondary mb-1"
             >Username</label
           > -->
-          <TextField bind:value={username} outlined class="pt-4 border-b-2 border-dark-primary " id="username">Username</TextField>
+          <TextField bind:value={username} placeholder={username} outlined class="pt-4 border-b-2 border-dark-primary " id="username">Username</TextField>
          
         </div>
 
@@ -147,9 +172,10 @@
           <!-- <label for="email" class="block text-theme-keith-secondary mb-1"
             >Email</label
           > -->
-          <TextField bind:value={email} outlined class="pt-4 border-b-2 border-dark-primary " id="email" type="email">Email</TextField>
+          <TextField bind:value={email} placeholder={email} outlined class="pt-4 border-b-2 border-dark-primary " id="email" type="email">Email</TextField>
         
         </div>
+
 
         <Button class="shadow-none rounded" on:click={changePassword}
           >Change Password?</Button
@@ -167,19 +193,19 @@
 
 <style>
    /* Add smooth transition for opacity change */
-   .avatar-image {
-    transition: opacity 0.3s ease;
+    .avatar-image {
     opacity: 1;
   }
 
   /* Reduce opacity to 30% when hovered */
-  .flex:hover .avatar-image {
+   .avatar-image:hover {
     opacity: 0.3;
+    transition: opacity 0.3s ease;
   }
 
   /* Pencil icon styling */
   .pencil-icon svg {
-    color: #000; /* Icon color */
+    color: var(--theme-dark-white); /* Icon color */
     background: white; /* Background for better visibility */
     border-radius: 50%;
     padding: 0.5rem;
