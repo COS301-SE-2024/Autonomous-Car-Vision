@@ -8,15 +8,16 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
-  import { writable } from "svelte/store";
-  import { Icon } from "svelte-materialify";
-  import { mdiViewList, mdiViewGrid } from "@mdi/js";
+  import { Icon, Button } from "svelte-materialify";
+  import { mdiViewList, mdiViewGrid, mdiUpload } from "@mdi/js";
+  import UploadModal from "../components/UploadModal.svelte";
 
   let data = null;
 
   let videoURLs = [];
   let videoNames = [];
   let downloadedStatuses = [];
+  let showModal = false;
 
   let listType = "grid";
 
@@ -135,6 +136,12 @@
   function handleListTypeChange(type) {
     listType = type;
   }
+
+  function openUploadModal() {
+    console.log(uploadModal);
+    uploadModal = !uploadModal;
+    console.log(uploadModal);
+  }
 </script>
 
 <ProtectedRoutes>
@@ -171,6 +178,14 @@
             on:input={handleSearch}
             class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg"
           />
+          <Button
+            rounded
+            class="bg-dark-primary text-white"
+              on:click={() => (showModal = true)}
+            >
+            Upload
+              <Icon color="white" path={mdiUpload} size="30" />
+            </Button>
         </div>
         {#if listType === "grid"}
           {#if $filteredItems.length > 0}
@@ -210,4 +225,7 @@
       </div>
     </div>
   {/if}
+  <div class="w-full h-full flex justify-center items-center">
+    <UploadModal bind:showModal />
+  </div>
 </ProtectedRoutes>
