@@ -90,8 +90,10 @@
             const driveDirectory =
                 await window.electronAPI.getDrivesDirectory();
             driveData = await window.electronAPI.readDriveLog(driveDirectory);
+            console.log("Drive directory:", driveDirectory);
+            console.log("Drive data: ", driveData);
             calculateStatistics(driveData);
-            console.log(driveData);
+            console.log("Drive data: ", driveData);
             driveData = driveData[0].data.slice(1);
             console.log(driveData);
 

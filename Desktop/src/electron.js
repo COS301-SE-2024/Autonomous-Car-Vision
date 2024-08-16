@@ -1044,10 +1044,32 @@ ipcMain.handle('getDriveVideos', async (event, directory) => {
 
 ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
     try {
-        return await getJsonData(driveDirectory);
+        console.log('Reading drive log:', driveDirectory);
+
+        if (!fs.existsSync(driveDirectory)) {
+            throw new Error('Directory does not exist');
+        }
+
+        // Read all files and directories within the specified directory
+        const files = fs.readdirSync(driveDirectory);
+
+        let allJsonData = []; // Array to hold all JSON data
+
+        for (const file of files) {
+            const filePath = path.join(driveDirectory, file);
+            
+            if (fs.statSync(filePath).isDirectory()) {
+                // If the file is a directory, read JSON data from that directory
+                const jsonData = await getJsonData(filePath);
+                allJsonData = allJsonData.concat(jsonData); // Merge the JSON data into the array
+            }
+        }
+
+        return allJsonData; // Return the combined JSON data array
+
     } catch (error) {
         console.error('Failed to read drive log:', error);
-        return {error: 'Failed to read drive log'};
+        return { error: 'Failed to read drive log' };
     }
 });
 
