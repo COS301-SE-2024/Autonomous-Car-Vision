@@ -6,7 +6,7 @@
 
     import RingLoader from "./RingLoader.svelte";
     import { Button, Icon } from "svelte-materialify";
-    import { mdiClose } from "@mdi/js";
+    import { mdiClose, mdiDeleteOutline } from "@mdi/js";
 
     export let videoSource = "";
     export let showModal;
@@ -59,8 +59,6 @@
 
         let uid = window.electronAPI.getUid();
         let token = window.electronAPI.getToken();
-        // let size = "10";
-        // let size = window.electronAPI.getFileSize(file.path);
         let sizeInBytes = file.size;
 
         // Convert size to MB and round to 2 decimal places
@@ -150,6 +148,12 @@
         }
     };
 
+    function removeVideo() {
+        videoSource = "";
+        filename = "";
+        file = null;
+    }
+
     $: if (dialog && showModal) dialog.showModal();
 </script>
 
@@ -162,27 +166,18 @@
     <div on:click|stopPropagation>
         <Toaster />
         <div class="relative -left-2 mb-2">
-            <Button icon 
-                on:click={() => dialog.close()}
-                >
+            <Button icon on:click={() => dialog.close()}>
                 <Icon path={mdiClose} size={32} />
             </Button>
         </div>
         <div class="flex flex-col justify-center items-center">
             {#if videoSource}
                 <div class="flex flex-row w-fit">
-                    <video
-                        class="w-11/12 h-auto"
-                        src={videoSource}
-                        controls
-                    >
+                    <video class="w-full" src={videoSource} controls>
                         <track kind="captions" />
                     </video>
                     <!-- ADD X Icon to delete current selected video -->
                     <!-- OR ADD UPLOAD different video -->
-                     <Button icon>
-                        <Icon path={mdiClose} size={32} on:click={() => videoSource=""}/>
-                    </Button>
                 </div>
             {:else}
                 <Dropzone
@@ -192,7 +187,12 @@
                     multiple={false}
                 />
             {/if}
-            <div class="w-full flex items-center mt-4">
+            <div class="w-full flex justify-between items-center mt-4">
+                {#if videoSource}
+                    <Button class="bg-red text-white" rounded on:click={removeVideo}>
+                        Remove <Icon path={mdiDeleteOutline} size={28} />
+                    </Button>
+                {/if}
                 <span class="flex-grow"></span>
                 <Button
                     rounded

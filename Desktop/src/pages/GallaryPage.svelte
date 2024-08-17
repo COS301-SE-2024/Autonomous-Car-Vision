@@ -152,7 +152,7 @@
   {:else}
     <div class="items-center">
       <div>
-        <div class="flex justify-start gap-2 items-center w-full mb-4 p-4">
+        <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
           <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
