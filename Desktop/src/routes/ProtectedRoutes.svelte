@@ -3,7 +3,6 @@
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
   import { navigate } from "@sveltejs/kit/navigation"; // If using SvelteKit for navigation
-  import Sidebar from "../components/Sidebar.svelte";
   import SidebarV2 from "../components/SidebarV2.svelte";
   import { sidebarWidth } from "../stores/store";
 
@@ -32,10 +31,8 @@
     offset = offset > maxOffset ? maxOffset : offset;
 
     if (offset < 150) {
-      // sidebarWidth = 75;
       sidebarWidth.set(75);
     } else {
-      // sidebarWidth = offset;
       sidebarWidth.set(offset);
     }
   }
@@ -53,7 +50,7 @@
   }
 
   onMount(() => {
-    // Cleanup event listeners if the component is unmounted
+    sidebarWidth.set(220);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
@@ -112,10 +109,6 @@
   }
 
   .handle:hover  .handle-inner {
-    background-color: #fff;
-  }
-
-  .handle-inner.highlighted {
     background-color: #fff;
   }
   

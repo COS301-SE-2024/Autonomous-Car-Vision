@@ -3,10 +3,10 @@
     import { location } from "svelte-spa-router";
     import toast, { Toaster } from "svelte-french-toast";
     import { onMount } from "svelte";
-
+    import {isUploadLoading} from '../stores/uploadLoading';
     import RingLoader from "./RingLoader.svelte";
     import { Button, Icon } from "svelte-materialify";
-    import { mdiClose, mdiDeleteOutline } from "@mdi/js";
+    import { mdiClose, mdiDeleteOutline, mdiUpload } from "@mdi/js";
 
     export let videoSource = "";
     export let showModal;
@@ -14,16 +14,6 @@
     let dialog;
     let filename = "";
     let file;
-
-    let isUploading = false;
-
-    // For loading screen purposes
-    onMount(() => {
-        // isLoading.set(true);
-        // setTimeout(() => {
-        //   isLoading.set(false);
-        // }, 1000);
-    });
 
     function handleFilesSelect(e) {
         const { acceptedFiles, fileRejections } = e.detail;
@@ -50,12 +40,12 @@
             });
             return;
         }
-        // isUploadLoading.set(true);
-        isUploading = true;
+        isUploadLoading.set(true);
+        console.log("Uploading")
         setInterval(async () => {
-            // isUploadLoading.set(true);
-            isUploading = false;
-        }, 6000);
+            isUploadLoading.set(false);
+            console.log("Done")
+        }, 5000);
 
         let uid = window.electronAPI.getUid();
         let token = window.electronAPI.getToken();
@@ -126,8 +116,6 @@
             // sleep for 5 seconds
             await new Promise((resolve) => setTimeout(resolve, 5000));
 
-            console.log("TESTING SAVE before IF");
-
             if (response2.success) {
                 const mid = response2.data.dataValues.mid;
                 const uid = window.electronAPI.getUid();
@@ -142,7 +130,7 @@
             }
             console.log("TESTING SAVE BEFORE PUSHING SUPPOSED TO HAPPEN");
 
-            // push("/gallery");
+            push("/gallery");
         } catch (error) {
             console.error("Error occurred:", error);
         }
@@ -159,6 +147,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <dialog
+    class="bg-dark-background"
     bind:this={dialog}
     on:close={() => (showModal = false)}
     on:click|self={() => dialog.close()}
@@ -166,7 +155,7 @@
     <div on:click|stopPropagation>
         <Toaster />
         <div class="relative -left-2 mb-2">
-            <Button icon on:click={() => dialog.close()}>
+            <Button class="text-white" icon on:click={() => dialog.close()}>
                 <Icon path={mdiClose} size={32} />
             </Button>
         </div>
@@ -176,8 +165,6 @@
                     <video class="w-full" src={videoSource} controls>
                         <track kind="captions" />
                     </video>
-                    <!-- ADD X Icon to delete current selected video -->
-                    <!-- OR ADD UPLOAD different video -->
                 </div>
             {:else}
                 <Dropzone
@@ -199,9 +186,10 @@
                     class="bg-dark-primary text-white font-bold py-2 px-4 hover:bg-dark-secondary"
                     on:click={saveVideo}
                     >Save
+                    <Icon path={mdiUpload} size={28} />
                 </Button>
             </div>
-            {#if isUploading}
+            {#if $isUploadLoading}
                 <div class="flex justify-center">
                     <RingLoader />
                 </div>

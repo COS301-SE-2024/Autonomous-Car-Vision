@@ -9,11 +9,7 @@
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
-        mdiEyeRefresh,
         mdiCar,
-        mdiAccountGroup,
-        mdiAccountCheckOutline,
-        mdiLanPending,
         mdiChevronUp,
         mdiChevronDown,
         mdiPipeDisconnected,
@@ -186,7 +182,7 @@
             class="{'/accountsettings' === $location ||
             '/changepassword' === $location
                 ? 'bg-dark-background'
-                : ''} lg:bg-dark-background_secondary hover:bg-dark-background p-1 flex justify-start gap-2 items-center rounded-full"
+                : ''} bg-dark-background_secondary hover:bg-dark-background p-2 flex justify-start gap-2 items-center rounded-full"
         >
             <Avatar
                 size="34px"

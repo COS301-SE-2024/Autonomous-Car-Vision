@@ -136,12 +136,6 @@
   function handleListTypeChange(type) {
     listType = type;
   }
-
-  function openUploadModal() {
-    console.log(uploadModal);
-    uploadModal = !uploadModal;
-    console.log(uploadModal);
-  }
 </script>
 
 <ProtectedRoutes>
