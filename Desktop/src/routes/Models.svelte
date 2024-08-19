@@ -68,7 +68,7 @@
         </div>
         {#if selected}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div class="model-content-overlay rounded-lg" on:click{closeModelContent()}>
+          <div class="model-content-overlay rounded-lg" on:click={closeModelContent()}>
               <ModelsCardContent {selected} />
           </div>
         {/if}

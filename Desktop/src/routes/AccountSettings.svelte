@@ -160,18 +160,12 @@
 
         <!-- Edit Username -->
         <div class="mb-4 w-1/2">
-          <!-- <label for="username" class="block text-theme-keith-secondary mb-1"
-            >Username</label
-          > -->
           <TextField bind:value={username} placeholder={username} outlined class="pt-4 border-b-2 border-dark-primary " id="username">Username</TextField>
          
         </div>
 
         <!-- Edit Email -->
         <div class="mb-4 w-1/2">
-          <!-- <label for="email" class="block text-theme-keith-secondary mb-1"
-            >Email</label
-          > -->
           <TextField bind:value={email} placeholder={email} outlined class="pt-4 border-b-2 border-dark-primary " id="email" type="email">Email</TextField>
         
         </div>
