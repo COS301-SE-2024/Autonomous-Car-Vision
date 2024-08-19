@@ -13,3 +13,8 @@
   .apexcharts-legend-text {
     color: white !important;
   }
+
+  .primary-text{
+    color:#0099ff!important;
+    caret-color:#0099ff!important
+  }

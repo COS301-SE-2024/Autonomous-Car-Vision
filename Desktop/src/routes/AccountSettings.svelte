@@ -2,7 +2,7 @@
   import { TextField, Button, Avatar, Icon } from "svelte-materialify";
   import { onMount } from "svelte";
   import axios from "axios";
-  import { mdiAccount } from "@mdi/js/mdi";
+  import { mdiAccount, mdiImageEdit } from "@mdi/js/mdi";
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
@@ -11,13 +11,38 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
-  let username = "";
-  let email = "";
+  let username = "myUsername";
+  let email = "username@gmail.com";
   let profilePicture = "";
+  let isHovered = false;   // To track hover state
+  let fileInput; // For referencing the file input element
 
-  function updateProfilePicture() {
-    // Function to handle profile picture update
-  }
+  const handleHover = () => {
+    isHovered = true;
+  };
+
+  const handleMouseLeave = () => {
+    isHovered = false;
+  };
+
+  const updateProfilePicture = () => {
+    // Trigger file input click
+    fileInput.click();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]; // Get the first selected file
+    if (file) {
+      const reader = new FileReader();
+
+      // Load the selected image and update profilePicture
+      reader.onload = (e) => {
+        profilePicture = e.target.result;
+      };
+
+      reader.readAsDataURL(file); // Read the file as a data URL (base64)
+    }
+  };
 
   function changePassword() {
     push("/changePassword");
@@ -89,53 +114,62 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen border-theme-dark-backgroundBlue">
+    <div class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card">
       <div
-        class="flex flex-col items-center justify-center p-8 shadow-tech-blue rounded-lg w-1/2 border border-theme-keith-accentont space-y-3"
+        class="flex flex-col items-center justify-center p-4 shadow rounded-lg w-1/2 border space-y-3"
       >
         <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
         <!-- Profile Picture -->
-        <div class="flex flex-col items-center mb-4 space-y-3">
+        <div class="cursor-pointer flex flex-col items-center mb-4 space-y-3 rounded-full border avatar-image"  on:mouseenter={handleHover} on:mouseleave={handleMouseLeave}>
           {#if profilePicture != ""}
             <Avatar size="15rem">
-              <img src={profilePicture} alt="Avatar" />
+              <img src={profilePicture} alt="Avatar" class="avatar-image"/>
+              {#if isHovered}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                class="absolute text-black p-2 cursor-pointer pencil-icon"
+                on:click={updateProfilePicture}>
+                <Icon path={mdiImageEdit} size="2rem" />
+              </div>
+            {/if}
             </Avatar>
           {:else}
             <Avatar size="15rem" class="bg-theme-keith-jet">
-              <Icon path={mdiAccount} />
+              <Icon path={mdiAccount} class="avatar-image"/>
+                {#if isHovered}
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                class="absolute text-black p-2 cursor-pointer pencil-icon"
+                on:click={updateProfilePicture}>
+                <Icon path={mdiImageEdit} size="2rem" />
+              </div>
+            {/if}
             </Avatar>
           {/if}
-          <Button
-            class="shadow-none text-theme-keith-secondary text-transform-none"
-            on:click={updateProfilePicture}>Edit</Button
-          >
         </div>
+          <!-- Hidden file input for image selection -->
+        <input
+        type="file"
+        accept="image/*"
+        containerStyles="border-color: #8492a6; color: black"
+        style="display:none;"
+        bind:this={fileInput}
+        on:change={handleFileChange}
+      />
 
         <!-- Edit Username -->
         <div class="mb-4 w-1/2">
-          <label for="username" class="block text-theme-keith-secondary mb-1"
-            >Username</label
-          >
-          <TextField
-            id="username"
-            bind:value={username}
-            class="text-black-important w-full p-2 border border-theme-keith-accenttwo rounded text-black-important"
-          />
+          <TextField bind:value={username} placeholder={username} outlined class="pt-4 border-b-2 border-dark-primary " id="username">Username</TextField>
+         
         </div>
 
         <!-- Edit Email -->
         <div class="mb-4 w-1/2">
-          <label for="email" class="block text-theme-keith-secondary mb-1"
-            >Email</label
-          >
-          <TextField
-            id="email"
-            type="email"
-            bind:value={email}
-            class="text-black-important w-full p-2 border border-theme-keith-accenttwo rounded"
-          />
+          <TextField bind:value={email} placeholder={email} outlined class="pt-4 border-b-2 border-dark-primary " id="email" type="email">Email</TextField>
+        
         </div>
+
 
         <Button class="shadow-none rounded" on:click={changePassword}
           >Change Password?</Button
@@ -149,3 +183,31 @@
     </div>
   {/if}
 </ProtectedRoutes>
+
+
+<style>
+   /* Add smooth transition for opacity change */
+    .avatar-image {
+    opacity: 1;
+  }
+
+  /* Reduce opacity to 30% when hovered */
+   .avatar-image:hover {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Pencil icon styling */
+  .pencil-icon svg {
+    color: var(--theme-dark-white); /* Icon color */
+    background: white; /* Background for better visibility */
+    border-radius: 50%;
+    padding: 0.5rem;
+    opacity: 1; /* Set icon opacity to 100% */
+  }
+
+  /* Ensure icon is always fully visible */
+  .pencil-icon {
+    opacity: 1;
+  }
+  </style>

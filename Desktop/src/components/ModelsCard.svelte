@@ -24,6 +24,7 @@
   let b1;
   let versionElement;
   let nameElement;
+  let animationRunning = false;
 
   onMount(async ()  => {
     b = baffle('.version', {
@@ -42,19 +43,33 @@
   });
 
   const handleHover = () => {
+
+    if (!animationRunning) {
+      animationRunning = true;
+
+      // Stop any ongoing baffle animation
+      b.stop();
+      b1.stop();
+    
+
       b = baffle(versionElement, {
         characters: '0909dudcrfds',
         speed: 100        
       });
-    b.start();
-    b.reveal(5000);
+      b.start();
+      b.reveal(5000, () => {
+          animationRunning = false;  // Mark as finished after reveal
+        });;
 
       b1 = baffle(nameElement, {
         characters: '0909dudedggsedcrfefds',
         speed: 100
       });
-    b1.start();
-    b1.reveal(5000);
+      b1.start();
+      b1.reveal(5000, () => {
+          animationRunning = false;  // Mark as finished after reveal
+        });
+      }
   };
 
 

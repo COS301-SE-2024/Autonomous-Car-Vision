@@ -65,7 +65,7 @@
             {#each newMembers as member}
                 <p class="bg-theme-dark-primary rounded-lg px-1 mt-2 text-theme-dark-white hoverClass">{member}</p>
              {/each}
-            <p class="bg-theme-dark-primary rounded-lg px-1 text-theme-dark-white hoverClass"> tester@gmail.com </p>
+    
 
           </div>
         </div>
