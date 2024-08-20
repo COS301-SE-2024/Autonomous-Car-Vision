@@ -39,12 +39,12 @@
       <div class="flex mt-4 space-x-4">
         <button
           on:click={cancel}
-          class="font-medium px-4 py-2 bg-theme-dark-primary text-white rounded"
+          class="font-medium px-4 py-2 bg-theme-dark-primary text-white rounded-full"
           >Cancel</button
         >
         <button
           on:click={deleteVideo}
-          class="font-medium px-4 py-2 bg-theme-dark-error text-white rounded"
+          class="font-medium px-4 py-2 bg-theme-dark-error text-white rounded-full"
           >Delete</button
         >
       </div>

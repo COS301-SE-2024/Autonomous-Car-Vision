@@ -82,11 +82,11 @@
         {/if}
         <div class="flex mt-4 space-x-4 justify-start">
           <button
-            class="bg-theme-dark-error font-medium text-white px-4 py-2 rounded"
+            class="bg-theme-dark-error font-medium text-white px-4 py-2 rounded-full"
             on:click={closePopup}>No</button
           >
           <button
-            class="bg-theme-dark-primary font-medium px-4 py-2 text-white rounded"
+            class="bg-theme-dark-primary font-medium px-4 py-2 text-white rounded-full"
             on:click={processVideo}>Yes</button
           >
         </div>
