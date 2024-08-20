@@ -168,9 +168,9 @@
                 </div>
             {:else}
                 <Dropzone
-                    on:drop={handleFilesSelect}
+                  on:drop={handleFilesSelect}
                     accept="video/*"
-                    containerStyles="border-color: #8492a6; color: black"
+                    containerStyles="border-color: #8492a6; color: white; background-color: #011C27;"
                     multiple={false}
                 />
             {/if}
