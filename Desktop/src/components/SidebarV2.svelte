@@ -20,6 +20,8 @@
     } from "@mdi/js";
 
     import AccountPopup from "./AccountPopup.svelte";
+    import "@theme-toggles/react/css/Around.css";
+    import { Around } from "@theme-toggles/react";
 
     export let width;
 
@@ -131,6 +133,7 @@
 <div
     class="sidebarV2 h-full w-auto bg-theme-dark-background text-white flex flex-col justify-end"
 >
+    <Around duration={750} />
     {#each routes as route}
         <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
             {#if route.subRoutes}
