@@ -56,7 +56,7 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 - **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
 - **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
-- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/138qQ2a141yoY-sG7PY3I0nQTkwcz7CTC/view?usp=sharing>)
+- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/1MB6OK7jjborCSFkLn0f7uH25fGZXDtmf/view?usp=sharing>)
 
 <h2 align="center"> Meet The Team </h2>
 
