@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 
 def append_to_drive_log(results, log_file='output_frames/driveLog.json'):
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    
     log_entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'preprocess_time': results[0].speed['preprocess'],
