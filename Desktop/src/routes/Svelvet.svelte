@@ -8,17 +8,20 @@
   import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
   import ThreeJS from "./ThreeJS.svelte";
-  import { Button, Icon } from "svelte-materialify";
+  import { Button, Icon, Tooltip } from "svelte-materialify";
   import { mdiClose } from "@mdi/js";
   import { get } from "svelte/store";
   import { canvas } from "../stores/store";
   import toast, { Toaster } from "svelte-french-toast";
+  import { push } from "svelte-spa-router";
+  import { warp_pipe } from "../stores/store";
 
   let nodes = writable([]);
   let edges = writable([]);
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
+  let showToolTip = false;
 
   // Variables for when you need to put the images inside after running the pipe
   let pipeRunModal = false;
@@ -347,12 +350,12 @@
     const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
 
     console.log("Labeled Pipe String:", labeledPipeString);
-
     // Convert to JSON string
     const jsonPayload = JSON.stringify({ pipe: labeledPipeString });
 
     if (validatePipe(labeledPipeString)) {
       await window.electronAPI.savePipeJson(jsonPayload);
+      warp_pipe.set(labeledPipeString);
     } else {
       toast.error("Invalid pipe");
     }
@@ -432,13 +435,10 @@
     nodes.set([inputNode, outputNode]);
   }
 
-  function toggleRunModal() {
-    pipeRunModal = !pipeRunModal;
-  }
-
   function runPipe() {
-    // Open modal of images
-    toggleRunModal();
+    // Send to WarpPipe Page
+
+    push("/warp_pipe")
   }
 
   onMount(() => {
@@ -478,22 +478,26 @@
         class="bg-dark-primary text-dark-background"
         >Save Pipe
       </Button>
-      <!-- {#if savedCanvas}
+      {#if savedCanvas}
         <Button
           rounded
           on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
+          class="bg-dark-primary text-dark-background cursor-default"
           >Run Pipe
         </Button>
       {:else}
+      <Tooltip bottom bind:active={showToolTip}>
         <Button
-          disabled
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
-        </Button>
-      {/if} -->
+        disabled
+        rounded
+        on:mouseover={() => showToolTip = !showToolTip}
+        on:click={runPipe}
+        class="bg-dark-primary text-dark-background"
+        >Run Pipe
+        <span slot='tip'>Save a pipe first</span>
+      </Button>
+    </Tooltip>
+      {/if}
     </div>
   </div>
   <div class="canvas">
@@ -520,31 +524,6 @@
       {/each}
     </Svelvet>
   </div>
-  {#if pipeRunModal}
-    <div class="runPipe w-2/4 h-2/5 p-6">
-      <div>
-        <Button text on:click={() => (pipeRunModal = !pipeRunModal)}>
-          <Icon path={mdiClose} size={38}></Icon>
-        </Button>
-      </div>
-      <div class="flex items-center h-full">
-        <div class="w-full flex justify-between gap-10">
-          <div class="inputImagePre">
-            <h1 class="pb-10 text-3xl text-black text-center">
-              Input
-            </h1>
-            <img class="rounded-xl" src={preProcessImg} alt={preProcessImg} />
-          </div>
-          <div class="outputImagePost">
-            <h1 class="pb-10 text-3xl text-black text-center">
-              Output
-            </h1>
-            <img class="rounded-xl" src={postProcessImg} alt={postProcessImg} />
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
 </ProtectedRoutes>
 
 <style>
