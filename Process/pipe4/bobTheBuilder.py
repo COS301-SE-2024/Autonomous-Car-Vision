@@ -24,12 +24,12 @@ def get_unit_class(unit_type):
 def create_unit(unit_type, init_args):
     unit_class = get_unit_class(unit_type)
     print(unit_type)
-    if init_args and not unit_type == "outputUnit":
+    if init_args and not unit_type == "outputUnit" and not unit_type == "outputUnitTest":
         unit = unit_class(*init_args)
     else:
         unit = unit_class()
 
-    if unit_type == "outputUnit" and init_args:
+    if (unit_type == "outputUnit" or unit_type =="outputUnitTest") and init_args:
         unit.set_flags(init_args)
 
     return unit
@@ -66,7 +66,7 @@ def test_pipeline():
     camera_data = load_image(camera_file_path)
     lidar_data = load_lidar_data(lidar_file_path)
 
-    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnit.'
+    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnitTest.all'
     pipeline = build_pipeline(input_string)
 
     sensors = ['camera', 'lidar']
@@ -74,13 +74,18 @@ def test_pipeline():
     data_token.add_sensor_data('camera', camera_data)
     data_token.add_sensor_data('lidar', lidar_data)
 
-    processed_image = pipeline.process(data_token)
+    processed_image, img_lidar, img_taggr, img_bb = pipeline.process(data_token)
 
     bounding_boxes = data_token.get_processing_result('yoloUnit')
 
     processed_image_path = os.path.join(test_data_folder, 'processed_image.png')
+    lidar_image_path = os.path.join(test_data_folder, 'lidar_image.png')
+    taggr_image_path = os.path.join(test_data_folder, 'taggr_image.png')
+    bb_image_path = os.path.join(test_data_folder, 'bb_image.png')
     Image.fromarray(processed_image).save(processed_image_path)
-
+    if img_lidar is not None: Image.fromarray(img_lidar).save(lidar_image_path)
+    if img_taggr is not None: Image.fromarray(img_taggr).save(taggr_image_path)
+    if img_bb is not None: Image.fromarray(img_bb).save(bb_image_path)
     return processed_image, bounding_boxes
 
 
