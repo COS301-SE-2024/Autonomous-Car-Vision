@@ -54,15 +54,10 @@ def visualize_point_cloud(filepath):
     app.run()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Please provide the directory containing 'combined_map.ply' as an argument.")
-        sys.exit(1)
-
-    directory = sys.argv[1]
-    point_cloud_file = os.path.join(directory, "combined_map.ply")
+    point_cloud_file = os.path.join(os.getcwd(), "combined_map.ply")
 
     if not os.path.exists(point_cloud_file):
-        print(f"Error: 'combined_map.ply' not found in directory {directory}.")
+        print(f"Error: 'combined_map.ply' not found in the current directory.")
         sys.exit(1)
 
     visualize_point_cloud(point_cloud_file)
