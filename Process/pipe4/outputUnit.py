@@ -27,7 +27,7 @@ class outputUnit(Unit):
     def process(self, data_token):
         image = data_token.get_sensor_data('camera')
         annotated_frame = image.copy()
-        min_distance = None
+        min_distances = [] 
 
         if (self.lidar or self.all) and data_token.get_flag('has_lidar_data'):
             lidar_data = data_token.get_processing_result('infusrUnit')
@@ -40,20 +40,34 @@ class outputUnit(Unit):
 
         if (self.taggr or self.all) and data_token.get_flag('has_tagger_data'):
             tagger_data = data_token.get_processing_result('taggrUnit')
-            region_pixel_x, region_pixel_y = tagger_data['region_pixel_x'], tagger_data['region_pixel_y']
-            min_distance = tagger_data['min_distance']
-            for i in range(len(region_pixel_x)):
-                cv2.circle(annotated_frame, (region_pixel_x[i], region_pixel_y[i]), radius=2, color=(0, 255, 0),
-                           thickness=-1)
+            pixel_data = tagger_data['pixel_data']
+
+            min_distances = [None] * len(pixel_data)
+
+            for data in pixel_data:
+                pixel_x = data['pixel_x']
+                pixel_y = data['pixel_y']
+                min_distance = data['min_distance']
+                bbox_index = data['bbox_index'] 
+
+                cv2.circle(annotated_frame, (pixel_x, pixel_y), radius=2, color=(0, 255, 0), thickness=-1)
+                
+                if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
+                    min_distances[bbox_index] = min_distance
 
         if (self.bb or self.all):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
-            for bbox in bounding_boxes:
+            for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                text = f"{bbox[-1]}  {min_distance if min_distance else ''}"
-                cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                
+                if min_distances[i] is not None:
+                    text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                else:
+                    text = f"{bbox[-1]}"
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}")
         return annotated_frame
