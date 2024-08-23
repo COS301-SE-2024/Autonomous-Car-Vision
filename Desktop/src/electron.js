@@ -1050,22 +1050,12 @@ ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
             throw new Error('Directory does not exist');
         }
 
-        // Read all files and directories within the specified directory
-        const files = fs.readdirSync(driveDirectory);
+        console.log('Folder exists:', fs.existsSync(driveDirectory));
 
-        let allJsonData = []; // Array to hold all JSON data
+        // Read JSON data from the specified directory
+        const jsonData = await getJsonData(driveDirectory);
 
-        for (const file of files) {
-            const filePath = path.join(driveDirectory, file);
-            
-            if (fs.statSync(filePath).isDirectory()) {
-                // If the file is a directory, read JSON data from that directory
-                const jsonData = await getJsonData(filePath);
-                allJsonData = allJsonData.concat(jsonData); // Merge the JSON data into the array
-            }
-        }
-
-        return allJsonData; // Return the combined JSON data array
+        return jsonData; // Return the JSON data from the specified directory
 
     } catch (error) {
         console.error('Failed to read drive log:', error);

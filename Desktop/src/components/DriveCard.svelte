@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { VideoURL, OriginalVideoURL } from "../stores/video";
+  import { VideoURL, OriginalVideoURL, directoryName } from "../stores/video";
   import { originalVideoURL } from "../stores/processing";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
@@ -18,12 +18,13 @@
   let processed = false;
 
   function goToVideo() {
-    console.log("Go to video");
+    console.log("Go to video", videoName);
     const encodedPath = encodeURIComponent(videoSource);
     VideoURL.set(videoSource);
     OriginalVideoURL.set(videoSource);
     originalVideoURL.set(videoSource);
-    console.log(encodedPath);
+    directoryName.set(videoName);
+    console.log('Encoded path', encodedPath);
     push(`/drive/${encodedPath}`);
   }
 

@@ -6,8 +6,9 @@
     import { Icon, Tooltip } from "svelte-materialify";
     import { mdiArrowLeft, mdiPlay } from "@mdi/js";
     import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
-    import { VideoURL, OriginalVideoURL } from "../../../stores/video";
+    import { VideoURL, OriginalVideoURL, directoryName } from "../../../stores/video";
     import { originalVideoURL } from "../../../stores/processing";
+    import { get } from "svelte/store";
 
     const drive = {
         length: 210,
@@ -48,6 +49,8 @@
         // Extract the data
         const data = driveData[0].data;
 
+        console.log("Drive data: ", data);
+
         // Calculate total frames
         const totalFrames = data.length;
 
@@ -87,8 +90,11 @@
         });
 
         try {
-            const driveDirectory =
+            var dName = get(directoryName);
+            var driveDirectory =
                 await window.electronAPI.getDrivesDirectory();
+            // Append dName to the driveDirectory
+            driveDirectory = `${driveDirectory}\\${dName}`;
             driveData = await window.electronAPI.readDriveLog(driveDirectory);
             console.log("Drive directory:", driveDirectory);
             console.log("Drive data: ", driveData);
