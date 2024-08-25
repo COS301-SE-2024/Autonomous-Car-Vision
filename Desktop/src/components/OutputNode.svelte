@@ -1,9 +1,12 @@
 <script>
   import { Node, Anchor, generateInput, generateOutput, Toggle } from "svelvet";
-
+  import { Switch } from "svelte-materialify";
   import { outputPipe } from "../stores/store";
+  import { onMount } from "svelte";
 
-  outputPipe.set([false, false, false, false]);
+  onMount(() => {
+    outputPipe.set([false, false, false, false]);
+  });
 
   export let identifier = "";
   export let connectors = [];
@@ -11,11 +14,6 @@
   export let label = "Output";
   export let bgColor = "lightblue";
 
-  let lidarState = false;
-  let boundingBoxesState = false;
-  let filteredDataState = false;
-  let allState = false;
-  
   // * @property {string} imageURL
   /**
    * @typedef {Object} InputStructure
@@ -26,8 +24,7 @@
    * @type {InputStructure}
    */
   let inputStructure = {
-    imageURL: "",
-    options: [false, false, false, false], // Array to hold the state of the four options
+    null: "",
   };
 
   // Create initial values for your parameters
@@ -35,52 +32,25 @@
    * @type {InputStructure}
    */
   const initialData = {
-    // imageURL: "images/static_processed_output.png",
-    options: [false, false, false, false], // Default state of toggles
-  };
-
-  // Specify processor function
-  const processor = (inputs) => {
-    return inputs.options;
+    null: ""
   };
 
   // Generate a formatted inputs store
   let inputs = generateInput(initialData);
-  const output = generateOutput(inputs, processor);
 
   const key = Object.entries($inputs)[0][0];
 
-  function toggleLidar() {
-    lidarState = !lidarState;
-    allState = false;
-
-    outputPipe.set([lidarState,boundingBoxesState,filteredDataState,allState]);
-  }
-
-  function toggleBoundingBoxes() {
-    boundingBoxesState = !boundingBoxesState;
-    allState = false;
-
-    outputPipe.set([lidarState,boundingBoxesState,filteredDataState,allState]);
-  }
-
-  function toggleFilteredData() {
-    filteredDataState = !filteredDataState;
-    allState = false;
-
-    outputPipe.set([lidarState,boundingBoxesState,filteredDataState,allState]);
-  }
-
-  function toggleAll() {
-    lidarState = false;
-    boundingBoxesState = false;
-    filteredDataState = false;
-    allState = !allState;
-
-    outputPipe.set([lidarState,boundingBoxesState,filteredDataState,allState]);
+  outputPipe.subscribe(() => {
+    if ($outputPipe[0] && $outputPipe[1] && $outputPipe[2]) {
+      outputPipe.set([false, false, false, true]);    }
+    if (
+      ($outputPipe[0] || $outputPipe[1] || $outputPipe[2]) &&
+      $outputPipe[3]
+    ) {
+      $outputPipe[3] = false;
+    }
     console.log($outputPipe);
-  }
-
+  });
 </script>
 
 <Node
@@ -95,6 +65,7 @@
   useDefaults
   {label}
   {bgColor}
+  editable={false}
 >
   <div class="node" class:selected>
     <div class="body h-full">
@@ -102,49 +73,41 @@
         <h1 class="text-3xl font-bold">{label}</h1>
       </div>
       <div class="input-anchors">
-        <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
+        <Anchor dynamic bgColor="green" {key} input />
       </div>
-      
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="toggle-switch" on:click={toggleLidar}>
-        <input type="checkbox" bind:checked={lidarState} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label>Lidar: {lidarState ? 'ON' : 'OFF'}</label>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[0]} value={false}></Switch>
+        <p class="text-xl">
+          Lidar
+        </p>
       </div>
-
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="toggle-switch" on:click={toggleBoundingBoxes}>
-        <input type="checkbox" bind:checked={boundingBoxesState} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label>Bounding boxes: {boundingBoxesState ? 'ON' : 'OFF'}</label>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[1]} value={false}
+          ></Switch
+        >
+        <p class="text-xl">
+          Bounding Boxes
+        </p>
       </div>
-      
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="toggle-switch" on:click={toggleFilteredData}>
-        <input type="checkbox" bind:checked={filteredDataState} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label>Filtered data: {filteredDataState ? 'ON' : 'OFF'}</label>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[2]} value={false}
+          ></Switch
+        >
+        <p class="text-xl">
+          Filtered Data
+        </p>
       </div>
-      
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="toggle-switch" on:click={toggleAll}>
-        <input type="checkbox" bind:checked={allState} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label>All: {allState ? 'ON' : 'OFF'}</label>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[3]} value={false}></Switch>
+        <p class="text-xl">
+          All
+        </p>
       </div>
     </div>
   </div>
 </Node>
 
 <style>
-  .toggle-switch {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 75%;
-    margin: 0 auto;
-  }
-
   .body {
     display: flex;
     flex-direction: column;
@@ -154,19 +117,18 @@
     height: 100%;
   }
 
+  .switches {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .node {
     width: 100%;
     height: 100%;
     justify-content: center;
   }
-
-  /* .output {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80%;
-    width: 80%;
-  } */
 
   .input-anchors {
     position: absolute;

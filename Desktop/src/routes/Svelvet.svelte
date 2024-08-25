@@ -14,22 +14,15 @@
   import { canvas } from "../stores/store";
   import toast, { Toaster } from "svelte-french-toast";
   import { push } from "svelte-spa-router";
-  import { warp_pipe } from "../stores/store";
+  import QuantamLoader from "../components/QuantamLoader.svelte";
+  import { outputPipe } from "../stores/store";
 
   let nodes = writable([]);
   let edges = writable([]);
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
-  let showToolTip = false;
-
-  // Variables for when you need to put the images inside after running the pipe
-  let pipeRunModal = false;
-  let preProcessImg =
-    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
-  let postProcessImg =
-    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
-  let dotPLYFile = "";
+  let runningPipe = false;
 
   let nodeTypes = [
     {
@@ -152,6 +145,20 @@
   function SaveCanvas() {
     const currentNodes = get(nodes);
     const currentEdges = get(edges);
+    if (currentNodes.length == 2) {
+      toast.error("Please add units to your pipe!", {
+        duration: 5000,
+        position: "top-center",
+      });
+      return;
+    }
+    if (currentEdges < 1) {
+      toast.error("Please create a pipe before saving!", {
+        duration: 5000,
+        position: "top-center",
+      });
+      return;
+    }
     console.log("EDGES: ", currentEdges);
     const canvasState = { nodes: currentNodes, edges: currentEdges };
     const jsonParse = JSON.stringify(canvasState);
@@ -274,7 +281,7 @@
     let hasTaggrUnit = false;
     if (
       tokens[0] !== "inputUnit" ||
-      tokens[tokens.length - 1] !== "outputUnit"
+      !tokens[tokens.length - 1].includes("outputUnit")
     ) {
       toast.error(
         "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
@@ -347,7 +354,20 @@
       }
     });
 
-    const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
+    let labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
+
+    if ($outputPipe[3]) {
+      labeledPipeString += ".all";
+    }
+    if ($outputPipe[0]) {
+      labeledPipeString += ".lidar";
+    }
+    if ($outputPipe[1]) {
+      labeledPipeString += ".bb";
+    }
+    if ($outputPipe[2]) {
+      labeledPipeString += ".taggr";
+    }
 
     console.log("Labeled Pipe String:", labeledPipeString);
     // Convert to JSON string
@@ -355,7 +375,7 @@
 
     if (validatePipe(labeledPipeString)) {
       await window.electronAPI.savePipeJson(jsonPayload);
-      warp_pipe.set(labeledPipeString);
+      // warp_pipe.set(labeledPipeString);
     } else {
       toast.error("Invalid pipe");
     }
@@ -435,10 +455,23 @@
     nodes.set([inputNode, outputNode]);
   }
 
-  function runPipe() {
-    // Send to WarpPipe Page
+  async function spawnP() {
+    const appPath = await window.electronAPI.getAppPath();
+    const appDirectory = await window.electronAPI.resolvePath(appPath, "..");
+    let scriptPath = `${appDirectory}/Process/pipe4/bobTheBuilder.py`;
+    // const dirPath = `${appDirectory}/Desktop/testData`;
+    window.electronAPI.runPythonScript2(scriptPath);
+  }
 
-    push("/warp_pipe")
+  async function runPipe() {
+    runningPipe = true;
+    // RUN PIPE
+
+    await spawnP();
+
+    // Send to WarpPipe Page
+    runningPipe = false;
+    push("/warp_pipe");
   }
 
   onMount(() => {
@@ -462,7 +495,7 @@
         {/each}
       </select>
     </div>
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2 items-center">
       <!-- <Button on:click={LoadCanvas} class="bg-dark-primary text-dark-background"
               >Load Prev</Button
             > -->
@@ -483,20 +516,17 @@
           rounded
           on:click={runPipe}
           class="bg-dark-primary text-dark-background cursor-default"
-          >Run Pipe
+        >
+          {#if runningPipe}
+            <QuantamLoader />
+          {:else}
+            Run Pipe
+          {/if}
         </Button>
       {:else}
-      <Tooltip bottom bind:active={showToolTip}>
-        <Button
-        disabled
-        rounded
-        on:mouseover={() => showToolTip = !showToolTip}
-        on:click={runPipe}
-        class="bg-dark-primary text-dark-background"
-        >Run Pipe
-        <span slot='tip'>Save a pipe first</span>
-      </Button>
-    </Tooltip>
+        <Button disabled rounded class="bg-dark-primary text-dark-background"
+          >Run Pipe
+        </Button>
       {/if}
     </div>
   </div>
@@ -548,19 +578,5 @@
     justify-content: center;
     border: 1px solid #ccc;
     margin-top: 10px;
-  }
-
-  .runPipe {
-    background-color: #ccccccc0;
-    border-radius: 12px;
-    position: fixed;
-    top: 50%;
-    left: 55%;
-    transform: translate(-55%, -50%);
-  }
-
-  .threeJSwindow {
-    height: 100%;
-    width: 100%;
   }
 </style>

@@ -61,10 +61,11 @@
   id={identifier}
   connections={connectors}
   width={400}
-  height={400}
+  height={300}
   useDefaults
   {label}
   {bgColor}
+  editable={false}
 >
   <div class="node">
     <div class="body">
