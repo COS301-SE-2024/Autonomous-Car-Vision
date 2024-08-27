@@ -25,6 +25,9 @@ brokerVenv/
 processVenv/
 .venv/
 
+# Django
+Migrations
+
 # IDE specific
 .idea
 .vscode
