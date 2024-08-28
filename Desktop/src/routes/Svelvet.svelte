@@ -456,11 +456,16 @@
   }
 
   async function spawnP() {
-    const appPath = await window.electronAPI.getAppPath();
-    const appDirectory = await window.electronAPI.resolvePath(appPath, "..");
-    let scriptPath = `${appDirectory}/Process/pipe4/bobTheBuilder.py`;
-    // const dirPath = `${appDirectory}/Desktop/testData`;
-    window.electronAPI.runPythonScript2(scriptPath);
+    try {
+      const appPath = await window.electronAPI.getAppPath();
+      const appDirectory = await window.electronAPI.resolvePath(appPath, "..");
+      let scriptPath = `${appDirectory}/Process/pipe4/bobTheBuilder.py`;
+      // const dirPath = `${appDirectory}/Desktop/testData`;
+      await window.electronAPI.runPythonScript2(scriptPath);
+    } catch (error) {
+      console.error("Error running Python script:", error);
+      throw error; // Re-throw to ensure `runPipe` knows it failed
+    }
   }
 
   async function runPipe() {
@@ -468,9 +473,11 @@
     // RUN PIPE
 
     await spawnP();
+    console.log("Finished spawnP. Pushing to /warp_pipe...");
 
     // Send to WarpPipe Page
     runningPipe = false;
+    console.log("PUSH: ", $outputPipe);
     push("/warp_pipe");
   }
 

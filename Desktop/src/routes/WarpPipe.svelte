@@ -20,7 +20,7 @@
     let pitchObject, yawObject;
     let showTooltip = false;
 
-    let npyFile = 'testData/frame_000300_raw_lidar.npy';
+    let npyFile = "testData/frame_000300_raw_lidar.npy";
 
     function applyJetColormap(geometry) {
         const positions = geometry.attributes.position.array;
@@ -61,7 +61,7 @@
 
         // Use PointerLockControls for camera rotation
         controls = new PointerLockControls(camera, renderer.domElement);
-        let plyFile = 'testData/pointMap.ply';
+        let plyFile = "testData/combined_map.ply";
         const loader = new PLYLoader();
         loader.load(plyFile, (geometry) => {
             geometry.computeBoundingBox();
@@ -182,6 +182,12 @@
         processed_image: "testData/processed_image.png",
     };
 
+    function moveDown() {
+        console.log($outputPipe);
+        canvas.scrollIntoView({ behavior: "smooth", block: "center" });
+        console.log("TEST MOVE")
+    }
+
     function back() {
         push("/svelvet");
     }
@@ -191,50 +197,69 @@
     <div class="">
         <div class="w-full flex justify-start p-2">
             <Tooltip right bind:active={showTooltip}>
-                <Button class="text-white p-2" icon on:click={back} on:mouseover={() => showTooltip = !showTooltip}>
+                <Button
+                    class="text-white p-2"
+                    icon
+                    on:click={back}
+                    on:mouseover={() => (showTooltip = !showTooltip)}
+                >
                     <Icon path={mdiArrowLeft} size={32} />
                 </Button>
                 <span slot="tip">Back</span>
             </Tooltip>
         </div>
-        <div class="grid grid-cols-5">
-            <div class="grid-cols-1 object-cover">
+        <div class="flex flex-row justify-evenly">
+            <div class="object-cover">
                 <!-- svelte-ignore a11y-img-redundant-alt -->
                 <ImagePopout image={output.original} alt="Original Image" />
             </div>
-            <div class="grid-cols-1 object-cover">
+            {#if $outputPipe[0] || $outputPipe[3]}
+                <div class="object-cover">
+                    <!-- svelte-ignore a11y-img-redundant-alt -->
+                    <ImagePopout image={output.lidar} alt="Lidar Image" />
+                </div>
+            {/if}
+            {#if $outputPipe[1] || $outputPipe[3]}
+                <div class="object-cover">
+                    <!-- svelte-ignore a11y-img-redundant-alt -->
+                    <ImagePopout image={output.bb} alt="Bounding Box Image" />
+                </div>
+            {/if}
+            {#if $outputPipe[2] || $outputPipe[3]}
+                <div class="object-cover">
+                    <!-- svelte-ignore a11y-img-redundant-alt -->
+                    <ImagePopout image={output.taggr} alt="Taggr Image" />
+                </div>
+            {/if}
+            <div class="object-cover">
                 <!-- svelte-ignore a11y-img-redundant-alt -->
-                <ImagePopout image={output.lidar} alt="Lidar Image" />
-            </div>
-            <div class="grid-cols-1 object-cover">
-                <!-- svelte-ignore a11y-img-redundant-alt -->
-                <ImagePopout image={output.bb} alt="Bounding Box Image" />
-            </div>
-            <div class="grid-cols-1 object-cover">
-                <!-- svelte-ignore a11y-img-redundant-alt -->
-                <ImagePopout image={output.taggr} alt="Taggr Image" />
-            </div>
-            <div class="grid-cols-1 object-cover">
-                <!-- svelte-ignore a11y-img-redundant-alt -->
-                <ImagePopout image={output.processed_image} alt="Processed Image" />
+                <ImagePopout
+                    image={output.processed_image}
+                    alt="Processed Image"
+                />
             </div>
         </div>
-        <div class="grid grid-cols-2">
-            <div class="grid-cols-1 h-56">
-                <canvas bind:this={canvas} style="width: 100%; height: 100%;"
-                ></canvas>
-            </div>
-            <div class="grid-cols-1 h-56">
-                <canvas bind:this={canvas} style="width: 100%; height: 100%;"
+        <div class="h-1/2" on:click={moveDown} on:keydown>
+            <div class="h-auto">
+                <div
+                    class="absolute right-10 bottom-10 h-auto w-auto text-white"
+                >
+                    <h1 class="text-2xl">Controls</h1>
+                    <div>
+                        <p>Forward: W</p>
+                        <p>Right: D</p>
+                        <p>Left: A</p>
+                        <p>Backwards: S</p>
+                        <p>Up: Shift</p>
+                        <p>Down: Spacebar</p>
+                        <p>Press 'Esc' to leave</p>
+                    </div>
+                </div>
+                <canvas
+                    bind:this={canvas}
+                    style="width: 100%; height: 100%;"
                 ></canvas>
             </div>
         </div>
     </div>
 </ProtectedRoutes>
-
-
-<style>
-    img:hover {
-        transform: scale(1.2);
-    }
-</style>

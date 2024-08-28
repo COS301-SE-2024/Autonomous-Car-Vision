@@ -44,7 +44,7 @@
 <style>
     .mainImage:hover {
         cursor: pointer;
-        transform: scale(1.15);
+        transform: scale(1.1);
     }
 
     /* The Modal (background) */
