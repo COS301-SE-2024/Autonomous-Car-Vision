@@ -35,6 +35,7 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             enableRemoteModule: false,
+            webviewTag: true,
         },
         autoHideMenuBar: true,
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),

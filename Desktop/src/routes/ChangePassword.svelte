@@ -103,58 +103,60 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card">
       <div
-        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-1/2 border border-theme-keith-accentone space-y-3"
+        class="flex flex-col items-center justify-center p-4 rounded-lg shadow w-1/2 border space-y-3"
       >
         <h2
-          class="text-2xl font-bold mb-4 text-center text-theme-keith-accentone"
+          class="text-2xl font-bold mb-4 text-center "
         >
           Change Password
         </h2>
 
         <!-- Old Password -->
         <div class="mb-4 w-1/2">
-          <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
+          <!-- <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
             >Old Password</label
-          >
+          > -->
           <TextField
             id="oldPassword"
             type="password"
             bind:value={oldPassword}
-            class="w-full p-2 border border-green rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          > Old Password</TextField>
         </div>
 
         <!-- New Password -->
         <div class="mb-4 w-1/2">
-          <label for="newPassword" class="block text-theme-keith-accentone mb-1"
+          <!-- <label for="newPassword" class="block text-theme-keith-accentone mb-1"
             >New Password</label
-          >
+          > -->
           <TextField
             id="newPassword"
             type="password"
             bind:value={newPassword}
-            class="w-full p-2 border border--theme-keith-accentone rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          > New Password</TextField>
         </div>
 
         <!-- Confirm New Password -->
         <div class="mb-4 w-1/2">
-          <label
+          <!-- <label
             for="confirmPassword"
             class="block text-theme-keith-accentone mb-1"
-            >Confirm New Password</label
-          >
+            >Confirm New Password</label > -->
           <TextField
             id="confirmPassword"
             type="password"
             bind:value={confirmPassword}
             on:input={checkPasswordsMatch}
-            class="w-full p-2 border border--theme-keith-accentone rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          >Confirm New Password</TextField>
           {#if !passwordsMatch}
-            <p class="text-theme-keith-highlight mt-1">
+            <p class="text-red mt-1">
               The passwords do not match
             </p>
           {/if}
@@ -175,3 +177,7 @@
     </div>
   {/if}
 </ProtectedRoutes>
+
+<style>
+
+</style>

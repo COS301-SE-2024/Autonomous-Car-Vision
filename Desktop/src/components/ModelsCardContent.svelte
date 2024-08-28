@@ -3,21 +3,23 @@
     import { selectedModel } from "../stores/modelsStore.js"
     import { get } from "svelte/store";
    import {mdiArrowLeftBold} from "@mdi/js";
+   import { push } from "svelte-spa-router";
     
     export let Model= get(selectedModel);
 
-    const goBack = () => {
+    const goBack= () => {
       selectedModel.set(null);
+      push("/models");
     };
 </script>
 
 <div>
-  <Button
+  <button
         class="text-theme-dark-lightText border-none p-1 rounded cursor-pointer text-xs bg-theme-dark-background hover:bg-theme-dark-background transition-all duration-300 ease-in-out"
         on:click={goBack}> 
           <Icon path={mdiArrowLeftBold} />
         <span class="ml-2"> Back </span>
-        </Button>
+        </button>
   <div class="grid grid-cols-2 grid-rows-4 bg-theme-dark grid-rows-2 gap-2 p-4 shadow-lg w-full h-full">
     <!-- Video Section -->
     <div class="relative bg-theme-dark-primary rounded-lg block items-center justify-center col-span-1 row-span-2">
