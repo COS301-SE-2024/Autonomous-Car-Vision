@@ -44,7 +44,7 @@
 
   .container {
     --uib-size: 20px;
-    --uib-color: #0099ff;
+    --uib-color: #ffffff;
     --uib-speed: 1s;
     position: relative;
     height: var(--uib-size);

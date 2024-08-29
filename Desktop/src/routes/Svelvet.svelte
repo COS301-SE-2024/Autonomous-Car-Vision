@@ -8,25 +8,21 @@
   import InputNode from "../components/InputNode.svelte";
   import OutputNode from "../components/OutputNode.svelte";
   import ThreeJS from "./ThreeJS.svelte";
-  import { Button, Icon } from "svelte-materialify";
+  import { Button, Icon, Tooltip } from "svelte-materialify";
   import { mdiClose } from "@mdi/js";
   import { get } from "svelte/store";
   import { canvas } from "../stores/store";
   import toast, { Toaster } from "svelte-french-toast";
+  import { push } from "svelte-spa-router";
+  import QuantamLoader from "../components/QuantamLoader.svelte";
+  import { outputPipe } from "../stores/store";
 
   let nodes = writable([]);
   let edges = writable([]);
   let savedCanvas;
   let savedCanvases = [];
   let nodeIdCounter = 0;
-
-  // Variables for when you need to put the images inside after running the pipe
-  let pipeRunModal = false;
-  let preProcessImg =
-    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
-  let postProcessImg =
-    "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
-  let dotPLYFile = "";
+  let runningPipe = false;
 
   let nodeTypes = [
     {
@@ -149,6 +145,20 @@
   function SaveCanvas() {
     const currentNodes = get(nodes);
     const currentEdges = get(edges);
+    if (currentNodes.length == 2) {
+      toast.error("Please add units to your pipe!", {
+        duration: 5000,
+        position: "top-center",
+      });
+      return;
+    }
+    if (currentEdges < 1) {
+      toast.error("Please create a pipe before saving!", {
+        duration: 5000,
+        position: "top-center",
+      });
+      return;
+    }
     console.log("EDGES: ", currentEdges);
     const canvasState = { nodes: currentNodes, edges: currentEdges };
     const jsonParse = JSON.stringify(canvasState);
@@ -271,7 +281,7 @@
     let hasTaggrUnit = false;
     if (
       tokens[0] !== "inputUnit" ||
-      tokens[tokens.length - 1] !== "outputUnit"
+      !tokens[tokens.length - 1].includes("outputUnit")
     ) {
       toast.error(
         "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
@@ -344,15 +354,28 @@
       }
     });
 
-    const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
+    let labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
+
+    if ($outputPipe[3]) {
+      labeledPipeString += ".all";
+    }
+    if ($outputPipe[0]) {
+      labeledPipeString += ".lidar";
+    }
+    if ($outputPipe[1]) {
+      labeledPipeString += ".bb";
+    }
+    if ($outputPipe[2]) {
+      labeledPipeString += ".taggr";
+    }
 
     console.log("Labeled Pipe String:", labeledPipeString);
-
     // Convert to JSON string
     const jsonPayload = JSON.stringify({ pipe: labeledPipeString });
 
     if (validatePipe(labeledPipeString)) {
       await window.electronAPI.savePipeJson(jsonPayload);
+      // warp_pipe.set(labeledPipeString);
     } else {
       toast.error("Invalid pipe");
     }
@@ -432,13 +455,30 @@
     nodes.set([inputNode, outputNode]);
   }
 
-  function toggleRunModal() {
-    pipeRunModal = !pipeRunModal;
+  async function spawnP() {
+    try {
+      const appPath = await window.electronAPI.getAppPath();
+      const appDirectory = await window.electronAPI.resolvePath(appPath, "..");
+      let scriptPath = `${appDirectory}/Process/pipe4/bobTheBuilder.py`;
+      // const dirPath = `${appDirectory}/Desktop/testData`;
+      await window.electronAPI.runPythonScript2(scriptPath);
+    } catch (error) {
+      console.error("Error running Python script:", error);
+      throw error; // Re-throw to ensure `runPipe` knows it failed
+    }
   }
 
-  function runPipe() {
-    // Open modal of images
-    toggleRunModal();
+  async function runPipe() {
+    runningPipe = true;
+    // RUN PIPE
+
+    await spawnP();
+    console.log("Finished spawnP. Pushing to /warp_pipe...");
+
+    // Send to WarpPipe Page
+    runningPipe = false;
+    console.log("PUSH: ", $outputPipe);
+    push("/warp_pipe");
   }
 
   onMount(() => {
@@ -462,7 +502,7 @@
         {/each}
       </select>
     </div>
-    <div class="flex flex-row gap-2">
+    <div class="flex flex-row gap-2 items-center">
       <!-- <Button on:click={LoadCanvas} class="bg-dark-primary text-dark-background"
               >Load Prev</Button
             > -->
@@ -478,22 +518,23 @@
         class="bg-dark-primary text-dark-background"
         >Save Pipe
       </Button>
-      <!-- {#if savedCanvas}
+      {#if savedCanvas}
         <Button
           rounded
           on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
+          class="bg-dark-primary text-dark-background cursor-default"
+        >
+          {#if runningPipe}
+            <QuantamLoader />
+          {:else}
+            Run Pipe
+          {/if}
         </Button>
       {:else}
-        <Button
-          disabled
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
+        <Button disabled rounded class="bg-dark-primary text-dark-background"
           >Run Pipe
         </Button>
-      {/if} -->
+      {/if}
     </div>
   </div>
   <div class="canvas">
@@ -520,31 +561,6 @@
       {/each}
     </Svelvet>
   </div>
-  {#if pipeRunModal}
-    <div class="runPipe w-2/4 h-2/5 p-6">
-      <div>
-        <Button text on:click={() => (pipeRunModal = !pipeRunModal)}>
-          <Icon path={mdiClose} size={38}></Icon>
-        </Button>
-      </div>
-      <div class="flex items-center h-full">
-        <div class="w-full flex justify-between gap-10">
-          <div class="inputImagePre">
-            <h1 class="pb-10 text-3xl text-black text-center">
-              Input
-            </h1>
-            <img class="rounded-xl" src={preProcessImg} alt={preProcessImg} />
-          </div>
-          <div class="outputImagePost">
-            <h1 class="pb-10 text-3xl text-black text-center">
-              Output
-            </h1>
-            <img class="rounded-xl" src={postProcessImg} alt={postProcessImg} />
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
 </ProtectedRoutes>
 
 <style>
@@ -569,19 +585,5 @@
     justify-content: center;
     border: 1px solid #ccc;
     margin-top: 10px;
-  }
-
-  .runPipe {
-    background-color: #ccccccc0;
-    border-radius: 12px;
-    position: fixed;
-    top: 50%;
-    left: 55%;
-    transform: translate(-55%, -50%);
-  }
-
-  .threeJSwindow {
-    height: 100%;
-    width: 100%;
   }
 </style>

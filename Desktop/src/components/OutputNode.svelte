@@ -1,11 +1,12 @@
 <script>
-  import {
-    Node,
-    Anchor,
-    generateInput,
-    generateOutput,
-    Resizer,
-  } from "svelvet";
+  import { Node, Anchor, generateInput, generateOutput, Toggle } from "svelvet";
+  import { Switch } from "svelte-materialify";
+  import { outputPipe } from "../stores/store";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    outputPipe.set([false, false, false, false]);
+  });
 
   export let identifier = "";
   export let connectors = [];
@@ -13,18 +14,17 @@
   export let label = "Output";
   export let bgColor = "lightblue";
 
+  // * @property {string} imageURL
   /**
    * @typedef {Object} InputStructure
-   * @property {number} value1
-   * @property {number} value2
-   * @property {string} option
+   * @property {boolean[]} options
    */
 
   /**
    * @type {InputStructure}
    */
   let inputStructure = {
-    imageURL: "",
+    null: "",
   };
 
   // Create initial values for your parameters
@@ -32,28 +32,25 @@
    * @type {InputStructure}
    */
   const initialData = {
-    imageURL: "images/static_processed_output.png",
+    null: ""
   };
-
-  // Specify processor function
-  /**
-   * @param {InputStructure} inputs
-   * @returns {number}
-   */
-  const processor = (inputs) => {
-    return inputs.imageURL;
-  };
-
-  $: inputs => {
-    inputs = generateInput(initialData);
-    output = generateOutput(inputs, processor);
-  }
 
   // Generate a formatted inputs store
   let inputs = generateInput(initialData);
-  let output = generateOutput(inputs, processor);
 
   const key = Object.entries($inputs)[0][0];
+
+  outputPipe.subscribe(() => {
+    if ($outputPipe[0] && $outputPipe[1] && $outputPipe[2]) {
+      outputPipe.set([false, false, false, true]);    }
+    if (
+      ($outputPipe[0] || $outputPipe[1] || $outputPipe[2]) &&
+      $outputPipe[3]
+    ) {
+      $outputPipe[3] = false;
+    }
+    console.log($outputPipe);
+  });
 </script>
 
 <Node
@@ -68,6 +65,7 @@
   useDefaults
   {label}
   {bgColor}
+  editable={false}
 >
   <div class="node" class:selected>
     <div class="body h-full">
@@ -75,14 +73,36 @@
         <h1 class="text-3xl font-bold">{label}</h1>
       </div>
       <div class="input-anchors">
-        <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
+        <Anchor dynamic bgColor="green" {key} input />
       </div>
-      <!-- <div class="output">
-        {#if $output !== "noImage.jpeg"} -->
-          <!-- svelte-ignore a11y-img-redundant-alt -->
-          <!-- <img src={$output} alt="image.jpeg" /> -->
-        <!-- {/if} -->
-      <!-- </div> -->
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[0]} value={false}></Switch>
+        <p class="text-xl">
+          Lidar
+        </p>
+      </div>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[1]} value={false}
+          ></Switch
+        >
+        <p class="text-xl">
+          Bounding Boxes
+        </p>
+      </div>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[2]} value={false}
+          ></Switch
+        >
+        <p class="text-xl">
+          Filtered Data
+        </p>
+      </div>
+      <div class="switches justify-center">
+        <Switch bind:checked={$outputPipe[3]} value={false}></Switch>
+        <p class="text-xl">
+          All
+        </p>
+      </div>
     </div>
   </div>
 </Node>
@@ -97,18 +117,17 @@
     height: 100%;
   }
 
+  .switches {
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .node {
     width: 100%;
     height: 100%;
     justify-content: center;
-  }
-
-  .output {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80%;
-    width: 80%;
   }
 
   .input-anchors {

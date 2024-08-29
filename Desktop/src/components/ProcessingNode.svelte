@@ -63,7 +63,7 @@
   id={identifier}
   connections={connectors}
   width={400}
-  height={400}
+  height={300}
   useDefaults
   {label}
   {bgColor}
@@ -79,17 +79,6 @@
         <!-- <div>
           <Button rounded class="bg-dark-background text-dark-primary" onclick={DeleteNodeID}>Delete</Button>
         </div> -->
-      </div>
-      <div class="w-full h-full flex items-center justify-center flex-col">
-        <h1 class="text-2xl">
-            <!-- {$inputs} -->
-        </h1>
-        <!-- <div class="showImage"> -->
-          <!-- {#if $output !== "noImage.jpeg"} -->
-            <!-- svelte-ignore a11y-img-redundant-alt -->
-            <!-- <img src={$output} alt="image.jpeg" /> -->
-          <!-- {/if} -->
-        <!-- </div> -->
       </div>
       <div class="input-anchors">
         {#each Object.entries($inputs) as [key, value] (key)}

@@ -22,6 +22,7 @@ import Install from './Install.svelte'
 import TeamView from './TeamView.svelte'
 import TeamNetwork from './TeamNetwork.svelte'
 import Svelvet from './Svelvet.svelte'
+import WarpPipe from './WarpPipe.svelte'
 
 const routes = {
     '/': Home,
@@ -46,6 +47,7 @@ const routes = {
     '/teamView': TeamView,
     '/teamNetwork': TeamNetwork,
     '/svelvet': Svelvet,
+    '/warp_pipe': WarpPipe,
 };
 
 export default routes;
