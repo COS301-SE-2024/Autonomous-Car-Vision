@@ -976,6 +976,9 @@ def send_invite_email(request):
     emails = data.get("newMembers")
     teamName = data.get("teamName")
     
+    print("Team name: ", teamName)
+    print("Emails: ", emails)
+    
     if not emails or not teamName:
         return Response(
             {"error": "Emails and team name are required"}, status=status.HTTP_400_BAD_REQUEST
@@ -1007,7 +1010,7 @@ def send_invite_email(request):
         return Response(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-        
+    
 def send_invite(teamName, email, token):
     from_email = "bitforge.capstone@gmail.com"
     from_password = os.getenv("APP_PASSWORD")
@@ -1029,3 +1032,65 @@ def send_invite(teamName, email, token):
         print("Email sent successfully")
     except Exception as e:
         print(f"Failed to send email: {str(e)}")
+  
+@api_view(["POST"])
+@permission_classes([AllowAny])        
+def getTeamName(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    print("UID: ", uid)    
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        print("Team ID: ", teamID)
+        # teamName = Corporation.objects.get(cid=teamID).cname
+        teamName = teamID.cname
+        print("Team Name: ", teamName)
+        return Response(
+            {"teamName": teamName}, status=status.HTTP_200_OK
+        )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])        
+def getTeamMembers(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        teamMembers = User.objects.filter(cid=teamID)
+        
+        for member in teamMembers:
+            print(member.uname)
+        # return each member's name, email, and admin statusw
+        users = []
+        for member in teamMembers:
+            users.append({
+                "uname": member.uname,
+                "uemail": member.uemail,
+                "is_admin": member.is_admin
+            })
+        return Response(
+            {"teamMembers": users}, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )

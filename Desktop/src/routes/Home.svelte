@@ -22,11 +22,13 @@
       window.electronAPI.storeUid(response.data.uid);
       window.electronAPI.storeUname(response.data.uname);
       window.electronAPI.storeUemail(response.data.uemail);
+      window.electronAPI.storeTeamName("dev");
 
       console.log("Token:", window.electronAPI.getToken());
       console.log("UID:", window.electronAPI.getUid());
       console.log("UName:", window.electronAPI.getUname());
       console.log("UEmail:", window.electronAPI.getUemail());
+      console.log("TeamName:", window.electronAPI.getTeamName());
     } catch (error) {
       console.error("Failed to login as developer:", error);
       return;

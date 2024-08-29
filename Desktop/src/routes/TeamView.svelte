@@ -6,40 +6,43 @@
     import AddMember from "../components/AddMember.svelte";
     import { isLoading } from "../stores/loading";
     import Spinner from "../components/Spinner.svelte";
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
+    import axios from 'axios';
 
     let showAddPopup = false;
 
     const dispatch = createEventDispatcher();
 
-  function closeAddPopup() {
-    showAddPopup = false;
-  }
+    function closeAddPopup() {
+        showAddPopup = false;
+    }
 
-    const users = [
-        {
-            name: 'Felix',
-            email: 'felix@miro.com',
-            role: 'Member',
-            lastActivity: '-',
-            profilePhoto: ''
-        },
-        {
-            name: "Alice",
-            email: "alice@example.com",
-            role: "Admin",
-            lastActivity: "2023-09-15",
-            profilePhoto: ''
-        },
-        {
-            name: "Bob",
-            email: "bob@example.com",
-            role: "Member",
-            lastActivity: "2023-09-10",
-            profilePhoto: ''
+    let teamName = '';
+
+    onMount(async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/getTeamName/', {
+                uid: window.electronAPI.getUid(),
+            });
+            teamName = response.data.teamName;
+            console.log(teamName);
+        } catch (error) {
+            console.error(error);
         }
-        // Add more user objects here as needed
-    ];
+        });
+
+        let users = [];
+
+        onMount(async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/getTeamMembers/', {
+            uid: window.electronAPI.getUid(),
+            });
+            users = response.data.teamMembers;
+        } catch (error) {
+            console.error(error);
+        }
+        });     
 </script>
 
 <ProtectedRoutes>
@@ -50,7 +53,7 @@
     {:else}
         <div class="user-list text-theme-dark-lightText">
             <div class="header text-xl items-center text-center">
-                <h2>Team Name</h2>
+                <h2>{teamName}</h2>
             </div>
             <div class="flex text-white flex-row space-between">
                 <h3 class="px-5">Active Members</h3>
@@ -69,11 +72,11 @@
             </div>
             {#each users as user}
                 <TeamMember
-                    name={user.name}
-                    email={user.email}
-                    role={user.role}
-                    lastActivity={user.lastActivity}
-                    profilePhoto={user.profilePhoto}
+                    name={user.uname}
+                    email={user.uemail}
+                    role={user.is_admin === true ? "Admin" : "Member"}
+                    lastActivity={"We do not store this data yet"}
+                    profilePhoto={"https://i.pravatar.cc/150?img=1"}
                     
                 />
             {/each}

@@ -1,15 +1,18 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import axios from "axios";
   
     export let teamMember;
     const dispatch = createEventDispatcher();
   
     function closePopup() {
-    dispatch("closePopup");
+    dispatch("cancel");
   }
 
     function removeMember() {
-      dispatch("cancel");
+      dispatch("save");
+
+      // remove the member with a post request
     }
   
   </script>
