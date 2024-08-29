@@ -1078,11 +1078,12 @@ def getTeamMembers(request):
         teamMembers = User.objects.filter(cid=teamID)
         
         for member in teamMembers:
-            print(member.uname)
+            print("Member " + str(member.uid))
         # return each member's name, email, and admin statusw
         users = []
         for member in teamMembers:
             users.append({
+                "uid": member.uid,
                 "uname": member.uname,
                 "uemail": member.uemail,
                 "is_admin": member.is_admin
@@ -1093,4 +1094,46 @@ def getTeamMembers(request):
     except User.DoesNotExist:
         return Response(
             {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(["POST"])        
+@permission_classes([AllowAny])
+def removeMember(request):
+    data = request.data
+    uid = data.get("uid")
+    memberUID = data.get("memberUid")
+    
+    print(data)
+    
+    if not uid or not memberUID:
+        return Response(
+            {"error": "UID and member ID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+      
+    #! Put back soon    
+    if(uid == memberUID):
+        return Response(
+            {"error": "Cannot remove yourself"}, status=status.HTTP_400_BAD_REQUEST)    
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        member = User.objects.get(uid=memberUID)
+        print(member.uemail)
+        tokenCorporation = TokenCorporation.objects.get(email=member.uemail)
+        print(tokenCorporation.email)
+        
+        if member.cid == teamID:
+            member.delete()
+            tokenCorporation.delete()
+            return Response(
+                {"message": "Member removed successfully"}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "Member not in team"}, status=status.HTTP_400_BAD_REQUEST
+            )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID or member ID"}, status=status.HTTP_400_BAD_REQUEST
         )

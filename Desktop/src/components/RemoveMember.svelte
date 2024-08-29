@@ -3,6 +3,7 @@
     import axios from "axios";
   
     export let teamMember;
+    export let uid;
     const dispatch = createEventDispatcher();
   
     function closePopup() {
@@ -10,6 +11,18 @@
   }
 
     function removeMember() {
+      // make a post request to remove the member
+      axios
+        .post("http://localhost:8000/removeMember/", {
+          uid: window.electronAPI.getUid(),
+          memberUid: uid,
+        })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       dispatch("save");
 
       // remove the member with a post request

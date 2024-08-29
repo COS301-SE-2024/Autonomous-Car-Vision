@@ -72,6 +72,7 @@
             </div>
             {#each users as user}
                 <TeamMember
+                    uid={user.uid}
                     name={user.uname}
                     email={user.uemail}
                     role={user.is_admin === true ? "Admin" : "Member"}
