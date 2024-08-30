@@ -95,11 +95,11 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC")
+        test = os.getenv("PUBLIC_TEST")
         test = base64.b64decode(test)
 
-        # encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
-        # print("Encrypted message: ", encrypted_message)
+        encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
+        print("Encrypted message: ", encrypted_message)
 
         # Transmit the encrypted data
         response2 = await client.post(
@@ -123,9 +123,9 @@ async def install():
         session = cerberus.get_session(agent_private, server_ecdh2)
         capacity = ""
         if os.getenv("AGENT_TYPE") == "S":
-            capacity = "storage"
+            capacity = "store"
         elif os.getenv("AGENT_TYPE") == "P": 
-            capacity = "processing"
+            capacity = "process"
         else:
             capacity = "dual"       
             
@@ -133,7 +133,7 @@ async def install():
             session,
             json.dumps(
                 {
-                    "aip": "127.0.0.1",
+                    "aip": socket.gethostbyname(socket.gethostname()),
                     "aport": 8010,
                     "capacity": capacity,
                     "storage": 290.4,

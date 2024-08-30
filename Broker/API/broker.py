@@ -60,10 +60,6 @@ async def process(request: Request):
     message = await request.json()
     print("Message: ---------> ", message)
 
-
-
-
-
 @app.get("/agent")
 def agent():
     # So Obol refers to the journey of a soul to the underworld.
@@ -82,7 +78,7 @@ def agent():
     # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
-        f.write(f"PUBLIC={public}")
+        f.write(f"PUBLIC_TEST={public}")
 
     # subprocess.run(["makensis", "./package/setup.nsi"])
 
