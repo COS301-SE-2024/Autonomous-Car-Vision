@@ -42,6 +42,11 @@
 {/if}
 
 <style>
+    .mainImage {
+        border-radius: 15px;
+        max-height: 600px;
+    }
+
     .mainImage:hover {
         cursor: pointer;
         transform: scale(1.1);
@@ -66,7 +71,7 @@
         margin: auto;
         display: block;
         width: 80%;
-        max-width: 800px;
+        max-width: 900px;
     }
 
     /* Caption of Modal Image */

@@ -12,15 +12,19 @@
     // Components
     import ImagePopout from "../components/ImagePopout.svelte";
 
-    let canvas;
-    let camera, scene, renderer, controls;
+    let canvas1, canvas2;
+    let camera1,
+        camera2,
+        scene1,
+        scene2,
+        renderer1,
+        renderer2,
+        controls1,
+        controls2;
+    let activeCanvas = null; // Track the active canvas
     let keys = {};
-    let mouseX = 0,
-        mouseY = 0;
-    let pitchObject, yawObject;
+    let pitchObject1, yawObject1, pitchObject2, yawObject2;
     let showTooltip = false;
-
-    let npyFile = "testData/frame_000300_raw_lidar.npy";
 
     function applyJetColormap(geometry) {
         const positions = geometry.attributes.position.array;
@@ -47,7 +51,16 @@
         geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
     }
 
-    function initializeScene() {
+    function initializeScene(
+        canvas,
+        scene,
+        camera,
+        renderer,
+        controls,
+        yawObject,
+        pitchObject,
+        plyFile,
+    ) {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(
             60,
@@ -61,7 +74,6 @@
 
         // Use PointerLockControls for camera rotation
         controls = new PointerLockControls(camera, renderer.domElement);
-        let plyFile = "testData/combined_map.ply";
         const loader = new PLYLoader();
         loader.load(plyFile, (geometry) => {
             geometry.computeBoundingBox();
@@ -95,18 +107,7 @@
         // Add event listener to enable Pointer Lock on click
         canvas.addEventListener("click", () => {
             canvas.requestPointerLock();
-        });
-
-        // Add event listener to exit Pointer Lock on 'Escape' key
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") {
-                document.exitPointerLock();
-            }
-            keys[event.key] = true;
-        });
-
-        document.addEventListener("keyup", (event) => {
-            keys[event.key] = false;
+            activeCanvas = canvas; // Set this canvas as active
         });
 
         // Mouse movement event
@@ -126,51 +127,106 @@
             }
         });
 
-        // Handle yaw with 'Q' and 'E' keys
-        function handleYaw() {
-            const yawSpeed = 2;
-            if (keys["q"]) yawObject.rotation.y -= yawSpeed; // Yaw left
-            if (keys["e"]) yawObject.rotation.y += yawSpeed; // Yaw right
-        }
-
         function animate() {
             requestAnimationFrame(animate);
 
-            // Update camera movement based on keys
-            const speed = 3;
-            if (keys["w"]) camera.translateZ(-speed); // Move forward
-            if (keys["s"]) camera.translateZ(speed); // Move backward
-            if (keys["a"]) camera.translateX(-speed); // Move left
-            if (keys["d"]) camera.translateX(speed); // Move right
-            if (keys[" "]) camera.translateY(speed); // Move up
-            if (keys["Shift"]) camera.translateY(-speed); // Move down
+            if (activeCanvas === canvas) {
+                // Only move if this is the active canvas
+                // Update camera movement based on keys
+                const speed = 3;
 
-            // Apply yaw controls
-            handleYaw();
+                if (canvas === canvas1) {
+                    if (keys["w"]) camera.translateZ(-speed); // Move forward
+                    if (keys["s"]) camera.translateZ(speed); // Move backward
+                    if (keys["a"]) camera.translateX(-speed); // Move left
+                    if (keys["d"]) camera.translateX(speed); // Move right
+                    if (keys["e"]) camera.translateY(speed); // Move up
+                    if (keys["q"]) camera.translateY(-speed); // Move down
+                } else if (canvas === canvas2) {
+                    if (keys["i"]) camera.translateZ(-speed); // Move forward
+                    if (keys["k"]) camera.translateZ(speed); // Move backward
+                    if (keys["j"]) camera.translateX(-speed); // Move left
+                    if (keys["l"]) camera.translateX(speed); // Move right
+                    if (keys["o"]) camera.translateY(speed); // Move up
+                    if (keys["u"]) camera.translateY(-speed); // Move down
+                }
+            }
 
             renderer.render(scene, camera);
         }
 
         animate();
+
+        return { scene, camera, renderer, controls, yawObject, pitchObject };
     }
 
     onMount(() => {
-        initializeScene();
+        ({
+            scene: scene1,
+            camera: camera1,
+            renderer: renderer1,
+            controls: controls1,
+            yawObject: yawObject1,
+            pitchObject: pitchObject1,
+            plyFile: String,
+        } = initializeScene(
+            canvas1,
+            scene1,
+            camera1,
+            renderer1,
+            controls1,
+            yawObject1,
+            pitchObject1,
+            "testData/combined_map.ply"
+        ));
+
+        ({
+            scene: scene2,
+            camera: camera2,
+            renderer: renderer2,
+            controls: controls2,
+            yawObject: yawObject2,
+            pitchObject: pitchObject2,
+            plyFile: String,
+        } = initializeScene(
+            canvas2,
+            scene2,
+            camera2,
+            renderer2,
+            controls2,
+            yawObject2,
+            pitchObject2,
+            "testData/combined_map.ply"
+        ));
 
         // Handle window resizing
         function onWindowResize() {
             const width = window.innerWidth;
             const height = window.innerHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
+            renderer1.setSize(width, height);
+            renderer2.setSize(width, height);
+            camera1.aspect = width / height;
+            camera2.aspect = width / height;
+            camera1.updateProjectionMatrix();
+            camera2.updateProjectionMatrix();
         }
 
         window.addEventListener("resize", onWindowResize);
         onWindowResize();
 
+        // Handle keydown and keyup events
+        document.addEventListener("keydown", (event) => {
+            keys[event.key] = true;
+        });
+
+        document.addEventListener("keyup", (event) => {
+            keys[event.key] = false;
+        });
+
         return () => {
             window.removeEventListener("resize", onWindowResize);
+            document.removeEventListener("keydown");
+            document.removeEventListener("keyup");
         };
     });
 
@@ -182,10 +238,12 @@
         processed_image: "testData/processed_image.png",
     };
 
-    function moveDown() {
-        console.log($outputPipe);
-        canvas.scrollIntoView({ behavior: "smooth", block: "center" });
-        console.log("TEST MOVE")
+    function moveDown1() {
+        canvas1.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function moveDown2() {
+        canvas2.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
     function back() {
@@ -208,7 +266,7 @@
                 <span slot="tip">Back</span>
             </Tooltip>
         </div>
-        <div class="flex flex-row justify-evenly">
+        <div class="flex flex-row justify-evenly gap-3 px-2">
             <div class="object-cover">
                 <!-- svelte-ignore a11y-img-redundant-alt -->
                 <ImagePopout image={output.original} alt="Original Image" />
@@ -239,27 +297,51 @@
                 />
             </div>
         </div>
-        <div class="h-1/2" on:click={moveDown} on:keydown>
-            <div class="h-auto">
-                <div
-                    class="absolute right-10 bottom-10 h-auto w-auto text-white"
-                >
+        <div class="h-1/2">
+            <div class="flex flex-row gap-2 overflow-x-auto py-3 w-full">
+                <div class="relative left-10 top-6 h-0 w-0 text-white">
                     <h1 class="text-2xl">Controls</h1>
-                    <div>
+                    <div class="w-40">
                         <p>Forward: W</p>
                         <p>Right: D</p>
                         <p>Left: A</p>
-                        <p>Backwards: S</p>
-                        <p>Up: Shift</p>
-                        <p>Down: Spacebar</p>
+                        <p>Back: S</p>
+                        <p>Up: E</p>
+                        <p>Down: Q</p>
                         <p>Press 'Esc' to leave</p>
                     </div>
                 </div>
-                <canvas
-                    bind:this={canvas}
-                    style="width: 100%; height: 100%;"
+                <canvas bind:this={canvas1} on:click={moveDown1} on:keydown>
+                </canvas>
+                <div class="relative left-10 top-6 h-0 w-0 text-white">
+                    <h1 class="text-2xl">Controls</h1>
+                    <div class="w-40">
+                        <p>Forward: I</p>
+                        <p>Right: L</p>
+                        <p>Left: J</p>
+                        <p>Back: K</p>
+                        <p>Up: O</p>
+                        <p>Down: U</p>
+                        <p>Press 'Esc' to leave</p>
+                    </div>
+                </div>
+                <canvas class="pr-2" bind:this={canvas2} on:click={moveDown2} on:keydown
                 ></canvas>
             </div>
         </div>
     </div>
 </ProtectedRoutes>
+
+<style>
+    canvas {
+        padding: 0rem;
+        border-radius: 15px;
+        border-color: white;
+        width: 90% !important;
+        height: 100% !important;
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+</style>
