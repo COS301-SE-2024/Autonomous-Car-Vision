@@ -98,8 +98,8 @@ async def install():
         test = os.getenv("PUBLIC")
         test = base64.b64decode(test)
 
-        encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
-        print("Encrypted message: ", encrypted_message)
+        # encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
+        # print("Encrypted message: ", encrypted_message)
 
         # Transmit the encrypted data
         response2 = await client.post(
@@ -121,13 +121,21 @@ async def install():
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
         session = cerberus.get_session(agent_private, server_ecdh2)
+        capacity = ""
+        if os.getenv("AGENT_TYPE") == "S":
+            capacity = "storage"
+        elif os.getenv("AGENT_TYPE") == "P": 
+            capacity = "processing"
+        else:
+            capacity = "dual"       
+            
         message = cerberus.elyptic_encryptor(
             session,
             json.dumps(
                 {
                     "aip": "127.0.0.1",
                     "aport": 8010,
-                    "capacity": "dual",
+                    "capacity": capacity,
                     "storage": 290.4,
                     "identifier": "ACDC",
                 }
@@ -135,7 +143,7 @@ async def install():
         )
         response3 = await client.post(
             "http://127.0.0.1:8006/handshake",
-            json={"aid": os.getenv("AID"), "message": message},
+            json={"aid": os.getenv("AID"), "corporation": os.getenv("CORPORATION_NAME"), "message": message},
         )
         if response3.status_code != 200:
             raise HTTPException(

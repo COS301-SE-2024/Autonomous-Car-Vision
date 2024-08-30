@@ -33,12 +33,18 @@ def encrypt_message(public_key_pem, data):
     try:
         # Ensure the public key is in the correct string format
         if isinstance(public_key_pem, bytes):
+            print()
+            print("Public key")
+            print(hex(public_key_pem))
             public_key_pem = public_key_pem.decode("utf-8")
 
         # Load the public key
         public_key = serialization.load_pem_public_key(
             public_key_pem.encode("utf-8"), backend=default_backend()
         )
+        # public_key = serialization.load_pem_public_key(
+        #     unicode(public_key_pem, errors="replace"), backend=default_backend()
+        # )
         print("Public key loaded successfully")
 
         # Serialize the dictionary to a JSON string

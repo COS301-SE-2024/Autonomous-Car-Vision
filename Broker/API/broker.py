@@ -137,7 +137,7 @@ async def handshake(request: Request):
     sesion = charon.get_session(server_ecdh, agent_ecdh)
     decrypted_message = charon.elyptic_decryptor(sesion, message["message"])
     print(decrypted_message)
-    resp = media.registerAgent(decrypted_message, message["aid"])
+    resp = media.registerAgent(decrypted_message, message["aid"], message["corporation"])
     print(resp)
     return resp
 
