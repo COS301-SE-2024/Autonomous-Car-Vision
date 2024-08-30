@@ -60,7 +60,7 @@ class outputUnit(Unit):
             for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
-                cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
                 
                 if min_distances[i] is not None:
                     text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"

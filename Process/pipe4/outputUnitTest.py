@@ -27,7 +27,7 @@ class outputUnitTest(Unit):
     def process(self, data_token):
         image = data_token.get_sensor_data('camera')
         annotated_frame = image.copy()
-        min_distance = []
+        min_distances = []
         img_lidar = None
         img_taggr = None
         img_bb = None
