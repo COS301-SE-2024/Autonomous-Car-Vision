@@ -59,7 +59,7 @@ def load_lidar_data(file_path):
 
 
 def test_pipeline():
-    test_data_folder = 'testData'
+    test_data_folder = 'public/testData'
 
     camera_file_path = os.path.join(test_data_folder, 'frame_000300_raw.png')
     lidar_file_path = os.path.join(test_data_folder, 'frame_000300_raw_lidar.npy')

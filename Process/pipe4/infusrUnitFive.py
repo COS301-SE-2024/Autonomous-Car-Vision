@@ -4,18 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataToken import DataToken
 
-camera_parameters = {
-    'x': 0.15, 'y': 0.00, 'z': 1.65, 'roll': 0, 'pitch': -10, 'yaw': 0,
-    'width': 800, 'height': 600, 'fov': 90,
-    'sensor_label': 'camera', 'sensor_type': 'camera'
-}
-lidar_parameters = {
-    'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
-    'channels': 64, 'range': 100.0, 'lower_fov': -30, 'upper_fov': 30,
-    'points_per_second': 640000, 'rotation_frequency': 30,
-    'sensor_label': 'lidar', 'sensor_type': 'lidar'
-}
-
 class infusrUnit(Unit):
     def __init__(self):
         super().__init__(id="infusrUnit", input_type=DataToken, output_type=DataToken)
@@ -45,73 +33,30 @@ class infusrUnit(Unit):
         y = lidar_data[:, 1]
         z = lidar_data[:, 2]
         
-        x_offset = lidar_parameters['x'] - camera_parameters['x']
-        y_offset = lidar_parameters['y'] - camera_parameters['y']
-        z_offset = lidar_parameters['z'] - camera_parameters['z']
-        
-        roll_offset = lidar_parameters['roll'] + camera_parameters['roll']
-        pitch_offset = lidar_parameters['pitch'] + camera_parameters['pitch']
-        yaw_offset = lidar_parameters['yaw'] + camera_parameters['yaw']
-        
-        # Make a 4x4 0 matrix
-        M = np.array([
-            [1, 0, 0, 0],
+        angle_y = np.radians(-10)
+        R = np.array([
+            [np.cos(angle_y), 0, np.sin(angle_y),0],
             [0, 1, 0, 0],
-            [0, 0, 1, 0],
+            [-np.sin(angle_y), 0, np.cos(angle_y), 0],
             [0, 0, 0, 1]
         ])
-        
-        if roll_offset != 0:
-            angle_x = np.radians(roll_offset)
-            Rx = np.array([
-                [1, 0, 0, 0],
-                [0, np.cos(angle_x), -np.sin(angle_x), 0],
-                [0, np.sin(angle_x), np.cos(angle_x), 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Rx
-        
-        if pitch_offset != 0:
-            angle_y = np.radians(pitch_offset)
-            Ry = np.array([
-                [np.cos(angle_y), 0, np.sin(angle_y),0],
-                [0, 1, 0, 0],
-                [-np.sin(angle_y), 0, np.cos(angle_y), 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Ry
-            
-        if yaw_offset != 0:
-            angle_z = np.radians(yaw_offset)
-            Rz = np.array([
-                [np.cos(angle_z), -np.sin(angle_z), 0, 0],
-                [np.sin(angle_z), np.cos(angle_z), 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Rz
 
         t = np.array([
-            [1, 0, 0, x_offset],
-            [0, 1, 0, y_offset],
-            [0, 0, 1, z_offset],
+            [1, 0, 0, -0.15],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0.35],
             [0, 0, 0, 1]
         ])
         
         # Create empty array
         points_camera_rotate = np.empty((3, 0))
         
-        M = M @ t
-        
         for i in range(len(x)):
             # Cearate 4x1 matrix
             points_lidar_rotate = np.vstack([x[i], y[i], z[i], 1])
     
             # Apply transformations
-            rotated_points = M @ points_lidar_rotate
+            rotated_points = R @ t @ points_lidar_rotate
 
             # Stack the new points as a new column (axis=1)
             points_camera_rotate = np.hstack((points_camera_rotate, rotated_points[:3]))

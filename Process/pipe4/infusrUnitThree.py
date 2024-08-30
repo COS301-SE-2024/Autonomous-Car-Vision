@@ -3,32 +3,25 @@ from units import Unit
 import numpy as np
 import matplotlib.pyplot as plt
 from dataToken import DataToken
-
-camera_parameters = {
-    'x': 0.15, 'y': 0.00, 'z': 1.65, 'roll': 0, 'pitch': -10, 'yaw': 0,
-    'width': 800, 'height': 600, 'fov': 90,
-    'sensor_label': 'camera', 'sensor_type': 'camera'
-}
-lidar_parameters = {
-    'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
-    'channels': 64, 'range': 100.0, 'lower_fov': -30, 'upper_fov': 30,
-    'points_per_second': 640000, 'rotation_frequency': 30,
-    'sensor_label': 'lidar', 'sensor_type': 'lidar'
-}
+import cv2
 
 class infusrUnit(Unit):
     def __init__(self):
         super().__init__(id="infusrUnit", input_type=DataToken, output_type=DataToken)
+        # self.ai_model_unit = ai_model_unit  # Reference to the AI model unit (e.g., YOLO)
 
     def process(self, data_token):
+        # # Concurrently process LiDAR data and run AI inference
+        # def lidar_task():
+        #     # Perform LiDAR processing and normalization
         image = data_token.get_sensor_data('camera')
         lidar_data = data_token.get_sensor_data('lidar')
         integrated_image, results = self.integrate_lidar_with_image(image, lidar_data)
 
-        # Store the processed results back into the DataToken
+            # Store the processed results back into the DataToken
         data_token.add_processing_result(self.id, results)
 
-         # Set a flag to indicate that LiDAR data has been processed
+            # Set a flag to indicate that LiDAR data has been processed
         data_token.set_flag('has_lidar_data', True)
 
         # Pass the data_token to the next unit in the pipeline if it exists
@@ -45,77 +38,18 @@ class infusrUnit(Unit):
         y = lidar_data[:, 1]
         z = lidar_data[:, 2]
         
-        x_offset = lidar_parameters['x'] - camera_parameters['x']
-        y_offset = lidar_parameters['y'] - camera_parameters['y']
-        z_offset = lidar_parameters['z'] - camera_parameters['z']
-        
-        roll_offset = lidar_parameters['roll'] + camera_parameters['roll']
-        pitch_offset = lidar_parameters['pitch'] + camera_parameters['pitch']
-        yaw_offset = lidar_parameters['yaw'] + camera_parameters['yaw']
-        
-        # Make a 4x4 0 matrix
-        M = np.array([
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
+        angle_y = np.radians(-10)
+        R = np.array([
+            [np.cos(angle_y), 0, np.sin(angle_y)],
+            [0, 1, 0],
+            [-np.sin(angle_y), 0, np.cos(angle_y)]
         ])
-        
-        if roll_offset != 0:
-            angle_x = np.radians(roll_offset)
-            Rx = np.array([
-                [1, 0, 0, 0],
-                [0, np.cos(angle_x), -np.sin(angle_x), 0],
-                [0, np.sin(angle_x), np.cos(angle_x), 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Rx
-        
-        if pitch_offset != 0:
-            angle_y = np.radians(pitch_offset)
-            Ry = np.array([
-                [np.cos(angle_y), 0, np.sin(angle_y),0],
-                [0, 1, 0, 0],
-                [-np.sin(angle_y), 0, np.cos(angle_y), 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Ry
-            
-        if yaw_offset != 0:
-            angle_z = np.radians(yaw_offset)
-            Rz = np.array([
-                [np.cos(angle_z), -np.sin(angle_z), 0, 0],
-                [np.sin(angle_z), np.cos(angle_z), 0, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1]
-            ])
-            
-            M = M @ Rz
 
-        t = np.array([
-            [1, 0, 0, x_offset],
-            [0, 1, 0, y_offset],
-            [0, 0, 1, z_offset],
-            [0, 0, 0, 1]
-        ])
-        
-        # Create empty array
-        points_camera_rotate = np.empty((3, 0))
-        
-        M = M @ t
-        
-        for i in range(len(x)):
-            # Cearate 4x1 matrix
-            points_lidar_rotate = np.vstack([x[i], y[i], z[i], 1])
-    
-            # Apply transformations
-            rotated_points = M @ points_lidar_rotate
+        t = np.array([-0.15, 0.0, 0.35])
 
-            # Stack the new points as a new column (axis=1)
-            points_camera_rotate = np.hstack((points_camera_rotate, rotated_points[:3]))
-
+        # Transform filtered LiDAR points from LiDAR to camera coordinates
+        points_lidar_rotate = np.vstack((x, y, z))  # Create 3xN matrix
+        points_camera_rotate = R @ points_lidar_rotate + t[:, np.newaxis] 
         
         # Extract the rotated x, y, z coordinates
         x = points_camera_rotate[0, :]
@@ -145,6 +79,11 @@ class infusrUnit(Unit):
         if filtered_r.size == 0:
             return image, []
 
+        # Extract filtered x, y, z coordinates
+        x_filtered = filtered_data[:, 0]
+        y_filtered = filtered_data[:, 1]
+        z_filtered = filtered_data[:, 2]
+
         # Store indices and 3D world positions
         indices_in_fov = np.where(fov_mask)[0]
         world_positions = filtered_data  # This keeps the x, y, z of points within FOV
@@ -153,9 +92,24 @@ class infusrUnit(Unit):
         focal_length = image_width / (2 * np.tan(horizontal_fov))
         principal_point = np.array([image_width / 2, image_height / 2])
 
+        # Example extrinsic parameters - inverting the rotation to skew outward
+        angle_y = np.radians(0)  # Negative rotation around the y-axis (adjust this as needed)
+        R = np.array([
+            [np.cos(angle_y), 0, np.sin(angle_y)],
+            [0, 1, 0],
+            [-np.sin(angle_y), 0, np.cos(angle_y)]
+        ])
+
+        t = np.array([0.15, 0.0, 0.35])
+        # t = np.array([0, 0.0, 0])
+
+        # Transform filtered LiDAR points from LiDAR to camera coordinates
+        points_lidar = np.vstack((x_filtered, y_filtered, z_filtered))  # Create 3xN matrix
+        points_camera = R @ points_lidar + t[:, np.newaxis]  # Apply rotation and translation
+
         # Perspective projection
-        pixel_x = (focal_length * filtered_data[:, 1] / filtered_data[:, 0]) + principal_point[0]
-        pixel_y = (focal_length * (-filtered_data[:, 2] / filtered_data[:, 0])) + principal_point[1]
+        pixel_x = (focal_length * points_camera[1, :] / points_camera[0, :]) + principal_point[0]
+        pixel_y = (focal_length * (-points_camera[2, :] / points_camera[0, :])) + principal_point[1]
 
         # Filter based on valid pixel coordinates within the image dimensions
         valid_pixels_mask = (pixel_x >= 0) & (pixel_x < image_width) & (pixel_y >= 0) & (pixel_y < image_height)
@@ -172,6 +126,8 @@ class infusrUnit(Unit):
         cmap = plt.colormaps.get_cmap('plasma')  # Updated method for colormap
         colors = cmap(norm(filtered_r))[:, :3]  # Get RGB values from the colormap
         colors = (colors * 255).astype(int)
+        
+        self.draw_distances_opencv(image, pixel_x, pixel_y, filtered_r)
 
         return image, {
             'pixel_x': pixel_x,
@@ -181,3 +137,9 @@ class infusrUnit(Unit):
             'valid_indices': valid_indices,
             'filtered_r': filtered_r
         }
+        
+    def draw_distances_opencv(self, image, pixel_x, pixel_y, distances):
+        for x, y, distance in zip(pixel_x, pixel_y, distances):
+            if distance < 3:
+                text = f'{distance:.1f}'
+                cv2.putText(image, text, (x, y), cv2.CAP_PROP_FPS, 0.35, (255, 255, 255), 1, cv2.LINE_AA)
