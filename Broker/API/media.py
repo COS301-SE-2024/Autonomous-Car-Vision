@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import pool
 
-load_dotenv()
+load_dotenv("../../.env")
 
 dbname = os.getenv("POSTGRES_DB")
 user = os.getenv("POSTGRES_USER")

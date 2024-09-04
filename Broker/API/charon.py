@@ -14,6 +14,7 @@ import psycopg2
 import httpx
 from fastapi import HTTPException
 
+load_dotenv("../../.env")
 
 def obol():
     # Time to ferry a Soul
@@ -24,7 +25,6 @@ def obol():
     print("RSA KEY PAIR: ", init_key_pair)
 
     # establish connection to db
-    load_dotenv()
 
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
@@ -86,8 +86,6 @@ def asymmetric():
 
 
 def asymmetric_decryption(aid, message):
-    load_dotenv()
-
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
@@ -216,8 +214,6 @@ def encrypt_message(public_key_pem, public_key):
 
 
 def store_agent_keys(aid, ecdh_pub, rsa_pub):
-    load_dotenv()
-
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
@@ -260,7 +256,6 @@ def generate_broker_ecdh_keys(aid, agent_rsa_pub_pem):
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
     ).decode("utf-8")
 
-    load_dotenv()
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
@@ -350,8 +345,6 @@ def elyptic_decryptor(session_key, encrypted_message):
 
 
 def getECDH(aid):
-    load_dotenv()
-
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")
@@ -387,7 +380,6 @@ def getECDH(aid):
 
 def storeAgentECDH(aid, ecdh):
     print("Storing Agent exdh key", "\naid:", aid, "\necdh:", ecdh)
-    load_dotenv()
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASSWORD")

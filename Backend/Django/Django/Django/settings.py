@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-load_dotenv()
+load_dotenv("../../../../.env")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
