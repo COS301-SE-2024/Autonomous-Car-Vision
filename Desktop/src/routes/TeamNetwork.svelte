@@ -1,34 +1,66 @@
 <script>
-    import { onMount } from "svelte";
     import ProtectedRoutes from "./ProtectedRoutes.svelte";
-    import { writable } from "svelte/store";
+    import { Svelvet, Node, Anchor } from "svelvet";
+    import TeamNode from "../components/TeamNode.svelte";
 
-    import { Svelvet, Node } from "svelvet";
-
-    const team_Structure = [
+    // Define the initial nodes with anchors
+    let nodes = [
         {
-            id: 1,
-            name: "John Doe",
-            type: "Client",
+            id: "4",
+            type: "Manager",
+            position: { x: 500, y: -400 },
+            label: "Manager",
+            anchors: [
+                { id: "out6", type: "output", out: "1" },
+                { id: "out5", type: "output", out: "2" },
+                { id: "out4", type: "output", out: "3" },
+            ],
         },
         {
-            id: 2,
-            name: "Tester",
-            type: "Agent",
+            id: "1",
+            type: "Manager/Supervisor",
+            position: { x: 100, y: 100 },
+            label: "Supervisor",
+            anchors: [
+                { id: "in1", type: "input" },
+                { id: "out1", type: "output", out: "2" }, // output anchor for connections
+            ],
+        },
+        {
+            id: "2",
+            type: "Supervisor",
+            position: { x: 500, y: 300 },
+            label: "Supervisor",
+            anchors: [
+                { id: "in2", type: "input" }, // Input anchor for connections
+                { id: "out2", type: "output", out: "3" }, // Output anchor for connections
+            ],
+        },
+        {
+            id: "3",
+            type: "Client",
+            position: { x: 900, y: 500 },
+            label: "Client",
+            anchors: [
+                { id: "in3", type: "input" }, // Input anchor for connections
+            ],
         },
     ];
 
-    const nodes = writable([]);
-    const edges = writable([]);
-    let nodeIdCounter = 0;
-
-    onMount({});
+    function makeNodes(JsonPayload) {
+        // HIERARCHY
+        // BROKER
+        // Connected AGENTS
+    }
 </script>
 
 <ProtectedRoutes>
-    <div class="team"></div>
-    <Svelvet theme="dark">
-        <Node />
-        <Node bgColor="red" label="Node" />
+    <Svelvet TD fitView theme="dark" edgeStyle="bezier">
+        {#each nodes as node}
+            <TeamNode id={node.id} position={node.position} dimensions={ {width: 150, height: 100} } nodeData={node} />
+        {/each}
     </Svelvet>
 </ProtectedRoutes>
+
+<style>
+</style>
