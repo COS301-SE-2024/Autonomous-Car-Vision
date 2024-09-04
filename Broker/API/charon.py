@@ -14,7 +14,7 @@ import psycopg2
 import httpx
 from fastapi import HTTPException
 
-load_dotenv("../../.env")
+load_dotenv()
 
 def obol():
     # Time to ferry a Soul

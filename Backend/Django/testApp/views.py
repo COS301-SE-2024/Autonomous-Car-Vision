@@ -27,7 +27,7 @@ from datetime import datetime, timedelta, timezone
 import smtplib
 from dotenv import load_dotenv
 
-load_dotenv("../../../.env")
+load_dotenv()
 
 
 class UserViewSet(viewsets.ModelViewSet):
