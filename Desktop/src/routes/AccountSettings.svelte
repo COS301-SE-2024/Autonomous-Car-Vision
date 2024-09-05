@@ -1,5 +1,12 @@
 <script>
-  import { TextField, Button, Avatar, Icon } from "svelte-materialify";
+  import {
+    TextField,
+    Button,
+    Avatar,
+    MaterialAppMin,
+    Icon,
+    Tooltip,
+  } from "svelte-materialify";
   import { onMount } from "svelte";
   import axios from "axios";
   import { mdiAccount, mdiImageEdit } from "@mdi/js/mdi";
@@ -11,10 +18,12 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
-  let username = "myUsername";
-  let email = "username@gmail.com";
-  let profilePicture = "";
-  let isHovered = false;   // To track hover state
+  let user = {
+    username: "myUsername",
+    email: "username@gmail.com",
+    profile_picture: "", // Test Image "images/HighViz.png"
+  };
+  let isHovered = false; // To track hover state
   let fileInput; // For referencing the file input element
 
   const handleHover = () => {
@@ -35,9 +44,9 @@
     if (file) {
       const reader = new FileReader();
 
-      // Load the selected image and update profilePicture
+      // Load the selected image and update user.profile_picture
       reader.onload = (e) => {
-        profilePicture = e.target.result;
+        user.profile_picture = e.target.result;
       };
 
       reader.readAsDataURL(file); // Read the file as a data URL (base64)
@@ -66,7 +75,7 @@
           uname: username,
           uemail: email,
           token: window.electronAPI.getToken(),
-        }
+        },
       );
 
       console.log("token" + window.electronAPI.getToken());
@@ -103,97 +112,121 @@
     }
     setTimeout(() => {
       isLoading.set(false);
-    }, 4000);
+    }, 2000);
   });
 </script>
 
-<ProtectedRoutes>
-  {#if $isLoading}
-    <div class="flex justify-center">
-      <Spinner />
-    </div>
-  {:else}
-    <Toaster />
-    <div class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card">
-      <div
-        class="flex flex-col items-center justify-center p-4 shadow rounded-lg w-1/2 border space-y-3"
-      >
-        <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
-
-        <!-- Profile Picture -->
-        <div class="cursor-pointer flex flex-col items-center mb-4 space-y-3 rounded-full border avatar-image"  on:mouseenter={handleHover} on:mouseleave={handleMouseLeave}>
-          {#if profilePicture != ""}
-            <Avatar size="15rem">
-              <img src={profilePicture} alt="Avatar" class="avatar-image"/>
-              {#if isHovered}
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <div
-                class="absolute text-black p-2 cursor-pointer pencil-icon"
-                on:click={updateProfilePicture}>
-                <Icon path={mdiImageEdit} size="2rem" />
-              </div>
-            {/if}
-            </Avatar>
-          {:else}
-            <Avatar size="15rem" class="bg-theme-keith-jet">
-              <Icon path={mdiAccount} class="avatar-image"/>
-                {#if isHovered}
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <div
-                class="absolute text-black p-2 cursor-pointer pencil-icon"
-                on:click={updateProfilePicture}>
-                <Icon path={mdiImageEdit} size="2rem" />
-              </div>
-            {/if}
-            </Avatar>
-          {/if}
-        </div>
-          <!-- Hidden file input for image selection -->
-        <input
-        type="file"
-        accept="image/*"
-        containerStyles="border-color: #8492a6; color: black"
-        style="display:none;"
-        bind:this={fileInput}
-        on:change={handleFileChange}
-      />
-
-        <!-- Edit Username -->
-        <div class="mb-4 w-1/2">
-          <TextField bind:value={username} placeholder={username} outlined class="pt-4 border-b-2 border-dark-primary " id="username">Username</TextField>
-         
-        </div>
-
-        <!-- Edit Email -->
-        <div class="mb-4 w-1/2">
-          <TextField bind:value={email} placeholder={email} outlined class="pt-4 border-b-2 border-dark-primary " id="email" type="email">Email</TextField>
-        
-        </div>
-
-
-        <Button class="shadow-none rounded" on:click={changePassword}
-          >Change Password?</Button
-        >
-
-        <!-- Save Changes -->
-        <Button class="bg-theme-dark-backgroundBlue text-theme-dark-white rounded" on:click={saveChanges}
-          >Save Changes</Button
-        >
+<MaterialAppMin theme={"dark"}>
+  <ProtectedRoutes>
+    {#if $isLoading}
+      <div class="flex justify-center">
+        <Spinner />
       </div>
-    </div>
-  {/if}
-</ProtectedRoutes>
+    {:else}
+      <Toaster />
+      <div
+        class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card"
+      >
+        <div
+          class="flex flex-col items-center justify-center p-4 shadow rounded-lg w-1/2 max-w-md border space-y-3"
+        >
+          <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
+          <!-- Profile Picture -->
+          <div
+            class="flex flex-col items-center mb-4 space-y-3 rounded-full border avatar-image"
+            on:mouseenter={handleHover}
+            on:mouseleave={handleMouseLeave}
+          >
+            {#if user.profile_picture != ""}
+              <Avatar size="15rem">
+                <img
+                  src={user.profile_picture}
+                  alt="Avatar"
+                  class="avatar-image"
+                />
+                {#if isHovered}
+                  <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <div
+                    class="absolute text-dark-primary p-2 cursor-pointer pencil-icon"
+                    on:click={updateProfilePicture}
+                  >
+                    <Icon path={mdiImageEdit} size="2rem" />
+                  </div>
+                {/if}
+              </Avatar>
+            {:else}
+              <Avatar size="15rem" class="bg-theme-keith-jet">
+                <Icon path={mdiAccount} class="avatar-image" />
+                {#if isHovered}
+                  <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <div
+                    class="absolute text-dark-primary p-2 cursor-pointer pencil-icon"
+                    on:click={updateProfilePicture}
+                  >
+                    <Icon path={mdiImageEdit} size="2rem" />
+                  </div>
+                {/if}
+              </Avatar>
+            {/if}
+          </div>
+          <!-- Hidden file input for image selection -->
+          <input
+            type="file"
+            accept="image/*"
+            containerStyles="border-color: #8492a6; color: black"
+            style="display:none;"
+            bind:this={fileInput}
+            on:change={handleFileChange}
+          />
+
+          <!-- Edit Username -->
+          <div class="mb-2 w-1/2">
+            <TextField
+              bind:value={user.username}
+              placeholder={user.username}
+              outlined
+              dense
+              id="username">Username</TextField
+            >
+          </div>
+
+          <!-- Edit Email -->
+          <div class="mb-2 w-1/2">
+            <TextField
+              bind:value={user.email}
+              placeholder={user.email}
+              outlined
+              dense
+              id="email"
+              type="email">Email</TextField
+            >
+          </div>
+
+          <Button class="shadow-none rounded" on:click={changePassword}
+            >Change Password?</Button
+          >
+
+          <!-- Save Changes -->
+          <Button
+            class="bg-theme-dark-backgroundBlue text-theme-dark-white rounded"
+            on:click={saveChanges}>Save Changes</Button
+          >
+        </div>
+      </div>
+    {/if}
+  </ProtectedRoutes>
+</MaterialAppMin>
 
 <style>
-   /* Add smooth transition for opacity change */
-    .avatar-image {
+  /* Add smooth transition for opacity change */
+  .avatar-image {
     opacity: 1;
   }
 
-  /* Reduce opacity to 30% when hovered */
-   .avatar-image:hover {
-    opacity: 0.3;
+  /* Reduce opacity to 60% when hovered */
+  .avatar-image:hover {
+    opacity: 0.6;
     transition: opacity 0.3s ease;
   }
 
@@ -210,4 +243,4 @@
   .pencil-icon {
     opacity: 1;
   }
-  </style>
+</style>
