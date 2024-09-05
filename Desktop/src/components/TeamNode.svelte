@@ -43,9 +43,9 @@
     function setBGColour() {
         if (nodeType === "Manager") {
             bgColor = `red`;
-        } else if (nodeType === "Manager/Supervisor") {
-            bgColor = `#${getRanHex(6)}`;
-        } else if (nodeType === "Supervisor") {
+        } else if (nodeType === "Broker") {
+            bgColor = `blue`;
+        } else if (nodeType === "Agent") {
             bgColor = `#${getRanHex(6)}`;
         } else {
             bgColor = `#${getRanHex(6)}`;
@@ -55,6 +55,10 @@
     onMount(() => {
         setBGColour();
     });
+
+    function nodeClicked() {
+        console.log(`${nodeData.id} CLICKED: ${nodeData.label}`)
+    }
 </script>
 
 <Node
@@ -65,6 +69,7 @@
     height={dimensions.height}
     editable={false}
     {bgColor}
+    on:nodeClicked={nodeClicked}
 >
     <div class="flex flex-col justify-between h-full">
         <div class="flex flex-row justify-center">
@@ -98,7 +103,7 @@
                             {:else if nodeType == "Manager"}
                                 <Edge slot="edge" color="red" />
                             {:else if nodeType == "Manager/Supervisor"} -->
-                        <Edge slot="edge" color="white" />
+                        <Edge animate slot="edge" color="white" />
                         <!-- {:else}
                                 <Edge slot="edge" color="green" />
                             {/if} -->

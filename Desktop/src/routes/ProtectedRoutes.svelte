@@ -3,7 +3,6 @@
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
   import { navigate } from "@sveltejs/kit/navigation"; // If using SvelteKit for navigation
-  import Sidebar from "../components/Sidebar.svelte";
   import SidebarV2 from "../components/SidebarV2.svelte";
   import { sidebarWidth } from "../stores/store";
 

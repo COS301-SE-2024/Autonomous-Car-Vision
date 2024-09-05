@@ -61,9 +61,9 @@ app.on('activate', () => {
     }
 });
 
-// try {
-//     require('electron-reloader')(module)
-// } catch (_) { }
+try {
+    require('electron-reloader')(module)
+} catch (_) { }
 
 
 // Get app path
