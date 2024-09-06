@@ -5,14 +5,71 @@
   import { push } from "svelte-spa-router";
   import { token } from "../stores/auth";
 
-  onMount(() => {
+  let auth2 = null;
+
+  onMount(async () => {
     window.electronAPI.clearToken();
     window.electronAPI.clearUid();
     window.electronAPI.clearUname();
     window.electronAPI.clearUemail();
     window.electronAPI.clearPrevPath();
     window.electronAPI.clearTeamName();
+
+    try {
+      console.log("Initializing Google Auth");
+      await initGoogleAuth();
+      console.log("Google Auth initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize Google Auth", error);
+    }
   });
+
+  const initGoogleAuth = () => {
+    console.log("Loading Google API...");
+    return new Promise((resolve, reject) => {
+      gapi.load("auth2", () => {
+        console.log("Google API loaded successfully. Initializing auth2...");
+        gapi.auth2.init({
+          client_id: "448451185483-qng2088rib55c9lmlo9fn24rfgvre2vg.apps.googleusercontent.com", // Replace with your actual Client ID
+        }).then(() => {
+          auth2 = gapi.auth2.getAuthInstance();
+          console.log("Google Auth initialized successfully:", auth2);
+          resolve(auth2);
+        }).catch((error) => {
+          console.error("Error initializing Google Auth:", error);
+          reject(error);
+        });
+      });
+    });
+  };
+
+  // const googleLogin = async () => {
+  //   if (auth2) {
+  //     try {
+  //       console.log("Attempting Google Sign-In...");
+  //       const user = await auth2.signIn();
+  //       const profile = user.getBasicProfile();
+  //       console.log("ID: " + profile.getId());
+  //       console.log("Name: " + profile.getName());
+  //       console.log("Email: " + profile.getEmail());
+  //       console.log("Image URL: " + profile.getImageUrl());
+  //     } catch (error) {
+  //       console.error("Google Sign-In error:", error);
+  //     }
+  //   } else {
+  //     console.error("Google Auth instance not initialized yet");
+  //   }
+  // };
+
+  const googleLogin = async () => {
+    try {
+      const result = await window.electronAPI.googleSignIn();
+      console.log("Google Sign-In Result:", result);
+      // Handle the sign-in result (e.g., store user info, redirect)
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+    }
+  };
 
   const developerLogin = async () => {
     try {
@@ -72,6 +129,12 @@
             class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             Developer
+          </button>
+        </a>
+
+        <a href="#/" class="w-full" on:click={googleLogin}>
+          <button class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
+            Log In with Google
           </button>
         </a>
 

@@ -70,7 +70,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getFileSize: (filePath) => ipcRenderer.invoke('get-file-size', filePath),
     savePipeJson: async (jsonString) => { const result = await ipcRenderer.invoke('save-pipe-json', jsonString);  return result;},
     runPythonScript2: (scriptPath, args = []) => ipcRenderer.invoke('run-python-script2', scriptPath, args),
-
+    googleSignIn: () => ipcRenderer.invoke('google-sign-in'),
     // Optional: Listen for the script completion event
 
 });

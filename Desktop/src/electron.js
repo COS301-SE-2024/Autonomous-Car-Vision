@@ -10,7 +10,7 @@ const {Sequelize} = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-
+const {OAuth2Client} = require('google-auth-library');
 
 const os = require('os');
 const {Worker, isMainThread} = require('worker_threads');
@@ -1116,5 +1116,75 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
             console.error('Failed to start subprocess.', err);
             reject(err);
         });
+    });
+});
+
+const CLIENT_ID = '448451185483-com00djpad4io9ndn2tllh27dj29oh0b.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
+const REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob';
+const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+ipcMain.handle('google-sign-in', async () => {
+    // Generate the Google OAuth authorization URL
+    const url = client.generateAuthUrl({
+      access_type: 'offline', // Ensures we get a refresh token
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    
+    const authWindow = new BrowserWindow({
+      width: 500,
+      height: 600,
+      show: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        webSecurity: true, // Enable web security
+      }
+    });
+
+    authWindow.loadURL(url);
+    authWindow.show();
+
+    return new Promise((resolve, reject) => {
+      // Listen for URL navigation changes
+      const handleNavigation = async (url) => {
+        console.log("Navigated to URL:", url); // Log the URL to see where it's going
+        const raw_code = /code=([^&]*)/.exec(url) || null;
+        const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
+        const error = /\?error=(.+)$/.exec(url);
+
+        if (code) {
+          console.log("Authorization code found:", code);
+          authWindow.destroy();
+
+          try {
+            // Exchange the authorization code for access tokens
+            const { tokens } = await client.getToken(code);
+            client.setCredentials(tokens);
+            resolve(tokens); // Send the tokens to the frontend
+          } catch (tokenError) {
+            console.error('Token exchange error:', tokenError);
+            reject(tokenError);
+          }
+        } else if (error) {
+          console.error('Error during authentication:', error);
+          authWindow.destroy();
+          reject(new Error('Error during authentication: ' + error));
+        }
+      };
+
+      // Capture the navigation on both will-navigate and did-navigate events
+      authWindow.webContents.on('will-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      authWindow.webContents.on('did-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      // Close the window on redirect or when the user cancels authentication
+      authWindow.on('close', () => {
+        reject(new Error('User closed the OAuth window'));
+      });
     });
 });
