@@ -45,14 +45,8 @@
     };
 
     function setBGColour() {
-        if (nodeType === "Manager") {
-            bgColor = `red`;
-        } else if (nodeType === "Broker") {
+        if (nodeType === "Broker") {
             bgColor = `blue`;
-        } else if (nodeType === "Agent") {
-            bgColor = `#${getRanHex(6)}`;
-        } else {
-            bgColor = `#${getRanHex(6)}`;
         }
     }
 
@@ -70,21 +64,11 @@
         agentBooleans.fill(false);
         clientBooleans.fill(false);
 
-        // If the node has agents, mark them as selected
+        // If the node has clients, mark them as selected
         if (nodeData?.agents) {
             agentBooleans = agentBooleans.map((value, index) => {
-                return nodeData.agents.includes(String(index + 10))
-                    ? true
-                    : false;
+                return true;
             });
-        }
-
-        if (nodeType === "Client") {
-            clientBooleans[Number(nodeData.id) - 3] = true;
-        }
-
-        if(nodeType === "Manager") {
-            edgeColor = "green";
         }
 
         // Update the writable stores
@@ -100,13 +84,19 @@
     }
 
     function updateEdgeColor() {
-        // Update color based on agents or clients
-        if (nodeType === "Agent" && agents[Number(nodeData.id) - 10]) {
-            edgeColor = "blue"; // Example: change to blue if agent is active
-        } else if (nodeType === "Client" && clients[Number(nodeData.id) - 3]) {
-            edgeColor = "green"; // Example: change to green if client is active
+        // Check if the node is a Broker
+        if (nodeType === "Broker") {
+            // Check if any agent is active
+            const anyAgentActive = agents.some((agent) => agent);
+
+            // Set edge color based on the presence of active agents
+            if (anyAgentActive) {
+                edgeColor = "blue";
+            } else {
+                edgeColor = "gray"; // Default color if no active agents
+            }
         } else {
-            edgeColor = "gray"; // Default color
+            edgeColor = "gray"; // Default color if node is not a Broker
         }
     }
 
@@ -138,34 +128,13 @@
     {bgColor}
     on:nodeClicked={showConnectionToAgent}
 >
-    <div class="flex flex-col justify-between h-full">
-        <div class="flex flex-row justify-center">
-            {#each nodeData.anchors as anchor}
-                {#if anchor.type === "output"}
-                    <Anchor
-                        direction="north"
-                        locked
-                        output
-                        id={anchor.id}
-                        connections={[anchor.id, anchor.out]}
-                    >
-                        <Edge
-                            slot="edge"
-                            end="arrow"
-                            color={edgeColor}
-                        />
-                    </Anchor>
-                {/if}
-            {/each}
-        </div>
-        <h1 class="text-3xl text-center">
-            {nodeData.label}
-        </h1>
-        <div class="flex flex-row justify-center">
+    <div class="w-full flex flex-col justify-center h-full">
+        <div class="fixed h-full w-full flex justify-center items-center">
             {#each nodeData.anchors as anchor}
                 {#if anchor.type === "input"}
                     <Anchor
-                        direction="south"
+                        invisible
+                        direction="north"
                         locked
                         input
                         id={anchor.id}
@@ -174,6 +143,9 @@
                 {/if}
             {/each}
         </div>
+        <h1 class="text-3xl text-center">
+            {nodeData.label}
+        </h1>
     </div>
 </Node>
 

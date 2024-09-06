@@ -57,7 +57,7 @@
     }
 
     function showConnectionToAgent() {
-        console.log(nodeData);
+        console.log(nodeData.id);
         console.log(nodeType);
 
         // Reset all edge colors
@@ -70,21 +70,21 @@
         agentBooleans.fill(false);
         clientBooleans.fill(false);
 
-        // If the node has agents, mark them as selected
-        if (nodeData?.agents) {
-            agentBooleans = agentBooleans.map((value, index) => {
-                return nodeData.agents.includes(String(index + 10))
+        // If the node has clients, mark them as selected
+        if (nodeData?.clients) {
+            clientBooleans = clientBooleans.map((value, index) => {
+                return nodeData.clients.includes(String(index + 3))
                     ? true
-                    : false;
+                    : false;    
             });
         }
 
-        if (nodeType === "Client") {
-            clientBooleans[Number(nodeData.id) - 3] = true;
+        if (nodeType === "Agent") {
+            agentBooleans[Number(nodeData.id) - 10] = true;
         }
 
-        if(nodeType === "Manager") {
-            edgeColor = "green";
+        if(nodeType === "Broker") {
+            edgeColor = "blue";
         }
 
         // Update the writable stores
@@ -141,20 +141,14 @@
     <div class="flex flex-col justify-between h-full">
         <div class="flex flex-row justify-center">
             {#each nodeData.anchors as anchor}
-                {#if anchor.type === "output"}
+                {#if anchor.type === "input"}
                     <Anchor
                         direction="north"
                         locked
-                        output
+                        input
                         id={anchor.id}
-                        connections={[anchor.id, anchor.out]}
-                    >
-                        <Edge
-                            slot="edge"
-                            end="arrow"
-                            color={edgeColor}
-                        />
-                    </Anchor>
+                        connections={[anchor.id]}
+                    />
                 {/if}
             {/each}
         </div>
@@ -163,14 +157,16 @@
         </h1>
         <div class="flex flex-row justify-center">
             {#each nodeData.anchors as anchor}
-                {#if anchor.type === "input"}
+                {#if anchor.type === "output"}
                     <Anchor
                         direction="south"
                         locked
-                        input
+                        output
                         id={anchor.id}
-                        connections={[anchor.id]}
-                    />
+                        connections={[anchor.id, anchor.out]}
+                    >
+                        <Edge slot="edge" end="arrow" color={edgeColor} />
+                    </Anchor>
                 {/if}
             {/each}
         </div>
