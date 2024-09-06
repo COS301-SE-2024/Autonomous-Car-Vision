@@ -1,8 +1,9 @@
 /* global.css */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
+@tailwind base;
+/* @tailwind components; * */
+@tailwind utilities;
+@tailwind themes;
+/* @tailwind components; */
 
 .slider-input.connected {
     display: flex;
@@ -15,6 +16,6 @@
   }
 
   .primary-text{
-    color:#0099ff!important;
-    caret-color:#0099ff!important
+    color:#0099ff !important;
+    caret-color:#0099ff !important;
   }

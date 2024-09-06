@@ -6,6 +6,16 @@
   import Sidebar from "../components/Sidebar.svelte";
   import SidebarV2 from "../components/SidebarV2.svelte";
   import { sidebarWidth } from "../stores/store";
+  import { theme } from '../stores/themeStore';
+
+
+  let currentTheme;
+
+  // Subscribe to the theme store and apply the theme class
+  theme.subscribe(value => {
+    currentTheme = value;
+    document.documentElement.className = currentTheme; // Apply the theme to root HTML element
+  });
 
   let authToken;
 
@@ -62,9 +72,28 @@
 </script>
 
 <!-- Slot to render the protected content if authenticated -->
-<div
+ {#if $theme === 'highVizLight'}
+  <div
   class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary"
 >
+  <div class="side">
+    <div class="sidebar" style="width: {$sidebarWidth}px;">
+      <SidebarV2 width={$sidebarWidth} />
+    </div>
+    <div class="handle" on:mousedown={handleMouseDown} role="button" tabindex="0">
+      <div class="handle-inner"></div>
+    </div>
+  </div>
+  <div class="pr-2 pt-2 pb-2 h-screen">
+    <div class="main-contentLight" style="margin-left: {$sidebarWidth + 10}px;">
+      <slot />
+    </div>
+  </div>
+</div>
+{:else}
+  <div
+  class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary"
+  >
   <div class="side">
     <div class="sidebar" style="width: {$sidebarWidth}px;">
       <SidebarV2 width={$sidebarWidth} />
@@ -78,7 +107,9 @@
       <slot />
     </div>
   </div>
-</div>
+  </div>
+{/if}
+
 
 <style>
   .side {
@@ -125,7 +156,16 @@
     background-image: linear-gradient(180deg, #001524, #181818);
     border-radius: 15px;
   }
-  
+
+   .main-contentLight {
+    height: 100%;
+    overflow: auto;
+    background-image: linear-gradient(180deg, #F8F8F8, #B6D9E8);
+    border-radius: 15px;
+  }
+  .main-contentLight::-webkit-scrollbar {
+    display: none;
+  }
   .main-content::-webkit-scrollbar {
     display: none;
   }

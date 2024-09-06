@@ -11,6 +11,7 @@
   import { isUploadLoading } from "../stores/uploadLoading";
   import RingLoader from "../components/RingLoader.svelte";
   import axios from "axios";
+  import {theme} from '../stores/themeStore';
 
   export let videoSource = "";
   let filename = "";
@@ -144,6 +145,7 @@
     </div>
   {:else}
     <Toaster />
+    {#if $theme === 'highVizLight'}
     <div class="flex justify-center items-center h-screen">
       <div
         class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 h-fit"
@@ -163,7 +165,7 @@
         <div class="w-full flex items-center mt-4">
           <span class="flex-grow"></span>
           <button
-            class="bg-theme-dark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            class="bg-highVizLight-primary bg-opacity-70  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
             on:click={saveVideo}
             >Save
           </button>
@@ -175,5 +177,41 @@
         {/if}
       </div>
     </div>
+    {:else}
+    <div class="flex justify-center items-center h-screen">
+      <div
+        class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 h-fit"
+      >
+        {#if videoSource}
+          <video class="video-preview w-full mt-4" src={videoSource} controls>
+            <track kind="captions" />
+          </video>
+        {:else}
+          <Dropzone
+            on:drop={handleFilesSelect}
+            accept="video/*"
+            containerStyles="border-color: #8492a6; color: black"
+            multiple={false}
+          />
+        {/if}
+        <div class="w-full flex items-center mt-4">
+          <span class="flex-grow"></span>
+          <button
+            class="bg-theme-highVizDark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            on:click={saveVideo}
+            >Save
+          </button>
+        </div>
+        {#if isUploading}
+          <div class="flex justify-center">
+            <RingLoader />
+          </div>
+        {/if}
+      </div>
+    </div>
+    {/if}
+    
+
+    
   {/if}
 </ProtectedRoutes>
