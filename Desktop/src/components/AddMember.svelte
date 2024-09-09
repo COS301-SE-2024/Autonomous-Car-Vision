@@ -30,7 +30,7 @@
 {#if $theme === 'highVizLight'}
 <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
   <div
-    class="bg-highVizLight-accent p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
+    class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
   >
   <div id="form" class="flex flex-col gap-2 py-3 text-black">
     <TextField 
@@ -43,7 +43,7 @@
          slot="append"
          on:click={addMemberToList}
        >
-         <Icon path={mdiAccountPlus} class="text-white cursor-pointer"/>
+         <Icon path={mdiAccountPlus} class="cursor-pointer"/>
        </div>
     </TextField>
   </div>
