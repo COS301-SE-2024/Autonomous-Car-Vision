@@ -187,7 +187,12 @@ def signup(request):
     data = request.data
     salt = data["salt"]
     hashed_password = data["password"]
-    uid = random.randint(0, 999999999)
+    # check if uid is in request
+    uid = 0
+    if "uid" in data:
+        uid = data["uid"]
+    else:    
+        uid = random.randint(0, 9999999999)
     user_data = {
         "uid": uid,
         "uname": data["uname"],
@@ -1136,4 +1141,69 @@ def removeMember(request):
     except User.DoesNotExist:
         return Response(
             {"error": "Invalid UID or member ID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def userExists(request):
+    data = request.data
+    email = data.get("email")
+    
+    if not email:
+        return Response(
+            {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(uemail=email).exists():
+        # return team name too
+        user = User.objects.get(uemail=email)
+        teamID = user.cid
+        teamName = teamID.cname
+        return Response(
+            {"exists": True, "teamName": teamName}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"exists": False}, status=status.HTTP_200_OK
+        )   
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def addUser(request):
+    data = request.data
+    uid = data.get("uid")
+    uname = data.get("uname")
+    uemail = data.get("uemail")
+    cid = data.get("cid")
+    is_admin = data.get("is_admin")
+    
+    if not uid or not uname or not uemail or not cid:
+        return Response(
+            {"error": "UID, name, email, and team ID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(uid=uid).exists():
+        return Response(
+            {"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user_data = {
+            "uid": uid,
+            "uname": uname,
+            "uemail": uemail,
+            "cid": cid,
+            "is_admin": is_admin
+        }
+        
+        user_serializer = UserSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )

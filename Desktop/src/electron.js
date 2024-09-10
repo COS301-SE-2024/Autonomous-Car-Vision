@@ -11,6 +11,8 @@ const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
 const {OAuth2Client} = require('google-auth-library');
+// import ability to get .env data
+require('dotenv').config();
 
 const os = require('os');
 const {Worker, isMainThread} = require('worker_threads');
@@ -1118,11 +1120,7 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         });
     });
 });
-
-const CLIENT_ID = '448451185483-com00djpad4io9ndn2tllh27dj29oh0b.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob';
-const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+// const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 ipcMain.handle('google-sign-in', async () => {
     // Generate the Google OAuth authorization URL
