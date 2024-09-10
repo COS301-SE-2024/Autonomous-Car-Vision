@@ -74,14 +74,14 @@
             Developer
           </button>
         </a>
-
+<!-- 
         <a href="#/install" class="w-full">
           <button
             class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
           >
             WIP
           </button> 
-        </a>
+        </a> -->
       </div>
     </div>
 
