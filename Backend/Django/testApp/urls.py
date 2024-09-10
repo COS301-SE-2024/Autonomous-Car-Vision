@@ -36,7 +36,9 @@ from .views import (
     send_invite_email,
     getTeamName,
     getTeamMembers,
-    removeMember
+    removeMember,
+    userExists,
+    addUser,
 )
 
 router = DefaultRouter()
@@ -81,5 +83,7 @@ urlpatterns = [
     path("sendInviteEmail/", send_invite_email),
     path("getTeamName/", getTeamName),
     path("getTeamMembers/", getTeamMembers),
-    path("removeMember/", removeMember)
+    path("removeMember/", removeMember),
+    path("userExists/", userExists),
+    path("addUser/", addUser),
 ]

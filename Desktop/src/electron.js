@@ -10,7 +10,9 @@ const {Sequelize} = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-
+const {OAuth2Client} = require('google-auth-library');
+// import ability to get .env data
+require('dotenv').config();
 
 const os = require('os');
 const {Worker, isMainThread} = require('worker_threads');
@@ -1118,3 +1120,107 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         });
     });
 });
+// const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+ipcMain.handle('google-sign-in', async () => {
+    // Generate the Google OAuth authorization URL
+    const url = client.generateAuthUrl({
+      access_type: 'offline', // Ensures we get a refresh token
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    
+    const authWindow = new BrowserWindow({
+      width: 500,
+      height: 600,
+      show: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        webSecurity: true, // Enable web security
+      }
+    });
+
+    authWindow.loadURL(url);
+    authWindow.show();
+
+    return new Promise((resolve, reject) => {
+      // Listen for URL navigation changes
+      const handleNavigation = async (url) => {
+        console.log("Navigated to URL:", url); // Log the URL to see where it's going
+        const raw_code = /code=([^&]*)/.exec(url) || null;
+        const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
+        const error = /\?error=(.+)$/.exec(url);
+
+        if (code) {
+          console.log("Authorization code found:", code);
+          authWindow.destroy();
+
+          try {
+            // Exchange the authorization code for access tokens
+            const { tokens } = await client.getToken(code);
+            client.setCredentials(tokens);
+            resolve(tokens); // Send the tokens to the frontend
+          } catch (tokenError) {
+            console.error('Token exchange error:', tokenError);
+            reject(tokenError);
+          }
+        } else if (error) {
+          console.error('Error during authentication:', error);
+          authWindow.destroy();
+          reject(new Error('Error during authentication: ' + error));
+        }
+      };
+
+      // Capture the navigation on both will-navigate and did-navigate events
+      authWindow.webContents.on('will-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      authWindow.webContents.on('did-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      // Close the window on redirect or when the user cancels authentication
+      authWindow.on('close', () => {
+        reject(new Error('User closed the OAuth window'));
+      });
+    });
+});
+
+CLIENT_ID = process.env.CLIENT_ID;
+CLIENT_SECRET = process.env.CLIENT_SECRET;
+REDIRECT_URI = process.env.REDIRECT_URI;
+
+const oauth2Client = new OAuth2Client(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+  );
+
+ipcMain.handle('get-auth-url', async () => {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    return authUrl;
+  });
+  
+  ipcMain.handle('exchange-code', async (event, code) => {
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+      
+      const { data } = await oauth2Client.request({
+        url: 'https://www.googleapis.com/oauth2/v2/userinfo'
+      });
+  
+      return { 
+        success: true, 
+        user: data,
+        tokens: tokens
+      };
+    } catch (error) {
+      console.error('Error exchanging code:', error);
+      return { success: false, error: error.message };
+    }
+  });

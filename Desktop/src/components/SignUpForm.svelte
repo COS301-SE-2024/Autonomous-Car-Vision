@@ -23,6 +23,10 @@
       alert("Passwords do not match");
       return;
     }
+    if(pToken.length == 0){
+      alert("Password cannot be empty");
+      return;
+    }
     
     //! NEED TO MOVE SOON
     try {

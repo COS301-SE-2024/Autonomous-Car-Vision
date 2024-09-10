@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-signin-client_id" content="448451185483-com00djpad4io9ndn2tllh27dj29oh0b.apps.googleusercontent.com">
   <title>HighViz</title>
   <link rel="stylesheet" href="build/bundle.css">
   <!-- Include Three.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Include PLYLoader -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+  <!-- Google Auth -->
+  <script src="https://apis.google.com/js/api.js" async defer></script> 
+  <script src="https://apis.google.com/js/platform.js" async defer></script> 
 </head>
 <body style="user-select: none; background-image: linear-gradient(180deg, #001524, #181818);">
   <script src="build/bundle.js"></script>
+  <div id="app"></div>
 </body>
 </html>

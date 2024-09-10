@@ -27,6 +27,7 @@
  */
 declare module '$env/static/private' {
 	export const ALLUSERSPROFILE: string;
+	export const AMDRMSDKPATH: string;
 	export const APPDATA: string;
 	export const BERRY_BIN_FOLDER: string;
 	export const ChocolateyInstall: string;
@@ -40,7 +41,7 @@ declare module '$env/static/private' {
 	export const COREPACK_ENABLE_DOWNLOAD_PROMPT: string;
 	export const COREPACK_ROOT: string;
 	export const DriverData: string;
-	export const EFC_9200: string;
+	export const EFC_9432: string;
 	export const FPS_BROWSER_APP_PROFILE_STRING: string;
 	export const FPS_BROWSER_USER_PROFILE_STRING: string;
 	export const GIT_ASKPASS: string;
@@ -126,6 +127,7 @@ declare module '$env/static/public' {
 declare module '$env/dynamic/private' {
 	export const env: {
 		ALLUSERSPROFILE: string;
+		AMDRMSDKPATH: string;
 		APPDATA: string;
 		BERRY_BIN_FOLDER: string;
 		ChocolateyInstall: string;
@@ -139,7 +141,7 @@ declare module '$env/dynamic/private' {
 		COREPACK_ENABLE_DOWNLOAD_PROMPT: string;
 		COREPACK_ROOT: string;
 		DriverData: string;
-		EFC_9200: string;
+		EFC_9432: string;
 		FPS_BROWSER_APP_PROFILE_STRING: string;
 		FPS_BROWSER_USER_PROFILE_STRING: string;
 		GIT_ASKPASS: string;
