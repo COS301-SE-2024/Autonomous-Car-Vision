@@ -1188,3 +1188,41 @@ ipcMain.handle('google-sign-in', async () => {
       });
     });
 });
+
+CLIENT_ID = process.env.CLIENT_ID;
+CLIENT_SECRET = process.env.CLIENT_SECRET;
+REDIRECT_URI = process.env.REDIRECT_URI;
+
+const oauth2Client = new OAuth2Client(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+  );
+
+ipcMain.handle('get-auth-url', async () => {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    return authUrl;
+  });
+  
+  ipcMain.handle('exchange-code', async (event, code) => {
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+      
+      const { data } = await oauth2Client.request({
+        url: 'https://www.googleapis.com/oauth2/v2/userinfo'
+      });
+  
+      return { 
+        success: true, 
+        user: data,
+        tokens: tokens
+      };
+    } catch (error) {
+      console.error('Error exchanging code:', error);
+      return { success: false, error: error.message };
+    }
+  });
