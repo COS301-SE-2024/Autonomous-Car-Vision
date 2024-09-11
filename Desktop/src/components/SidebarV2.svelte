@@ -4,11 +4,11 @@
     import { Avatar, Icon } from "svelte-materialify";
     import {
         mdiViewGallery,
-        mdiUpload,
         mdiCloudPrintOutline,
         mdiHelpCircle,
         mdiAccountCog,
         mdiLogout,
+        mdiCar,
         mdiEyeRefresh,
         mdiAccountGroup,
         mdiAccountCheckOutline,
@@ -67,11 +67,6 @@
             name: "Gallery",
             route: "#/gallery",
             iconPath: mdiViewGallery,
-        },
-        {
-            name: "Upload",
-            route: "#/upload",
-            iconPath: mdiUpload,
         },
         {
             name: "Models",

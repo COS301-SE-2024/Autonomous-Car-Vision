@@ -4,7 +4,6 @@ import LogIn from './LogIn.svelte';
 import SignUp from './SignUp.svelte';
 import Help from './Help.svelte';
 
-import Upload from "./Upload.svelte"
 import OTP from "./OTP.svelte"
 import AccountSettings from "./AccountSettings.svelte"
 import Visualize from '../pages/Visualize.svelte'
@@ -30,7 +29,6 @@ const routes = {
     '/otp': OTP,
     '/gallery':Gallery,
     '/visualize': Visualize,
-    '/upload':Upload,
     '/models': ModelPage,
     '/accountsettings' : AccountSettings,
     '/changePassword': ChangePassword,
