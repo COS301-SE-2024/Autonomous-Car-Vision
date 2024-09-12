@@ -16,7 +16,6 @@
         mdiChevronUp,
         mdiChevronDown,
         mdiPipeDisconnected,
-        mdiCar,
     } from "@mdi/js";
 
     import ThemeToggler from "./ThemeToggler.svelte";
