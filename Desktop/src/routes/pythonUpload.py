@@ -18,6 +18,9 @@ def send_file(ip, port, filepath, uid, size, token, mid):
             "command": "SEND",
             "mid": mid
         }
+        
+        s.sendall(json.dumps(data).encode() + b"\0")
+        s.sendall(filename.encode() + b"\0")
 
         with open(filepath, "rb") as f:
             print(f"Sending file {filename}")
@@ -40,8 +43,5 @@ if __name__ == "__main__":
     size = sys.argv[5]
     token = sys.argv[6]
     mid = sys.argv[7]
-    
-    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid}")
-    print("Sending file...")
-    waitingForInput = input("Press any key to continue...")
+   
     send_file(ip, port, filepath, uid, size, token, mid)

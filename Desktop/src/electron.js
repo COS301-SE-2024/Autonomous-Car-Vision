@@ -712,20 +712,17 @@ ipcMain.handle('check-cuda', async () => {
 });
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
-    console.log("HI I AM HERE TO UPLOAD TO THE AGENT!!!!!!!");
-
     const scriptPath = 'src/routes/pythonUpload.py';
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
-    console.log("THIS IS MID!!!!: " + mid);
-    
-    const args = [ip, port, filepath, uid, size, token, mid];
-    console.log("ARGS: " + args);
+    const args = [ip, port, `"${filepath}"`, uid, size, token, mid];
+    console.log("ARGS: " + args.join(" "));
+
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
 
-        // Remove detached option to keep process attached
         const python = spawn('python', [scriptPath, ...args], {
+            detached: true,  // Keep process attached to parent
             stdio: ['ignore', 'pipe', 'pipe'], // Capture stdout and stderr
             shell: true,                       // Run through shell
             windowsHide: true                  // Hide terminal window on Windows
@@ -764,6 +761,7 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         });
     });
 });
+
 
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {

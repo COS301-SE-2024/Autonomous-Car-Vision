@@ -189,11 +189,11 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 data = json.loads(data)
                 print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
+                uid = data["uid"]
                 size = data["size"]
                 token = data["token"]
                 command = data["command"]
+                mid = data["mid"]
 
                 directory = f"./Download/{uid}/"
                 os.makedirs(directory, exist_ok=True)
