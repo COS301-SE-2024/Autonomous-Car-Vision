@@ -39,6 +39,8 @@ from .views import (
     removeMember,
     userExists,
     addUser,
+    getAllAgentsForUser,
+    storeToken,
 )
 
 router = DefaultRouter()
@@ -86,4 +88,6 @@ urlpatterns = [
     path("removeMember/", removeMember),
     path("userExists/", userExists),
     path("addUser/", addUser),
+    path("storeToken/", storeToken),
+    path("getAllAgentsForUser", getAllAgentsForUser),
 ]

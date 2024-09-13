@@ -63,9 +63,9 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) { }
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) { }
 
 
 // Get app path
@@ -712,16 +712,26 @@ ipcMain.handle('check-cuda', async () => {
 });
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
+    console.log("HI I AM HERE TO UPLOAD TO THE AGENT!!!!!!!");
+
     const scriptPath = 'src/routes/pythonUpload.py';
-    let rec = await LookupTable.findOne({where: {mname: mname, localurl: filepath, uid: uid}});
+    let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
-    console.log(mid);
+    console.log("THIS IS MID!!!!: " + mid);
+    
     const args = [ip, port, filepath, uid, size, token, mid];
-
+    console.log("ARGS: " + args);
     return new Promise((resolve, reject) => {
-        const {spawn} = require('child_process');
-        const python = spawn('python', [scriptPath, ...args]);
+        const { spawn } = require('child_process');
 
+        // Remove detached option to keep process attached
+        const python = spawn('python', [scriptPath, ...args], {
+            stdio: ['ignore', 'pipe', 'pipe'], // Capture stdout and stderr
+            shell: true,                       // Run through shell
+            windowsHide: true                  // Hide terminal window on Windows
+        });
+
+        console.log("Running Python script:");
         console.log("Script path: " + scriptPath);
         console.log("Args: " + args.join(" "));
 
@@ -729,22 +739,32 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         let error = '';
 
         python.stdout.on('data', (data) => {
-            output += data.toString();
+            const message = data.toString();
+            output += message;
+            console.log(`Python stdout: ${message}`);
         });
 
         python.stderr.on('data', (data) => {
-            error += data.toString();
+            const message = data.toString();
+            error += message;
+            console.error(`Python stderr: ${message}`);
         });
 
         python.on('close', (code) => {
+            console.log(`Python process exited with code ${code}`);
             if (code === 0) {
-                resolve(output);
+                resolve(output);  // Resolve with the captured output
             } else {
-                reject(new Error(error));
+                reject(new Error(error));  // Reject with the captured error
             }
+        });
+
+        python.on('error', (err) => {
+            reject(new Error(`Failed to start Python script: ${err.message}`));
         });
     });
 });
+
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
     const scriptPath = 'src/routes/pythonDownload.py';

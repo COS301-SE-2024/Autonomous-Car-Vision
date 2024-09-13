@@ -2,6 +2,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 from django.shortcuts import render
+import psycopg2
 import requests
 from rest_framework import viewsets
 from .serializers import (
@@ -1149,6 +1150,8 @@ def userExists(request):
     data = request.data
     email = data.get("email")
     
+    print("Running userExists")
+    
     if not email:
         return Response(
             {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -1207,3 +1210,92 @@ def addUser(request):
         return Response(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCorporationUsers(request):
+    data = request.data
+    cid = data.get("cid")
+    
+    if not cid:
+        return Response(
+            {"error": "Team ID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if Corporation.objects.filter(cid=cid).exists():
+        users = User.objects.filter(cid=cid)
+        user_data = []
+        for user in users:
+            user_data.append({
+                "uid": user.uid,
+                "uname": user.uname,
+                "uemail": user.uemail,
+                "is_admin": user.is_admin
+            })
+        return Response(
+            {"users": user_data}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND
+        )  
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def storeToken(request):
+    data = request.data
+    uid = data.get("uid")
+    token = data.get("token")
+    
+    if not uid or not token:
+        return Response(
+            {"error": "UID and token are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    print("Storing token")
+    
+    token_data = {"uid": uid, "token": token}
+    try:
+        token_entry = Token.objects.get(uid=uid)
+        token_entry.token = token
+        token_entry.save()
+        return Response(
+            {"message": "Token updated successfully"}, status=status.HTTP_200_OK
+        )
+    except Token.DoesNotExist:
+        token_serializer = TokenSerializer(data=token_data)
+        if token_serializer.is_valid():
+            token_serializer.save()
+            return Response(token_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getAllAgentsForUser(request):
+    data = request.data
+    uids = data.get("uids")
+    
+    if not uids:
+        return Response(
+            {"error": "UIDS is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    
+    # using the uids, get all agent data for each user using the database connection
+    agents = []
+    for uid in uids:
+        # go through media
+        media = Media.objects.filter(uid=uid)
+        for m in media:
+            agent = {
+                "uid": m.uid,
+                "mid": m.mid,
+                "media_name": m.media_name,
+                "media_url": m.media_url,
+                "aid": m.aid
+            }
+            agents.append(agent)
+    return Response(
+        {"agents": agents}, status=status.HTTP_200_OK
+    )    

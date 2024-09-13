@@ -32,7 +32,7 @@
       const result = await window.electronAPI.exchangeCode(authCode);
       if (result.success) {
         console.log("Google Sign-In Result:", result);
-        window.electronAPI.storeToken(result.tokens.access_token);
+        window.electronAPI.storeToken(result.tokens.access_token.substring(0, 40));
         window.electronAPI.storeUid(result.user.id.substring(0, 10));
         window.electronAPI.storeUname(result.user.name);
         window.electronAPI.storeUemail(result.user.email);
@@ -43,6 +43,12 @@
         });
         if (userExists.data.exists) {
           console.log("User already exists in database");
+          console.log("Token:", window.electronAPI.getToken());
+          const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+            uid: window.electronAPI.getUid(),
+            token: window.electronAPI.getToken()
+          });
+          
           window.electronAPI.storeTeamName(userExists.data.teamName);
           push("/gallery");
         } else {
@@ -59,6 +65,12 @@
             uid: window.electronAPI.getUid(),
           });
           console.log("User created:", createUser);
+
+          const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+            uid: window.electronAPI.getUid(),
+            token: window.electronAPI.getToken()
+          });
+
           push("/Join");
           }
 

@@ -156,8 +156,8 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = "127.0.0.1"
-    # ip = socket.gethostbyname(socket.gethostname())
+    # ip = "127.0.0.1"
+    ip = socket.gethostbyname(socket.gethostname())
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
@@ -247,11 +247,11 @@ async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request)
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
-    aid = "STUMPED"
+    aid = os.getenv("AID")
     size = "STUMPED"
     utoken = "STUMPED"
     backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
-    return {"aip": ip, "aport": port}
+    return {"aip": ip, "aport": port, "aid": aid}
 
 
 @app.post("/process/")

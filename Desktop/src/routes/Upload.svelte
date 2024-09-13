@@ -70,7 +70,7 @@
   let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
     let aip = "";
     let aport = "";
-      let command = "SEND";
+    let command = "SEND";
     try {
     let response = await window.electronAPI.openFTP(uid, token, size, filename, file.path, command);
     console.log("Response: ", response);
@@ -81,15 +81,27 @@
         aip = response.ip;
         aport = response.port;
         // You can now use response.ip and response.port as needed
-    } else {
-        console.error("Error:", response.error);
+      } else {
+          console.error("Error:", response.error);
+      }
+    } catch (error) {
+        console.error("Error calling openFTP:", error);
     }
-} catch (error) {
-    console.error("Error calling openFTP:", error);
-}
 
+    console.log("AIP:", aip);
+    console.log("APORT:", aport);
+    console.log("UID:", uid);
+    console.log("SIZE:", size);
+    console.log("TOKEN:", token);
+    console.log("FILENAME:", filename);
+    console.log("FILE PATH:", file.path);
 
-    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
+    try{
+      let testVar = await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
+      console.log("TESTVAR:", testVar);
+    }catch(error){
+      console.error("BIG BAD ERROR OHHHH NO", error);
+    }
 
     try {
       // Save the file using the main process
