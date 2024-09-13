@@ -315,7 +315,7 @@
     </div>
     <div class="details p-2">
       <p
-        class="details-link h-12 text-wrap overflow-hidden text-primary-lightText"
+        class="details-link h-12 text-wrap overflow-hidden text-white"
       >
         {videoName}
       </p>

@@ -176,13 +176,13 @@
               on:input={handleSearch}
               class="bg-theme-dark-white text-black rounded-lg border-2 border-highVizDark-secondary p-2 w-5/6 border-solid text-lg"
             />
-          <Button
-            rounded
-            class="bg-dark-primary text-white"
-              on:click={() => (showModal = true)}
-            >
-            Upload
-              <Icon color="white" path={mdiUpload} size="30" />
+            <Button
+              rounded
+              class="bg-dark-primary text-black"
+                on:click={() => (showModal = true)}
+              >
+              Upload
+                <Icon color="white" path={mdiUpload} size="30" />
             </Button>
           </div>
           {#if listType === "grid"}
@@ -225,7 +225,7 @@
       {:else}
       <div class="items-center">
         <div>
-          <div class="flex justify-start gap-2 items-center w-full mb-4 p-4">
+          <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
             <!--TODO: style the searchbar -->
             <div class="Card-Or-List rounded-md flex">
               <button
@@ -251,6 +251,14 @@
               on:input={handleSearch}
               class="bg-theme-dark-white text-black rounded-lg border-2 border-highVizDark-secondary p-2 w-5/6 border-solid text-lg"
             />
+            <Button
+            rounded
+            class="bg-dark-primary text-white"
+              on:click={() => (showModal = true)}
+            >
+            Upload
+              <Icon color="white" path={mdiUpload} size="30" />
+            </Button>
           </div>
           {#if listType === "grid"}
             {#if $filteredItems.length > 0}

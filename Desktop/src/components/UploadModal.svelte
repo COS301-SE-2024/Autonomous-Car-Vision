@@ -3,10 +3,11 @@
     import { location } from "svelte-spa-router";
     import toast, { Toaster } from "svelte-french-toast";
     import { onMount } from "svelte";
-    import {isUploadLoading} from '../stores/uploadLoading';
+    import { isUploadLoading } from "../stores/uploadLoading";
     import RingLoader from "./RingLoader.svelte";
     import { Button, Icon } from "svelte-materialify";
     import { mdiClose, mdiDeleteOutline, mdiUpload } from "@mdi/js";
+    import { theme } from "../stores/themeStore";
 
     export let videoSource = "";
     export let showModal;
@@ -41,10 +42,10 @@
             return;
         }
         isUploadLoading.set(true);
-        console.log("Uploading")
+        console.log("Uploading");
         setInterval(async () => {
             isUploadLoading.set(false);
-            console.log("Done")
+            console.log("Done");
         }, 5000);
 
         let uid = window.electronAPI.getUid();
@@ -143,64 +144,140 @@
     }
 
     $: if (dialog && showModal) dialog.showModal();
+
+    function clearVideoData() {
+        videoSource = "";
+        filename = "";
+        file = null;
+    }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<dialog
-    class="bg-dark-background"
-    bind:this={dialog}
-    on:close={() => (showModal = false)}
-    on:click|self={() => dialog.close()}
->
-    <div on:click|stopPropagation>
-        <Toaster />
-        <div class="relative -left-2 mb-2">
-            <Button class="text-white" icon on:click={() => dialog.close()}>
-                <Icon path={mdiClose} size={32} />
-            </Button>
-        </div>
-        <div class="flex flex-col justify-center items-center">
-            {#if videoSource}
-                <div class="flex flex-row w-fit">
-                    <video class="w-full" src={videoSource} controls>
-                        <track kind="captions" />
-                    </video>
-                </div>
-            {:else}
-                <Dropzone
-                  on:drop={handleFilesSelect}
-                    accept="video/*"
-                    containerStyles="border-color: #8492a6; color: white; background-color: #011C27;"
-                    multiple={false}
-                />
-            {/if}
-            <div class="w-full flex justify-between items-center mt-4">
-                {#if videoSource}
-                    <Button class="bg-red text-white" rounded on:click={removeVideo}>
-                        Remove <Icon path={mdiDeleteOutline} size={28} />
-                    </Button>
-                {/if}
-                <span class="flex-grow"></span>
-                <Button
-                    rounded
-                    class="bg-dark-primary text-white font-bold py-2 px-4 hover:bg-dark-secondary"
-                    on:click={saveVideo}
-                    >Save
-                    <Icon path={mdiUpload} size={28} />
+{#if $theme === "highVizLight"}
+    <dialog
+        bind:this={dialog}
+        on:close={() => {
+            showModal = false;
+            clearVideoData();
+        }}
+        on:click|self={() => dialog.close()}
+    >
+        <div on:click|stopPropagation>
+            <Toaster />
+            <div class="relative -left-2 mb-2">
+                <Button class="" icon on:click={() => dialog.close()}>
+                    <Icon path={mdiClose} size={32} />
                 </Button>
             </div>
-            {#if $isUploadLoading}
-                <div class="flex justify-center">
-                    <RingLoader />
+            <div class="flex flex-col justify-center items-center">
+                {#if videoSource}
+                    <div class="flex flex-row w-full h-full">
+                        <video src={videoSource} controls>
+                            <track kind="captions" />
+                        </video>
+                    </div>
+                {:else}
+                    <Dropzone
+                        on:drop={handleFilesSelect}
+                        accept="video/*"
+                        containerStyles="border-color: #8492a6; color: black;"
+                        multiple={false}
+                    />
+                {/if}
+                <div class="w-full flex justify-between items-center mt-4">
+                    {#if videoSource}
+                        <Button class="bg-red" rounded on:click={removeVideo}>
+                            Remove <Icon path={mdiDeleteOutline} size={28} />
+                        </Button>
+                    {/if}
+                    <span class="flex-grow"></span>
+                    <Button
+                        rounded
+                        class="bg-dark-primary font-bold py-2 px-4 hover:bg-dark-secondary"
+                        on:click={saveVideo}
+                        >Save
+                        <Icon path={mdiUpload} size={28} />
+                    </Button>
                 </div>
-            {/if}
+                {#if $isUploadLoading}
+                    <div class="flex justify-center">
+                        <RingLoader />
+                    </div>
+                {/if}
+            </div>
         </div>
-    </div>
-</dialog>
+    </dialog>
+{:else}
+    <dialog
+        class="bg-dark-background"
+        bind:this={dialog}
+        on:close={() => {
+            showModal = false;
+            clearVideoData();
+        }}
+        on:click|self={() => dialog.close()}
+    >
+        <div on:click|stopPropagation>
+            <Toaster />
+            <div class="relative -left-2 mb-2">
+                <Button class="text-white" icon on:click={() => dialog.close()}>
+                    <Icon path={mdiClose} size={32} />
+                </Button>
+            </div>
+            <div class="flex flex-col justify-center items-center">
+                {#if videoSource}
+                    <div class="flex flex-row w-full h-full">
+                        <video src={videoSource} controls>
+                            <track kind="captions" />
+                        </video>
+                    </div>
+                {:else}
+                    <Dropzone
+                        on:drop={handleFilesSelect}
+                        accept="video/*"
+                        containerStyles="border-color: #8492a6; color: white; background-color: #011C27;"
+                        multiple={false}
+                    />
+                {/if}
+                <div class="w-full flex justify-between items-center mt-4">
+                    {#if videoSource}
+                        <Button
+                            class="bg-red text-white"
+                            rounded
+                            on:click={removeVideo}
+                        >
+                            Remove <Icon path={mdiDeleteOutline} size={28} />
+                        </Button>
+                    {/if}
+                    <span class="flex-grow"></span>
+                    <Button
+                        rounded
+                        class="bg-dark-primary text-white font-bold py-2 px-4 hover:bg-dark-secondary"
+                        on:click={saveVideo}
+                        >Save
+                        <Icon path={mdiUpload} size={28} />
+                    </Button>
+                </div>
+                {#if $isUploadLoading}
+                    <div class="flex justify-center">
+                        <RingLoader />
+                    </div>
+                {/if}
+            </div>
+        </div>
+    </dialog>
+{/if}
 
 <style>
+    video {
+        object-fit: contain;
+        aspect-ratio: 16/9;
+        height: 100%;
+        width: 100%;
+    }
+
     dialog {
-        max-width: 32em;
+        width: 40em;
         border-radius: 0.8em;
         border: none;
         padding: 0;
@@ -215,13 +292,13 @@
     }
     dialog[open] {
         position: absolute;
-        top: 40%;
+        top: 20%;
         left: 40%;
         animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @keyframes zoom {
         from {
-            transform: scale(0.95);
+            transform: scale(0.5);
         }
         to {
             transform: scale(1);
