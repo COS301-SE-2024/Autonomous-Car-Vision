@@ -6,6 +6,7 @@ class User(models.Model):
     uemail = models.TextField(unique=True)
     cid = models.ForeignKey("Corporation", on_delete=models.CASCADE, db_column="cid")
     is_admin = models.BooleanField(default=False)
+    profile_photo = models.BinaryField(null=True, blank=True)
 
     class Meta:
         db_table = "users"
@@ -102,3 +103,14 @@ class TokenCorporation(models.Model):
         
     def __str__(self):
         return self.token    
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_photo = models.BinaryField(null=True, blank=True)
+    profile_photo_mime = models.CharField(max_length=50, null=True, blank=True)
+    
+    class Meta :
+        db_table = "profile"
+        
+    def __str__(self):
+        return self.user.uname

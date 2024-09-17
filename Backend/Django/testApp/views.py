@@ -1242,6 +1242,37 @@ def getCorporationUsers(request):
         
 @api_view(["POST"])
 @permission_classes([AllowAny])
+def getCorporationUsersID(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    cid = User.objects.get(uid=uid).cid.cid
+    
+    if Corporation.objects.filter(cid=cid).exists():
+        users = User.objects.filter(cid=cid)
+        user_data = []
+        for user in users:
+            user_data.append({
+                "uid": user.uid,
+                "uname": user.uname,
+                "uemail": user.uemail,
+                "is_admin": user.is_admin
+            })
+        return Response(
+            {"users": user_data}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND
+        )            
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def storeToken(request):
     data = request.data
     uid = data.get("uid")
@@ -1269,33 +1300,99 @@ def storeToken(request):
             return Response(token_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def getAllAgentsForUser(request):
     data = request.data
-    uids = data.get("uids")
+    uid = data.get("uid")
     
-    if not uids:
+    if not uid:
         return Response(
-            {"error": "UIDS is required"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
         )
         
+    media = Media.objects.filter(uid=uid)
+    serializer = MediaSerializer(media, many=True)
     
-    # using the uids, get all agent data for each user using the database connection
-    agents = []
-    for uid in uids:
-        # go through media
-        media = Media.objects.filter(uid=uid)
-        for m in media:
-            agent = {
-                "uid": m.uid,
-                "mid": m.mid,
-                "media_name": m.media_name,
-                "media_url": m.media_url,
-                "aid": m.aid
-            }
-            agents.append(agent)
     return Response(
-        {"agents": agents}, status=status.HTTP_200_OK
+        {"agents": serializer.data}, status=status.HTTP_200_OK
+    )    
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCID(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    cname = User.objects.get(uid=uid).cid.cname
+    cid = Corporation.objects.get(cname=cname).cid
+    
+    return Response(
+        {"cid": cid}, status=status.HTTP_200_OK
+    )        
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getUserData(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = User.objects.get(uid=uid)
+    serializer = UserSerializer(user)
+    
+    return Response(
+        serializer.data, status=status.HTTP_200_OK
+    )
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def addProfilePhoto(request):
+    data = request.data
+    uid = data.get("uid")
+    profilePhoto = data.get("profilePhoto")
+    
+    if not uid or not profilePhoto:
+        return Response(
+            {"error": "UID and profile photo are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    try:
+        user = User.objects.get(uid=uid)
+        user.profile_photo = profilePhoto
+        user.save()
+        return Response(
+            {"message": "Profile photo added successfully"}, status=status.HTTP_200_OK
+        )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getProfilePhoto(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = User.objects.get(uid=uid)
+    profilePhoto = user.profile_photo
+    
+    return Response(
+        {"profilePhoto": profilePhoto}, status=status.HTTP_200_OK
     )    

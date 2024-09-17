@@ -63,9 +63,9 @@ app.on('activate', () => {
     }
 });
 
-// try {
-//     require('electron-reloader')(module)
-// } catch (_) { }
+try {
+    require('electron-reloader')(module)
+} catch (_) { }
 
 
 // Get app path
@@ -721,12 +721,7 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
 
-        const python = spawn('python', [scriptPath, ...args], {
-            detached: true,  // Keep process attached to parent
-            stdio: ['ignore', 'pipe', 'pipe'], // Capture stdout and stderr
-            shell: true,                       // Run through shell
-            windowsHide: true                  // Hide terminal window on Windows
-        });
+        const python = spawn('python', [scriptPath, ...args], {});
 
         console.log("Running Python script:");
         console.log("Script path: " + scriptPath);

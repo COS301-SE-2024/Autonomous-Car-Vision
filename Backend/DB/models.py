@@ -79,3 +79,11 @@ class Keystore(Base):
     pem_pub = Column(String(250), nullable=True)
 
     __table_args__ = (PrimaryKeyConstraint("aid", "keyid", name="keystore_pk"),)
+    
+    
+class Profile(Base):
+    __tablename__ = "profile"
+    uid = Column(Integer, ForeignKey('users.uid', ondelete='CASCADE'), primary_key=True)
+    profile_photo = Column(String, nullable=True)
+    profile_photo_mime = Column(String, nullable=True)
+    user = relationship("User")

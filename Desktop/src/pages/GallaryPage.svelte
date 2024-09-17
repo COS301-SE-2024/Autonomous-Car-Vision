@@ -33,6 +33,9 @@
   //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
+
+    
+
     try {
       const response = await window.electronAPI.fetchVideos();
       console.log(response);

@@ -41,6 +41,12 @@ from .views import (
     addUser,
     getAllAgentsForUser,
     storeToken,
+    getCorporationUsers,
+    getCID,
+    getCorporationUsersID,
+    getUserData,
+    addProfilePhoto,
+    getProfilePhoto,
 )
 
 router = DefaultRouter()
@@ -89,5 +95,11 @@ urlpatterns = [
     path("userExists/", userExists),
     path("addUser/", addUser),
     path("storeToken/", storeToken),
-    path("getAllAgentsForUser", getAllAgentsForUser),
+    path("getAllAgentsForUser/", getAllAgentsForUser),
+    path("getCorporationUsers/", getCorporationUsers),
+    path("getCID/", getCID),
+    path("getCorporationUsersID/", getCorporationUsersID),
+    path("getUserData/", getUserData),
+    path("addProfilePhoto/", addProfilePhoto),
+    path("getProfilePhoto/", getProfilePhoto),
 ]

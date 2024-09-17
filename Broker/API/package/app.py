@@ -189,8 +189,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 data = json.loads(data)
                 print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
+                uid = data["uid"]
+                mid = data["mid"]
                 size = data["size"]
                 token = data["token"]
                 command = data["command"]
@@ -202,8 +202,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 print(f"Connected by {addr}")
 
                 if command == "SEND":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break
@@ -219,8 +219,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                     print(f"File {filename} received and saved to {filepath}")
 
                 elif command == "RETR":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break

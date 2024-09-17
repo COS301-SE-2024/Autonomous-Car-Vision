@@ -7,205 +7,99 @@
     import TeamConnectionNodes from "../components/TeamConnectionNodes.svelte";
     import BrokerNode from "../components/BrokerNode.svelte";
     import ManagerNode from "../components/ManagerNode.svelte";
+    import axios from "axios";
 
-    // Define the initial nodes with anchors
-    let nodes = [
-        {
-            id: "1",
-            type: "Broker",
-            position: { x: 100, y: -200 },
-            label: "Broker",
-            anchors: [
-                { id: "in1", type: "input" }, // Input for Agents
-            ],
-            agents: ["10", "11", "12", "13"],
-        },
-        {
-            id: "2",
-            type: "Manager",
-            position: { x: 575, y: -200 },
-            label: "Manager",
-            anchors: [
-                { id: "out2", type: "output", out: "1" }, // Output to Broker
-                { id: "in2", type: "input" }, // Input for Clients
-            ],
-            clients: ["3", "4", "5", "6"],
-            agents: ["10"],
-        },
-        {
-            id: "3",
-            type: "Client",
-            position: { x: 0, y: 300 },
-            label: "Client 0",
-            anchors: [
-                { id: "out1", type: "output", out: "2" }, // output anchor
-            ],
-            agents: ["10", "11"],
-        },
-        {
-            id: "4",
-            type: "Client",
-            position: { x: 350, y: 300 },
-            label: "Client 1",
-            anchors: [
-                { id: "out1", type: "output", out: "2" }, // output anchor
-            ],
-            agents: ["10", "13"],
-        },
-        {
-            id: "5",
-            type: "Client",
-            position: { x: 800, y: 300 },
-            label: "Client 2",
-            anchors: [
-                { id: "out1", type: "output", out: "2" }, // output anchor
-            ],
-            agents: ["11", "12"],
-        },
-        {
-            id: "6",
-            type: "Client",
-            position: { x: 1150, y: 300 },
-            label: "Client 3",
-            anchors: [
-                { id: "out1", type: "output", out: "2" }, // output anchor
-            ],
-            agents: ["12", "13"],
-        },
-        // AGENTS
-        {
-            id: "10",
-            type: "Agent",
-            position: { x: -500, y: -500 },
-            label: "Agent 0",
-            anchors: [{ id: "out1", type: "output", out: "1" }],
-            clients: ["3", "4"],
-        },
-        {
-            id: "11",
-            type: "Agent",
-            position: { x: -150, y: -500 },
-            label: "Agent 1",
-            anchors: [{ id: "out1", type: "output", out: "1" }],
-            clients: ["3", "5"],
-        },
-        {
-            id: "12",
-            type: "Agent",
-            position: { x: 400, y: -500 },
-            label: "Agent 2",
-            anchors: [{ id: "out1", type: "output", out: "1" }],
-            clients: ["5", "6"],
-        },
-        {
-            id: "13",
-            type: "Agent",
-            position: { x: 700, y: -500 },
-            label: "Agent 3",
-            anchors: [{ id: "out1", type: "output", out: "1" }],
-            clients: ["4", "6"],
-        },
-    ];
+    let nodes = [];
 
-    onMount(() => {
-        let agentBooleans = [];
-        let clientBooleans = [];
-
-        nodes.forEach((node) => {
-            if (node.type === "Agent") {
-                agentBooleans.push(false);
-            } else if (node.type === "Client") {
-                clientBooleans.push(false);
+    onMount(async () => {
+        try {
+            // Fetch user data
+            const userResponse = await axios.post("http://localhost:8000/getCorporationUsersID/", {
+                uid: window.electronAPI.getUid(),
+            });
+            let users = userResponse.data.users;
+            let userIDS = [];
+            for (let i = 0; i < users.length; i++) {
+                userIDS.push(users[i].uid);
             }
-        });
+                
+            let agentsArray = [];
+            for (let i = 0; i < userIDS.length; i++) {
+                const agentResponse = await axios.post("http://localhost:8000/getAllAgentsForUser/", {
+                    uid: userIDS[i],
+                });
+                let agents = agentResponse.data.agents;
+                agentsArray.push(agents);
+            }
+            let agents = agentsArray[0];
+            for (let i = 0; i < agents.length; i++) {
+                for (let j = 0; j < agents.length; j++) {
+                    if(i == j){
+                        continue;
+                    }
+                    if (agents[i].aid === agents[j].aid && agents[i].uid === agents[j].uid) {
+                        agents.splice(j, 1);
+                    }
+                }
+            }
+            console.log("User IDS:", userIDS);
+            console.log("Agents:", agents);
+            
+            // Process data and create nodes
+            nodes = makeNodes({ clients: users, agents: agents });
 
-        // Update the writable stores
-        TeamAgents.set(agentBooleans);
-        TeamClients.set(clientBooleans);
+            // Update the writable stores
+            TeamAgents.set(agents.map(() => false));
+            TeamClients.set(users.map(() => false));
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
     });
 
-    let testPayload = {
-        clients: [
-            {
-                id: 1,
-                name: "John Doe",
-                agents: [1, 2],
-            },
-            {
-                id: 2,
-                name: "Dave Marshall",
-                agents: [2],
-            },
-        ],
-        agents: [
-            {
-                id: 1,
-            },
-            {
-                id: 2,
-            },
-            {
-                id: 3,
-            },
-        ],
-    };
-
-    // Edge cases
-    // Everyone has similar priviledges, so no Manager then everyone connects to the Broker
 
     function makeNodes(JsonPayload) {
         let NodesMake = [];
 
-        // Step 1: Create the Broker node
+        // Create Broker node
         let brokerNode = {
-            id: "1",
+            id: "10000",
             type: "Broker",
             position: { x: 100, y: -200 },
             label: "Broker",
-            anchors: [
-                { id: "in1", type: "input" }, // Input for Agents
-            ],
-            agents: JsonPayload.agents.map((agent) => agent.id.toString()),
+            anchors: [{ id: "in1", type: "input" }],
+            agents: JsonPayload.agents.map(agent => agent.aid.toString()),
         };
         NodesMake.push(brokerNode);
 
-        // Step 2: Create Agent nodes and connect them to the Broker
+        // Create Agent nodes
         JsonPayload.agents.forEach((agent, index) => {
             let agentNode = {
-                id: agent.id.toString(),
+                id: agent.aid.toString(),
                 type: "Agent",
-                position: { x: index * 200 - 500, y: -500 }, // Adjust positions dynamically
-                label: `Agent ${index}`,
-                anchors: [
-                    { id: "out1", type: "output", out: "1" }, // Connected to Broker
-                ],
-                clients: [], // Will populate later with connected clients
+                position: { x: index * 200 - 500, y: -500 },
+                label: `Agent ${agent.aid.toString()}`,
+                anchors: [{ id: "out1", type: "output", out: "10000" }],
+                clients: [],
             };
             NodesMake.push(agentNode);
         });
 
-        // Step 3: Create Client nodes and connect them to their respective Agents
+        // Create Client (User) nodes
         JsonPayload.clients.forEach((client, clientIndex) => {
             let clientNode = {
-                id: (client.id + 2).toString(), // Client IDs start from 2+ since 1 is for Broker
+                id: client.uid.toString(),
                 type: "Client",
-                position: { x: clientIndex * 300, y: 300 }, // Adjust positions dynamically
-                label: `Client ${clientIndex}`,
-                anchors: [
-                    {
-                        id: "out1",
-                        type: "output",
-                        out: client.agents[0].toString(),
-                    }, // Output connected to an agent
-                ],
-                agents: client.agents.map((agentId) => agentId.toString()),
+                position: { x: clientIndex * 300, y: 300 },
+                label: client.uname,
+                anchors: [{id: "out1", type: "output", out: "10000"}],
+                agents: [],
             };
 
-            // Add the client to the connected agents' clients list
-            client.agents.forEach((agentId) => {
+            // Connect clients to agents
+            JsonPayload.agents.forEach(agent => {
+                clientNode.agents.push(agent.aid.toString());
                 let agentNode = NodesMake.find(
-                    (node) =>
-                        node.id === agentId.toString() && node.type === "Agent",
+                    node => node.id === agent.aid.toString() && node.type === "Agent"
                 );
                 if (agentNode) {
                     agentNode.clients.push(clientNode.id);
@@ -214,14 +108,16 @@
 
             NodesMake.push(clientNode);
         });
-
+        console.log("NodesMake:", NodesMake);
         return NodesMake;
-    }
+}
 
-    console.log(makeNodes(testPayload));
 </script>
 
 <ProtectedRoutes>
+    {#if nodes.length == 0}
+        <div>Loading...</div>
+    {:else}
     <Svelvet TD fitView theme="dark" edgeStyle="bezier">
         {#each nodes as node}
             {#if node.type == "Agent"}
@@ -255,7 +151,8 @@
             {/if}
         {/each}
     </Svelvet>
+    {/if}
 </ProtectedRoutes>
-
 <style>
+    /* Add any necessary styles */
 </style>

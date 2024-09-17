@@ -18,6 +18,7 @@
         mdiPipeDisconnected,
         mdiCar,
     } from "@mdi/js";
+    import axios from "axios";
 
     import AccountPopup from "./AccountPopup.svelte";
 
@@ -121,6 +122,29 @@
 
     onMount(() => {
         document.addEventListener("click", handleClickOutside);
+
+        // Get user data with uid
+        axios
+            .post("http://localhost:8000/getUserData/", {
+                uid: window.electronAPI.getUid(),
+            })
+            .then((response) => {
+                username = response.data.uname;
+                name = response.data.uemail;
+
+                if (response.data.profileImg) {
+                    // convert the base64 string to an image
+                    let profilePic = response.data.profileImg;
+                    profilePic = profilePic.replace("data:image/jpeg;base64,", "");
+                    profileImg = profilePic;
+                }else{
+                    profileImg = "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching user data:", error);
+            });
+
 
         return () => {
             document.removeEventListener("click", handleClickOutside);

@@ -19,9 +19,9 @@
   import Spinner from "../components/Spinner.svelte";
 
   let user = {
-    username: "myUsername",
-    email: "username@gmail.com",
-    profile_picture: "", // Test Image "images/HighViz.png"
+    username: "",
+    email: "",
+    profile_picture: "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg", // Test Image "images/HighViz.png"
   };
   let isHovered = false; // To track hover state
   let fileInput; // For referencing the file input element
@@ -59,9 +59,9 @@
 
   const saveChanges = async () => {
     // Function to handle saving other changes (username, email)
-    console.log("Username: " + username);
-    console.log("email: " + email);
-    console.log("Profile:");
+    console.log("Username: " + user.username);
+    console.log("email: " + user.email);
+    console.log("Profile: " + user.profile_picture);
 
     // Save the changes to the database
 
@@ -72,8 +72,8 @@
         "http://127.0.0.1:8000/changeUserDetails/",
         {
           uid: window.electronAPI.getUid(),
-          uname: username,
-          uemail: email,
+          uname: user.username,
+          uemail: user.email,
           token: window.electronAPI.getToken(),
         },
       );
@@ -113,6 +113,28 @@
     setTimeout(() => {
       isLoading.set(false);
     }, 2000);
+
+    // Fetch user data
+    axios
+      .post("http://localhost:8000/getUserData/", {
+        uid: window.electronAPI.getUid(),
+      })
+      .then((response) => {
+        user.username = response.data.uname;
+        user.email = response.data.uemail;
+        if(response.data.profile_picture != null){
+        user.profile_picture = response.data.profile_picture;
+        }else{
+          user.profile_picture = "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch user data:", error);
+        toast.error("Failed to fetch user data", {
+          duration: 5000,
+          position: "top-center",
+        });
+      });
   });
 </script>
 

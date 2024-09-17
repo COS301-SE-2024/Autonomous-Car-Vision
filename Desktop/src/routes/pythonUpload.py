@@ -5,8 +5,10 @@ import sys
 import time
 
 def send_file(ip, port, filepath, uid, size, token, mid):
-    filename = os.path.basename(filepath)
-    print("File name: ", filename)
+    filepath = filepath.strip('"').strip("'")
+    filename = os.path.basename(filepath).strip('"').strip("'")
+    print(f"Filepath: '{filepath}'")
+    print(f"Filename: '{filename}'")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
