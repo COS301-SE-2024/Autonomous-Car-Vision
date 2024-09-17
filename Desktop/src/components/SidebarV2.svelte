@@ -67,6 +67,7 @@
             iconPath: mdiPipeDisconnected,
         },
         {
+            id: "go-to-gallery",
             name: "Gallery",
             route: "#/gallery",
             iconPath: mdiViewGallery,

@@ -4,6 +4,7 @@
   import { cuda, loadState } from "./stores/processing";
   import { theme } from './stores/themeStore.js';
 
+
   import toast, { Toaster } from "svelte-french-toast";
   import { onMount } from "svelte";
 
@@ -62,6 +63,8 @@ $: {
   <!-- class="mainContainer" -->
   <Toaster />
   <Router {routes} />
+  
+
 </div>
 
 <style>

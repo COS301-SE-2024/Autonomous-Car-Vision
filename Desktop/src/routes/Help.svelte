@@ -3,9 +3,10 @@
     import ProtectedRoutes from './ProtectedRoutes.svelte';
     import { writable } from 'svelte/store';
     import {theme} from '../stores/themeStore';
-    import { tours } from './tours/tours';
-    import { Tour } from 'svelte-tour';
-    
+    // import { tours } from './tours/tours';
+    // import { Tour } from 'svelte-tour';
+     import TourManager from '../components/TourManager.svelte';
+
     let activeTour = [];
 
     function startTour(tourName) {
@@ -26,12 +27,12 @@
     {#if $theme === 'highVizLight'}
     <div>
         <h1>Help Page</h1>
-        <button on:click={() => startTour('viewGalleryTour')}>View Gallery Help</button>
-        <button on:click={() => startTour('logoutTour')}>Logout Help</button>
+        <!-- Tour Manager component -->
+        <TourManager />
       
         <!-- Add more buttons for other tours as needed -->
-      
-        <Tour steps={activeTour} />
+<!--       
+        <Tour steps={activeTour} /> -->
       </div>
       
     {:else}
