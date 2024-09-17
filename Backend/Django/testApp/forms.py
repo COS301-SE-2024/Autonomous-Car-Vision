@@ -5,18 +5,12 @@ from .models import User, Auth, OTP, Token, Video, Corporation, TokenCorporation
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["uname", "uemail", "cid", "is_admin", "profile_photo"]
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ["profile_photo"]
+        fields = ["uname", "uemail", "cid", "is_admin"]
 
 class AuthForm(forms.ModelForm):
     class Meta:
         model = Auth
         fields = ["hash", "salt"]
-
 
 class OTPForm(forms.ModelForm):
     class Meta:

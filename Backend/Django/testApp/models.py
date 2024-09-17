@@ -6,7 +6,6 @@ class User(models.Model):
     uemail = models.TextField(unique=True)
     cid = models.ForeignKey("Corporation", on_delete=models.CASCADE, db_column="cid")
     is_admin = models.BooleanField(default=False)
-    profile_photo = models.BinaryField(null=True, blank=True)
 
     class Meta:
         db_table = "users"

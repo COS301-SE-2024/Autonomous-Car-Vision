@@ -5,7 +5,7 @@ from .models import User, Auth, OTP, Token, Media, Corporation, TokenCorporation
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["uid", "uname", "uemail", "cid", "is_admin", "profile_photo"]
+        fields = ["uid", "uname", "uemail", "cid", "is_admin"]
 
 
 class AuthSerializer(serializers.ModelSerializer):
