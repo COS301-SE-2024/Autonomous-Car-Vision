@@ -56,8 +56,14 @@
         }
     }
 
+    function resetBooleanMaps(obj) {
+        Object.keys(obj).forEach((key) => {
+            obj[key] = false;
+        });
+    }
+
     function showConnectionToAgent() {
-        console.log(nodeData.id);
+        console.log(nodeData.booleanID);
         console.log(nodeType);
 
         // Reset all edge colors
@@ -67,23 +73,24 @@
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
-        agentBooleans.fill(false);
-        clientBooleans.fill(false);
+        // Reset boolean arrays
+        resetBooleanMaps(agentBooleans);
+        resetBooleanMaps(clientBooleans);
 
         // If the node has clients, mark them as selected
         if (nodeData?.clients) {
-            clientBooleans = clientBooleans.map((value, index) => {
-                return nodeData.clients.includes(String(index + 3))
-                    ? true
-                    : false;    
+            nodeData.clients.forEach((cleintId) => {
+                // Ensure we're updating the boolean based on the correct key
+                if (clientBooleans.hasOwnProperty(cleintId)) {
+                    clientBooleans[cleintId] = true; // Set to true for active agents
+                }
             });
         }
 
+        // Update agent booleans
         if (nodeType === "Agent") {
-            agentBooleans[Number(nodeData.id) - 10] = true;
-        }
-
-        if(nodeType === "Broker") {
+            agentBooleans[Number(nodeData.booleanID)] = true;
+        } else if (nodeType === "Broker") {
             edgeColor = "blue";
         }
 
@@ -101,9 +108,12 @@
 
     function updateEdgeColor() {
         // Update color based on agents or clients
-        if (nodeType === "Agent" && agents[Number(nodeData.id) - 10]) {
+        if (nodeType === "Agent" && agents[Number(nodeData.booleanID)]) {
             edgeColor = "blue"; // Example: change to blue if agent is active
-        } else if (nodeType === "Client" && clients[Number(nodeData.id) - 3]) {
+        } else if (
+            nodeType === "Client" &&
+            clients[Number(nodeData.booleanID)]
+        ) {
             edgeColor = "green"; // Example: change to green if client is active
         } else {
             edgeColor = "gray"; // Default color

@@ -50,8 +50,14 @@
         }
     }
 
+    function resetBooleanMaps(obj) {
+        Object.keys(obj).forEach((key) => {
+            obj[key] = false;
+        });
+    }
+
     function showConnectionToAgent() {
-        console.log(nodeData);
+        console.log(nodeData.booleanID);
         console.log(nodeType);
 
         // Reset all edge colors
@@ -61,14 +67,39 @@
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
-        agentBooleans.fill(false);
-        clientBooleans.fill(false);
+        // Reset boolean arrays
+        resetBooleanMaps(agentBooleans);
+        resetBooleanMaps(clientBooleans);
 
-        // If the node has clients, mark them as selected
+        // If the node has agents, mark them as selected
         if (nodeData?.agents) {
-            agentBooleans = agentBooleans.map((value, index) => {
-                return true;
+            nodeData.agents.forEach((agentId) => {
+                // Ensure we're updating the boolean based on the correct key
+                if (agentBooleans.hasOwnProperty(agentId)) {
+                    agentBooleans[agentId] = true; // Set to true for active agents
+                }
             });
+        }
+
+        if(nodeData?.agents) {
+
+        }
+
+        // For Broker nodes, highlight edges based on active agents
+        if (nodeType === "Broker") {
+            edgeColor = "blue";
+
+            // Check if any agent is active
+            const anyAgentActive = Object.values(agents).some((agent) => agent);
+
+            // Set edge color based on the presence of active agents
+            if (anyAgentActive) {
+                edgeColor = "blue"; // Highlight if any agent is active
+            } else {
+                edgeColor = "gray"; // Default color if no active agents
+            }
+        } else if (nodeType === "Agent") {
+            agentBooleans[Number(nodeData.booleanID)] = true;
         }
 
         // Update the writable stores
@@ -84,19 +115,16 @@
     }
 
     function updateEdgeColor() {
-        // Check if the node is a Broker
-        if (nodeType === "Broker") {
-            // Check if any agent is active
-            const anyAgentActive = agents.some((agent) => agent);
-
-            // Set edge color based on the presence of active agents
-            if (anyAgentActive) {
-                edgeColor = "blue";
-            } else {
-                edgeColor = "gray"; // Default color if no active agents
-            }
+        // Update color based on agents or clients
+        if (nodeType === "Agent" && agents[Number(nodeData.booleanID)]) {
+            edgeColor = "blue"; // Example: change to blue if agent is active
+        } else if (
+            nodeType === "Client" &&
+            clients[Number(nodeData.booleanID)]
+        ) {
+            edgeColor = "green"; // Example: change to green if client is active
         } else {
-            edgeColor = "gray"; // Default color if node is not a Broker
+            edgeColor = "gray"; // Default color
         }
     }
 

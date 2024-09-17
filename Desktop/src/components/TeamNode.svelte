@@ -56,6 +56,12 @@
         }
     }
 
+    function resetBooleanMaps(obj) {
+        Object.keys(obj).forEach((key) => {
+            obj[key] = false;
+        });
+    }
+
     function showConnectionToAgent() {
         console.log(nodeData);
         console.log(nodeType);
@@ -67,23 +73,24 @@
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
-        agentBooleans.fill(false);
-        clientBooleans.fill(false);
+        resetBooleanMaps(agentBooleans);
+        resetBooleanMaps(clientBooleans);
 
         // If the node has agents, mark them as selected
         if (nodeData?.agents) {
-            agentBooleans = agentBooleans.map((value, index) => {
-                return nodeData.agents.includes(String(index + 10))
-                    ? true
-                    : false;
+            nodeData.agents.forEach((agentId) => {
+                // Ensure we're updating the boolean based on the correct key
+                if (agentBooleans.hasOwnProperty(agentId)) {
+                    agentBooleans[agentId] = true; // Set to true for active agents
+                }
             });
         }
 
         if (nodeType === "Client") {
-            clientBooleans[Number(nodeData.id) - 3] = true;
+            clientBooleans[Number(nodeData.booleanID)] = true;
         }
 
-        if(nodeType === "Manager") {
+        if (nodeType === "Manager") {
             edgeColor = "green";
         }
 
@@ -101,9 +108,12 @@
 
     function updateEdgeColor() {
         // Update color based on agents or clients
-        if (nodeType === "Agent" && agents[Number(nodeData.id) - 10]) {
+        if (nodeType === "Agent" && agents[Number(nodeData.booleanID)]) {
             edgeColor = "blue"; // Example: change to blue if agent is active
-        } else if (nodeType === "Client" && clients[Number(nodeData.id) - 3]) {
+        } else if (
+            nodeType === "Client" &&
+            clients[Number(nodeData.booleanID)]
+        ) {
             edgeColor = "green"; // Example: change to green if client is active
         } else {
             edgeColor = "gray"; // Default color
@@ -149,11 +159,7 @@
                         id={anchor.id}
                         connections={[anchor.id, anchor.out]}
                     >
-                        <Edge
-                            slot="edge"
-                            end="arrow"
-                            color={edgeColor}
-                        />
+                        <Edge slot="edge" end="arrow" color={edgeColor} />
                     </Anchor>
                 {/if}
             {/each}

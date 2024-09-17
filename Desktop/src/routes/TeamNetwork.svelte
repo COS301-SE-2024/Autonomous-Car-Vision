@@ -66,24 +66,34 @@
             type: "Broker",
             position: { x: 100, y: -200 },
             label: "Broker",
-            anchors: [{ id: "in1", type: "input" }],
-            agents: JsonPayload.agents.map(agent => agent.aid.toString()),
+            anchors: [
+                { id: "in1", type: "input" }, // Input for Agents
+            ],
+            agents: JsonPayload.agents.map((agent) => agent.id.toString()),
+            booleanID: 0,
         };
         NodesMake.push(brokerNode);
 
+        // Step 2: Create Agent nodes and connect them to the Broker
+        let agentCount = 1;
         // Create Agent nodes
         JsonPayload.agents.forEach((agent, index) => {
             let agentNode = {
                 id: agent.aid.toString(),
                 type: "Agent",
-                position: { x: index * 200 - 500, y: -500 },
+                position: { x: index * 200 - 500, y: -500 }, // Adjust positions dynamically
                 label: `Agent ${agent.aid.toString()}`,
-                anchors: [{ id: "out1", type: "output", out: "10000" }],
-                clients: [],
+                anchors: [
+                    { id: "out1", type: "output", out: "10000" }, // Connected to Broker
+                ],
+                clients: [], // Will populate later with connected clients
+                booleanID: agentCount++,
             };
             NodesMake.push(agentNode);
         });
 
+        // Step 3: Create Client nodes and connect them to their respective Agents
+        let clientCount = 1;
         // Create Client (User) nodes
         JsonPayload.clients.forEach((client, clientIndex) => {
             let clientNode = {
@@ -93,6 +103,7 @@
                 label: client.uname,
                 anchors: [{id: "out1", type: "output", out: "10000"}],
                 agents: [],
+                booleanID: clientCount++
             };
 
             // Connect clients to agents
