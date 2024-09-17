@@ -159,7 +159,7 @@
                         id={anchor.id}
                         connections={[anchor.id, anchor.out]}
                     >
-                        <Edge slot="edge" end="arrow" color={edgeColor} />
+                        <Edge slot="edge" end="arrow" straight color={edgeColor} />
                     </Anchor>
                 {/if}
             {/each}

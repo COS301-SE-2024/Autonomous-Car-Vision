@@ -64,7 +64,7 @@
         let brokerNode = {
             id: "10000",
             type: "Broker",
-            position: { x: 100, y: -200 },
+            position: { x: 600, y: -200 },
             label: "Broker",
             anchors: [
                 { id: "in1", type: "input" }, // Input for Agents
@@ -99,7 +99,7 @@
             let clientNode = {
                 id: client.uid.toString(),
                 type: "Client",
-                position: { x: clientIndex * 300, y: 300 },
+                position: { x: clientIndex * 350, y: 300 },
                 label: client.uname,
                 anchors: [{id: "out1", type: "output", out: "10000"}],
                 agents: [],
@@ -156,7 +156,7 @@
                 <TeamNode
                     id={node.id}
                     position={node.position}
-                    dimensions={{ width: 150, height: 100 }}
+                    dimensions={{ width: 300, height: 100 }}
                     nodeData={node}
                 />
             {/if}
