@@ -8,6 +8,7 @@
     "build": "rollup -c && electron-builder",
     "rebuild": "electron-rebuild -f -w bcrypt",
     "test": "vitest run",
+    "ptest": "playwright test",
     "test:watch": "vitest",
     "test:ui": "vitest --ui"
   },
@@ -67,6 +68,7 @@
     "vitest": "^1.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.47.2",
     "@rollup/plugin-json": "^6.1.0",
     "@testing-library/svelte": "^5.2.0",
     "@vitest/ui": "^1.6.0",
