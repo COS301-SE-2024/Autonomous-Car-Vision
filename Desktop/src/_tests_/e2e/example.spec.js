@@ -14,7 +14,7 @@ test('example test', async () => {
   const window = await electronApp.firstWindow();
 
   // Set window size explicitly to avoid zero width issue
-  await window.setViewportSize({ width: 800, height: 600 });
+  await window.setViewportSize({ width: 800, height: 800 });
 
   // Wait for the page to load fully
   await window.waitForLoadState('domcontentloaded');
