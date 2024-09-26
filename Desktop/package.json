@@ -1,6 +1,6 @@
 {
-  "name": "your-project-name",
-  "version": "1.0.0",
+  "name": "HighViz",
+  "version": "1.1.0",
   "main": "src/electron.js",
   "type": "commonjs",
   "scripts": {
@@ -32,8 +32,10 @@
     "baffle": "^0.3.6",
     "bcryptjs": "^2.4.3",
     "d3": "^7.9.0",
+    "electron-log": "^5.2.0",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",
+    "electron-updater": "6.3.4",
     "express": "^4.19.2",
     "ffmpeg-extract-frames": "^2.0.2",
     "ffmpeg-static": "^5.2.0",
@@ -64,6 +66,7 @@
     "svrollbar": "^0.12.0",
     "tailwindcss": "^2.0.0",
     "three": "^0.167.1",
+    "update-electron-app": "^3.0.0",
     "vitest": "^1.6.0"
   },
   "devDependencies": {
@@ -83,7 +86,7 @@
   },
   "packageManager": "yarn@4.4.1",
   "build": {
-    "appId": "com.Bitforge.High-Viz",
+    "appId": "com.Bitforge.HighViz",
     "files": [
       "public/build/**/*",
       "src/**/*",
@@ -101,6 +104,14 @@
         "deb",
         "rpm"
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "COS301-SE-2024",
+        "repo": "Autonomous-Car-Vision",
+        "releaseType": "release"
+      }
+    ]
   }
 }
