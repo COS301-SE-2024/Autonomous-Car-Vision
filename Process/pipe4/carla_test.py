@@ -110,11 +110,11 @@ def main():
             else:
                 # Autonomous lane-following mode
                 # Pass the frame to start_following function
-                # processed_image, mask, steer_value = start_following(frame)
-                processed_image = start_following(frame)
+                processed_image, mask, steer_value = start_following(frame)
+                # processed_image = start_following(frame)
 
                 # Update vehicle control with the steer value
-                # control.steer = float(steer_value)
+                control.steer = float(steer_value)
                 control.throttle = 0.5  # You can adjust the throttle value as needed
 
                 # Display the processed image
@@ -1156,39 +1156,37 @@ def analise_results(in_lane, left, middle, right):
 
 def follow_lane(out_image, filtered_results, original):
     out_image, lines = get_lines(filtered_results, out_image)
-    out_image, lines = join_neighbouring_lines(out_image, lines, 30) 
-    out_image, lines = extend_and_connect_lines(out_image, lines, 50, 50)
-    out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=300)
+    out_image, lines = join_neighbouring_lines(out_image, lines, 10) 
+    out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
+    out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=150)
     out_image, left, right = get_side_lines(out_image, lines)
     out_image, left, right = extend_lines(out_image, left, right)
-    # out_image, left, right = get_inners(out_image, left, right)
-    # out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
-    # out_image, mask = get_safe_zone(original, mask, left, right, 0.3) 
+    out_image, left, right = get_inners(out_image, left, right)
+    out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
+    out_image, mask = get_safe_zone(original, mask, left, right, 0.3) 
     
-    return out_image #, mask, steer 
     
-    # if np.any(mask):
-    #     # out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
-    #     # angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
+    if np.any(mask):
+        out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
+        angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
-    #     # print(left, middle, right)
+        print(left, middle, right)
 
-    #     # if (in_lane):
-    #     #         print("The vehicle is in the lane.")
+        if (in_lane):
+                print("The vehicle is in the lane.")
 
-    #     # steer = analise_results(in_lane, left, middle, right)
+        steer = analise_results(in_lane, left, middle, right)
 
-    #     # Save the filtered image with only the lane detection
-    #     # cv2.imwrite('filtered_lanes_output.jpg', out_image)
+        # cv2.imwrite('filtered_lanes_output.jpg', out_image)
         
-    #     return out_image, mask, steer
-    # else:
-    #     steer = 0
-    #     print("Take manual control of the vehicle.")
-    #     # Save the filtered image with only the lane detection
-    #     # cv2.imwrite('filtered_lanes_output.jpg', original)
+        return out_image, mask, steer
+    else:
+        steer = 0
+        print("Take manual control of the vehicle.")
+        # Save the filtered image with only the lane detection
+        # cv2.imwrite('filtered_lanes_output.jpg', original)
     
-    #     return original, mask, steer
+        return original, mask, steer
 
 # out_image, mask, steer = follow_lane(out_image, filtered_results, image)   
 
@@ -1197,9 +1195,9 @@ def start_following(frame):
     
     out_image, filtered_results = filter_detections(results, model, frame)
     
-    res = follow_lane(out_image, filtered_results, frame)
+    res, mask, steer = follow_lane(out_image, filtered_results, frame)
     
-    return res#, mask, steer
+    return res, mask, steer
 
 cap = cv2.VideoCapture('test_short.mp4')
 
