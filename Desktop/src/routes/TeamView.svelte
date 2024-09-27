@@ -92,15 +92,15 @@
             <p>Last Active</p>
         </div>
         {#each users as user}
-            <TeamMember
-                name={user.name}
-                email={user.email}
-                role={user.role}
-                lastActivity={user.lastActivity}
-                profilePhoto={user.profilePhoto}
-                
-            />
-        {/each}
+        <TeamMember
+            uid={user.uid}
+            name={user.uname}
+            email={user.uemail}
+            role={user.is_admin === true ? "Admin" : "Member"}
+            lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
+            profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
+        />
+    {/each}
     </div>
     {:else}
     <div class="user-list text-theme-dark-lightText">
@@ -116,34 +116,25 @@
             placeholder="Search..."
             class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-full border-solid text-lg"
         />
-        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-white">
+        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-black">
             <div class="flex items-center col-span-2"> <p class="ml-6">Name</p>
             </div>
-            {#each users as user}
-                <TeamMember
-                    uid={user.uid}
-                    name={user.uname}
-                    email={user.uemail}
-                    role={user.is_admin === true ? "Admin" : "Member"}
-                    lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
-                    profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
-                />
-            {/each}
+            <p>Role</p>
+            <p>Last Active</p>
         </div>
         {#each users as user}
-            <TeamMember
-                name={user.name}
-                email={user.email}
-                role={user.role}
-                lastActivity={user.lastActivity}
-                profilePhoto={user.profilePhoto}
-                
-            />
+        <TeamMember
+            uid={user.uid}
+            name={user.uname}
+            email={user.uemail}
+            role={user.is_admin === true ? "Admin" : "Member"}
+            lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
+            profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
+        />
         {/each}
     </div>
     {/if}
     {/if}
-
      {#if showAddPopup}
     <AddMember
       on:cancel={closeAddPopup}

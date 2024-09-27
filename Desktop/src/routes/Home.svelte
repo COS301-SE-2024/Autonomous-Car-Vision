@@ -171,97 +171,78 @@
 
 <MaterialApp> 
   {#if $theme === 'highVizLight'}
-  <div class= 'homeContainerLight min-h-screen flex flex-col items-center justify-center bg-theme-highVizLight'>
-    <div> <!-- svelte-ignore a11y-missing-attribute -->
-      <!-- <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
-      </iframe> -->
-      <img src="./images/HighVizBlue.png" class="w-72 h-72"/>
-    </div>
- 
-    <div
-      class="modalLight p-8 rounded-lg shadow-lg w-80 text-theme-highVizLight-primary"
-    >
-         
-      <h1 class=" text-4xl text-center mb-6 text-bold text-theme-highVizLight">Welcome to High-Viz</h1>
+  <div class='homeContainerLight min-h-screen flex flex-col items-center justify-center bg-theme-highVizLight'>
+    <!-- ... existing code ... -->
+    <div class="modalLight p-8 rounded-lg shadow-lg w-80">
+      <h1 class="text-4xl text-center mb-6 font-bold text-theme-highVizLight-primary">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
-          <button
-            class="w-full py-2 bg-theme-highVizLight-primary text-white text-lightText rounded-lg  transition"
-          >
+          <button class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
             Log In
           </button>
         </a>
         <a href="#/signup" class="w-full">
-          <button
-            class="w-full py-2 bg-theme-highVizLight-primary text-white text-lightText rounded-lg  transition"
-          >
+          <button class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
             Sign Up
           </button>
         </a>
-        <a href="#/" class="w-full" on:click={developerLogin}>
-          <button
-            class="w-full py-2 bg-theme-highVizLight-primary text-white text-lightText rounded-lg  transition"
-          >
-            Developer
-          </button>
-        </a>
-<!-- 
-        <a href="#/install" class="w-full">
-          <button
-            class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg  transition"
-          >
-            WIP
-          </button> 
-        </a> -->
-      </div>
-    </div>
-
-  </div>
-
-  {:else}
-  <div class= 'homeContainer min-h-screen flex flex-col items-center justify-center bg-theme-highVizDark'>
-    <div> <!-- svelte-ignore a11y-missing-attribute -->
-      <!-- <iframe src="https://lottie.host/embed/71d3ecd3-328d-45cc-baee-6dccec502427/2BLp8rGr90.json" class="p-1 h-64 w-96" depressed>
-      </iframe> -->
-      <img src="./images/HighViz.png" class="w-72 h-72"/>
-    </div>
- 
-    <div class="modal p-8 rounded-lg shadow-lg w-80 text-theme-dark-primary">
-      <h1 class="text-4xl text-center mb-6 text-bold text-white">Welcome to High-Viz</h1>
-      <div class="flex flex-col gap-4 items-center">
-        <a href="#/login" class="w-full">
-          <button class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
-            Log In
-          </button>
-        </a>
-        <a href="#/signup" class="w-full">
-          <button class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
-            Sign Up
-          </button>
-        </a>
-        <a href="#/" class="w-full" on:click={developerLogin}>
-          <button class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
-            Developer
-          </button>
-        </a>
-
         {#if !showCodeInput}
           <a href="#/" class="w-full" on:click={googleLogin}>
-            <button class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
+            <button class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
               Log In with Google
             </button>
           </a>
         {:else}
-          <TextField bind:value={authCode} label="Enter Authorization Code" class="w-full mb-4" />
-          <button on:click={submitAuthCode} class="w-full py-2 bg-theme-dark-primary text-theme-dark-lightText rounded-lg transition">
+          <TextField bind:value={authCode} label="Enter Authorization Code" class="w-full mb-4 text-theme-highVizLight-primary" />
+          <button on:click={submitAuthCode} class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
             Submit Authorization Code
           </button>
         {/if}
+        <a href="#/" class="w-full" on:click={developerLogin}>
+          <button class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
+            Developer
+          </button>
+        </a>
       </div>
     </div>
-
   </div>
 
+  {:else}
+  <div class='homeContainer min-h-screen flex flex-col items-center justify-center bg-theme-highVizDark'>
+    <!-- ... existing code ... -->
+    <div class="modal p-8 rounded-lg shadow-lg w-80">
+      <h1 class="text-4xl text-center mb-6 font-bold text-white">Welcome to High-Viz</h1>
+      <div class="flex flex-col gap-4 items-center">
+        <a href="#/login" class="w-full">
+          <button class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition">
+            Log In
+          </button>
+        </a>
+        <a href="#/signup" class="w-full">
+          <button class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition">
+            Sign Up
+          </button>
+        </a>
+        {#if !showCodeInput}
+          <a href="#/" class="w-full" on:click={googleLogin}>
+            <button class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition">
+              Log In with Google
+            </button>
+          </a>
+        {:else}
+          <TextField bind:value={authCode} label="Enter Authorization Code" class="w-full mb-4 text-white" />
+          <button on:click={submitAuthCode} class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition">
+            Submit Authorization Code
+          </button>
+        {/if}
+        <a href="#/" class="w-full" on:click={developerLogin}>
+          <button class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition">
+            Developer
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>
   {/if}
 </MaterialApp>
 

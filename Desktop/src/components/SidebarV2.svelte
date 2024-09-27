@@ -28,9 +28,9 @@
 
     export let width;
 
-    let username = "Username";
-    let name = "User Name";
-    let profileImg = "https://gravatar.com/avatar";
+    let username = "";
+    let name = "";
+    let profileImg = "";
 
     let showAccountPopup = false;
     let showTeamDropdown = false; 
