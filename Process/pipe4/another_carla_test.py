@@ -543,18 +543,6 @@ def get_side_lines(image, grouped_lines):
                     closest_point = point
         return min_dist, closest_line, closest_point
 
-    # Function to compute the length of a line
-    def line_length(line):
-        start, end = line
-        return np.linalg.norm(np.array(end) - np.array(start))
-
-    # Function to compute the angle of a line
-    def line_angle(line):
-        start, end = line
-        delta = np.array(end) - np.array(start)
-        angle = np.degrees(np.arctan2(delta[1], delta[0]))
-        return angle
-
     # Separate groups into left and right based on their closest point to bottom center
     left_groups = []
     right_groups = []
@@ -572,6 +560,10 @@ def get_side_lines(image, grouped_lines):
     if left_groups:
         left_groups.sort(key=lambda x: x[0])
         left_line = left_groups[0][1]
+        # Draw the left lines
+        color_left = (0, 255, 0)  # Green for the left line
+        for (start, end) in left_line:
+            cv2.line(output_image, tuple(start), tuple(end), color_left, 2)
     else:
         left_line = []
 
@@ -579,69 +571,12 @@ def get_side_lines(image, grouped_lines):
     if right_groups:
         right_groups.sort(key=lambda x: x[0])
         right_line = right_groups[0][1]
+        # Draw the right lines
+        color_right = (255, 0, 0)  # Blue for the right line
+        for (start, end) in right_line:
+            cv2.line(output_image, tuple(start), tuple(end), color_right, 2)
     else:
         right_line = []
-
-    # Now, determine the longest line between left_line and right_line
-    # Find the longest line in each group
-    def get_longest_line(line_group):
-        max_length = 0
-        longest_line = None
-        for line in line_group:
-            length = line_length(line)
-            if length > max_length:
-                max_length = length
-                longest_line = line
-        return longest_line, max_length
-
-    left_longest_line, left_max_length = get_longest_line(left_line) if left_line else (None, 0)
-    right_longest_line, right_max_length = get_longest_line(right_line) if right_line else (None, 0)
-
-    # Determine which line is longer
-    if left_max_length >= right_max_length and left_longest_line is not None:
-        longer_line = left_longest_line
-        shorter_line = right_longest_line
-        longer_group = 'left'
-    elif right_longest_line is not None:
-        longer_line = right_longest_line
-        shorter_line = left_longest_line
-        longer_group = 'right'
-    else:
-        # If both lines are empty, return as is
-        return output_image, left_line, right_line
-
-    # Check if the shorter line has a similar slope as the longer line
-    angle_threshold = 10  # degrees
-
-    if shorter_line is not None:
-        angle_longer = line_angle(longer_line)
-        angle_shorter = line_angle(shorter_line)
-        angle_diff = abs(angle_longer - angle_shorter)
-        if angle_diff > 180:
-            angle_diff = 360 - angle_diff  # Ensure angle difference is between 0 and 180
-
-        if angle_diff <= angle_threshold:
-            # Keep both lines
-            pass
-        else:
-            # Remove the shorter line
-            if longer_group == 'left':
-                right_line = []
-            else:
-                left_line = []
-    else:
-        # Only one line is present, keep it
-        pass
-
-    # Draw the selected lines
-    color_right = (255, 0, 0)  # Blue for the right line
-    color_left = (0, 255, 0)  # Green for the left line
-
-    for (start, end) in right_line:
-        cv2.line(output_image, tuple(start), tuple(end), color_right, 2)
-
-    for (start, end) in left_line:
-        cv2.line(output_image, tuple(start), tuple(end), color_left, 2)
 
     return output_image, left_line, right_line
     
@@ -1324,6 +1259,62 @@ def compute_average_features(lines):
     avg_orientation = np.mean(orientations)
     return avg_position, avg_orientation
 
+def compare_masks(previous_mask, current_mask):
+    """
+    Compare the current mask with the previous mask and return the most appropriate one.
+    If the new mask's slope differs by more than 60 degrees or is empty, the previous mask is returned.
+    Also returns a bool `empty_mask` which is True if the new mask is empty.
+    """
+    empty_mask = False
+
+    # If the current mask is None or empty, return the previous mask
+    if current_mask is None or np.sum(current_mask) == 0:
+        empty_mask = True
+        return previous_mask, empty_mask
+
+    # If the previous mask is None, just return the current mask
+    if previous_mask is None:
+        return current_mask, empty_mask
+
+    # Get the best fitting straight center line for both previous and current masks
+    current_center_line = get_best_fitting_line(current_mask)
+    previous_center_line = get_best_fitting_line(previous_mask)
+
+    # Calculate the slopes of the lines (avoid division by zero)
+    def calculate_slope(line):
+        x1, y1, x2, y2 = line
+        if x2 - x1 == 0:  # Vertical line
+            return float('inf')
+        return (y2 - y1) / (x2 - x1)
+
+    current_slope = calculate_slope(current_center_line)
+    previous_slope = calculate_slope(previous_center_line)
+
+    # Convert slope to degrees for comparison
+    def slope_to_degrees(slope):
+        return np.degrees(np.arctan(slope)) if slope != float('inf') else 90
+
+    current_slope_deg = slope_to_degrees(current_slope)
+    previous_slope_deg = slope_to_degrees(previous_slope)
+
+    # Check if the slope difference exceeds 60 degrees
+    if abs(current_slope_deg - previous_slope_deg) > 60:
+        return previous_mask, empty_mask
+
+    # Return the current mask if everything is fine
+    return current_mask, empty_mask
+
+def get_best_fitting_line(mask):   
+    edges = cv2.Canny(mask, 50, 150)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=100, minLineLength=50, maxLineGap=10)
+
+    if lines is not None:
+        # Return the first detected line as the best fitting line for simplicity
+        return lines[0][0]
+    else:
+        # Default line in case no line is detected (you can adjust this as needed)
+        return [0, 0, mask.shape[1], mask.shape[0] // 2]
+
 def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
     # out_image, lines = join_neighbouring_lines(out_image, lines, 10)
@@ -1344,6 +1335,8 @@ def follow_lane(out_image, filtered_results, original, previous_results=None, pr
     out_image, mask = get_safe_zone(original, mask, left, right, 0.3)
     
     if np.any(mask):
+        mask, empty_mask = compare_masks(previous_mask, mask)
+        
         out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
         angle_image, in_lane, left_intersections, middle_intersections, right_intersections = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
