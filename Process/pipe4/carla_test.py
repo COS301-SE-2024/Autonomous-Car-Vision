@@ -110,10 +110,11 @@ def main():
             else:
                 # Autonomous lane-following mode
                 # Pass the frame to start_following function
-                processed_image, mask, steer_value = start_following(frame)
+                # processed_image, mask, steer_value = start_following(frame)
+                processed_image = start_following(frame)
 
                 # Update vehicle control with the steer value
-                control.steer = float(steer_value)
+                # control.steer = float(steer_value)
                 control.throttle = 0.5  # You can adjust the throttle value as needed
 
                 # Display the processed image
@@ -387,12 +388,22 @@ def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10,
     vec1 = np.array(end1) - np.array(start1)
     vec2 = np.array(end2) - np.array(start2)
     
+    # Check if vectors are non-zero
+    norm_vec1_denominator = np.linalg.norm(vec1)
+    norm_vec2_denominator = np.linalg.norm(vec2)
+    
+    if norm_vec1_denominator == 0 or norm_vec2_denominator == 0:
+        # One of the lines is a point (zero length), cannot proceed
+        return False, None, None
+    
     # Normalize the vectors
-    norm_vec1 = vec1 / np.linalg.norm(vec1)
-    norm_vec2 = vec2 / np.linalg.norm(vec2)
+    norm_vec1 = vec1 / norm_vec1_denominator
+    norm_vec2 = vec2 / norm_vec2_denominator
     
     # Calculate the angle between the two vectors (dot product gives cos(theta))
     dot_product = np.dot(norm_vec1, norm_vec2)
+    # Ensure dot_product is within valid range for arccos due to floating point errors
+    dot_product = np.clip(dot_product, -1.0, 1.0)
     angle = np.degrees(np.arccos(dot_product))  # Angle in degrees
 
     # Check if the angle is within the threshold (almost aligned)
@@ -416,7 +427,14 @@ def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10,
 
     # Additional "in-line" check:
     def point_line_distance(p, line_start, line_end):
-        return np.abs(np.cross(line_end - line_start, line_start - p) / np.linalg.norm(line_end - line_start))
+        line_vec = line_end - line_start
+        line_length = np.linalg.norm(line_vec)
+        if line_length == 0:
+            # Line is a point; return distance between point and p
+            return np.linalg.norm(p - line_start)
+        # Compute distance from point p to the line defined by line_start and line_end
+        distance = np.abs(np.cross(line_vec, line_start - p) / line_length)
+        return distance
     
     # Ensure that the second line is approximately inline with the first line
     inline_threshold = distance_threshold / 2  # You can tweak this value based on how strict you want the check
@@ -861,7 +879,7 @@ def get_angle_lines(image):
     center_x = width // 2
     
     # Draw a vertical blue line in the center
-    cv2.line(output_image, (center_x, 0), (center_x, height), (255, 0, 0), 2)  # Blue line in the center
+    # cv2.line(output_image, (center_x, 0), (center_x, height), (255, 0, 0), 2)  # Blue line in the center
     
     # Length for the diagonal lines (it will extend from the bottom of the image)
     line_length = height  # You can modify this if you want shorter/longer lines
@@ -873,10 +891,10 @@ def get_angle_lines(image):
     end_point_left = (center_x - line_length, height - line_length)
     
     # Draw the right 45-degree blue line
-    cv2.line(output_image, (center_x, height), end_point_right, (255, 0, 0), 2)
+    # cv2.line(output_image, (center_x, height), end_point_right, (255, 0, 0), 2)
     
     # Draw the left 45-degree blue line
-    cv2.line(output_image, (center_x, height), end_point_left, (255, 0, 0), 2)
+    # cv2.line(output_image, (center_x, height), end_point_left, (255, 0, 0), 2)
     
     # Return values for further calculations
     
@@ -1143,42 +1161,47 @@ def follow_lane(out_image, filtered_results, original):
     out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=300)
     out_image, left, right = get_side_lines(out_image, lines)
     out_image, left, right = extend_lines(out_image, left, right)
-    out_image, left, right = get_inners(out_image, left, right)
-    out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
-    out_image, mask = get_safe_zone(original, mask, left, right, 0.3)  
+    # out_image, left, right = get_inners(out_image, left, right)
+    # out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
+    # out_image, mask = get_safe_zone(original, mask, left, right, 0.3) 
     
-    if np.any(mask):
-        out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
-        angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
+    return out_image #, mask, steer 
+    
+    # if np.any(mask):
+    #     # out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
+    #     # angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
-        print(left, middle, right)
+    #     # print(left, middle, right)
 
-        if (in_lane):
-                print("The vehicle is in the lane.")
+    #     # if (in_lane):
+    #     #         print("The vehicle is in the lane.")
 
-        steer = analise_results(in_lane, left, middle, right)
+    #     # steer = analise_results(in_lane, left, middle, right)
 
-        # Save the filtered image with only the lane detection
-        # cv2.imwrite('filtered_lanes_output.jpg', out_image)
+    #     # Save the filtered image with only the lane detection
+    #     # cv2.imwrite('filtered_lanes_output.jpg', out_image)
         
-        return out_image, mask, steer
-    else:
-        steer = 0
-        print("Take manual control of the vehicle.")
-        # Save the filtered image with only the lane detection
-        # cv2.imwrite('filtered_lanes_output.jpg', original)
+    #     return out_image, mask, steer
+    # else:
+    #     steer = 0
+    #     print("Take manual control of the vehicle.")
+    #     # Save the filtered image with only the lane detection
+    #     # cv2.imwrite('filtered_lanes_output.jpg', original)
     
-        return original, mask, steer
-    
-# Placeholder for the start_following function
+    #     return original, mask, steer
+
+# out_image, mask, steer = follow_lane(out_image, filtered_results, image)   
+
 def start_following(frame):
     results = model(frame)
     
     out_image, filtered_results = filter_detections(results, model, frame)
     
-    res, mask, steer = follow_lane(out_image, filtered_results, frame)
+    res = follow_lane(out_image, filtered_results, frame)
     
-    return res, mask, steer
+    return res#, mask, steer
+
+cap = cv2.VideoCapture('test_short.mp4')
 
 if __name__ == '__main__':
     main()
