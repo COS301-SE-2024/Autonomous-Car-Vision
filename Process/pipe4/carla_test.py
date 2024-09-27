@@ -541,7 +541,7 @@ def get_side_lines(image, grouped_lines):
         for group in grouped_lines:
             if group == current_right_group:
                 continue  # Skip the current rightmost group
-            line, x = leftmost_point(group)
+            line, x = rightmost_point(group)
             if x > center_x and x < current_right_x:  # Check if it's closer to the center but still on the right
                 current_right_group = group
                 current_right_x = x
@@ -553,7 +553,7 @@ def get_side_lines(image, grouped_lines):
         for group in grouped_lines:
             if group == current_left_group:
                 continue  # Skip the current leftmost group
-            line, x = rightmost_point(group)
+            line, x = leftmost_point(group)
             if x < center_x and x > current_left_x:  # Check if it's closer to the center but still on the left
                 current_left_group = group
                 current_left_x = x
