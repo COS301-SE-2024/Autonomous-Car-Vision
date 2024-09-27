@@ -9,6 +9,7 @@
     import { createEventDispatcher, onMount } from 'svelte';
     import axios from 'axios';
     import CryptoJS from 'crypto-js';
+    import {theme} from '../stores/themeStore';
 
     let showAddPopup = false;
 
@@ -70,24 +71,53 @@
         <Spinner />
         </div>
     {:else}
-        <div class="user-list text-theme-dark-lightText">
-            <div class="header text-xl items-center text-center">
-                <h2>{teamName}</h2>
+    {#if $theme === 'highVizLight'}
+    <div class="user-list text-black-lightText">
+        <div class="headerLight text-xl items-center text-center">
+            <h2>Team Name</h2>
+        </div>
+        <div class="flex text-black flex-row space-between">
+            <h3 class="px-5">Active Members</h3>
+            <Button on:click={() => (showAddPopup = true)} class="ml-96 rounded cursor-pointer bg-highVizLight-secondary hover:bg-highVizDark-accent transition-all duration-300 ease-in-out"><Icon path={mdiAccountPlus} class="px-2"/> Invite Member</Button> 
+        </div>
+        <input
+            type="text"
+            placeholder="Search..."
+            class="bg-theme-dark-white text-black rounded-lg border-2 border-highVizLight-primary p-2 w-full border-solid text-lg"
+        />
+        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-black">
+            <div class="flex items-center col-span-2"> <p class="ml-6">Name</p>
             </div>
-            <div class="flex text-white flex-row space-between">
-                <h3 class="px-5">Active Members</h3>
-                <Button on:click={() => (showAddPopup = true)} class="ml-96 rounded cursor-pointer bg-theme-dark-background hover:bg-theme-dark-background transition-all duration-300 ease-in-out"><Icon path={mdiAccountPlus} class="px-2"/> Invite Member</Button> 
-            </div>
-            <input
-                type="text"
-                placeholder="Search..."
-                class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-full border-solid text-lg"
+            <p>Role</p>
+            <p>Last Active</p>
+        </div>
+        {#each users as user}
+            <TeamMember
+                name={user.name}
+                email={user.email}
+                role={user.role}
+                lastActivity={user.lastActivity}
+                profilePhoto={user.profilePhoto}
+                
             />
-            <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-white">
-                <div class="flex items-center col-span-2"> <p class="ml-6">Name</p>
-                </div>
-                <p>Role</p>
-                <p>Last Active</p>
+        {/each}
+    </div>
+    {:else}
+    <div class="user-list text-theme-dark-lightText">
+        <div class="header text-xl items-center text-center">
+            <h2>Team Name</h2>
+        </div>
+        <div class="flex text-white flex-row space-between">
+            <h3 class="px-5">Active Members</h3>
+            <Button on:click={() => (showAddPopup = true)} class="ml-96 rounded cursor-pointer bg-theme-dark-background hover:bg-theme-dark-background transition-all duration-300 ease-in-out"><Icon path={mdiAccountPlus} class="px-2"/> Invite Member</Button> 
+        </div>
+        <input
+            type="text"
+            placeholder="Search..."
+            class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-full border-solid text-lg"
+        />
+        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-white">
+            <div class="flex items-center col-span-2"> <p class="ml-6">Name</p>
             </div>
             {#each users as user}
                 <TeamMember
@@ -96,12 +126,23 @@
                     email={user.uemail}
                     role={user.is_admin === true ? "Admin" : "Member"}
                     lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
-                    profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"}
-                    
+                    profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
                 />
             {/each}
         </div>
-     {/if}
+        {#each users as user}
+            <TeamMember
+                name={user.name}
+                email={user.email}
+                role={user.role}
+                lastActivity={user.lastActivity}
+                profilePhoto={user.profilePhoto}
+                
+            />
+        {/each}
+    </div>
+    {/if}
+    {/if}
 
      {#if showAddPopup}
     <AddMember
@@ -119,6 +160,14 @@
     }
     .header {
         color: white;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        /* margin-left: 10px; */
+    }
+
+    .headerLight {
+        color: rgb(0, 0, 0);
         padding: 10px;
         border-radius: 4px;
         margin-bottom: 10px;

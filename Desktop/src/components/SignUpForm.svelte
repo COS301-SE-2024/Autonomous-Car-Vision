@@ -3,6 +3,7 @@
   import { mdiEyeOff, mdiEye } from "@mdi/js";
   import axios from "axios";
   import { push } from "svelte-spa-router";
+  import {theme } from "../stores/themeStore";
 
   function handleEnterdown(e) {
     if (e.key == "Enter") {
@@ -53,88 +54,173 @@
   let showConfirm = false;
 </script>
 
-<div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-  <div class="containerClass">
-    <!-- <MaterialApp> -->
-      <div class="flex flex-row ">
-        <a
-          class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
-          href="#/login"
-        >
-          <Button
-            class="text-white "
-            depressed
-            block>Log In</Button
+{#if $theme === 'highVizLight'}
+  <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
+    <div class="containerClassLight">
+      <!-- <MaterialApp> -->
+        <div class="flex flex-row ">
+          <a
+            class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+            href="#/login"
           >
-        </a>
-        <a
-          class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary"
-          href="#/join"
-        >
-          <Button
-            class="text-white "
-            depressed
-            block>Sign Up</Button
-          >
-        </a>
-      </div>
-      <div class=" w-full p-4 rounded-lg mt-2  shadow-card text-white">
-        <div class="text-left">
-          <h1 class="text-2xl">Welcome!</h1>
-          <p>Please enter your information to sign up.</p>
-        </div>
-        <div
-          on:keydown={handleEnterdown}
-          id="form"
-          class="flex flex-col gap-2 py-3 text-white"
-        >
-          <TextField bind:value={eToken} outlined class="pt-4 border-b-2 border-dark-primary ">Email</TextField>
-          <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary text-theme-dark-white">Username</TextField>
-          <TextField 
-            bind:value={pToken}
-            outlined
-            type={show ? "text" : "password"}
-            class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
-          >
-            Password
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-              slot="append"
-              on:click={() => {
-                show = !show;
-              }}
+            <Button
+              class="text-black "
+              depressed
+              block>Log In</Button
             >
-              <Icon path={show ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
-            </div>
-          </TextField>
-          <TextField
-            bind:value={ppToken}
-            outlined
-            type={showConfirm ? "text" : "password"}
-            class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
+          </a>
+          <a
+            class="w-full h-14 flex flex-col flex-wrap justify-center items-center  border-2 border-theme-dark-primary"
+            href="#/join"
           >
-            Confirm password
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div
-              slot="append"
-              on:click={() => {
-                showConfirm = !showConfirm;
-              }}
+            <Button
+              class="text-black "
+              depressed
+              block>Sign Up</Button
             >
-              <Icon path={showConfirm ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
-            </div>
-          </TextField>
+          </a>
         </div>
-        <Button
-          class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClass"
-          on:click={onSubmit}
-          rounded
-          block>Sign up</Button
-        >
+        <div class=" w-full p-4 rounded-lg mt-2  shadow-card text-black">
+          <div class="text-left">
+            <h1 class="text-2xl">Welcome!</h1>
+            <p>Please enter your information to sign up.</p>
+          </div>
+          <div
+            on:keydown={handleEnterdown}
+            id="form"
+            class="flex flex-col gap-2 py-3 text-white"
+          >
+            <TextField bind:value={eToken} outlined class="pt-4 border-b-2 border-dark-primary ">Email</TextField>
+            <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary text-theme-dark-white">Username</TextField>
+            <TextField 
+              bind:value={pToken}
+              outlined
+              type={show ? "text" : "password"}
+              class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
+            >
+              Password
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                slot="append"
+                on:click={() => {
+                  show = !show;
+                }}
+              >
+                <Icon path={show ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
+              </div>
+            </TextField>
+            <TextField
+              bind:value={ppToken}
+              outlined
+              type={showConfirm ? "text" : "password"}
+              class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
+            >
+              Confirm password
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                slot="append"
+                on:click={() => {
+                  showConfirm = !showConfirm;
+                }}
+              >
+                <Icon path={showConfirm ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
+              </div>
+            </TextField>
+          </div>
+          <Button
+            class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClassLight"
+            on:click={onSubmit}
+            rounded
+            block>Sign up</Button
+          >
+        </div>
+      <!-- </MaterialApp> -->
       </div>
-    <!-- </MaterialApp> -->
-    </div>
-</div>
+  </div>
+  {:else}
+  <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
+    <div class="containerClass">
+      <!-- <MaterialApp> -->
+        <div class="flex flex-row ">
+          <a
+            class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
+            href="#/login"
+          >
+            <Button
+              class="text-white "
+              depressed
+              block>Log In</Button
+            >
+          </a>
+          <a
+            class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary"
+            href="#/join"
+          >
+            <Button
+              class="text-white "
+              depressed
+              block>Sign Up</Button
+            >
+          </a>
+        </div>
+        <div class=" w-full p-4 rounded-lg mt-2  shadow-card text-white">
+          <div class="text-left">
+            <h1 class="text-2xl">Welcome!</h1>
+            <p>Please enter your information to sign up.</p>
+          </div>
+          <div
+            on:keydown={handleEnterdown}
+            id="form"
+            class="flex flex-col gap-2 py-3 text-white"
+          >
+            <TextField bind:value={eToken} outlined class="pt-4 border-b-2 border-dark-primary ">Email</TextField>
+            <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary text-theme-dark-white">Username</TextField>
+            <TextField 
+              bind:value={pToken}
+              outlined
+              type={show ? "text" : "password"}
+              class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
+            >
+              Password
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                slot="append"
+                on:click={() => {
+                  show = !show;
+                }}
+              >
+                <Icon path={show ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
+              </div>
+            </TextField>
+            <TextField
+              bind:value={ppToken}
+              outlined
+              type={showConfirm ? "text" : "password"}
+              class="pt-4 border-b-2 border-dark-primary text-theme-dark-white"
+            >
+              Confirm password
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div
+                slot="append"
+                on:click={() => {
+                  showConfirm = !showConfirm;
+                }}
+              >
+                <Icon path={showConfirm ? mdiEyeOff : mdiEye} class="text-theme-dark-primary"/>
+              </div>
+            </TextField>
+          </div>
+          <Button
+            class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClass"
+            on:click={onSubmit}
+            rounded
+            block>Sign up</Button
+          >
+        </div>
+      <!-- </MaterialApp> -->
+      </div>
+  </div>
+  {/if}
 
 <style>
 
@@ -146,6 +232,10 @@
   background-image: linear-gradient(180deg,#181818, #001524 );
 }
 
+.containerClassLight{
+  background-image: linear-gradient(180deg,#B6D9E8, #F8F8F8);
+}
+
 .fillUp{
   color: #001524;
 }
@@ -153,4 +243,9 @@
 .hoverClass{
     background-image: #012431b1;
 }
+
+.hoverClassLight {
+    background-image: #377482c6;
+  }
+
 </style>

@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { Icon } from "svelte-materialify";
+  import {theme} from '../stores/themeStore';
 
   export let items = [];
 
@@ -10,10 +11,30 @@
     dispatch("close");
   }
 </script>
-
+{#if $theme === 'highVizLight'}
 <div
-  class="relative bg-dark-background_secondary text-dark-primary border border-dark-background_secondary rounded-lg p-2 w-64 flex flex-col z-50"
+class="relative bg-highVizLight-accent text-blac border border-highVizLight-background rounded-lg p-2 w-64 flex flex-col z-50"
 >
+  <nav>
+    <ul class="list-none p-0 m-0">
+      {#each items as { name, route, iconPath }}
+        <li
+          class="p-2 border-b border-opacity-10 border-highVizLight-primary rounded-md hover:bg-theme-highVizLight-accent hover:text-white transition"
+        >
+          <a href={route} class="flex items-center text-inherit no-underline">
+            <Icon path={iconPath} />
+            <span class="ml-2">{name}</span>
+          </a>
+        </li>
+      {/each}
+    </ul>
+  </nav>
+</div>
+
+{:else}
+  <div
+  class="relative bg-dark-background_secondary text-dark-primary border border-dark-background_secondary rounded-lg p-2 w-64 flex flex-col z-50"
+  >
   <nav>
     <ul class="list-none p-0 m-0">
       {#each items as { name, route, iconPath }}
@@ -28,4 +49,5 @@
       {/each}
     </ul>
   </nav>
-</div>
+  </div>
+{/if}

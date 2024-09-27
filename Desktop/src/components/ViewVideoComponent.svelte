@@ -22,6 +22,7 @@
 
   import VideoAside from "./videoAside.svelte";
   import { each } from "svelte/internal";
+  import {theme} from '../stores/themeStore';
 
   export let videoPath;
 
@@ -196,24 +197,6 @@
   }
 
   let sideAIinfo = [
-    // {
-    //     id: "1",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "06/07/2024",
-    // },
-    // {
-    //     id: "2",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "07/07/2024",
-    // },
-    // {
-    //     id: "3",
-    //     img: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
-    //     mName: "YoloV8n",
-    //     mTime: "08/07/2024",
-    // },
   ];
 
   async function getAIinfo() {
@@ -315,92 +298,183 @@
   });
 </script>
 
-<div>
-  <div class="flex relative justify-center bg-black overflow-hidden">
-    <video
-      poster={frames[1]}
-      src={videoPath}
-      type="video/mp4"
-      on:mousemove={handleMove}
-      on:touchmove|preventDefault={handleMove}
-      on:mousedown={handleMousedown}
-      on:mouseup={handleMouseup}
-      on:timeupdate={handleTimeUpdate}
-      bind:currentTime={time}
-      bind:duration
-      bind:paused
-      bind:volume
-    >
-      <track kind="captions" />
-    </video>
-    <div class="sideButton {showSideAIDetail ? 'move-right' : ''}">
-      <div class="flex items-center justify-center h-full">
-        <Button
-          icon
-          on:click={revealAIDetails}
-          class="text-white flex"
-          size="default"
-        >
-          {#if !showSideAIDetail}
-            <Icon size={50} path={mdiMenuLeftOutline} />
-          {:else}
-            <Icon size={50} path={mdiMenuRightOutline} />
-          {/if}
-        </Button>
+
+{#if $theme === 'highVizLight'}
+  <div>
+    <div class="flex relative justify-center bg-black overflow-hidden">
+      <video
+        poster={frames[1]}
+        src={videoPath}
+        type="video/mp4"
+        on:mousemove={handleMove}
+        on:touchmove|preventDefault={handleMove}
+        on:mousedown={handleMousedown}
+        on:mouseup={handleMouseup}
+        on:timeupdate={handleTimeUpdate}
+        bind:currentTime={time}
+        bind:duration
+        bind:paused
+        bind:volume
+      >
+        <track kind="captions" />
+      </video>
+      <div class="sideButtonLight {showSideAIDetail ? 'move-right' : ''}">
+        <div class="flex items-center justify-center h-full">
+          <Button
+            icon
+            on:click={revealAIDetails}
+            class="text-black flex"
+            size="default"
+          >
+            {#if !showSideAIDetail}
+              <Icon size={50} path={mdiMenuLeftOutline} />
+            {:else}
+              <Icon size={50} path={mdiMenuRightOutline} />
+            {/if}
+          </Button>
+        </div>
       </div>
-    </div>
-    {#if AIinfoDone}
-    <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
-      <div class="m-3">
-        {#each sideAIinfo as info}
-          <VideoAside AIinfo={info} on:select={selectVideo}/>
-        {/each}
-      </div>
-    </div>
-    {/if}
-    <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
-      {#if frames.length > 0}
-        <div
-          on:mouseover={handleMouseEnter}
-          on:mouseleave={handleMouseLeave}
-          on:focus
-          bind:this={thumbnailBar}
-          class="thumbnail-bar absolute"
-          style="opacity: {showControls ? 1 : 0}"
-        >
-          {#each frames as frame}
-            <div
-              class="thumbnail hover:cursor-pointer"
-              on:click={() => seekToFrame(frame)}
-              on:keypress
-            >
-              <img src={frame} width="120px" alt={frame} />
-            </div>
+      {#if AIinfoDone}
+      <div class="sidevideoLight {showSideAIDetail ? 'move-right' : ''}">
+        <div class="m-3">
+          {#each sideAIinfo as info}
+            <VideoAside AIinfo={info} on:select={selectVideo}/>
           {/each}
         </div>
+      </div>
       {/if}
-      <div class="w-full flex flex-row justify-start items-center">
-        <progress class="TimelineProgress" value={time / duration || 0} />
-        <div class="pl-4">
-          <button class="w-10 text-white" on:click={pause}>
-            {#if ended}
-              <Icon size={32} path={mdiReplay} />
-            {:else if paused}
-              <Icon size={32} path={mdiPlay} />
-            {:else}
-              <Icon size={32} path={mdiPause} />
-            {/if}
-          </button>
+      <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
+        {#if frames.length > 0}
+          <div
+            on:mouseover={handleMouseEnter}
+            on:mouseleave={handleMouseLeave}
+            on:focus
+            bind:this={thumbnailBar}
+            class="thumbnail-bar absolute"
+            style="opacity: {showControls ? 1 : 0}"
+          >
+            {#each frames as frame}
+              <div
+                class="thumbnail hover:cursor-pointer"
+                on:click={() => seekToFrame(frame)}
+                on:keypress
+              >
+                <img src={frame} width="120px" alt={frame} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+        <div class="w-full flex flex-row justify-start items-center">
+          <progress class="TimelineProgress" value={time / duration || 0} />
+          <div class="pl-4">
+            <button class="w-10 text-white" on:click={pause}>
+              {#if ended}
+                <Icon size={32} path={mdiReplay} />
+              {:else if paused}
+                <Icon size={32} path={mdiPlay} />
+              {:else}
+                <Icon size={32} path={mdiPause} />
+              {/if}
+            </button>
+          </div>
+          <div class="info">
+            <span class="time">{format(time)}</span>
+            <span>:</span>
+            <span class="time">{format(duration)}</span>
+          </div>
         </div>
-        <div class="info">
-          <span class="time">{format(time)}</span>
-          <span>:</span>
-          <span class="time">{format(duration)}</span>
+      </div>
+    </div>
+  </div>  
+{:else}
+  <div>
+    <div class="flex relative justify-center bg-black overflow-hidden">
+      <video
+        poster={frames[1]}
+        src={videoPath}
+        type="video/mp4"
+        on:mousemove={handleMove}
+        on:touchmove|preventDefault={handleMove}
+        on:mousedown={handleMousedown}
+        on:mouseup={handleMouseup}
+        on:timeupdate={handleTimeUpdate}
+        bind:currentTime={time}
+        bind:duration
+        bind:paused
+        bind:volume
+      >
+        <track kind="captions" />
+      </video>
+      <div class="sideButton {showSideAIDetail ? 'move-right' : ''}">
+        <div class="flex items-center justify-center h-full">
+          <Button
+            icon
+            on:click={revealAIDetails}
+            class="text-white flex"
+            size="default"
+          >
+            {#if !showSideAIDetail}
+              <Icon size={50} path={mdiMenuLeftOutline} />
+            {:else}
+              <Icon size={50} path={mdiMenuRightOutline} />
+            {/if}
+          </Button>
+        </div>
+      </div>
+      {#if AIinfoDone}
+      <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
+        <div class="m-3">
+          {#each sideAIinfo as info}
+            <VideoAside AIinfo={info} on:select={selectVideo}/>
+          {/each}
+        </div>
+      </div>
+      {/if}
+      <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
+        {#if frames.length > 0}
+          <div
+            on:mouseover={handleMouseEnter}
+            on:mouseleave={handleMouseLeave}
+            on:focus
+            bind:this={thumbnailBar}
+            class="thumbnail-bar absolute"
+            style="opacity: {showControls ? 1 : 0}"
+          >
+            {#each frames as frame}
+              <div
+                class="thumbnail hover:cursor-pointer"
+                on:click={() => seekToFrame(frame)}
+                on:keypress
+              >
+                <img src={frame} width="120px" alt={frame} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+        <div class="w-full flex flex-row justify-start items-center">
+          <progress class="TimelineProgress" value={time / duration || 0} />
+          <div class="pl-4">
+            <button class="w-10 text-white" on:click={pause}>
+              {#if ended}
+                <Icon size={32} path={mdiReplay} />
+              {:else if paused}
+                <Icon size={32} path={mdiPlay} />
+              {:else}
+                <Icon size={32} path={mdiPause} />
+              {/if}
+            </button>
+          </div>
+          <div class="info">
+            <span class="time">{format(time)}</span>
+            <span>:</span>
+            <span class="time">{format(duration)}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+{/if}
+
 
 <style>
   .sideButton {
@@ -411,6 +485,21 @@
     right: 0%;
     transition: test 1s;
     background-color: #03191ec6;
+    margin: 5px;
+    /* border-top-left-radius: 15px; */
+    /* border-bottom-left-radius: 15px; */
+    border-radius: 50%;
+    transition: ease-in-out 1s;
+  }
+
+    .sideButtonLight {
+    width: 42px;
+    height: 42px;
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    transition: test 1s;
+    background-color: #B6D9E8;
     margin: 5px;
     /* border-top-left-radius: 15px; */
     /* border-bottom-left-radius: 15px; */
@@ -431,11 +520,24 @@
     transition: ease-in-out 1s;
   }
 
-  .sidevideo.move-right {
+  .sidevideoLight {
+    width: 20%;
+    height: fit-content;
+    top: 0;
+    position: absolute;
+    right: -25%;
+    margin: 5px;
+    background-color: #B6D9E8;
+    z-index: 10;
+    border-radius: 15px;
+    transition: ease-in-out 1s;
+  }
+
+  .sidevideo.move-right, .sidevideoLight.move-right {
     right: 0;
   }
 
-  .sideButton.move-right {
+  .sideButton.move-right, .sideButtonLight.move-right  {
     right: 20.5%;
   }
 
