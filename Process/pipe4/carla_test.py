@@ -1,3 +1,8 @@
+import carla
+import pygame
+import numpy as np
+import time
+import threading
 from ultralytics import YOLO
 import cv2
 import matplotlib.pyplot as plt
@@ -6,24 +11,130 @@ import math
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
-# Load the trained model
-model = YOLO('best.pt')  # Replace with the path to your trained model
+# Initialize Pygame
+pygame.init()
 
-# Run inference on an image
-# img_path = 'hope.png'
-# img_path = 'maybe.png'
-# img_path = '15.png'
-# img_path = 'lets_see.png'
-# img_path = 'fourteen.jpg'
-# results = model(img_path)  # Perform inference
+# Define constants
+IM_WIDTH = 640
+IM_HEIGHT = 480
+FPS = 10
 
-# print(model.names)
+# Global variable to control the mode
+manual_mode = True
 
-# Load the original image
-# image = cv2.imread(img_path)
-# height, width, channels = image.shape
+def main():
+    global manual_mode
 
-# Function to filter detections
+    # Connect to the CARLA server
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(5.0)
+    world = client.get_world()
+
+    try:
+        # Get the blueprint library and choose a vehicle
+        blueprint_library = world.get_blueprint_library()
+        vehicle_bp = blueprint_library.filter('model3')[0]
+
+        # Spawn the vehicle at a random location
+        spawn_point = world.get_map().get_spawn_points()[0]
+        vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+
+        # Add a camera sensor to the vehicle
+        camera_bp = blueprint_library.find('sensor.camera.rgb')
+        camera_bp.set_attribute('image_size_x', f'{IM_WIDTH}')
+        camera_bp.set_attribute('image_size_y', f'{IM_HEIGHT}')
+        camera_bp.set_attribute('fov', '110')
+        camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))
+        camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
+
+        # Set up the display
+        display = pygame.display.set_mode((IM_WIDTH, IM_HEIGHT))
+        pygame.display.set_caption("CARLA Lane Following")
+        clock = pygame.time.Clock()
+
+        # Variables to store the camera image and control
+        image_queue = []
+        control = carla.VehicleControl()
+        steer_value = 0.0
+
+        # Callback function to process camera images
+        def process_image(data):
+            array = np.frombuffer(data.raw_data, dtype=np.uint8)
+            array = array.reshape((IM_HEIGHT, IM_WIDTH, 4))
+            array = array[:, :, :3]  # Remove alpha channel
+            image_queue.append(array)
+
+        # Start the camera
+        camera.listen(lambda data: process_image(data))
+
+        # Main loop
+        while True:
+            if len(image_queue) > 0:
+                frame = image_queue.pop(0)
+            else:
+                continue
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return  # Exit the script
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        manual_mode = not manual_mode  # Switch modes
+                    elif manual_mode:
+                        if event.key == pygame.K_w:
+                            control.throttle = 0.5
+                        elif event.key == pygame.K_s:
+                            control.brake = 0.5
+                        elif event.key == pygame.K_a:
+                            control.steer = -0.5
+                        elif event.key == pygame.K_d:
+                            control.steer = 0.5
+                    else:
+                        # In autonomous mode, reset manual controls
+                        control.throttle = 0.0
+                        control.brake = 0.0
+                        control.steer = 0.0
+                elif event.type == pygame.KEYUP:
+                    if manual_mode:
+                        if event.key == pygame.K_w or event.key == pygame.K_s:
+                            control.throttle = 0.0
+                            control.brake = 0.0
+                        elif event.key == pygame.K_a or event.key == pygame.K_d:
+                            control.steer = 0.0
+
+            if manual_mode:
+                # Manual driving mode
+                # Display the camera frame
+                surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
+                display.blit(surface, (0, 0))
+            else:
+                # Autonomous lane-following mode
+                # Pass the frame to start_following function
+                processed_image, mask, steer_value = start_following(frame)
+
+                # Update vehicle control with the steer value
+                control.steer = float(steer_value)
+                control.throttle = 0.5  # You can adjust the throttle value as needed
+
+                # Display the processed image
+                surface = pygame.surfarray.make_surface(processed_image.swapaxes(0, 1))
+                display.blit(surface, (0, 0))
+
+            # Apply the control to the vehicle
+            vehicle.apply_control(control)
+
+            # Update the display
+            pygame.display.flip()
+            clock.tick(FPS)
+
+    finally:
+        # Clean up
+        camera.stop()
+        vehicle.destroy()
+        pygame.quit()
+
+model = YOLO('best.pt')
+
 def filter_detections(results, model, image):
     height, width, channels = image.shape
     out_image = np.zeros((height, width, channels), dtype=np.uint8)
@@ -1055,9 +1166,8 @@ def follow_lane(out_image, filtered_results, original):
         # cv2.imwrite('filtered_lanes_output.jpg', original)
     
         return original, mask, steer
-
-# out_image, mask, steer = follow_lane(out_image, filtered_results, image)   
-
+    
+# Placeholder for the start_following function
 def start_following(frame):
     results = model(frame)
     
@@ -1067,41 +1177,5 @@ def start_following(frame):
     
     return res, mask, steer
 
-cap = cv2.VideoCapture('test_short.mp4')
-
-while cap.isOpened():
-    ret, frame = cap.read()  # Read a frame from the video
-
-    if not ret:
-        break  # End of video
-
-    height, width, channels = frame.shape
-    center_x = width // 2
-    
-    
-    res, mask, steer = start_following(frame)
-    
-    # Function to ensure masks are 3-channel
-    def ensure_three_channels(mask):
-        if len(mask.shape) == 2:  # If it's single-channel (grayscale)
-            return cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-        return mask  # Already 3-channel, no need to convert
-
-    # Ensure the masks are 3-channel BGR images
-    green_colored = ensure_three_channels(mask)
-
-    # Assign colors to the masks
-    green_colored[np.where((green_colored == [255, 255, 255]).all(axis=2))] = [255, 0, 0]  # Green mask -> Green color
-
-    # Overlay the green mask on the original image with some transparency
-    overlay_image = cv2.addWeighted(frame, 1, green_colored, 0.5, 0)  # 50% transparency
-
-    # Show the final result
-    cv2.imshow('Image', frame)
-
-    # Exit if 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-    
-cap.release()
-cv2.destroyAllWindows() 
+if __name__ == '__main__':
+    main()
