@@ -95,7 +95,7 @@
 
   const handleClick = () => {
     selectedModel.set(Model); 
-    console.log("handleClick for " + selectedModel.mName);
+    console.log("handleClick for " + Model.mName);
   };
 
 

@@ -159,7 +159,7 @@
                     <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
                 </div>
             {:else}
-            <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+            <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
                 <div class="flex justify-start gap-2 items-center">
                     <Icon path={route.iconPath} id={route.id}/>
                     {#if width >= 150}
@@ -249,7 +249,7 @@ class="sidebarV2 h-full w-auto bg-theme-dark-background text-white flex flex-col
                 <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
             </div>
         {:else}
-        <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+        <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
             <div class="flex justify-start gap-2 items-center">
                 <Icon path={route.iconPath} id={route.id}/>
                 {#if width >= 150}
