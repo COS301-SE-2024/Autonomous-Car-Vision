@@ -2,14 +2,9 @@ import carla
 import pygame
 import numpy as np
 import time
-import threading
 from ultralytics import YOLO
 import cv2
-import matplotlib.pyplot as plt
-import numpy as np
 import math
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
 
 # Initialize Pygame
 pygame.init()
@@ -35,7 +30,7 @@ def main():
         blueprint_library = world.get_blueprint_library()
         vehicle_bp = blueprint_library.filter('etron')[0]
 
-        # Spawn the vehicle at a random location
+        # Spawn the vehicle at a specified location
         spawn_point = world.get_map().get_spawn_points()[5]
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
@@ -57,6 +52,9 @@ def main():
         control = carla.VehicleControl()
         steer_value = 0.0
 
+        # Load the lane detection model
+        model = YOLO('laneTest.pt')
+
         # Callback function to process camera images
         def process_image(data):
             array = np.frombuffer(data.raw_data, dtype=np.uint8)
@@ -73,7 +71,7 @@ def main():
                 frame = image_queue.pop(0)
             else:
                 continue
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return  # Exit the script
@@ -109,8 +107,8 @@ def main():
                 display.blit(surface, (0, 0))
             else:
                 # Autonomous lane-following mode
-                # Pass the frame and previous variables to start_following function
-                processed_image, steer_value = start_following(frame)
+                # Process the frame and get steering value
+                processed_image, steer_value = start_following(frame, model)
 
                 # Update vehicle control with the steer value
                 control.steer = float(steer_value)
@@ -133,408 +131,225 @@ def main():
         vehicle.destroy()
         pygame.quit()
 
-model = YOLO('laneTest.pt')
-
 def filter_detections(results, model, image):
     height, width, channels = image.shape
     out_image = np.zeros((height, width, channels), dtype=np.uint8)
-    filtered_results = []  # Store filtered results
-    
+    filtered_results = []
+
     for result in results[0]:
-        # Get the name of the detected class
-        class_name = model.names[int(result.boxes.cls)]
-        
-        if int(result.boxes.cls) != 4 and int(result.boxes.cls) != 3:  # Filter based on specific classes (not lanes)
-            mask = result.masks.data.cpu().numpy()  # Get the mask for the detected object
-            
-            # If there are extra dimensions, squeeze the mask
-            mask = np.squeeze(mask)  # This removes extra dimensions like [1, h, w] -> [h, w]
-            
-            # Check if mask is non-empty before resizing
+        # Get the class index
+        class_idx = int(result.boxes.cls)
+        # Only process lane classes (assuming 3 and 4 are lane classes)
+        if class_idx in [3, 4]:
+            mask = result.masks.data.cpu().numpy()
+            mask = np.squeeze(mask)
             if mask.size > 0:
-                mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
-
-                # Convert the mask into a binary mask (thresholding)
-                binary_mask = (mask_resized > 0.5).astype(np.uint8)  # Thresholding mask
-
-                # Create a colored version of the mask (e.g., green for lanes)
+                mask_resized = cv2.resize(mask, (width, height))
+                binary_mask = (mask_resized > 0.5).astype(np.uint8)
                 colored_mask = np.zeros_like(image, dtype=np.uint8)
-                colored_mask[binary_mask == 1] = [255, 255, 255]  # White color for lane
-
-                # Add the mask to the output image
+                colored_mask[binary_mask == 1] = [255, 255, 255]
                 out_image = cv2.addWeighted(out_image, 1, colored_mask, 0.5, 0)
-                
-                # Add this result to the filtered list
                 filtered_results.append(result)
             else:
                 print("Empty mask encountered.")
-    
+
     return out_image, filtered_results
 
 def get_lines(filtered_results, image):
-    output_image = image.copy()  # Create a copy of the original image to draw on
-    lines = []  # Array to store the lines as tuples of (start_point, end_point)
-    
+    output_image = image.copy()
+    lines = []
+
     for result in filtered_results:
-        # Extract the binary mask from the result
         mask = result.masks.data.cpu().numpy()
-        mask = np.squeeze(mask)  # Remove extra dimensions if any
+        mask = np.squeeze(mask)
         mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
-        binary_mask = (mask_resized > 0.5).astype(np.uint8)  # Convert to binary mask
+        binary_mask = (mask_resized > 0.5).astype(np.uint8)
 
         # Find contours in the binary mask
         contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
+
         for contour in contours:
-            if len(contour) >= 2:  # Ensure there are enough points to fit a line
-                # Fit a straight line to the contour points
+            if len(contour) >= 2:
+                # Fit a line to the contour points
                 [vx, vy, x, y] = cv2.fitLine(contour, cv2.DIST_L2, 0, 0.01, 0.01)
-                
-                # Get the bounding box of the contour
-                x_min, y_min, w, h = cv2.boundingRect(contour)
-                x_max = x_min + w
-                y_max = y_min + h
-                
-                # Calculate the intersection points of the fitted line with the bounding box
-                def compute_intersection(x_start, y_start, vx, vy, x_min, x_max, y_min, y_max):
-                    points = []
+                lefty = int((-x * vy / vx) + y)
+                righty = int(((image.shape[1] - x) * vy / vx) + y)
+                pt1 = (image.shape[1] - 1, righty)
+                pt2 = (0, lefty)
+                cv2.line(output_image, pt1, pt2, (0, 255, 0), 2)
+                lines.append((pt1, pt2))
 
-                    # Handle vertical lines (vx == 0)
-                    if vx == 0:
-                        x_bound = x_start
-                        # Intersection with horizontal boundaries
-                        for y_bound in [y_min, y_max]:
-                            if y_min <= y_bound <= y_max:
-                                points.append((int(x_bound), int(y_bound)))
-                    else:
-                        # Intersection with vertical boundaries (x_min and x_max)
-                        for x_bound in [x_min, x_max]:
-                            y_bound = vy / vx * (x_bound - x_start) + y_start
-                            if y_min <= y_bound <= y_max:
-                                points.append((int(x_bound), int(y_bound)))
-
-                    # Handle horizontal lines (vy == 0)
-                    if vy == 0:
-                        y_bound = y_start
-                        # Intersection with vertical boundaries
-                        for x_bound in [x_min, x_max]:
-                            if x_min <= x_bound <= x_max:
-                                points.append((int(x_bound), int(y_bound)))
-                    else:
-                        # Intersection with horizontal boundaries (y_min and y_max)
-                        for y_bound in [y_min, y_max]:
-                            x_bound = vx / vy * (y_bound - y_start) + x_start
-                            if x_min <= x_bound <= x_max:
-                                points.append((int(x_bound), int(y_bound)))
-
-                    return points
-
-                # Calculate the intersection points of the fitted line with the bounding box
-                intersections = compute_intersection(x, y, vx, vy, x_min, x_max, y_min, y_max)
-                
-                if len(intersections) >= 2:
-                    # Sort intersections to get consistent line endpoints
-                    intersections = sorted(intersections, key=lambda pt: (pt[0], pt[1]))
-                    pt1, pt2 = intersections[0], intersections[1]
-                    
-                    # Draw the line within the contour bounding box
-                    cv2.line(output_image, pt1, pt2, (0, 255, 0), 2)
-                    
-                    # Append the line (start and end points) to the array
-                    lines.append((pt1, pt2))
-        
     return output_image, lines
 
 def get_sides(image, lines, filtered_results, min_length):
     height, width, _ = image.shape
     center_x = width // 2
-    center_bottom = (center_x, height - 1)  # Bottom center of the image
 
-    closest_left = None
-    closest_right = None
     closest_left_dist = float('inf')
     closest_right_dist = float('inf')
-
-    left_result = None
-    right_result = None
     left_line = None
     right_line = None
 
-    # Helper function to calculate the length of a line (Euclidean distance)
+    # Helper function to calculate line length
     def calculate_line_length(line):
         pt1, pt2 = line
-        return math.sqrt((pt2[0] - pt1[0]) ** 2 + (pt2[1] - pt1[1]) ** 2)
+        return math.hypot(pt2[0] - pt1[0], pt2[1] - pt1[1])
 
-    # Iterate over each result to find the closest left and right
-    for i, result in enumerate(filtered_results):
-        mask = result.masks.data.cpu().numpy()
-        mask = np.squeeze(mask)  # Remove extra dimensions if any
-        mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
-        binary_mask = (mask_resized > 0.5).astype(np.uint8)  # Convert to binary mask
+    # Iterate over lines to find the closest left and right lines
+    for i, line in enumerate(lines):
+        if calculate_line_length(line) < min_length:
+            continue
 
-        # Find the contour to get all points
-        contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        if contours:
-            # Check if there's an associated line and if its length is greater than the min_length
-            if i < len(lines) and calculate_line_length(lines[i]) >= min_length:
-                # Iterate through all points to find the closest point to the center bottom
-                closest_point = None
-                min_distance = float('inf')
+        pt1, pt2 = line
+        x_coords = [pt1[0], pt2[0]]
+        avg_x = sum(x_coords) / 2
+        dist = abs(avg_x - center_x)
 
-                for contour in contours:
-                    for point in contour:
-                        pt = point[0]  # Get the x, y coordinates from the contour point
-                        dist = math.sqrt((pt[0] - center_bottom[0]) ** 2 + (pt[1] - center_bottom[1]) ** 2)
+        if avg_x < center_x and dist < closest_left_dist:
+            closest_left_dist = dist
+            left_line = line
+        elif avg_x > center_x and dist < closest_right_dist:
+            closest_right_dist = dist
+            right_line = line
 
-                        if dist < min_distance:
-                            min_distance = dist
-                            closest_point = pt
-
-                # Now, depending on whether the point is to the left or right of the center
-                if closest_point is not None:
-                    if closest_point[0] < center_x and min_distance < closest_left_dist:
-                        closest_left_dist = min_distance
-                        closest_left = result
-                        left_result = result
-                        left_line = lines[i]  # Line is valid since its length >= min_length
-                    elif closest_point[0] > center_x and min_distance < closest_right_dist:
-                        closest_right_dist = min_distance
-                        closest_right = result
-                        right_result = result
-                        right_line = lines[i]  # Line is valid since its length >= min_length
-
-    # Create a copy of the image to draw the closest results on
+    # Draw the closest left and right lines in blue
     out_image = image.copy()
+    if left_line:
+        cv2.line(out_image, left_line[0], left_line[1], (255, 0, 0), 2)
+    if right_line:
+        cv2.line(out_image, right_line[0], right_line[1], (255, 0, 0), 2)
 
-    # Draw the closest left and right results in blue
-    if closest_left is not None:
-        mask = closest_left.masks.data.cpu().numpy()
-        mask = np.squeeze(mask)
-        mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
-        binary_mask = (mask_resized > 0.5).astype(np.uint8)
-        colored_mask = np.zeros_like(image, dtype=np.uint8)
-        colored_mask[binary_mask == 1] = [255, 0, 0]  # Blue color for left result
-        out_image = cv2.addWeighted(out_image, 1, colored_mask, 0.5, 0)
-
-    if closest_right is not None:
-        mask = closest_right.masks.data.cpu().numpy()
-        mask = np.squeeze(mask)
-        mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
-        binary_mask = (mask_resized > 0.5).astype(np.uint8)
-        colored_mask = np.zeros_like(image, dtype=np.uint8)
-        colored_mask[binary_mask == 1] = [255, 0, 0]  # Blue color for right result
-        out_image = cv2.addWeighted(out_image, 1, colored_mask, 0.5, 0)
-
-    # Prepare the result object with the left and right results and lines
     sides = {
-        'left': {
-            'result': left_result,
-            'line': left_line
-        },
-        'right': {
-            'result': right_result,
-            'line': right_line
-        }
+        'left': {'line': left_line},
+        'right': {'line': right_line}
     }
 
-    return out_image, sides, filtered_results, lines
+    return out_image, sides
 
 def draw_trapezoid_mask(image, bottom_length, top_length):
-    # Make a copy of the image to work on, so the original image is not modified
     image_copy = image.copy()
-    
     height, width, _ = image_copy.shape
-    
-    # Calculate the trapezoid's height as 20% of the image height
+
     trapezoid_height = int(0.45 * height)
-    
-    # Bottom rectangle
     bottom_y = height - 1
     top_y = bottom_y - trapezoid_height
 
-    # Calculate the left and right positions for both the top and bottom of the trapezoid
     bottom_left = (int((width - bottom_length) / 2), bottom_y)
     bottom_right = (int((width + bottom_length) / 2), bottom_y)
     top_left = (int((width - top_length) / 2), top_y)
     top_right = (int((width + top_length) / 2), top_y)
 
-    # Define the trapezoid points
     points = np.array([bottom_left, bottom_right, top_right, top_left], dtype=np.int32)
-    
-    # Create an empty mask
     mask = np.zeros_like(image_copy, dtype=np.uint8)
-    
-    # Draw the filled trapezoid in green (BGR color: 0, 255, 0)
-    cv2.fillPoly(mask, [points], (0, 255, 0))  # Green color
-    
-    # Overlay the green trapezoid mask on the image copy
-    masked_image = cv2.addWeighted(image_copy, 1, mask, 0.5, 0)  # Adjust transparency with 0.5 alpha
-    
+    cv2.fillPoly(mask, [points], (0, 255, 0))
+    masked_image = cv2.addWeighted(image_copy, 1, mask, 0.5, 0)
+
     return masked_image, mask
 
 def calculate_slope(point1, point2):
-    """Helper function to calculate the slope of a line given two points."""
-    if point1[0] == point2[0]:  # Vertical line, infinite slope
+    if point1[0] == point2[0]:
         return float('inf')
     return (point2[1] - point1[1]) / (point2[0] - point1[0])
 
-def calculate_angle(slope1, slope2):
-    if slope1 == slope2:  # If the slopes are identical, the angle is zero
+def calculate_angle_with_vertical(slope):
+    if slope == float('inf'):
         return 0
-    
-    # Calculate the angle in radians between the two slopes
-    angle_rad = math.atan(abs((slope2 - slope1) / (1 + slope1 * slope2)))
-    
-    # Convert to degrees
-    angle_deg = math.degrees(angle_rad)
-    
-    return angle_deg
+    elif slope == 0:
+        return 90
+    else:
+        angle_rad = math.atan(1 / abs(slope))
+        angle_deg = math.degrees(angle_rad)
+        return angle_deg
 
-def get_values(mask, sides):
-    height, width, _ = mask.shape
-    
-    # Trapezoid dimensions (matching draw_trapezoid_mask)
-    bottom_length = 600
-    top_length = 70
-    trapezoid_height = int(0.45 * height)
-    
-    # Define trapezoid edges (left and right) using the mask's corners
-    bottom_y = height - 1
-    top_y = bottom_y - trapezoid_height
-    
-    # Calculate the positions of the trapezoid's edges
-    bottom_left = (int((width - bottom_length) / 2), bottom_y)
-    bottom_right = (int((width + bottom_length) / 2), bottom_y)
-    top_left = (int((width - top_length) / 2), top_y)
-    top_right = (int((width + top_length) / 2), top_y)
-    
-    # Get the left and right edge slopes of the trapezoid mask
-    trapezoid_left_slope = calculate_slope(bottom_left, top_left)
-    trapezoid_right_slope = calculate_slope(bottom_right, top_right)
-    
+def get_values(sides, image):
+    height, width, _ = image.shape
+    center_x = width // 2
+
     left_object = {'angle': float('inf'), 'distance': float('inf')}
     right_object = {'angle': float('inf'), 'distance': float('inf')}
-    
-    # Get the left and right lane lines from sides
-    left_line = sides['left']['line']
-    right_line = sides['right']['line']
 
     # Process the left side
+    left_line = sides['left']['line']
     if left_line:
         left_slope = calculate_slope(left_line[0], left_line[1])
-        left_angle = calculate_angle(trapezoid_left_slope, left_slope)
-        
-        # Determine sign of the angle
-        if left_slope > trapezoid_left_slope:
-            left_angle = -left_angle  # Trapezoid edge is more left-leaning
-        
-        # Calculate horizontal distance difference between bottom of trapezoid and left lane
-        if bottom_left[0] > left_line[0][0]:
-            left_distance = abs(bottom_left[0] - left_line[0][0])  # Positive if left edge is to the right
-        else:
-            left_distance = -abs(bottom_left[0] - left_line[0][0])  # Negative if left edge is to the left
-        
-        # Update left object
+        left_angle = calculate_angle_with_vertical(left_slope)
+        if left_slope < 0:
+            left_angle = -left_angle
+        left_bottom_point = left_line[0] if left_line[0][1] > left_line[1][1] else left_line[1]
+        left_distance = center_x - left_bottom_point[0]
         left_object = {'angle': left_angle, 'distance': left_distance}
-    
+
     # Process the right side
+    right_line = sides['right']['line']
     if right_line:
         right_slope = calculate_slope(right_line[0], right_line[1])
-        right_angle = calculate_angle(trapezoid_right_slope, right_slope)
-        
-        # Determine sign of the angle
-        if right_slope > trapezoid_right_slope:
-            right_angle = -right_angle  # Trapezoid edge is more left-leaning
-        
-        # Calculate horizontal distance difference between bottom of trapezoid and right lane
-        if bottom_right[0] < right_line[0][0]:
-            right_distance = abs(bottom_right[0] - right_line[0][0])  # Positive if right edge is to the left
-        else:
-            right_distance = -abs(bottom_right[0] - right_line[0][0])  # Negative if right edge is to the right
-        
-        # Update right object
+        right_angle = calculate_angle_with_vertical(right_slope)
+        if right_slope > 0:
+            right_angle = -right_angle
+        right_bottom_point = right_line[0] if right_line[0][1] > right_line[1][1] else right_line[1]
+        right_distance = right_bottom_point[0] - center_x
         right_object = {'angle': right_angle, 'distance': right_distance}
 
     return left_object, right_object
 
-def analise_results(left_object, right_object, bottom_length, top_length):
-    """
-    Analyze the results from left and right lane detections and calculate the steering command.
-    """
+def analyze_results(left_object, right_object, bottom_length, top_length):
     steer = 0.0
     angle_steer = 0.0
     distance_steer = 0.0
 
-    # Constants for scaling - adjust these coefficients as needed
-    ANGLE_COEFFICIENT = 1 / 80  # Determines how much the angle affects steering
-    DISTANCE_COEFFICIENT = 1 / (((bottom_length + top_length) / 2) * 300)  # Determines how much the distance affects steering
+    ANGLE_COEFFICIENT = 1 / 80
+    DISTANCE_COEFFICIENT = 1 / (((bottom_length + top_length) / 2) * 300)
 
-    # Process angle component
     angles = []
     weights = []
 
     if left_object['angle'] != float('inf'):
         angles.append(left_object['angle'])
-        weights.append(1)  # You can adjust weights based on confidence or other factors
-
+        weights.append(1)
     if right_object['angle'] != float('inf'):
         angles.append(right_object['angle'])
         weights.append(1)
 
     if angles:
-        # Compute weighted average of angles
         avg_angle = sum(a * w for a, w in zip(angles, weights)) / sum(weights)
-        angle_steer = -avg_angle * ANGLE_COEFFICIENT  # Negative sign depends on coordinate system
+        angle_steer = -avg_angle * ANGLE_COEFFICIENT
 
-    # Process distance component
     distances = []
     distance_weights = []
 
     if left_object['distance'] != float('inf'):
-        distances.append(-left_object['distance'])  # Negative since left is to the left of center
+        distances.append(-left_object['distance'])
         distance_weights.append(1)
-
     if right_object['distance'] != float('inf'):
-        distances.append(right_object['distance'])  # Positive since right is to the right of center
+        distances.append(right_object['distance'])
         distance_weights.append(1)
 
     if distances:
-        # Compute weighted average of distances
         avg_distance = sum(d * w for d, w in zip(distances, distance_weights)) / sum(distance_weights)
         distance_steer = avg_distance * DISTANCE_COEFFICIENT
 
-    # Combine angle and distance components
     steer = angle_steer + distance_steer
-
-    # Optionally, limit the steer value to a range suitable for your application
     steer = max(min(steer, 1.0), -1.0)
 
     return steer
 
-def follow_lane(out_image, filtered_results, original_image):
+def follow_lane(image, filtered_results):
     bottom_length = 600
     top_length = 70
-    
-    out_image, lines = get_lines(filtered_results, out_image)
-    out_image, sides, filtered_results, lines = get_sides(out_image, lines, filtered_results, 25)
-    out_image, mask = draw_trapezoid_mask(out_image, bottom_length, top_length)
-    
-    left_object, right_object = get_values(mask, sides)
-    
-    steer = analise_results(left_object, right_object, bottom_length, top_length)
-    
-    # print(left_object, right_object)
-    
-    return out_image, steer 
 
-def start_following(frame):
+    out_image, lines = get_lines(filtered_results, image)
+    out_image, sides = get_sides(out_image, lines, filtered_results, min_length=25)
+    out_image, _ = draw_trapezoid_mask(out_image, bottom_length, top_length)
+    left_object, right_object = get_values(sides, image)
+    steer = analyze_results(left_object, right_object, bottom_length, top_length)
+
+    return out_image, steer
+
+def start_following(frame, model):
     results = model(frame)
     out_image, filtered_results = filter_detections(results, model, frame)
-    res, steer = follow_lane(out_image, filtered_results, frame)
+    res, steer = follow_lane(frame, filtered_results)
     return res, steer
-
-# cap = cv2.VideoCapture('test_short.mp4')
 
 if __name__ == '__main__':
     main()
