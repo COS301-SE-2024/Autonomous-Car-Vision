@@ -1,3 +1,8 @@
+import carla
+import pygame
+import numpy as np
+import time
+import threading
 from ultralytics import YOLO
 import cv2
 import matplotlib.pyplot as plt
@@ -6,24 +11,143 @@ import math
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
-# Load the trained model
-model = YOLO('best.pt')  # Replace with the path to your trained model
+# Initialize Pygame
+pygame.init()
 
-# Run inference on an image
-# img_path = 'hope.png'
-# img_path = 'maybe.png'
-# img_path = '15.png'
-# img_path = 'lets_see.png'
-# img_path = 'fourteen.jpg'
-# results = model(img_path)  # Perform inference
+# Define constants
+IM_WIDTH = 640
+IM_HEIGHT = 480
+FPS = 10
 
-# print(model.names)
+# Global variable to control the mode
+manual_mode = True
 
-# Load the original image
-# image = cv2.imread(img_path)
-# height, width, channels = image.shape
+def main():
+    global manual_mode
 
-# Function to filter detections
+    # Connect to the CARLA server
+    client = carla.Client('localhost', 2000)
+    client.set_timeout(5.0)
+    world = client.get_world()
+
+    try:
+        # Get the blueprint library and choose a vehicle
+        blueprint_library = world.get_blueprint_library()
+        vehicle_bp = blueprint_library.filter('model3')[0]
+
+        # Spawn the vehicle at a random location
+        spawn_point = world.get_map().get_spawn_points()[0]
+        vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+
+        # Add a camera sensor to the vehicle
+        camera_bp = blueprint_library.find('sensor.camera.rgb')
+        camera_bp.set_attribute('image_size_x', f'{IM_WIDTH}')
+        camera_bp.set_attribute('image_size_y', f'{IM_HEIGHT}')
+        camera_bp.set_attribute('fov', '110')
+        camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))
+        camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
+
+        # Set up the display
+        display = pygame.display.set_mode((IM_WIDTH, IM_HEIGHT))
+        pygame.display.set_caption("CARLA Lane Following")
+        clock = pygame.time.Clock()
+
+        # Variables to store the camera image and control
+        image_queue = []
+        control = carla.VehicleControl()
+        steer_value = 0.0
+
+        # Callback function to process camera images
+        def process_image(data):
+            array = np.frombuffer(data.raw_data, dtype=np.uint8)
+            array = array.reshape((IM_HEIGHT, IM_WIDTH, 4))
+            array = array[:, :, :3]  # Remove alpha channel
+            image_queue.append(array)
+
+        # Start the camera
+        camera.listen(lambda data: process_image(data))
+        
+        previous_results = None
+        previous_left = None
+        previous_right = None
+        previous_mask = None
+
+        # Main loop
+        while True:
+            if len(image_queue) > 0:
+                frame = image_queue.pop(0)
+            else:
+                continue
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return  # Exit the script
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        manual_mode = not manual_mode  # Switch modes
+                    elif manual_mode:
+                        if event.key == pygame.K_w:
+                            control.throttle = 0.5
+                        elif event.key == pygame.K_s:
+                            control.brake = 0.5
+                        elif event.key == pygame.K_a:
+                            control.steer = -0.5
+                        elif event.key == pygame.K_d:
+                            control.steer = 0.5
+                    else:
+                        # In autonomous mode, reset manual controls
+                        control.throttle = 0.0
+                        control.brake = 0.0
+                        control.steer = 0.0
+                elif event.type == pygame.KEYUP:
+                    if manual_mode:
+                        if event.key == pygame.K_w or event.key == pygame.K_s:
+                            control.throttle = 0.0
+                            control.brake = 0.0
+                        elif event.key == pygame.K_a or event.key == pygame.K_d:
+                            control.steer = 0.0
+
+            if manual_mode:
+                # Manual driving mode
+                # Display the camera frame
+                surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
+                display.blit(surface, (0, 0))
+            else:
+                # Autonomous lane-following mode
+                # Pass the frame and previous variables to start_following function
+                processed_image, mask, steer_value, results, current_left, current_right = start_following(
+                    frame, previous_results, previous_left, previous_right, previous_mask
+                )
+
+                # Update vehicle control with the steer value
+                control.steer = float(steer_value)
+                control.throttle = 0.5  # Adjust the throttle value as needed
+
+                # Display the processed image
+                surface = pygame.surfarray.make_surface(processed_image.swapaxes(0, 1))
+                display.blit(surface, (0, 0))
+
+                # Update previous variables for the next frame
+                previous_results = results
+                previous_left = current_left
+                previous_right = current_right
+                previous_mask = mask
+
+            # Apply the control to the vehicle
+            vehicle.apply_control(control)
+
+            # Update the display
+            pygame.display.flip()
+            clock.tick(FPS)
+
+    finally:
+        # Clean up
+        camera.stop()
+        vehicle.destroy()
+        pygame.quit()
+
+model = YOLO('laneTest.pt')
+
 def filter_detections(results, model, image):
     height, width, channels = image.shape
     out_image = np.zeros((height, width, channels), dtype=np.uint8)
@@ -197,6 +321,24 @@ def join_neighbouring_lines(image, lines, min_distance=30):
     
     return output_image, grouped_lines
 
+def group_lines(image, lines):
+    output_image = image.copy()  # Create a copy of the original image to draw on
+    
+    # Initialize an array to store groups of lines
+    grouped_lines = []
+    
+    # For each line, create a group containing just that line
+    for line in lines:
+        grouped_lines.append([line])
+    
+    # Optionally, you can draw the lines on the output image
+    for group in grouped_lines:
+        color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))  # Random color for each group
+        for (start, end) in group:
+            cv2.line(output_image, start, end, color, 2)
+    
+    return output_image, grouped_lines
+
 def extend_and_connect_lines(image, grouped_lines, min_distance=30, extension_length=20):
     output_image = image.copy()  # Create a copy of the original image to draw on
 
@@ -271,14 +413,18 @@ def extend_and_connect_lines(image, grouped_lines, min_distance=30, extension_le
 
     return output_image, merged_groups
 
-def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10, distance_threshold=30):
+def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10, distance_threshold=200, length_ratio_threshold=5):
     # Vector representation of the lines
     vec1 = np.array(end1) - np.array(start1)
     vec2 = np.array(end2) - np.array(start2)
     
+    # Calculate lengths of the lines
+    length1 = np.linalg.norm(vec1)
+    length2 = np.linalg.norm(vec2)
+
     # Normalize the vectors
-    norm_vec1 = vec1 / np.linalg.norm(vec1)
-    norm_vec2 = vec2 / np.linalg.norm(vec2)
+    norm_vec1 = vec1 / length1
+    norm_vec2 = vec2 / length2
     
     # Calculate the angle between the two vectors (dot product gives cos(theta))
     dot_product = np.dot(norm_vec1, norm_vec2)
@@ -286,6 +432,10 @@ def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10,
 
     # Check if the angle is within the threshold (almost aligned)
     if abs(angle) > angle_threshold:
+        return False, None, None
+
+    # Check if the line lengths are too different (avoid merging long and short lines)
+    if max(length1, length2) / min(length1, length2) > length_ratio_threshold:
         return False, None, None
 
     # Check if the lines are close enough to each other by checking the distance between their closest points
@@ -303,16 +453,26 @@ def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10,
     if min_dist > distance_threshold:
         return False, None, None
 
-    # Additional "in-line" check:
+    # Check if the second line's points are collinear with the first line
     def point_line_distance(p, line_start, line_end):
         return np.abs(np.cross(line_end - line_start, line_start - p) / np.linalg.norm(line_end - line_start))
-    
-    # Ensure that the second line is approximately inline with the first line
+
     inline_threshold = distance_threshold / 2  # You can tweak this value based on how strict you want the check
     dist_start2_line1 = point_line_distance(np.array(start2), np.array(start1), np.array(end1))
     dist_end2_line1 = point_line_distance(np.array(end2), np.array(start1), np.array(end1))
 
     if dist_start2_line1 > inline_threshold or dist_end2_line1 > inline_threshold:
+        return False, None, None
+
+    # New addition: Check if the second line extends the first line
+    def is_point_in_direction(point, line_start, line_end):
+        # Check if the point extends the direction of the line (dot product must be positive)
+        direction_vector = line_end - line_start
+        point_vector = point - line_end
+        return np.dot(direction_vector, point_vector) > 0
+
+    if not is_point_in_direction(np.array(start2), np.array(start1), np.array(end1)) and \
+       not is_point_in_direction(np.array(end2), np.array(start1), np.array(end1)):
         return False, None, None
 
     return True, closest_pt1, closest_pt2
@@ -338,7 +498,7 @@ def merge_aligned_inline_lines(image, grouped_lines, angle_threshold, distance_t
 
                     if inline:
                         # Draw a connection between the closest points
-                        cv2.line(output_image, closest_pt1, closest_pt2, (0, 0, 255), 2)  # Red line for connections
+                        cv2.line(output_image, tuple(map(int, closest_pt1)), tuple(map(int, closest_pt2)), (0, 0, 255), 2)  # Red line for connections
 
                         # Add the connecting line to the group
                         merged_groups[group_index].append((closest_pt1, closest_pt2))
@@ -412,7 +572,7 @@ def get_side_lines(image, grouped_lines):
         for group in grouped_lines:
             if group == current_right_group:
                 continue  # Skip the current rightmost group
-            line, x = leftmost_point(group)
+            line, x = rightmost_point(group)
             if x > center_x and x < current_right_x:  # Check if it's closer to the center but still on the right
                 current_right_group = group
                 current_right_x = x
@@ -424,7 +584,7 @@ def get_side_lines(image, grouped_lines):
         for group in grouped_lines:
             if group == current_left_group:
                 continue  # Skip the current leftmost group
-            line, x = rightmost_point(group)
+            line, x = leftmost_point(group)
             if x < center_x and x > current_left_x:  # Check if it's closer to the center but still on the left
                 current_left_group = group
                 current_left_x = x
@@ -651,11 +811,14 @@ def fill_polygon_between_lines(image, left_inner_lines, right_inner_lines):
     return output_image, mask, (left_lines_returned, right_lines_returned)
 
 def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
+    # Make a copy of the input image to avoid modifying the original
+    output_image = image.copy()
+
     # Check if the lane_mask is empty
     if not np.any(lane_mask):
-        # Return the input image and an empty mask
-        safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask
+        # Return the copied image and an empty mask
+        safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
+        return output_image, safe_zone_mask
 
     # Ensure factor is between 0 and 1
     factor = np.clip(factor, 0.0, 1.0)
@@ -680,8 +843,8 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     # Check if there are enough points
     if left_points.shape[0] < 2 or right_points.shape[0] < 2:
         print("Not enough points to compute safe zone.")
-        safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask  # Return the original image and an empty mask
+        safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
+        return output_image, safe_zone_mask  # Return the copied image and an empty mask
 
     # Sort points by y-coordinate (from top to bottom)
     left_points = left_points[np.argsort(left_points[:, 1])]
@@ -698,8 +861,8 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     y_max = int(min(np.max(left_y), np.max(right_y)))
     if y_min == y_max:
         print("No overlapping y-values between left and right lanes.")
-        safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask  # Return the original image and an empty mask
+        safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
+        return output_image, safe_zone_mask  # Return the copied image and an empty mask
     y_values = np.linspace(y_min, y_max, num=100)
 
     # Interpolate x-values for left and right boundaries
@@ -723,18 +886,18 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     polygon_points = np.int32([polygon_points])
 
     # Create a new mask for the safe zone
-    safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+    safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
     cv2.fillPoly(safe_zone_mask, polygon_points, 255)  # Fill with white color
 
-    # Draw the safe zone mask in blue on the original image
-    blue_mask = np.zeros_like(image)
+    # Draw the safe zone mask in blue on the copied image
+    blue_mask = np.zeros_like(output_image)
     blue_mask[:, :, 0] = safe_zone_mask  # Assign mask to blue channel
 
-    # Blend the blue mask with the original image
+    # Blend the blue mask with the copied image
     alpha = 0.3  # Transparency factor
-    cv2.addWeighted(blue_mask, alpha, image, 1 - alpha, 0, image)
+    cv2.addWeighted(blue_mask, alpha, output_image, 1 - alpha, 0, output_image)
 
-    return image, safe_zone_mask
+    return output_image, safe_zone_mask
 
 def get_angle_lines(image):
     # Make a copy of the passed-in image
@@ -747,7 +910,7 @@ def get_angle_lines(image):
     center_x = width // 2
     
     # Draw a vertical blue line in the center
-    cv2.line(output_image, (center_x, 0), (center_x, height), (255, 0, 0), 2)  # Blue line in the center
+    # cv2.line(output_image, (center_x, 0), (center_x, height), (255, 0, 0), 2)  # Blue line in the center
     
     # Length for the diagonal lines (it will extend from the bottom of the image)
     line_length = height  # You can modify this if you want shorter/longer lines
@@ -759,10 +922,10 @@ def get_angle_lines(image):
     end_point_left = (center_x - line_length, height - line_length)
     
     # Draw the right 45-degree blue line
-    cv2.line(output_image, (center_x, height), end_point_right, (255, 0, 0), 2)
+    # cv2.line(output_image, (center_x, height), end_point_right, (255, 0, 0), 2)
     
     # Draw the left 45-degree blue line
-    cv2.line(output_image, (center_x, height), end_point_left, (255, 0, 0), 2)
+    # cv2.line(output_image, (center_x, height), end_point_left, (255, 0, 0), 2)
     
     # Return values for further calculations
     
@@ -1022,86 +1185,152 @@ def analise_results(in_lane, left, middle, right):
 # Call the filter_detections function
 # out_image, filtered_results = filter_detections(results, model, image)
 
-def follow_lane(out_image, filtered_results, original):
+def match_prev_results(out_image, lines, previous_left, previous_right, previous_results, filtered_results):
+    try:
+        # Compute features for previous left and right lines
+        prev_left_pos, prev_left_ori = compute_average_features(previous_left)
+        prev_right_pos, prev_right_ori = compute_average_features(previous_right)
+
+        # For each group in current lines, compute features
+        group_features = []
+        for group in lines:
+            group_pos, group_ori = compute_line_group_features(group)
+            group_features.append({
+                'group': group,
+                'position': group_pos,
+                'orientation': group_ori
+            })
+        
+        left_groups = []
+        right_groups = []
+
+        # For each group, compute distance and orientation difference to previous left and right
+        for features in group_features:
+            group = features['group']
+            group_pos = features['position']
+            group_ori = features['orientation']
+            # Compute distance and orientation difference to previous left
+            dist_left = np.linalg.norm(np.array(group_pos) - np.array(prev_left_pos))
+            ori_diff_left = abs(group_ori - prev_left_ori)
+            # Compute distance and orientation difference to previous right
+            dist_right = np.linalg.norm(np.array(group_pos) - np.array(prev_right_pos))
+            ori_diff_right = abs(group_ori - prev_right_ori)
+
+            # Decide whether to assign to left or right based on which is closer
+            score_left = dist_left + ori_diff_left
+            score_right = dist_right + ori_diff_right
+
+            if score_left < score_right:
+                left_groups.append(group)
+            else:
+                right_groups.append(group)
+        
+        # If we have at least one left and one right group, we can proceed
+        if left_groups and right_groups:
+            # Merge groups into left and right lines
+            left_lines = [line for group in left_groups for line in group]
+            right_lines = [line for group in right_groups for line in group]
+            return out_image, left_lines, right_lines
+        else:
+            # Matching failed, attempt to match filtered results to previous results
+            # Implement additional matching logic here if needed
+            # For now, call get_side_lines
+            out_image, left_lines, right_lines = get_side_lines(out_image, lines)
+            return out_image, left_lines, right_lines
+    except Exception as e:
+        print(f"Error in match_prev_results: {e}")
+        # If any error occurs, call get_side_lines
+        out_image, left_lines, right_lines = get_side_lines(out_image, lines)
+        return out_image, left_lines, right_lines
+
+def compute_line_group_features(line_group):
+    positions = []
+    orientations = []
+    for line in line_group:
+        (x1, y1), (x2, y2) = line
+        # Compute midpoint
+        mid_x = (x1 + x2) / 2
+        mid_y = (y1 + y2) / 2
+        positions.append((mid_x, mid_y))
+        # Compute orientation (angle)
+        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+        orientations.append(angle)
+    # Average position
+    avg_x = np.mean([p[0] for p in positions])
+    avg_y = np.mean([p[1] for p in positions])
+    avg_position = (avg_x, avg_y)
+    # Average orientation
+    avg_orientation = np.mean(orientations)
+    return avg_position, avg_orientation
+
+def compute_average_features(lines):
+    positions = []
+    orientations = []
+    for line in lines:
+        (x1, y1), (x2, y2) = line
+        # Compute midpoint
+        mid_x = (x1 + x2) / 2
+        mid_y = (y1 + y2) / 2
+        positions.append((mid_x, mid_y))
+        # Compute orientation (angle)
+        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+        orientations.append(angle)
+    # Average position
+    avg_x = np.mean([p[0] for p in positions])
+    avg_y = np.mean([p[1] for p in positions])
+    avg_position = (avg_x, avg_y)
+    # Average orientation
+    avg_orientation = np.mean(orientations)
+    return avg_position, avg_orientation
+
+def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
-    out_image, lines = join_neighbouring_lines(out_image, lines, 30) 
-    out_image, lines = extend_and_connect_lines(out_image, lines, 50, 50)
-    out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=300)
-    out_image, left, right = get_side_lines(out_image, lines)
+    # out_image, lines = join_neighbouring_lines(out_image, lines, 10)
+    out_image, lines = group_lines(out_image, lines)
+    # out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
+    # out_image, lines = merge_aligned_inline_lines(out_image, lines, 30, 200)
+    
+    # Use previous results to match current lines if available
+    if previous_left is not None and previous_right is not None:
+        out_image, left, right = match_prev_results(out_image, lines, previous_left, previous_right, previous_results, filtered_results)
+    else:
+        out_image, left, right = get_side_lines(out_image, lines)
+    
     out_image, left, right = extend_lines(out_image, left, right)
     out_image, left, right = get_inners(out_image, left, right)
     out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
-    out_image, mask = get_safe_zone(original, mask, left, right, 0.3)  
+    out_image, mask = get_safe_zone(original, mask, left, right, 0.3)
     
     if np.any(mask):
         out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
-        angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
+        angle_image, in_lane, left_intersections, middle_intersections, right_intersections = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
-        print(left, middle, right)
+        print(left_intersections, middle_intersections, right_intersections)
 
-        if (in_lane):
-                print("The vehicle is in the lane.")
+        if in_lane:
+            print("The vehicle is in the lane.")
 
-        steer = analise_results(in_lane, left, middle, right)
+        steer = analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
 
-        # Save the filtered image with only the lane detection
-        # cv2.imwrite('filtered_lanes_output.jpg', out_image)
-        
-        return out_image, mask, steer
+        # Return current left and right lines for use in the next frame
+        return out_image, mask, steer, left, right
     else:
         steer = 0
         print("Take manual control of the vehicle.")
-        # Save the filtered image with only the lane detection
-        # cv2.imwrite('filtered_lanes_output.jpg', original)
-    
-        return original, mask, steer
+        # Return None for left and right lines
+        return original, mask, steer, None, None
 
 # out_image, mask, steer = follow_lane(out_image, filtered_results, image)   
 
-def start_following(frame):
+def start_following(frame, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     results = model(frame)
-    
     out_image, filtered_results = filter_detections(results, model, frame)
-    
-    res, mask, steer = follow_lane(out_image, filtered_results, frame)
-    
-    return res, mask, steer
+    res, mask, steer, current_left, current_right = follow_lane(
+        out_image, filtered_results, frame, previous_results, previous_left, previous_right, previous_mask
+    )
+    return res, mask, steer, results, current_left, current_right
 
-cap = cv2.VideoCapture('test_short.mp4')
+# cap = cv2.VideoCapture('test_short.mp4')
 
-while cap.isOpened():
-    ret, frame = cap.read()  # Read a frame from the video
-
-    if not ret:
-        break  # End of video
-
-    height, width, channels = frame.shape
-    center_x = width // 2
-    
-    
-    res, mask, steer = start_following(frame)
-    
-    # Function to ensure masks are 3-channel
-    def ensure_three_channels(mask):
-        if len(mask.shape) == 2:  # If it's single-channel (grayscale)
-            return cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-        return mask  # Already 3-channel, no need to convert
-
-    # Ensure the masks are 3-channel BGR images
-    green_colored = ensure_three_channels(mask)
-
-    # Assign colors to the masks
-    green_colored[np.where((green_colored == [255, 255, 255]).all(axis=2))] = [255, 0, 0]  # Green mask -> Green color
-
-    # Overlay the green mask on the original image with some transparency
-    overlay_image = cv2.addWeighted(frame, 1, green_colored, 0.5, 0)  # 50% transparency
-
-    # Show the final result
-    cv2.imshow('Image', frame)
-
-    # Exit if 'q' is pressed
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-    
-cap.release()
-cv2.destroyAllWindows() 
+if __name__ == '__main__':
+    main()
