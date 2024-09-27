@@ -9,7 +9,7 @@
   } from "svelte-materialify";
   import { onMount } from "svelte";
   import axios from "axios";
-  import { mdiAccount, mdiImageEdit } from "@mdi/js/mdi";
+  import { mdiAccount, mdiLaunch } from "@mdi/js/mdi";
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
@@ -24,34 +24,10 @@
     email: "",
     profile_picture: "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg", // Test Image "images/HighViz.png"
   };
-  let isHovered = false; // To track hover state
-  let fileInput; // For referencing the file input element
 
-  const handleHover = () => {
-    isHovered = true;
-  };
-
-  const handleMouseLeave = () => {
-    isHovered = false;
-  };
-
-  const updateProfilePicture = () => {
-    // Trigger file input click
-    fileInput.click();
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]; // Get the first selected file
-    if (file) {
-      const reader = new FileReader();
-
-      // Load the selected image and update user.profile_picture
-      reader.onload = (e) => {
-        user.profile_picture = e.target.result;
-      };
-
-      reader.readAsDataURL(file); // Read the file as a data URL (base64)
-    }
+  const redirectToGravatar = () => {
+    console.log("Redirecting to Gravatar...");
+    window.open('https://en.gravatar.com/site/login', '_blank');
   };
 
   function changePassword() {
@@ -157,51 +133,27 @@
 
           <!-- Profile Picture -->
           <div
-            class="flex flex-col items-center mb-4 space-y-3 rounded-full border avatar-image"
-            on:mouseenter={handleHover}
-            on:mouseleave={handleMouseLeave}
+            class="flex flex-col items-center mb-4 rounded-full border avatar-container"
           >
-            {#if user.profile_picture != ""}
-              <Avatar size="15rem">
-                <img
-                  src={user.profile_picture}
-                  alt="Avatar"
-                  class="avatar-image"
-                />
-                {#if isHovered}
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <div
-                    class="absolute text-dark-primary p-2 cursor-pointer pencil-icon"
-                    on:click={updateProfilePicture}
-                  >
-                    <Icon path={mdiImageEdit} size="2rem" />
-                  </div>
-                {/if}
-              </Avatar>
-            {:else}
-              <Avatar size="15rem" class="bg-theme-keith-jet">
-                <Icon path={mdiAccount} class="avatar-image" />
-                {#if isHovered}
-                  <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <div
-                    class="absolute text-dark-primary p-2 cursor-pointer pencil-icon"
-                    on:click={updateProfilePicture}
-                  >
-                    <Icon path={mdiImageEdit} size="2rem" />
-                  </div>
-                {/if}
-              </Avatar>
-            {/if}
+            <Avatar size="15rem">
+              <img
+                src={user.profile_picture}
+                alt="Avatar"
+                class="avatar-image"
+              />
+              <div
+                class="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-black hover:bg-opacity-50 transition-all duration-300"
+                on:click={redirectToGravatar}
+              >
+                <Icon path={mdiLaunch} size="2rem" class="text-white" />
+              </div>
+            </Avatar>
+            <Tooltip bottom>
+              <div slot="activator">
+                Change avatar on Gravatar
+              </div>
+            </Tooltip>
           </div>
-          <!-- Hidden file input for image selection -->
-          <input
-            type="file"
-            accept="image/*"
-            containerStyles="border-color: #8492a6; color: black"
-            style="display:none;"
-            bind:this={fileInput}
-            on:change={handleFileChange}
-          />
 
           <!-- Edit Username -->
           <div class="mb-2 w-1/2">
@@ -242,28 +194,16 @@
 </MaterialAppMin>
 
 <style>
-  /* Add smooth transition for opacity change */
+  .avatar-container {
+    position: relative;
+    overflow: hidden;
+  }
+
   .avatar-image {
-    opacity: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
-  /* Reduce opacity to 60% when hovered */
-  .avatar-image:hover {
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-  }
-
-  /* Pencil icon styling */
-  .pencil-icon svg {
-    color: var(--theme-dark-white); /* Icon color */
-    background: white; /* Background for better visibility */
-    border-radius: 50%;
-    padding: 0.5rem;
-    opacity: 1; /* Set icon opacity to 100% */
-  }
-
-  /* Ensure icon is always fully visible */
-  .pencil-icon {
-    opacity: 1;
-  }
+  /* Remove other avatar-related styles */
 </style>
