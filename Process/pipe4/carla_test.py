@@ -146,7 +146,7 @@ def main():
         vehicle.destroy()
         pygame.quit()
 
-model = YOLO('best.pt')
+model = YOLO('laneTest.pt')
 
 def filter_detections(results, model, image):
     height, width, channels = image.shape
@@ -1285,10 +1285,10 @@ def compute_average_features(lines):
 
 def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
-    out_image, lines = join_neighbouring_lines(out_image, lines, 10)
-    # out_image, lines = group_lines(out_image, lines)
-    out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
-    out_image, lines = merge_aligned_inline_lines(out_image, lines, 30, 200)
+    # out_image, lines = join_neighbouring_lines(out_image, lines, 10)
+    out_image, lines = group_lines(out_image, lines)
+    # out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
+    # out_image, lines = merge_aligned_inline_lines(out_image, lines, 30, 200)
     
     # Use previous results to match current lines if available
     if previous_left is not None and previous_right is not None:
