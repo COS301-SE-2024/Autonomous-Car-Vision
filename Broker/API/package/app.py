@@ -95,7 +95,7 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC")
+        test = os.getenv("PUBLIC_TEST")
         test = base64.b64decode(test)
 
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
@@ -121,13 +121,21 @@ async def install():
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
         session = cerberus.get_session(agent_private, server_ecdh2)
+        capacity = ""
+        if os.getenv("AGENT_TYPE") == "S":
+            capacity = "store"
+        elif os.getenv("AGENT_TYPE") == "P": 
+            capacity = "process"
+        else:
+            capacity = "dual"       
+            
         message = cerberus.elyptic_encryptor(
             session,
             json.dumps(
                 {
-                    "aip": "127.0.0.1",
+                    "aip": socket.gethostbyname(socket.gethostname()),
                     "aport": 8010,
-                    "capacity": "dual",
+                    "capacity": capacity,
                     "storage": 290.4,
                     "identifier": "ACDC",
                 }
@@ -135,7 +143,7 @@ async def install():
         )
         response3 = await client.post(
             "http://127.0.0.1:8006/handshake",
-            json={"aid": os.getenv("AID"), "message": message},
+            json={"aid": os.getenv("AID"), "corporation": os.getenv("CORPORATION_NAME"), "message": message},
         )
         if response3.status_code != 200:
             raise HTTPException(
@@ -148,8 +156,8 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = "127.0.0.1"
-    # ip = socket.gethostbyname(socket.gethostname())
+    # ip = "127.0.0.1"
+    ip = socket.gethostbyname(socket.gethostname())
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
@@ -181,8 +189,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 data = json.loads(data)
                 print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
+                uid = data["uid"]
+                mid = data["mid"]
                 size = data["size"]
                 token = data["token"]
                 command = data["command"]
@@ -194,8 +202,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 print(f"Connected by {addr}")
 
                 if command == "SEND":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break
@@ -211,8 +219,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                     print(f"File {filename} received and saved to {filepath}")
 
                 elif command == "RETR":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break
@@ -239,11 +247,11 @@ async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request)
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
-    aid = "STUMPED"
+    aid = os.getenv("AID")
     size = "STUMPED"
     utoken = "STUMPED"
     backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
-    return {"aip": ip, "aport": port}
+    return {"aip": ip, "aport": port, "aid": aid}
 
 
 @app.post("/process/")

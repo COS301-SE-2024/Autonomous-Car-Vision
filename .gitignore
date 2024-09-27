@@ -9,6 +9,7 @@ ModelsVenv
 .svelte-kit
 .pnp.*
 .yarnrc.yml
+package-lock.json
 
 # Python specific
 *.py[cod]

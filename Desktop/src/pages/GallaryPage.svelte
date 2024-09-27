@@ -37,6 +37,15 @@
   //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
+
+    const uid = await window.electronAPI.getUid();
+
+    const lastSignin = await window.electronAPI.getLastSignin(uid);
+    console.log("Last signin: " + lastSignin);
+    //TODO: update last signin in the database
+    const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
+    console.log("Last signin updated: " + updateLastSignin);
+
     try {
       const response = await window.electronAPI.fetchVideos();
       console.log(response);

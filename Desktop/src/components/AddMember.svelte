@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { Button, TextField, Icon } from "svelte-materialify";
     import {mdiAccountPlus} from "@mdi/js";
+    import axios from "axios";
     import {theme} from '../stores/themeStore';
   
    let email = ''; 
@@ -17,12 +18,30 @@
     const dispatch = createEventDispatcher();
   
     function closePopup() {
-    dispatch("closePopup");
-  }
+        dispatch("cancel");
+    }
 
     function addMember() {
-      console.log("addMember called");
+        console.log("addMember called");
+        sendEmails();
+        dispatch("save", { members: newMembers });
     }
+
+    const sendEmails = async () => {
+        console.log("Sending invites");
+        console.log(newMembers);
+        console.log(window.electronAPI.getTeamName());
+        // Send the emails to the new members
+        try {
+            const response = await axios.post("http://localhost:8000/sendInviteEmail/", {
+                newMembers: newMembers,
+                teamName: window.electronAPI.getTeamName(),
+            });
+            console.log(response);
+        } catch (error) {
+            console.error("Sending invites failed:", error);
+        }
+    };
   
   </script>
 

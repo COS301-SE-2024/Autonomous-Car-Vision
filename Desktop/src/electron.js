@@ -10,7 +10,10 @@ const {Sequelize} = require('sequelize');
 const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
-
+const {OAuth2Client} = require('google-auth-library');
+const http = require('http');
+// import ability to get .env data
+require('dotenv').config();
 
 const os = require('os');
 const {Worker, isMainThread} = require('worker_threads');
@@ -47,7 +50,44 @@ async function createWindow() {
     store = await loadElectronStore();
 }
 
-app.on('ready', createWindow);
+app.whenReady().then(() => {
+    createWindow();
+  
+    // Register protocol handler
+    if (process.defaultApp) {
+      if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient('myapp', process.execPath, [path.resolve(process.argv[1])])
+      }
+    } else {
+      app.setAsDefaultProtocolClient('myapp')
+    }
+  });
+
+  app.on('ready', () => {
+    // Suppress specific DevTools warnings
+    const { session } = require('electron');
+    session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+      if (details.url.includes('devtools://')) {
+        callback({cancel: false});
+      } else {
+        callback({cancel: false});
+      }
+    });
+  
+    createWindow();
+  });
+
+  app.on('open-url', (event, url) => {
+    event.preventDefault();
+    handleAuthCallback(url);
+  });
+
+  app.on('open-external', (event, url) => {
+    event.preventDefault();
+    console.log('Open external:', url);
+    handleAuthCallback(url);
+  });
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -711,15 +751,17 @@ ipcMain.handle('check-cuda', async () => {
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
     const scriptPath = 'src/routes/pythonUpload.py';
-    let rec = await LookupTable.findOne({where: {mname: mname, localurl: filepath, uid: uid}});
+    let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
-    console.log(mid);
-    const args = [ip, port, filepath, uid, size, token, mid];
+    const args = [ip, port, `"${filepath}"`, uid, size, token, mid];
+    console.log("ARGS: " + args.join(" "));
 
     return new Promise((resolve, reject) => {
-        const {spawn} = require('child_process');
-        const python = spawn('python', [scriptPath, ...args]);
+        const { spawn } = require('child_process');
 
+        const python = spawn('python', [scriptPath, ...args], {});
+
+        console.log("Running Python script:");
         console.log("Script path: " + scriptPath);
         console.log("Args: " + args.join(" "));
 
@@ -727,22 +769,33 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         let error = '';
 
         python.stdout.on('data', (data) => {
-            output += data.toString();
+            const message = data.toString();
+            output += message;
+            console.log(`Python stdout: ${message}`);
         });
 
         python.stderr.on('data', (data) => {
-            error += data.toString();
+            const message = data.toString();
+            error += message;
+            console.error(`Python stderr: ${message}`);
         });
 
         python.on('close', (code) => {
+            console.log(`Python process exited with code ${code}`);
             if (code === 0) {
-                resolve(output);
+                resolve(output);  // Resolve with the captured output
             } else {
-                reject(new Error(error));
+                reject(new Error(error));  // Reject with the captured error
             }
+        });
+
+        python.on('error', (err) => {
+            reject(new Error(`Failed to start Python script: ${err.message}`));
         });
     });
 });
+
+
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
     const scriptPath = 'src/routes/pythonDownload.py';
@@ -1118,3 +1171,228 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         });
     });
 });
+// const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+
+ipcMain.handle('google-sign-in', async () => {
+    // Generate the Google OAuth authorization URL
+    const url = client.generateAuthUrl({
+      access_type: 'offline', // Ensures we get a refresh token
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    
+    const authWindow = new BrowserWindow({
+      width: 500,
+      height: 600,
+      show: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        webSecurity: true, // Enable web security
+      }
+    });
+
+    authWindow.loadURL(url);
+    authWindow.show();
+
+    return new Promise((resolve, reject) => {
+      // Listen for URL navigation changes
+      const handleNavigation = async (url) => {
+        console.log("Navigated to URL:", url); // Log the URL to see where it's going
+        const raw_code = /code=([^&]*)/.exec(url) || null;
+        const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
+        const error = /\?error=(.+)$/.exec(url);
+
+        if (code) {
+          console.log("Authorization code found:", code);
+          authWindow.destroy();
+
+          try {
+            // Exchange the authorization code for access tokens
+            const { tokens } = await client.getToken(code);
+            client.setCredentials(tokens);
+            resolve(tokens); // Send the tokens to the frontend
+          } catch (tokenError) {
+            console.error('Token exchange error:', tokenError);
+            reject(tokenError);
+          }
+        } else if (error) {
+          console.error('Error during authentication:', error);
+          authWindow.destroy();
+          reject(new Error('Error during authentication: ' + error));
+        }
+      };
+
+      // Capture the navigation on both will-navigate and did-navigate events
+      authWindow.webContents.on('will-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      authWindow.webContents.on('did-navigate', (event, url) => {
+        handleNavigation(url);
+      });
+
+      // Close the window on redirect or when the user cancels authentication
+      authWindow.on('close', () => {
+        reject(new Error('User closed the OAuth window'));
+      });
+    });
+});
+
+CLIENT_ID = process.env.CLIENT_ID;
+CLIENT_SECRET = process.env.CLIENT_SECRET;
+REDIRECT_URI = process.env.REDIRECT_URI;
+
+const oauth2Client = new OAuth2Client(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    REDIRECT_URI
+  );
+
+ipcMain.handle('get-auth-url', async () => {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    return authUrl;
+  });
+  
+  ipcMain.handle('exchange-code', async (event, code) => {
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+      
+      const { data } = await oauth2Client.request({
+        url: 'https://www.googleapis.com/oauth2/v2/userinfo'
+      });
+  
+      return { 
+        success: true, 
+        user: data,
+        tokens: tokens
+      };
+    } catch (error) {
+      console.error('Error exchanging code:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('google-login-test', async () => {
+    return new Promise((resolve, reject) => {
+      // Create an HTTP server
+      const server = http.createServer(async (req, res) => {
+        if (req.url.startsWith('/callback')) {
+          const urlParams = new URL(`http://localhost${req.url}`).searchParams;
+          const code = urlParams.get('code');
+          res.end('Authentication successful! You can close this window.');
+          server.close();
+  
+          if (code) {
+            try {
+              const { tokens } = await oauth2Client.getToken(code);
+              oauth2Client.setCredentials(tokens);
+  
+              const { data } = await oauth2Client.request({
+                url: 'https://www.googleapis.com/oauth2/v2/userinfo',
+              });
+  
+              resolve({
+                success: true,
+                user: data,
+                tokens: tokens,
+              });
+            } catch (error) {
+              console.error('Error exchanging code:', error);
+              resolve({ success: false, error: error.message });
+            }
+          } else {
+            resolve({ success: false, error: 'No code found in the query parameters' });
+          }
+        }
+      });
+  
+      // Start listening on a random port
+      server.listen(0, () => {
+        const port = server.address().port;
+        const redirectUri = `http://localhost:${port}/callback`;
+  
+        const oauth2Client = new OAuth2Client(
+          CLIENT_ID,
+          CLIENT_SECRET,
+          redirectUri
+        );
+  
+        const authUrl = oauth2Client.generateAuthUrl({
+          access_type: 'offline',
+          scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+          ],
+        });
+  
+        // Open the default browser to the authentication URL
+        shell.openExternal(authUrl);
+      });
+    });
+  });
+
+  ipcMain.handle('get-auth-url-test', async () => {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    return authUrl;
+  });
+
+  async function handleAuthCallback(callbackUrl) {
+    const parsedUrl = new URL(callbackUrl);
+    const code = parsedUrl.searchParams.get('code');
+    
+    if (code) {
+      try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+        
+        const { data } = await oauth2Client.request({
+          url: 'https://www.googleapis.com/oauth2/v2/userinfo'
+        });
+  
+        mainWindow.webContents.send('auth-success', { 
+          success: true, 
+          user: data,
+          tokens: tokens
+        });
+      } catch (error) {
+        console.error('Error exchanging code:', error);
+        mainWindow.webContents.send('auth-error', { success: false, error: error.message });
+      }
+    }else{
+        mainWindow.webContents.send('auth-error', { success: false, error: 'No code found in the query parameters' });
+
+    }
+  }
+
+  ipcMain.handle('get-last-signin', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        //TODO: get last signin from the database with uid and an axios post
+        axios.post('http://localhost:8000/api/getLastSignin/', { uid: uid })
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+  });
+
+  ipcMain.handle('update-last-signin', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        //TODO: update last signin in the database with uid and an axios post
+        axios.post('http://localhost:8000/api/updateLastSignin/', { uid: uid })
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+  });

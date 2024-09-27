@@ -2,10 +2,13 @@ import socket
 import os
 import json
 import sys
+import time
 
 def send_file(ip, port, filepath, uid, size, token, mid):
-    filename = os.path.basename(filepath)
-    print("File name: ", filename)
+    filepath = filepath.strip('"').strip("'")
+    filename = os.path.basename(filepath).strip('"').strip("'")
+    print(f"Filepath: '{filepath}'")
+    print(f"Filename: '{filename}'")
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
@@ -17,9 +20,8 @@ def send_file(ip, port, filepath, uid, size, token, mid):
             "command": "SEND",
             "mid": mid
         }
-
-        data = json.dumps(data)
-        s.sendall(data.encode() + b"\0")
+        
+        s.sendall(json.dumps(data).encode() + b"\0")
         s.sendall(filename.encode() + b"\0")
 
         with open(filepath, "rb") as f:
@@ -43,7 +45,5 @@ if __name__ == "__main__":
     size = sys.argv[5]
     token = sys.argv[6]
     mid = sys.argv[7]
-    
-    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid}")
-    
+   
     send_file(ip, port, filepath, uid, size, token, mid)

@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, User, AIModels
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 
 # Load environment variables from .env file
 load_dotenv()

@@ -60,10 +60,6 @@ async def process(request: Request):
     message = await request.json()
     print("Message: ---------> ", message)
 
-
-
-
-
 @app.get("/agent")
 def agent():
     # So Obol refers to the journey of a soul to the underworld.
@@ -82,7 +78,7 @@ def agent():
     # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
-        f.write(f"PUBLIC={public}")
+        f.write(f"PUBLIC_TEST={public}")
 
     # subprocess.run(["makensis", "./package/setup.nsi"])
 
@@ -137,7 +133,7 @@ async def handshake(request: Request):
     sesion = charon.get_session(server_ecdh, agent_ecdh)
     decrypted_message = charon.elyptic_decryptor(sesion, message["message"])
     print(decrypted_message)
-    resp = media.registerAgent(decrypted_message, message["aid"])
+    resp = media.registerAgent(decrypted_message, message["aid"], message["corporation"])
     print(resp)
     return resp
 
@@ -175,4 +171,6 @@ async def brokerStore(request: Request):
     emessage = charon.elyptic_encryptor(sesion, json.dumps(message_to_encrypt))
     print("Encrypted message: ", emessage)
     tranmit = await charon.transmit(avail["aip"], avail["aport"], emessage)
+    # add aid to tranmit
+    print("Transmission to agent: ", tranmit)
     return {"error": "Transmission to agent failed."} if not tranmit else tranmit

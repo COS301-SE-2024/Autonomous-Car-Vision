@@ -17,6 +17,8 @@
         mdiChevronDown,
         mdiPipeDisconnected,
     } from "@mdi/js";
+    import axios from "axios";
+    import CryptoJS from 'crypto-js';
 
     import ThemeToggler from "./ThemeToggler.svelte";
     import {theme } from "../stores/themeStore";
@@ -28,8 +30,7 @@
 
     let username = "Username";
     let name = "User Name";
-    let profileImg =
-        "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
+    let profileImg = "https://gravatar.com/avatar";
 
     let showAccountPopup = false;
     let showTeamDropdown = false; 
@@ -119,6 +120,30 @@
 
     onMount(() => {
         document.addEventListener("click", handleClickOutside);
+
+        // Get user data with uid
+        axios
+            .post("http://localhost:8000/getUserData/", {
+                uid: window.electronAPI.getUid(),
+            })
+            .then(async (response) => {
+                username = response.data.uname;
+                name = response.data.uemail;
+                    
+                let profileEmail = response.data.uemail;
+                profileEmail = profileEmail.trim().toLowerCase();
+                // const emailHash = profileEmail;
+
+                
+                const emailHash = CryptoJS.SHA256(profileEmail);
+                profileImg = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
+                console.log(profileImg);
+            })
+            .catch((error) => {
+                console.error("Error fetching user data:", error);
+                // Set a default image in case of error
+                profileImg = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=retro";
+            });
 
         return () => {
             document.removeEventListener("click", handleClickOutside);

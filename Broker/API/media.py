@@ -31,14 +31,14 @@ def close_all_connections():
     connection_pool.closeall()
 
 
-def registerAgent(message, aid):
+def registerAgent(message, aid, corporation):
     # Takes in a json object with aid, aip, aport, capacity(0,1,2), identifier(Unique string to ensure agent identity)
     message = json.loads(message)
     conn = get_connection()
     cursor = conn.cursor()
     update_query = """
     UPDATE agentstore
-    SET aip = %s, aport = %s, capacity = %s, storage =%s, identifier = %s
+    SET aip = %s, aport = %s, capacity = %s, storage =%s, identifier = %s, corporation = %s
     WHERE aid = %s;
     """
     values = (
@@ -47,6 +47,7 @@ def registerAgent(message, aid):
         message["capacity"],
         message["storage"],
         message["identifier"],
+        corporation,
         aid,
     )
     print(values)
