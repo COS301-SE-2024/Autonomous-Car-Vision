@@ -165,5 +165,4 @@
     {/if}
 </ProtectedRoutes>
 <style>
-    /* Add any necessary styles */
 </style>

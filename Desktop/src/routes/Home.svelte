@@ -171,7 +171,7 @@
 <MaterialApp> 
   <div class="homeContainer min-h-screen flex flex-col items-center justify-center bg-theme-dark">
     <div>
-      <img src="./images/HighViz.png" class="w-72 h-72"/>
+      <img src="./images/HighViz.png" alt="HighViz Logo" class="w-72 h-72"/>
     </div>
  
     <div class="modal p-8 rounded-lg shadow-lg w-80 text-theme-dark-primary">

@@ -19,6 +19,7 @@
         mdiCar,
     } from "@mdi/js";
     import axios from "axios";
+    import CryptoJS from 'crypto-js';
 
     import AccountPopup from "./AccountPopup.svelte";
 
@@ -26,8 +27,7 @@
 
     let username = "Username";
     let name = "User Name";
-    let profileImg =
-        "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
+    let profileImg = "https://gravatar.com/avatar";
 
     let showAccountPopup = false;
     let showTeamDropdown = false; 
@@ -128,20 +128,24 @@
             .post("http://localhost:8000/getUserData/", {
                 uid: window.electronAPI.getUid(),
             })
-            .then((response) => {
+            .then(async (response) => {
                 username = response.data.uname;
                 name = response.data.uemail;
+                    
+                let profileEmail = response.data.uemail;
+                profileEmail = profileEmail.trim().toLowerCase();
+                // const emailHash = profileEmail;
 
-                if (response.data.profile_photo) {
-                    profileImg = `data:${response.data.profile_photo_mime};base64,${response.data.profile_photo}`;
-                } else {
-                    profileImg = "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
-                }
+                
+                const emailHash = CryptoJS.SHA256(profileEmail);
+                profileImg = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
+                console.log(profileImg);
             })
             .catch((error) => {
                 console.error("Error fetching user data:", error);
+                // Set a default image in case of error
+                profileImg = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=retro";
             });
-
 
         return () => {
             document.removeEventListener("click", handleClickOutside);

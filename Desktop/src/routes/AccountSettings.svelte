@@ -17,6 +17,7 @@
   // Loading screen Imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
+  import CryptoJS from "crypto-js";
 
   let user = {
     username: "",
@@ -86,8 +87,8 @@
           position: "top-center",
         });
 
-        window.electronAPI.storeUname(username);
-        window.electronAPI.storeUemail(email);
+        window.electronAPI.storeUname(user.username);
+        window.electronAPI.storeUemail(user.email);
       } else {
         toast.error("Failed to save changes", {
           duration: 5000,
@@ -122,11 +123,11 @@
       .then((response) => {
         user.username = response.data.uname;
         user.email = response.data.uemail;
-        if(response.data.profile_picture != null){
-        user.profile_picture = response.data.profile_picture;
-        }else{
-          user.profile_picture = "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
-        }
+        let profileEmail = response.data.uemail;
+        profileEmail = profileEmail.trim().toLowerCase();
+        const emailHash = CryptoJS.SHA256(profileEmail);
+        user.profile_picture = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
+        console.log(user.profile_picture);
       })
       .catch((error) => {
         console.error("Failed to fetch user data:", error);

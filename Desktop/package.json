@@ -31,6 +31,7 @@
     "babylonjs": "^7.20.1",
     "baffle": "^0.3.6",
     "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",

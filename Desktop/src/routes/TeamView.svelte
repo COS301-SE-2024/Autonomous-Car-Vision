@@ -8,6 +8,7 @@
     import Spinner from "../components/Spinner.svelte";
     import { createEventDispatcher, onMount } from 'svelte';
     import axios from 'axios';
+    import CryptoJS from 'crypto-js';
 
     let showAddPopup = false;
 
@@ -95,7 +96,7 @@
                     email={user.uemail}
                     role={user.is_admin === true ? "Admin" : "Member"}
                     lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
-                    profilePhoto={"https://i.pravatar.cc/150?img=1"}
+                    profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"}
                     
                 />
             {/each}
