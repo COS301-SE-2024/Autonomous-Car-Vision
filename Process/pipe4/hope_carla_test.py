@@ -379,79 +379,68 @@ def calculate_slope(point1, point2):
         return float('inf')
     return (point2[1] - point1[1]) / (point2[0] - point1[0])
 
-def calculate_angle(slope1, slope2):
-    if slope1 == slope2:  # If the slopes are identical, the angle is zero
-        return 0
-    
-    # Calculate the angle in radians between the two slopes
-    angle_rad = math.atan(abs((slope2 - slope1) / (1 + slope1 * slope2)))
-    
-    # Convert to degrees
-    angle_deg = math.degrees(angle_rad)
-    
-    return angle_deg
+def calculate_angle_with_vertical(slope):
+    """Calculate the angle between a line with given slope and the vertical line."""
+    if slope == float('inf'):
+        return 0  # The line is vertical
+    elif slope == 0:
+        return 90  # The line is horizontal
+    else:
+        angle_rad = math.atan(1 / abs(slope))
+        angle_deg = math.degrees(angle_rad)
+        return angle_deg
 
 def get_values(mask, sides, image):
     height, width, _ = mask.shape
-    
-    # Trapezoid dimensions (matching draw_trapezoid_mask)
-    bottom_length = 600
-    top_length = 70
-    trapezoid_height = int(0.45 * height)
-    
-    # Define trapezoid edges (left and right) using the mask's corners
-    bottom_y = height - 1
-    top_y = bottom_y - trapezoid_height
-    
-    # The trapezoid is located in the bottom center of the image
-    bottom_left = (int((width - bottom_length) / 2), bottom_y)
-    bottom_right = (int((width + bottom_length) / 2), bottom_y)
-    center_bottom = (width // 2, bottom_y)  # Center of the bottom of the image
-    
+
+    center_x = width // 2
+
     left_object = {'angle': float('inf'), 'distance': float('inf')}
     right_object = {'angle': float('inf'), 'distance': float('inf')}
-    
+
     # Get the left and right lane lines from sides
     left_line = sides['left']['line']
     right_line = sides['right']['line']
-    
-    # Process the left side (angle using the center-bottom of the image)
+
+    # Process the left side
     if left_line:
+        # Calculate the slope of the left lane line
         left_slope = calculate_slope(left_line[0], left_line[1])
-        center_left_slope = calculate_slope(center_bottom, left_line[0])  # Angle based on center of the image
-        
-        left_angle = calculate_angle(left_slope, center_left_slope)
-        
-        # Determine sign of the angle (positive for right-leaning, negative for left-leaning)
-        if center_left_slope < left_slope:
-            left_angle = -left_angle  # Lane is leaning more to the left
-        
-        # Calculate horizontal distance difference between bottom of trapezoid and left lane
-        if bottom_left[0] > left_line[0][0]:
-            left_distance = abs(bottom_left[0] - left_line[0][0])  # Positive if left edge is to the right
-        else:
-            left_distance = -abs(bottom_left[0] - left_line[0][0])  # Negative if left edge is to the left
-        
+
+        # Calculate the angle between the left lane line and the vertical center line
+        left_angle = calculate_angle_with_vertical(left_slope)
+
+        # Determine the sign of the angle
+        if left_slope < 0:
+            left_angle = -left_angle  # Left lane line is slanting to the left
+
+        # Get the bottom point of the left lane line
+        left_bottom_point = left_line[0] if left_line[0][1] > left_line[1][1] else left_line[1]
+
+        # Calculate horizontal distance difference between center of the screen and left lane
+        left_distance = center_x - left_bottom_point[0]
+
         # Update left object
         left_object = {'angle': left_angle, 'distance': left_distance}
-    
-    # Process the right side (angle using the center-bottom of the image)
+
+    # Process the right side
     if right_line:
+        # Calculate the slope of the right lane line
         right_slope = calculate_slope(right_line[0], right_line[1])
-        center_right_slope = calculate_slope(center_bottom, right_line[0])  # Angle based on center of the image
-        
-        right_angle = calculate_angle(right_slope, center_right_slope)
-        
-        # Determine sign of the angle (positive for right-leaning, negative for left-leaning)
-        if center_right_slope > right_slope:
-            right_angle = -right_angle  # Lane is leaning more to the right
-        
-        # Calculate horizontal distance difference between bottom of trapezoid and right lane
-        if bottom_right[0] < right_line[0][0]:
-            right_distance = abs(bottom_right[0] - right_line[0][0])  # Positive if right edge is to the left
-        else:
-            right_distance = -abs(bottom_right[0] - right_line[0][0])  # Negative if right edge is to the right
-        
+
+        # Calculate the angle between the right lane line and the vertical center line
+        right_angle = calculate_angle_with_vertical(right_slope)
+
+        # Determine the sign of the angle
+        if right_slope > 0:
+            right_angle = -right_angle  # Right lane line is slanting to the right
+
+        # Get the bottom point of the right lane line
+        right_bottom_point = right_line[0] if right_line[0][1] > right_line[1][1] else right_line[1]
+
+        # Calculate horizontal distance difference between center of the screen and right lane
+        right_distance = right_bottom_point[0] - center_x
+
         # Update right object
         right_object = {'angle': right_angle, 'distance': right_distance}
 
@@ -475,35 +464,35 @@ def analise_results(left_object, right_object, bottom_length, top_length):
         
         steer = angle_steer
         
-    if left_object['distance'] != float('inf') and right_object['distance'] != float('inf'):
-        distance_steer = 0
+    # if left_object['distance'] != float('inf') and right_object['distance'] != float('inf'):
+    #     distance_steer = 0
         
-        if (left_object['distance'] <= 0 and right_object['distance'] <= 0):
-            distance_steer = 0
-        elif (left_object['distance'] > 0 and right_object['distance'] <= 0):
-            distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
-        elif (left_object['distance'] <= 0 and right_object['distance'] > 0):
-            distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     if (left_object['distance'] <= 0 and right_object['distance'] <= 0):
+    #         distance_steer = 0
+    #     elif (left_object['distance'] > 0 and right_object['distance'] <= 0):
+    #         distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     elif (left_object['distance'] <= 0 and right_object['distance'] > 0):
+    #         distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
         
-        steer += distance_steer
-    elif right_object['distance'] == float('inf'):
-        distance_steer = 0
+    #     steer += distance_steer
+    # elif right_object['distance'] == float('inf'):
+    #     distance_steer = 0
         
-        if left_object['distance'] <= 0:
-            distance_steer = left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
-        else:
-            distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     if left_object['distance'] <= 0:
+    #         distance_steer = left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     else:
+    #         distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 300)
         
-        steer += distance_steer
-    elif left_object['distance'] == float('inf'):
-        distance_steer = 0
+    #     steer += distance_steer
+    # elif left_object['distance'] == float('inf'):
+    #     distance_steer = 0
         
-        if right_object['distance'] <= 0:
-            distance_steer = -right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
-        else:
-            distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     if right_object['distance'] <= 0:
+    #         distance_steer = -right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
+    #     else:
+    #         distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 300)
         
-        steer += distance_steer
+    #     steer += distance_steer
     
     return steer
 
