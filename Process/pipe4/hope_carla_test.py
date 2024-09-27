@@ -33,10 +33,10 @@ def main():
     try:
         # Get the blueprint library and choose a vehicle
         blueprint_library = world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter('etron')[5]
+        vehicle_bp = blueprint_library.filter('etron')[0]
 
         # Spawn the vehicle at a random location
-        spawn_point = world.get_map().get_spawn_points()[0]
+        spawn_point = world.get_map().get_spawn_points()[5]
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
         # Add a camera sensor to the vehicle
@@ -475,35 +475,35 @@ def analise_results(left_object, right_object, bottom_length, top_length):
         
         steer = angle_steer
         
-    if left_object['distance'] != float('inf') and right_object['distance'] != float('inf'):
-        distance_steer = 0
+    # if left_object['distance'] != float('inf') and right_object['distance'] != float('inf'):
+    #     distance_steer = 0
         
-        if (left_object['distance'] <= 0 and right_object['distance'] <= 0):
-            distance_steer = 0
-        elif (left_object['distance'] > 0 and right_object['distance'] <= 0):
-            distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
-        elif (left_object['distance'] <= 0 and right_object['distance'] > 0):
-            distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     if (left_object['distance'] <= 0 and right_object['distance'] <= 0):
+    #         distance_steer = 0
+    #     elif (left_object['distance'] > 0 and right_object['distance'] <= 0):
+    #         distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     elif (left_object['distance'] <= 0 and right_object['distance'] > 0):
+    #         distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
         
-        steer += distance_steer
-    elif right_object['distance'] == float('inf'):
-        distance_steer = 0
+    #     steer += distance_steer
+    # elif right_object['distance'] == float('inf'):
+    #     distance_steer = 0
         
-        if left_object['distance'] <= 0:
-            distance_steer = left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
-        else:
-            distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     if left_object['distance'] <= 0:
+    #         distance_steer = left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     else:
+    #         distance_steer = -left_object['distance'] / (((bottom_length + top_length) / 2) * 100)
         
-        steer += distance_steer
-    elif left_object['distance'] == float('inf'):
-        distance_steer = 0
+    #     steer += distance_steer
+    # elif left_object['distance'] == float('inf'):
+    #     distance_steer = 0
         
-        if right_object['distance'] <= 0:
-            distance_steer = -right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
-        else:
-            distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     if right_object['distance'] <= 0:
+    #         distance_steer = -right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
+    #     else:
+    #         distance_steer = right_object['distance'] / (((bottom_length + top_length) / 2) * 100)
         
-        steer += distance_steer
+    #     steer += distance_steer
     
     return steer
 
