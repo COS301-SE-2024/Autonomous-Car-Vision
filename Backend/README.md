@@ -2,11 +2,11 @@
 
 ## To create a Virtual enviroment
 
-- python -m venv <Name>
+- python -m venv backendVenv
 
 ## To activate it:
 
-- <name>\Scripts\activate
+- backendVenv\Scripts\activate
 
 ## To deactivate:
 
@@ -29,3 +29,4 @@ docker-compose exec web alembic upgrade head
 docker-compose exec web alembic revision --autogenerate -m "Initial migration"
 docker-compose exec web alembic upgrade head
 docker-compose down
+

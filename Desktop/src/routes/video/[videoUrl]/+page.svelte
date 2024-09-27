@@ -1,0 +1,328 @@
+<script>
+  import { location, push } from "svelte-spa-router";
+
+  import { writable, get } from "svelte/store";
+
+  import { VideoURL } from "../../../stores/video";
+  import { OriginalVideoURL } from "../../../stores/video";
+  import { mdiAccessPoint, mdiDeleteOutline } from "@mdi/js";
+  import { Icon } from "svelte-materialify";
+
+  import { onMount } from "svelte";
+
+  import toast, { Toaster } from "svelte-french-toast";
+
+  import {
+    processing,
+    videoUrl,
+    localProcess,
+    originalVideoURL,
+    processingQueue,
+    loadState,
+  } from "../../../stores/processing";
+
+  import { isLoading } from "../../../stores/loading";
+
+  import ProtectedRoutes from "../../ProtectedRoutes.svelte";
+  import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
+  import DeleteModal from "../../../components/DeleteModal.svelte";
+
+  import ProcessPopup from "../../../components/ProcessPopup.svelte";
+  import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
+  let showProcessPopup = false;
+
+  // TODO: Styling and conditional formatting
+
+  const showModelList = writable(false);
+
+  let appPath = "";
+  let scriptPath = "";
+  let videoPath;
+  let videoName;
+  let outputVideoPath;
+  let modelName = "yolov8n";
+  let modelsPath = "";
+  let videoNameExtract = "";
+  let extention = "";
+  let models = [];
+  let selectedModelName = "yolov8n";
+  let dotLottieProcess;
+
+  let output = ""; // Store the output of the Python script
+  let outputFiles = []; // Store the output files
+
+  function getFileName(filePath) {
+    const parts = filePath.split(/[/\\]/);
+    return parts[parts.length - 1];
+  }
+
+  async function getVideoDetails() {
+    return new Promise((resolve) => {
+      originalVideoURL.subscribe(async (value) => {
+        appPath = await window.electronAPI.getAppPath();
+        videoPath = value;
+        videoName = await getFileName(videoPath);
+        //extract video name from video name without the extention
+        videoNameExtract = videoName.split(".")[0];
+        extention = videoName.split(".")[1];
+        outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          "..",
+        );
+        scriptPath = `${appDirectory}/Models/processVideo.py`;
+        modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
+        resolve();
+      })();
+    });
+  }
+
+  async function getOutputFiles() {
+    try {
+      const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
+      const files = await window.electronAPI.readDirectory(outputDir);
+
+      await loadState();
+
+      // Fetch the original video details from the database
+      let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+
+      console.log("Original video:", originalVideo);
+
+      // If the original video is not found, add it to the database
+      if (!originalVideo) {
+        const newOriginalVideo = {
+          label: "Original",
+          profileImgURL: "https://placekitten.com/300/300",
+          videoURL: videoPath,
+          originalVidID: 0, // Original videos have their originalVidID set to 0 or null
+        };
+        originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
+        console.log("Original video add:", originalVideo);
+      }
+
+      // Start with the original video
+      outputFiles = [
+        {
+          id: originalVideo.videoID,
+          label: "Original",
+          profileImgURL: originalVideo.profileImgURL,
+          videoURL: originalVideo.videoURL,
+        },
+      ];
+
+      // Fetch processed videos linked to the original video
+      const processedVideos = await window.electronAPI.getProcessedVideos(
+        originalVideo.videoID,
+      );
+
+      // Add processed videos
+      processedVideos.forEach((video) => {
+        outputFiles.push({
+          id: video.videoID,
+          label: video.label,
+          profileImgURL: video.profileImgURL,
+          videoURL: video.videoURL,
+        });
+      });
+
+      console.log("Output files:", outputFiles);
+    } catch (error) {
+      console.error("Error fetching output files:", error);
+    }
+  }
+
+  async function fetchModels() {
+    try {
+      const result = await window.electronAPI.getAIModels();
+      if (result.success) {
+        models = result.data;
+        if (models.length > 0) {
+          selectedModelName = models[0].model_name;
+        }
+      } else {
+        console.error("Failed to fetch AI models:", result.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch models", error);
+    }
+  }
+
+  function playLottie(lottie) {
+    lottie?.play();
+  }
+
+  function pauseLottie(lottie) {
+    lottie?.pause();
+  }
+
+  onMount(async () => {
+    await fetchModels();
+    await getVideoDetails();
+    await loadState(); // Load state on mount
+
+    console.log("Test Video URL page: ", get(videoUrl));
+    console.log($location);
+    lottieElement1.addEventListener("mouseenter", () =>
+      playLottie(dotLottieProcess),
+    );
+    lottieElement1.addEventListener("mouseleave", () =>
+      pauseLottie(dotLottieProcess),
+    );
+    return () => {
+      lottieElement1.removeEventListener("mouseenter", () =>
+        playLottie(dotLottieProcess),
+      );
+      lottieElement1.removeEventListener("mouseleave", () =>
+        pauseLottie(dotLottieProcess),
+      );
+      pauseLottie(dotLottieProcess);
+    };
+  });
+
+  let processed = false; // Check if the video has been processed
+
+  async function processVideo(event) {
+    modelName = event.detail.modelName;
+    showProcessPopup = false;
+    try {
+      await getVideoDetails();
+
+      console.log(isLoading, "isLoading");
+
+      const videoDetails = {
+        scriptPath,
+        videoPath,
+        outputVideoPath,
+        modelPath: modelsPath,
+        localProcess: get(localProcess),
+      };
+
+      setInterval(() => {
+        isLoading.set(false);
+      }, 1000);
+      showModelList.set(true);
+
+      await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
+
+      toast.success("Video queued for processing", {
+        duration: 5000,
+        position: "top-center",
+      });
+
+      await loadState(); // Load state after adding the video to the queue
+
+      console.log("Queued video for processing now:", videoDetails);
+
+      // Add processed video information to the database
+      const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
+      if (originalVideo) {
+        const processedVideoURL = outputVideoPath;
+        const existingProcessedVideo =
+          await window.electronAPI.getVideoByURL(processedVideoURL);
+
+        // Video added to the local database
+        if (!existingProcessedVideo) {
+          const newProcessedVideo = {
+            label: modelName,
+            profileImgURL:
+              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            videoURL: processedVideoURL,
+            originalVidID: originalVideo.videoID,
+          };
+          await window.electronAPI.addVideo(newProcessedVideo);
+        } else {
+          console.log(
+            "Processed video already exists in the database, video will be reprocessed.",
+          );
+        }
+      } else {
+        console.error("Original video not found in the database");
+      }
+    } catch (error) {
+      output = error.message;
+      console.error("Error:", output);
+    }
+    console.log("Processing video");
+    processed = true;
+  }
+
+  function re_process() {
+    // Re-process functionality
+    console.log("Re-processing video");
+  }
+
+  let selectedModel = null;
+  let showDeleteModal = false;
+
+  let modalDefault =
+    "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
+  function closeProcessPopup() {
+    showProcessPopup = false;
+  }
+
+  function handleCancel() {
+    showDeleteModal = false;
+  }
+
+  function handleDeleteSave() {
+    // Logic to delete the video
+    showDeleteModal = false;
+  }
+
+  function deleteItem() {
+    showDeleteModal = true;
+  }
+
+  function toggleModelList() {
+    showModelList.update((value) => !value);
+  }
+
+  function handleModelSelect(event) {
+    VideoURL.set(event.detail.videoURL);
+    selectedModel = event.detail;
+    showModelList.set(false);
+  }
+</script>
+
+<ProtectedRoutes>
+  <Toaster />
+  <div class="grid grid-cols-5 h-full">
+    <div class="col-span-5 h-11/12">
+      <ViewVideoComponent videoPath={$location} />
+      <div class="flex space-x-4 align-center p-2">
+        <button
+          class="text-white font-medium p-2 w-28 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          on:click={() => (showProcessPopup = true)}
+        >
+          <Icon path={mdiAccessPoint} size={28} />
+          Process
+        </button>
+        <button
+          class="text-white font-medium p-2 w-28 rounded-full bg-red hover:bg-red-hover"
+          on:click={deleteItem}
+        >
+          <Icon path={mdiDeleteOutline} size={28} />
+          Delete
+        </button>
+        {#if showDeleteModal}
+          <DeleteModal
+            on:cancel={handleCancel}
+            on:save={handleDeleteSave}
+            {videoPath}
+          />
+        {/if}
+      </div>
+      {#if showProcessPopup}
+        <ProcessPopup
+          on:closePopup={closeProcessPopup}
+          on:processVideo={processVideo}
+          {showProcessPopup}
+          {models}
+          {selectedModelName}
+        />
+      {/if}
+    </div>
+  </div>
+</ProtectedRoutes>

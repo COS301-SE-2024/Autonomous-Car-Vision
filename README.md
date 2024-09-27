@@ -1,11 +1,19 @@
-<h1 align="center"> Autonamous Car Vision </h1>
+<p align="center">
+	<img  src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/develop/Desktop/public/images/HighViz.png" width="250" height="250" alt="Logo">
+</p>
+<h1 align="center"> High-Viz </h1>
+
+<div align="center">
+	<h3>Download the HighViz Application <a href="http://206.189.188.197:8000/download/">here </a></h3>
+	<br>
+</div>
 
 <p align="center"> 
-	<a href="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision">
-		<img alt="Coverage" src="https://codecov.io/gh/COS301-SE-2024/Autonomous-Car-Vision/graph/badge.svg?token=WdHnTULEKP">
-	</a>
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
 		<img alt="Linter" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml/badge.svg">
+	</a> 
+	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml">
+		<img alt="Tester" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml/badge.svg">
 	</a>
 	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
 		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
@@ -15,18 +23,40 @@
 	</a>
 </p>
 
-## Project Information
+## Project Description
 
-The aim of this project is to provide and implement a comprehensive suite of AI tools for Car vision to detect potential hazards, provide collision warnings, and analyze road conditions.
+HighViz a comprehensive suite of AI tools for autonomous car vision that aims to imporove the driving experience by providing a host of feature such as terrain mapping, driver assistacne, and trajectory analysis.
+## Project Features
+<table align="center">
+  <tr>
+    <td><p> Unity </p></td>
+    <td><img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/Unity.gif" width="380" height="230"/></td>
+  </tr>
+  <tr>
+    <td> <p> Weaver </p> </td>
+    <td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/weaver.gif" width="380" height="230"/> </td>
+  </tr>
+  <tr>
+	<td><p> Piper </p></td>  
+	<td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/piper.gif" width="380" height="230"/> </td>
+  </tr>
+</table>
 
-## Demo Videos
-- **Demo1:** [MP11-Demo1](<>)
+
+## Demo Presentations
+- **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
+- **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
   
 ## Documentation
-- **Requirement Specification (SRS):** [View SRS](<https://docs.google.com/document/d/1RneKYxdZ6Puh0oDMYznyLlH7IyLYlZNr96-eTJLRfFM/edit?usp=sharing>)
-- **Design Specification:** [View DRS](<https://docs.google.com/document/d/1CSEkUonx3BWCphiJutNxLYvaYaXjCjlZtbQ8ylQ3tLA/edit?usp=sharing>)
+- **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
+- **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
+- **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1_-aVUgu6myCXf3xeL3x6jl85uQNEHegc/view?usp=sharing>)
+- **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
+- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
+- **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
-- **Git Standards:** [View Git Standards] (<https://drive.google.com/file/d/15JxWbp9tIwMUwO4pRSRfW2hGdMKYE4wI/view?usp=sharing>)
+- **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
+- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/138qQ2a141yoY-sG7PY3I0nQTkwcz7CTC/view?usp=sharing>)
 
 <h2 align="center"> Meet The Team </h2>
 
