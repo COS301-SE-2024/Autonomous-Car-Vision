@@ -762,11 +762,14 @@ def fill_polygon_between_lines(image, left_inner_lines, right_inner_lines):
     return output_image, mask, (left_lines_returned, right_lines_returned)
 
 def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
+    # Make a copy of the input image
+    output_image = image.copy()
+
     # Check if the lane_mask is empty
     if not np.any(lane_mask):
-        # Return the input image and an empty mask
+        # Return the copied image and an empty mask
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask
+        return output_image, safe_zone_mask
 
     # Ensure factor is between 0 and 1
     factor = np.clip(factor, 0.0, 1.0)
@@ -792,7 +795,7 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     if left_points.shape[0] < 2 or right_points.shape[0] < 2:
         print("Not enough points to compute safe zone.")
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask  # Return the original image and an empty mask
+        return output_image, safe_zone_mask  # Return the copied image and an empty mask
 
     # Sort points by y-coordinate (from top to bottom)
     left_points = left_points[np.argsort(left_points[:, 1])]
@@ -810,7 +813,7 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     if y_min == y_max:
         print("No overlapping y-values between left and right lanes.")
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return image, safe_zone_mask  # Return the original image and an empty mask
+        return output_image, safe_zone_mask  # Return the copied image and an empty mask
     y_values = np.linspace(y_min, y_max, num=100)
 
     # Interpolate x-values for left and right boundaries
@@ -837,15 +840,15 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
     cv2.fillPoly(safe_zone_mask, polygon_points, 255)  # Fill with white color
 
-    # Draw the safe zone mask in blue on the original image
-    blue_mask = np.zeros_like(image)
+    # Draw the safe zone mask in blue on the output image
+    blue_mask = np.zeros_like(output_image)
     blue_mask[:, :, 0] = safe_zone_mask  # Assign mask to blue channel
 
-    # Blend the blue mask with the original image
+    # Blend the blue mask with the output image
     alpha = 0.3  # Transparency factor
-    cv2.addWeighted(blue_mask, alpha, image, 1 - alpha, 0, image)
+    cv2.addWeighted(blue_mask, alpha, output_image, 1 - alpha, 0, output_image)
 
-    return image, safe_zone_mask
+    return output_image, safe_zone_mask
 
 def get_angle_lines(image):
     # Make a copy of the passed-in image
