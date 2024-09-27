@@ -463,15 +463,15 @@ def analise_results(left_object, right_object, bottom_length, top_length):
     if left_object['angle'] != float('inf') and right_object['angle'] != float('inf'):
         avg_angle = (left_object['angle'] + right_object['angle']) / 2
         
-        angle_steer = -avg_angle / 80
+        angle_steer = -avg_angle / 180
         
         steer = angle_steer
     elif right_object['angle'] == float('inf'):
-        angle_steer = -left_object['angle'] / 80
+        angle_steer = -left_object['angle'] / 180
         
         steer = angle_steer
     elif left_object['angle'] == float('inf'):
-        angle_steer = -right_object['angle'] / 80
+        angle_steer = -right_object['angle'] / 180
         
         steer = angle_steer
         
@@ -513,7 +513,7 @@ def follow_lane(out_image, filtered_results, original_image):
     
     out_image, lines = get_lines(filtered_results, out_image)
     out_image, sides, filtered_results, lines = get_sides(out_image, lines, filtered_results, 25)
-    out_image, mask = draw_trapezoid_mask(original_image, bottom_length, top_length)
+    out_image, mask = draw_trapezoid_mask(out_image, bottom_length, top_length)
     
     left_object, right_object = get_values(mask, sides)
     
