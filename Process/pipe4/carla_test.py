@@ -33,7 +33,7 @@ def main():
     try:
         # Get the blueprint library and choose a vehicle
         blueprint_library = world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter('model3')[0]
+        vehicle_bp = blueprint_library.filter('etron')[0]
 
         # Spawn the vehicle at a random location
         spawn_point = world.get_map().get_spawn_points()[0]

@@ -33,7 +33,7 @@ def main():
     try:
         # Get the blueprint library and choose a vehicle
         blueprint_library = world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter('model3')[0]
+        vehicle_bp = blueprint_library.filter('etron')[0]
 
         # Spawn the vehicle at a random location
         spawn_point = world.get_map().get_spawn_points()[0]
@@ -121,7 +121,7 @@ def main():
 
                 # Update vehicle control with the steer value
                 control.steer = float(steer_value)
-                control.throttle = 0.5  # Adjust the throttle value as needed
+                control.throttle = 0.3  # Adjust the throttle value as needed
 
                 # Display the processed image
                 surface = pygame.surfarray.make_surface(processed_image.swapaxes(0, 1))
@@ -543,6 +543,18 @@ def get_side_lines(image, grouped_lines):
                     closest_point = point
         return min_dist, closest_line, closest_point
 
+    # Function to compute the length of a line
+    def line_length(line):
+        start, end = line
+        return np.linalg.norm(np.array(end) - np.array(start))
+
+    # Function to compute the angle of a line
+    def line_angle(line):
+        start, end = line
+        delta = np.array(end) - np.array(start)
+        angle = np.degrees(np.arctan2(delta[1], delta[0]))
+        return angle
+
     # Separate groups into left and right based on their closest point to bottom center
     left_groups = []
     right_groups = []
@@ -560,10 +572,6 @@ def get_side_lines(image, grouped_lines):
     if left_groups:
         left_groups.sort(key=lambda x: x[0])
         left_line = left_groups[0][1]
-        # Draw the left lines
-        color_left = (0, 255, 0)  # Green for the left line
-        for (start, end) in left_line:
-            cv2.line(output_image, tuple(start), tuple(end), color_left, 2)
     else:
         left_line = []
 
@@ -571,12 +579,69 @@ def get_side_lines(image, grouped_lines):
     if right_groups:
         right_groups.sort(key=lambda x: x[0])
         right_line = right_groups[0][1]
-        # Draw the right lines
-        color_right = (255, 0, 0)  # Blue for the right line
-        for (start, end) in right_line:
-            cv2.line(output_image, tuple(start), tuple(end), color_right, 2)
     else:
         right_line = []
+
+    # Now, determine the longest line between left_line and right_line
+    # Find the longest line in each group
+    def get_longest_line(line_group):
+        max_length = 0
+        longest_line = None
+        for line in line_group:
+            length = line_length(line)
+            if length > max_length:
+                max_length = length
+                longest_line = line
+        return longest_line, max_length
+
+    left_longest_line, left_max_length = get_longest_line(left_line) if left_line else (None, 0)
+    right_longest_line, right_max_length = get_longest_line(right_line) if right_line else (None, 0)
+
+    # Determine which line is longer
+    if left_max_length >= right_max_length and left_longest_line is not None:
+        longer_line = left_longest_line
+        shorter_line = right_longest_line
+        longer_group = 'left'
+    elif right_longest_line is not None:
+        longer_line = right_longest_line
+        shorter_line = left_longest_line
+        longer_group = 'right'
+    else:
+        # If both lines are empty, return as is
+        return output_image, left_line, right_line
+
+    # Check if the shorter line has a similar slope as the longer line
+    angle_threshold = 10  # degrees
+
+    if shorter_line is not None:
+        angle_longer = line_angle(longer_line)
+        angle_shorter = line_angle(shorter_line)
+        angle_diff = abs(angle_longer - angle_shorter)
+        if angle_diff > 180:
+            angle_diff = 360 - angle_diff  # Ensure angle difference is between 0 and 180
+
+        if angle_diff <= angle_threshold:
+            # Keep both lines
+            pass
+        else:
+            # Remove the shorter line
+            if longer_group == 'left':
+                right_line = []
+            else:
+                left_line = []
+    else:
+        # Only one line is present, keep it
+        pass
+
+    # Draw the selected lines
+    color_right = (255, 0, 0)  # Blue for the right line
+    color_left = (0, 255, 0)  # Green for the left line
+
+    for (start, end) in right_line:
+        cv2.line(output_image, tuple(start), tuple(end), color_right, 2)
+
+    for (start, end) in left_line:
+        cv2.line(output_image, tuple(start), tuple(end), color_left, 2)
 
     return output_image, left_line, right_line
     
