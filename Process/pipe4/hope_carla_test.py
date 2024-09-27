@@ -507,13 +507,13 @@ def analise_results(left_object, right_object, bottom_length, top_length):
     
     return steer
 
-def follow_lane(out_image, filtered_results):
+def follow_lane(out_image, filtered_results, original_image):
     bottom_length = 600
     top_length = 70
     
     out_image, lines = get_lines(filtered_results, out_image)
     out_image, sides, filtered_results, lines = get_sides(out_image, lines, filtered_results, 25)
-    out_image, mask = draw_trapezoid_mask(out_image, bottom_length, top_length)
+    out_image, mask = draw_trapezoid_mask(original_image, bottom_length, top_length)
     
     left_object, right_object = get_values(mask, sides)
     
@@ -526,7 +526,7 @@ def follow_lane(out_image, filtered_results):
 def start_following(frame):
     results = model(frame)
     out_image, filtered_results = filter_detections(results, model, frame)
-    res, steer = follow_lane(out_image, filtered_results)
+    res, steer = follow_lane(out_image, filtered_results, frame)
     return res, steer
 
 # cap = cv2.VideoCapture('test_short.mp4')
