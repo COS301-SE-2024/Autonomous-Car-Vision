@@ -80,5 +80,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onAuthError: (callback) => ipcRenderer.on('auth-error', callback),
   getLastSignin: (uid) => ipcRenderer.invoke('get-last-signin', uid),
   updateLastSignin: (uid) => ipcRenderer.invoke('update-last-signin', uid),
-  // Optional: Listen for the script completion event
 });
