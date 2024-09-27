@@ -413,31 +413,29 @@ def extend_and_connect_lines(image, grouped_lines, min_distance=30, extension_le
 
     return output_image, merged_groups
 
-def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10, distance_threshold=30):
+def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10, distance_threshold=200, length_ratio_threshold=5):
     # Vector representation of the lines
     vec1 = np.array(end1) - np.array(start1)
     vec2 = np.array(end2) - np.array(start2)
     
-    # Check if vectors are non-zero
-    norm_vec1_denominator = np.linalg.norm(vec1)
-    norm_vec2_denominator = np.linalg.norm(vec2)
-    
-    if norm_vec1_denominator == 0 or norm_vec2_denominator == 0:
-        # One of the lines is a point (zero length), cannot proceed
-        return False, None, None
-    
+    # Calculate lengths of the lines
+    length1 = np.linalg.norm(vec1)
+    length2 = np.linalg.norm(vec2)
+
     # Normalize the vectors
-    norm_vec1 = vec1 / norm_vec1_denominator
-    norm_vec2 = vec2 / norm_vec2_denominator
+    norm_vec1 = vec1 / length1
+    norm_vec2 = vec2 / length2
     
     # Calculate the angle between the two vectors (dot product gives cos(theta))
     dot_product = np.dot(norm_vec1, norm_vec2)
-    # Ensure dot_product is within valid range for arccos due to floating point errors
-    dot_product = np.clip(dot_product, -1.0, 1.0)
     angle = np.degrees(np.arccos(dot_product))  # Angle in degrees
 
     # Check if the angle is within the threshold (almost aligned)
     if abs(angle) > angle_threshold:
+        return False, None, None
+
+    # Check if the line lengths are too different (avoid merging long and short lines)
+    if max(length1, length2) / min(length1, length2) > length_ratio_threshold:
         return False, None, None
 
     # Check if the lines are close enough to each other by checking the distance between their closest points
@@ -455,23 +453,26 @@ def are_lines_aligned_and_inline(start1, end1, start2, end2, angle_threshold=10,
     if min_dist > distance_threshold:
         return False, None, None
 
-    # Additional "in-line" check:
+    # Check if the second line's points are collinear with the first line
     def point_line_distance(p, line_start, line_end):
-        line_vec = line_end - line_start
-        line_length = np.linalg.norm(line_vec)
-        if line_length == 0:
-            # Line is a point; return distance between point and p
-            return np.linalg.norm(p - line_start)
-        # Compute distance from point p to the line defined by line_start and line_end
-        distance = np.abs(np.cross(line_vec, line_start - p) / line_length)
-        return distance
-    
-    # Ensure that the second line is approximately inline with the first line
+        return np.abs(np.cross(line_end - line_start, line_start - p) / np.linalg.norm(line_end - line_start))
+
     inline_threshold = distance_threshold / 2  # You can tweak this value based on how strict you want the check
     dist_start2_line1 = point_line_distance(np.array(start2), np.array(start1), np.array(end1))
     dist_end2_line1 = point_line_distance(np.array(end2), np.array(start1), np.array(end1))
 
     if dist_start2_line1 > inline_threshold or dist_end2_line1 > inline_threshold:
+        return False, None, None
+
+    # New addition: Check if the second line extends the first line
+    def is_point_in_direction(point, line_start, line_end):
+        # Check if the point extends the direction of the line (dot product must be positive)
+        direction_vector = line_end - line_start
+        point_vector = point - line_end
+        return np.dot(direction_vector, point_vector) > 0
+
+    if not is_point_in_direction(np.array(start2), np.array(start1), np.array(end1)) and \
+       not is_point_in_direction(np.array(end2), np.array(start1), np.array(end1)):
         return False, None, None
 
     return True, closest_pt1, closest_pt2
@@ -497,7 +498,7 @@ def merge_aligned_inline_lines(image, grouped_lines, angle_threshold, distance_t
 
                     if inline:
                         # Draw a connection between the closest points
-                        cv2.line(output_image, closest_pt1, closest_pt2, (0, 0, 255), 2)  # Red line for connections
+                        cv2.line(output_image, tuple(map(int, closest_pt1)), tuple(map(int, closest_pt2)), (0, 0, 255), 2)  # Red line for connections
 
                         # Add the connecting line to the group
                         merged_groups[group_index].append((closest_pt1, closest_pt2))
@@ -810,14 +811,11 @@ def fill_polygon_between_lines(image, left_inner_lines, right_inner_lines):
     return output_image, mask, (left_lines_returned, right_lines_returned)
 
 def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
-    # Make a copy of the input image
-    output_image = image.copy()
-
     # Check if the lane_mask is empty
     if not np.any(lane_mask):
-        # Return the copied image and an empty mask
+        # Return the input image and an empty mask
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return output_image, safe_zone_mask
+        return image, safe_zone_mask
 
     # Ensure factor is between 0 and 1
     factor = np.clip(factor, 0.0, 1.0)
@@ -843,7 +841,7 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     if left_points.shape[0] < 2 or right_points.shape[0] < 2:
         print("Not enough points to compute safe zone.")
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return output_image, safe_zone_mask  # Return the copied image and an empty mask
+        return image, safe_zone_mask  # Return the original image and an empty mask
 
     # Sort points by y-coordinate (from top to bottom)
     left_points = left_points[np.argsort(left_points[:, 1])]
@@ -861,7 +859,7 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     if y_min == y_max:
         print("No overlapping y-values between left and right lanes.")
         safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
-        return output_image, safe_zone_mask  # Return the copied image and an empty mask
+        return image, safe_zone_mask  # Return the original image and an empty mask
     y_values = np.linspace(y_min, y_max, num=100)
 
     # Interpolate x-values for left and right boundaries
@@ -888,15 +886,15 @@ def get_safe_zone(image, lane_mask, left_lines, right_lines, factor):
     safe_zone_mask = np.zeros(image.shape[:2], dtype=np.uint8)
     cv2.fillPoly(safe_zone_mask, polygon_points, 255)  # Fill with white color
 
-    # Draw the safe zone mask in blue on the output image
-    blue_mask = np.zeros_like(output_image)
+    # Draw the safe zone mask in blue on the original image
+    blue_mask = np.zeros_like(image)
     blue_mask[:, :, 0] = safe_zone_mask  # Assign mask to blue channel
 
-    # Blend the blue mask with the output image
+    # Blend the blue mask with the original image
     alpha = 0.3  # Transparency factor
-    cv2.addWeighted(blue_mask, alpha, output_image, 1 - alpha, 0, output_image)
+    cv2.addWeighted(blue_mask, alpha, image, 1 - alpha, 0, image)
 
-    return output_image, safe_zone_mask
+    return image, safe_zone_mask
 
 def get_angle_lines(image):
     # Make a copy of the passed-in image
@@ -1284,10 +1282,10 @@ def compute_average_features(lines):
 
 def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
-    # out_image, lines = join_neighbouring_lines(out_image, lines, 10)
-    out_image, lines = group_lines(out_image, lines)
+    out_image, lines = join_neighbouring_lines(out_image, lines, 10)
+    # out_image, lines = group_lines(out_image, lines)
     out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
-    out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=150)
+    out_image, lines = merge_aligned_inline_lines(out_image, lines, 30, 200)
     
     # Use previous results to match current lines if available
     if previous_left is not None and previous_right is not None:
