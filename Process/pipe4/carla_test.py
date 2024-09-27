@@ -66,6 +66,11 @@ def main():
 
         # Start the camera
         camera.listen(lambda data: process_image(data))
+        
+        previous_results = None
+        previous_left = None
+        previous_right = None
+        previous_mask = None
 
         # Main loop
         while True:
@@ -73,7 +78,7 @@ def main():
                 frame = image_queue.pop(0)
             else:
                 continue
-
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return  # Exit the script
@@ -109,17 +114,24 @@ def main():
                 display.blit(surface, (0, 0))
             else:
                 # Autonomous lane-following mode
-                # Pass the frame to start_following function
-                processed_image, mask, steer_value = start_following(frame)
-                # processed_image = start_following(frame)
+                # Pass the frame and previous variables to start_following function
+                processed_image, mask, steer_value, results, current_left, current_right = start_following(
+                    frame, previous_results, previous_left, previous_right, previous_mask
+                )
 
                 # Update vehicle control with the steer value
                 control.steer = float(steer_value)
-                control.throttle = 0.5  # You can adjust the throttle value as needed
+                control.throttle = 0.5  # Adjust the throttle value as needed
 
                 # Display the processed image
                 surface = pygame.surfarray.make_surface(processed_image.swapaxes(0, 1))
                 display.blit(surface, (0, 0))
+
+                # Update previous variables for the next frame
+                previous_results = results
+                previous_left = current_left
+                previous_right = current_right
+                previous_mask = mask
 
             # Apply the control to the vehicle
             vehicle.apply_control(control)
@@ -1154,50 +1166,149 @@ def analise_results(in_lane, left, middle, right):
 # Call the filter_detections function
 # out_image, filtered_results = filter_detections(results, model, image)
 
-def follow_lane(out_image, filtered_results, original):
+def match_prev_results(out_image, lines, previous_left, previous_right, previous_results, filtered_results):
+    try:
+        # Compute features for previous left and right lines
+        prev_left_pos, prev_left_ori = compute_average_features(previous_left)
+        prev_right_pos, prev_right_ori = compute_average_features(previous_right)
+
+        # For each group in current lines, compute features
+        group_features = []
+        for group in lines:
+            group_pos, group_ori = compute_line_group_features(group)
+            group_features.append({
+                'group': group,
+                'position': group_pos,
+                'orientation': group_ori
+            })
+        
+        left_groups = []
+        right_groups = []
+
+        # For each group, compute distance and orientation difference to previous left and right
+        for features in group_features:
+            group = features['group']
+            group_pos = features['position']
+            group_ori = features['orientation']
+            # Compute distance and orientation difference to previous left
+            dist_left = np.linalg.norm(np.array(group_pos) - np.array(prev_left_pos))
+            ori_diff_left = abs(group_ori - prev_left_ori)
+            # Compute distance and orientation difference to previous right
+            dist_right = np.linalg.norm(np.array(group_pos) - np.array(prev_right_pos))
+            ori_diff_right = abs(group_ori - prev_right_ori)
+
+            # Decide whether to assign to left or right based on which is closer
+            score_left = dist_left + ori_diff_left
+            score_right = dist_right + ori_diff_right
+
+            if score_left < score_right:
+                left_groups.append(group)
+            else:
+                right_groups.append(group)
+        
+        # If we have at least one left and one right group, we can proceed
+        if left_groups and right_groups:
+            # Merge groups into left and right lines
+            left_lines = [line for group in left_groups for line in group]
+            right_lines = [line for group in right_groups for line in group]
+            return out_image, left_lines, right_lines
+        else:
+            # Matching failed, attempt to match filtered results to previous results
+            # Implement additional matching logic here if needed
+            # For now, call get_side_lines
+            out_image, left_lines, right_lines = get_side_lines(out_image, lines)
+            return out_image, left_lines, right_lines
+    except Exception as e:
+        print(f"Error in match_prev_results: {e}")
+        # If any error occurs, call get_side_lines
+        out_image, left_lines, right_lines = get_side_lines(out_image, lines)
+        return out_image, left_lines, right_lines
+
+def compute_line_group_features(line_group):
+    positions = []
+    orientations = []
+    for line in line_group:
+        (x1, y1), (x2, y2) = line
+        # Compute midpoint
+        mid_x = (x1 + x2) / 2
+        mid_y = (y1 + y2) / 2
+        positions.append((mid_x, mid_y))
+        # Compute orientation (angle)
+        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+        orientations.append(angle)
+    # Average position
+    avg_x = np.mean([p[0] for p in positions])
+    avg_y = np.mean([p[1] for p in positions])
+    avg_position = (avg_x, avg_y)
+    # Average orientation
+    avg_orientation = np.mean(orientations)
+    return avg_position, avg_orientation
+
+def compute_average_features(lines):
+    positions = []
+    orientations = []
+    for line in lines:
+        (x1, y1), (x2, y2) = line
+        # Compute midpoint
+        mid_x = (x1 + x2) / 2
+        mid_y = (y1 + y2) / 2
+        positions.append((mid_x, mid_y))
+        # Compute orientation (angle)
+        angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+        orientations.append(angle)
+    # Average position
+    avg_x = np.mean([p[0] for p in positions])
+    avg_y = np.mean([p[1] for p in positions])
+    avg_position = (avg_x, avg_y)
+    # Average orientation
+    avg_orientation = np.mean(orientations)
+    return avg_position, avg_orientation
+
+def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
-    out_image, lines = join_neighbouring_lines(out_image, lines, 10) 
+    out_image, lines = join_neighbouring_lines(out_image, lines, 10)
     out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
     out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=150)
-    out_image, left, right = get_side_lines(out_image, lines)
+    
+    # Use previous results to match current lines if available
+    if previous_left is not None and previous_right is not None:
+        out_image, left, right = match_prev_results(out_image, lines, previous_left, previous_right, previous_results, filtered_results)
+    else:
+        out_image, left, right = get_side_lines(out_image, lines)
+    
     out_image, left, right = extend_lines(out_image, left, right)
     out_image, left, right = get_inners(out_image, left, right)
     out_image, mask, (left, right) = fill_polygon_between_lines(out_image, left, right)
-    out_image, mask = get_safe_zone(original, mask, left, right, 0.3) 
-    
+    out_image, mask = get_safe_zone(original, mask, left, right, 0.3)
     
     if np.any(mask):
         out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
-        angle_image, in_lane, left, middle, right = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
+        angle_image, in_lane, left_intersections, middle_intersections, right_intersections = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
-        print(left, middle, right)
+        print(left_intersections, middle_intersections, right_intersections)
 
-        if (in_lane):
-                print("The vehicle is in the lane.")
+        if in_lane:
+            print("The vehicle is in the lane.")
 
-        steer = analise_results(in_lane, left, middle, right)
+        steer = analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
 
-        # cv2.imwrite('filtered_lanes_output.jpg', out_image)
-        
-        return out_image, mask, steer
+        # Return current left and right lines for use in the next frame
+        return out_image, mask, steer, left, right
     else:
         steer = 0
         print("Take manual control of the vehicle.")
-        # Save the filtered image with only the lane detection
-        # cv2.imwrite('filtered_lanes_output.jpg', original)
-    
-        return original, mask, steer
+        # Return None for left and right lines
+        return original, mask, steer, None, None
 
 # out_image, mask, steer = follow_lane(out_image, filtered_results, image)   
 
-def start_following(frame):
+def start_following(frame, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     results = model(frame)
-    
     out_image, filtered_results = filter_detections(results, model, frame)
-    
-    res, mask, steer = follow_lane(out_image, filtered_results, frame)
-    
-    return res, mask, steer
+    res, mask, steer, current_left, current_right = follow_lane(
+        out_image, filtered_results, frame, previous_results, previous_left, previous_right, previous_mask
+    )
+    return res, mask, steer, results, current_left, current_right
 
 cap = cv2.VideoCapture('test_short.mp4')
 
