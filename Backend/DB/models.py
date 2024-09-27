@@ -22,7 +22,8 @@ class User(Base):
     uemail = Column(String, unique=True, nullable=False)
     cid = Column(Integer, ForeignKey('corporations.cid', ondelete='CASCADE'), nullable=False)
     is_admin = Column(Boolean, default=False)
-    
+    last_signin = Column(DateTime, default=datetime.utcnow)
+
 class Corporation(Base):
     __tablename__ = 'corporations'
     cid = Column(Integer, primary_key=True)

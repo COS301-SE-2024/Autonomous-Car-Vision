@@ -15,6 +15,14 @@
     window.electronAPI.clearUemail();
     window.electronAPI.clearPrevPath();
     window.electronAPI.clearTeamName();
+
+    window.electronAPI.onAuthSuccess((event, result) => {
+      handleAuthSuccess(result);
+    });
+
+    window.electronAPI.onAuthError((event, error) => {
+      console.error("Authentication error:", error);
+    });
   });
 
   const googleLogin = async () => {
@@ -24,6 +32,61 @@
       showCodeInput = true;
     } catch (error) {
       console.error("Error getting auth URL:", error);
+    }
+  };
+
+  const googleLoginTest = async () => {
+    try {
+      const authUrl = await window.electronAPI.getAuthUrlTest();
+      console.log("Auth URL:", authUrl);
+      window.electronAPI.openExternal(authUrl);
+    } catch (error) {
+      console.error("Error getting auth URL:", error);
+    }
+  };
+
+  const handleAuthSuccess = async (result) => {
+    console.log("Google Sign-In Result:", result);
+    window.electronAPI.storeToken(result.tokens.access_token.substring(0, 40));
+    window.electronAPI.storeUid(result.user.id.substring(0, 10));
+    window.electronAPI.storeUname(result.user.name);
+    window.electronAPI.storeUemail(result.user.email);
+
+    // check if user is already in the database
+    const userExists = await axios.post("http://localhost:8000/userExists/", {
+      email: result.user.email,
+    });
+    if (userExists.data.exists) {
+      console.log("User already exists in database");
+      console.log("Token:", window.electronAPI.getToken());
+      const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+        uid: window.electronAPI.getUid(),
+        token: window.electronAPI.getToken()
+      });
+      
+      window.electronAPI.storeTeamName(userExists.data.teamName);
+      push("/gallery");
+    } else {
+      console.log("User does not exist in database");
+      window.electronAPI.storeTeamName("dev");
+
+      const createUser = await axios.post("http://localhost:8000/signup/", {
+        uname: result.user.name,
+        uemail: result.user.email,
+        password: "",
+        salt: "",
+        cname: "dev",
+        is_admin: false,
+        uid: window.electronAPI.getUid(),
+      });
+      console.log("User created:", createUser);
+
+      const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+        uid: window.electronAPI.getUid(),
+        token: window.electronAPI.getToken()
+      });
+
+      push("/Join");
     }
   };
 

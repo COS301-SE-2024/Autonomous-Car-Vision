@@ -132,12 +132,9 @@
                 username = response.data.uname;
                 name = response.data.uemail;
 
-                if (response.data.profileImg) {
-                    // convert the base64 string to an image
-                    let profilePic = response.data.profileImg;
-                    profilePic = profilePic.replace("data:image/jpeg;base64,", "");
-                    profileImg = profilePic;
-                }else{
+                if (response.data.profile_photo) {
+                    profileImg = `data:${response.data.profile_photo_mime};base64,${response.data.profile_photo}`;
+                } else {
                     profileImg = "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
                 }
             })

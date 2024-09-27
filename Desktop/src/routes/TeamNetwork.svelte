@@ -31,6 +31,7 @@
                 let agents = agentResponse.data.agents;
                 agentsArray.push(agents);
             }
+
             let agents = agentsArray[0];
             for (let i = 0; i < agents.length; i++) {
                 for (let j = 0; j < agents.length; j++) {
@@ -69,7 +70,7 @@
             anchors: [
                 { id: "in1", type: "input" }, // Input for Agents
             ],
-            agents: JsonPayload.agents.map((agent) => agent.id.toString()),
+            agents: JsonPayload.agents.map((agent) => agent.aid.toString()),
             booleanID: 0,
         };
         NodesMake.push(brokerNode);
@@ -122,7 +123,6 @@
         console.log("NodesMake:", NodesMake);
         return NodesMake;
 }
-
 </script>
 
 <ProtectedRoutes>

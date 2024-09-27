@@ -38,11 +38,29 @@
             const response = await axios.post('http://localhost:8000/getTeamMembers/', {
             uid: window.electronAPI.getUid(),
             });
-            users = response.data.teamMembers;
+            users = response.data.teamMembers.sort((a, b) => {
+                if (a.is_admin === b.is_admin) return 0;
+                return a.is_admin ? -1 : 1;
+            });
         } catch (error) {
             console.error(error);
         }
         });     
+
+    function isOnline(lastSignin) {
+        if (!lastSignin) {
+            return false;
+        }
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        
+        // Assuming lastSignin is a Unix timestamp in seconds
+        const lastSigninMs = lastSignin * 1000;
+        
+        console.log('Last signin:', new Date(lastSigninMs));
+        console.log('Five minutes ago:', new Date(fiveMinutesAgo));
+        
+        return lastSigninMs > fiveMinutesAgo;
+    }
 </script>
 
 <ProtectedRoutes>
@@ -76,7 +94,7 @@
                     name={user.uname}
                     email={user.uemail}
                     role={user.is_admin === true ? "Admin" : "Member"}
-                    lastActivity={"We do not store this data yet"}
+                    lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
                     profilePhoto={"https://i.pravatar.cc/150?img=1"}
                     
                 />

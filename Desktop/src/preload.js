@@ -73,5 +73,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   googleSignIn: () => ipcRenderer.invoke('google-sign-in'),
   getAuthUrl: () => ipcRenderer.invoke('get-auth-url'),
   exchangeCode: (code) => ipcRenderer.invoke('exchange-code', code),
+  googleLoginTest: () => ipcRenderer.invoke('google-login-test'),
+  getAuthUrlTest: () => ipcRenderer.invoke('get-auth-url-test'),
+  openExternal: (url) => ipcRenderer.send('open-external', url),
+  onAuthSuccess: (callback) => ipcRenderer.on('auth-success', callback),
+  onAuthError: (callback) => ipcRenderer.on('auth-error', callback),
+  getLastSignin: (uid) => ipcRenderer.invoke('get-last-signin', uid),
+  updateLastSignin: (uid) => ipcRenderer.invoke('update-last-signin', uid),
   // Optional: Listen for the script completion event
 });

@@ -1,11 +1,11 @@
 from django import forms
-from .models import User, Auth, OTP, Token, Video, Corporation, TokenCorporation, Profile
+from .models import User, Auth, OTP, Token, Video, Corporation, TokenCorporation
 
 
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["uname", "uemail", "cid", "is_admin"]
+        fields = ["uname", "uemail", "cid", "is_admin", "last_signin"]
 
 class AuthForm(forms.ModelForm):
     class Meta:
@@ -38,5 +38,3 @@ class TokenCorporationForm(forms.ModelForm):
     class Meta:
         model = TokenCorporation
         fields = ["token", "email"]        
-        
-        

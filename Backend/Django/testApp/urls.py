@@ -45,8 +45,9 @@ from .views import (
     getCID,
     getCorporationUsersID,
     getUserData,
-    addProfilePhoto,
-    getProfilePhoto,
+    getLastSignin,
+    updateLastSignin,
+    getAgentUserConnections,
 )
 
 router = DefaultRouter()
@@ -100,6 +101,7 @@ urlpatterns = [
     path("getCID/", getCID),
     path("getCorporationUsersID/", getCorporationUsersID),
     path("getUserData/", getUserData),
-    path("addProfilePhoto/", addProfilePhoto),
-    path("getProfilePhoto/", getProfilePhoto),
+    path("getLastSignin/", getLastSignin),
+    path("updateLastSignin/", updateLastSignin),
+    path("getAgentUserConnections/", getAgentUserConnections),
 ]

@@ -11,6 +11,7 @@ const ffmpegFluent = require('fluent-ffmpeg');
 const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
 const {OAuth2Client} = require('google-auth-library');
+const http = require('http');
 // import ability to get .env data
 require('dotenv').config();
 
@@ -49,7 +50,44 @@ async function createWindow() {
     store = await loadElectronStore();
 }
 
-app.on('ready', createWindow);
+app.whenReady().then(() => {
+    createWindow();
+  
+    // Register protocol handler
+    if (process.defaultApp) {
+      if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient('myapp', process.execPath, [path.resolve(process.argv[1])])
+      }
+    } else {
+      app.setAsDefaultProtocolClient('myapp')
+    }
+  });
+
+  app.on('ready', () => {
+    // Suppress specific DevTools warnings
+    const { session } = require('electron');
+    session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+      if (details.url.includes('devtools://')) {
+        callback({cancel: false});
+      } else {
+        callback({cancel: false});
+      }
+    });
+  
+    createWindow();
+  });
+
+  app.on('open-url', (event, url) => {
+    event.preventDefault();
+    handleAuthCallback(url);
+  });
+
+  app.on('open-external', (event, url) => {
+    event.preventDefault();
+    console.log('Open external:', url);
+    handleAuthCallback(url);
+  });
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -1236,4 +1274,125 @@ ipcMain.handle('get-auth-url', async () => {
       console.error('Error exchanging code:', error);
       return { success: false, error: error.message };
     }
+  });
+
+  ipcMain.handle('google-login-test', async () => {
+    return new Promise((resolve, reject) => {
+      // Create an HTTP server
+      const server = http.createServer(async (req, res) => {
+        if (req.url.startsWith('/callback')) {
+          const urlParams = new URL(`http://localhost${req.url}`).searchParams;
+          const code = urlParams.get('code');
+          res.end('Authentication successful! You can close this window.');
+          server.close();
+  
+          if (code) {
+            try {
+              const { tokens } = await oauth2Client.getToken(code);
+              oauth2Client.setCredentials(tokens);
+  
+              const { data } = await oauth2Client.request({
+                url: 'https://www.googleapis.com/oauth2/v2/userinfo',
+              });
+  
+              resolve({
+                success: true,
+                user: data,
+                tokens: tokens,
+              });
+            } catch (error) {
+              console.error('Error exchanging code:', error);
+              resolve({ success: false, error: error.message });
+            }
+          } else {
+            resolve({ success: false, error: 'No code found in the query parameters' });
+          }
+        }
+      });
+  
+      // Start listening on a random port
+      server.listen(0, () => {
+        const port = server.address().port;
+        const redirectUri = `http://localhost:${port}/callback`;
+  
+        const oauth2Client = new OAuth2Client(
+          CLIENT_ID,
+          CLIENT_SECRET,
+          redirectUri
+        );
+  
+        const authUrl = oauth2Client.generateAuthUrl({
+          access_type: 'offline',
+          scope: [
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+          ],
+        });
+  
+        // Open the default browser to the authentication URL
+        shell.openExternal(authUrl);
+      });
+    });
+  });
+
+  ipcMain.handle('get-auth-url-test', async () => {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
+    });
+    return authUrl;
+  });
+
+  async function handleAuthCallback(callbackUrl) {
+    const parsedUrl = new URL(callbackUrl);
+    const code = parsedUrl.searchParams.get('code');
+    
+    if (code) {
+      try {
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+        
+        const { data } = await oauth2Client.request({
+          url: 'https://www.googleapis.com/oauth2/v2/userinfo'
+        });
+  
+        mainWindow.webContents.send('auth-success', { 
+          success: true, 
+          user: data,
+          tokens: tokens
+        });
+      } catch (error) {
+        console.error('Error exchanging code:', error);
+        mainWindow.webContents.send('auth-error', { success: false, error: error.message });
+      }
+    }else{
+        mainWindow.webContents.send('auth-error', { success: false, error: 'No code found in the query parameters' });
+
+    }
+  }
+
+  ipcMain.handle('get-last-signin', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        //TODO: get last signin from the database with uid and an axios post
+        axios.post('http://localhost:8000/api/getLastSignin/', { uid: uid })
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+  });
+
+  ipcMain.handle('update-last-signin', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        //TODO: update last signin in the database with uid and an axios post
+        axios.post('http://localhost:8000/api/updateLastSignin/', { uid: uid })
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
   });

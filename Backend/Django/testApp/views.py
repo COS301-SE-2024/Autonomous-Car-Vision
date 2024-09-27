@@ -1092,7 +1092,8 @@ def getTeamMembers(request):
                 "uid": member.uid,
                 "uname": member.uname,
                 "uemail": member.uemail,
-                "is_admin": member.is_admin
+                "is_admin": member.is_admin,
+                "last_signin": member.last_signin.strftime("%H:%M:%S %d-%m-%Y")
             })
         return Response(
             {"teamMembers": users}, status=status.HTTP_200_OK)
@@ -1354,34 +1355,10 @@ def getUserData(request):
     return Response(
         serializer.data, status=status.HTTP_200_OK
     )
-    
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def addProfilePhoto(request):
-    data = request.data
-    uid = data.get("uid")
-    profilePhoto = data.get("profilePhoto")
-    
-    if not uid or not profilePhoto:
-        return Response(
-            {"error": "UID and profile photo are required"}, status=status.HTTP_400_BAD_REQUEST
-        )
-        
-    try:
-        user = User.objects.get(uid=uid)
-        user.profile_photo = profilePhoto
-        user.save()
-        return Response(
-            {"message": "Profile photo added successfully"}, status=status.HTTP_200_OK
-        )
-    except User.DoesNotExist:
-        return Response(
-            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
-        )
-        
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def getProfilePhoto(request):
+def getLastSignin(request):
     data = request.data
     uid = data.get("uid")
     
@@ -1389,10 +1366,67 @@ def getProfilePhoto(request):
         return Response(
             {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     user = User.objects.get(uid=uid)
-    profilePhoto = user.profile_photo
+    last_signin = user.last_signin
     
     return Response(
-        {"profilePhoto": profilePhoto}, status=status.HTTP_200_OK
-    )    
+        {"last_signin": last_signin}, status=status.HTTP_200_OK
+    )
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def updateLastSignin(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    user.last_signin = datetime.now()
+    user.save()
+    
+    return Response(
+        {"message": "Last signin updated successfully"}, status=status.HTTP_200_OK
+    )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getAgentUserConnections(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    agents = user.agents.all()
+    users = user.users.all()
+    
+    return Response(
+        {"agents": agents, "users": users}, status=status.HTTP_200_OK
+    )
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getUserAgentConnections(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    agents = user.agents.all()
+    users = user.users.all()
+    
+    return Response(
+        {"agents": agents, "users": users}, status=status.HTTP_200_OK
+    )
