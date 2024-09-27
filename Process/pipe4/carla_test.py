@@ -321,6 +321,24 @@ def join_neighbouring_lines(image, lines, min_distance=30):
     
     return output_image, grouped_lines
 
+def group_lines(image, lines):
+    output_image = image.copy()  # Create a copy of the original image to draw on
+    
+    # Initialize an array to store groups of lines
+    grouped_lines = []
+    
+    # For each line, create a group containing just that line
+    for line in lines:
+        grouped_lines.append([line])
+    
+    # Optionally, you can draw the lines on the output image
+    for group in grouped_lines:
+        color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))  # Random color for each group
+        for (start, end) in group:
+            cv2.line(output_image, start, end, color, 2)
+    
+    return output_image, grouped_lines
+
 def extend_and_connect_lines(image, grouped_lines, min_distance=30, extension_length=20):
     output_image = image.copy()  # Create a copy of the original image to draw on
 
@@ -1266,7 +1284,8 @@ def compute_average_features(lines):
 
 def follow_lane(out_image, filtered_results, original, previous_results=None, previous_left=None, previous_right=None, previous_mask=None):
     out_image, lines = get_lines(filtered_results, out_image)
-    out_image, lines = join_neighbouring_lines(out_image, lines, 10)
+    # out_image, lines = join_neighbouring_lines(out_image, lines, 10)
+    out_image, lines = group_lines(out_image, lines)
     out_image, lines = extend_and_connect_lines(out_image, lines, 20, 20)
     out_image, lines = merge_aligned_inline_lines(out_image, lines, angle_threshold=10, distance_threshold=150)
     
@@ -1310,7 +1329,7 @@ def start_following(frame, previous_results=None, previous_left=None, previous_r
     )
     return res, mask, steer, results, current_left, current_right
 
-cap = cv2.VideoCapture('test_short.mp4')
+# cap = cv2.VideoCapture('test_short.mp4')
 
 if __name__ == '__main__':
     main()
