@@ -89,10 +89,10 @@ def test_pipeline():
     return processed_image, bounding_boxes
 
 def test_lane():
-    camera_file_path = os.path.join('maybe.png')
+    camera_file_path = os.path.join('public/testData/frame_000300_raw.png')
     camera_data = load_image(camera_file_path)
     
-    input_string = 'inputUnit,laneUnit,outputUnitTest.la'
+    input_string = 'inputUnit,infusrUnit,laneUnit,outputUnitTest.la'
     pipeline = build_pipeline(input_string)
     
     sensors = ['camera', 'lidar']
@@ -100,7 +100,8 @@ def test_lane():
     data_token.add_sensor_data('camera', camera_data)
     
     processed_image, img_lidar, img_taggr, img_bb, img_la = pipeline.process(data_token)
-    
+    lane_image_path = os.path.join('public/testData', 'lane_image.png')
+    if img_la is not None: Image.fromarray(img_la).save(lane_image_path)
     output = data_token.get_processing_result('laneUnit')
     
     steer = output['steer']

@@ -84,24 +84,66 @@ class outputUnitTest(Unit):
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
                                 2)
                     cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    
-        if (self.lidar or self.all) and data_token.get_flag('has_lane_data'):
+
+        # if (self.la or self.all) and data_token.get_flag('has_lane_data'):
+        #     output = data_token.get_processing_result('laneUnit')
+        #     # mask = output['mask']
+        #     results = output['results']
+        #
+        #     if len(mask.shape) == 3 and mask.shape[2] == 3:
+        #         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        #
+        #     if mask.shape != annotated_frame.shape[:2]:
+        #         mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]),
+        #                           interpolation=cv2.INTER_NEAREST)
+        #
+        #     colored_mask = np.zeros_like(annotated_frame)
+        #     colored_mask[mask > 0] = [0, 255, 0]
+        #
+        #     alpha = 0.5
+        #     annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
+        #     img_la = image.copy()
+        #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+        if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
-            mask = output['mask']
-            
-            if len(mask.shape) == 3 and mask.shape[2] == 3:
-                mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+            results = output['results']  # Use results directly instead of output['mask']
 
-            if mask.shape != annotated_frame.shape[:2]:
-                mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+            # Initialize an empty mask to match the size of the annotated_frame
+            colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
 
-            colored_mask = np.zeros_like(annotated_frame)
-            colored_mask[mask > 0] = [0, 255, 0] 
+            for result in results[0]:
+                # Get the name of the detected class
+                class_name = result.boxes.cls  # Assuming this is the class label
 
+                # Filter for specific classes if needed (e.g., exclude certain lanes)
+                if int(class_name) != 4 and int(class_name) != 3:  # Adjust class filtering as needed
+                    mask = result.masks.data.cpu().numpy()  # Get the mask from the result
+
+                    # Squeeze the mask to remove unnecessary dimensions (e.g., [1, h, w] -> [h, w])
+                    mask = np.squeeze(mask)
+
+                    # Check if mask is non-empty before processing
+                    if mask.size > 0:
+                        # Resize the mask to match the size of the annotated_frame
+                        mask_resized = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+
+                        # Convert the resized mask to binary using thresholding
+                        binary_mask = (mask_resized > 0.5).astype(np.uint8)
+
+                        # Create a white-colored version of the binary mask
+                        temp_colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
+                        temp_colored_mask[binary_mask == 1] = [255, 255, 255]  # You can choose another color if desired
+
+                        # Add the temporary mask to the global colored_mask
+                        colored_mask = cv2.add(colored_mask, temp_colored_mask)
+
+            # Overlay the combined colored_mask onto the original annotated_frame
             alpha = 0.5
+            img_la = image.copy()
             annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
             img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
-            
+
+
         if (self.all and data_token.get_flag('hasObeserverData')):
             observer_results = data_token.get_processing_result('observerUnit')
             img_grid = image.copy()
@@ -109,7 +151,6 @@ class outputUnitTest(Unit):
             xMax = observer_results['xMax']
             yMin = observer_results['yMin']
             yMax = observer_results['yMax']
-
 
             # text = f"{bbox[-1]}  {min_distance if min_distance else ''}"
             # cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
