@@ -11,6 +11,7 @@ class outputUnitTest(Unit):
         self.lidar = False
         self.taggr = False
         self.bb = False
+        self.la = False
 
     def set_flags(self, flags):
         if 'all' in flags:
@@ -21,6 +22,8 @@ class outputUnitTest(Unit):
             self.taggr = True
         if 'bb' in flags:
             self.bb = True
+        if 'la' in flags:
+            self.la = True
 
     def process(self, data_token):
         image = data_token.get_sensor_data('camera')
@@ -29,6 +32,7 @@ class outputUnitTest(Unit):
         img_lidar = None
         img_taggr = None
         img_bb = None
+        img_la = None
 
         if (self.lidar or self.all) and data_token.get_flag('has_lidar_data'):
             lidar_data = data_token.get_processing_result('infusrUnit')
@@ -80,6 +84,24 @@ class outputUnitTest(Unit):
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
                                 2)
                     cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    
+        if (self.lidar or self.all) and data_token.get_flag('has_lane_data'):
+            output = data_token.get_processing_result('laneUnit')
+            mask = output['mask']
+            
+            if len(mask.shape) == 3 and mask.shape[2] == 3:
+                mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+
+            if mask.shape != annotated_frame.shape[:2]:
+                mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+
+            colored_mask = np.zeros_like(annotated_frame)
+            colored_mask[mask > 0] = [0, 255, 0] 
+
+            alpha = 0.5
+            annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
+            img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+            
         if (self.all and data_token.get_flag('hasObeserverData')):
             observer_results = data_token.get_processing_result('observerUnit')
             img_grid = image.copy()
@@ -94,4 +116,4 @@ class outputUnitTest(Unit):
             # cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
-        return annotated_frame, img_lidar, img_taggr, img_bb
+        return annotated_frame, img_lidar, img_taggr, img_bb, img_la

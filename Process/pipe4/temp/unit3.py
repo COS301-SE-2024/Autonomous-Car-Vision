@@ -34,14 +34,25 @@ import carla
 actor_list = []
 model = YOLO('./models/yolov8n.pt')
 
+follow_lane = False
+
 
 def get_keyboard_control(vehicle):
-    keys = pygame.key.get_pressed()
-    control = carla.VehicleControl()
-    control.throttle = 1.0 if keys[pygame.K_w] else 0.0
-    control.brake = 1.0 if keys[pygame.K_s] else 0.0
-    control.steer = -1.0 if keys[pygame.K_a] else 1.0 if keys[pygame.K_d] else 0.0
-    control.hand_brake = keys[pygame.K_SPACE]
+    # Toggle lane following with Q
+    global follow_lane
+    if keys[pygame.K_q]:
+        follow_lane = not follow_lane
+        
+    if not follow_lane:
+        keys = pygame.key.get_pressed()
+        control = carla.VehicleControl()
+        control.throttle = 1.0 if keys[pygame.K_w] else 0.0
+        control.brake = 1.0 if keys[pygame.K_s] else 0.0
+        control.steer = -1.0 if keys[pygame.K_a] else 1.0 if keys[pygame.K_d] else 0.0
+        control.hand_brake = keys[pygame.K_SPACE]
+    else:
+        control.throttle = 0.3
+    
     return control
 
 
@@ -490,6 +501,12 @@ def main():
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
+                
+                if (follow_lane):
+                    output = pipe.dataToken.get_processing_result('laneUnit')
+                    steer = output['steer']
+                    control.steer = steer
+                    
                 vehicle.apply_control(control)
 
                 pygame.time.Clock().tick(30)
