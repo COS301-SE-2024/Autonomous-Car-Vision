@@ -137,7 +137,7 @@ async def install():
             session,
             json.dumps(
                 {
-                    "aip": findOpenPort()[0],
+                    "aip": findOpenPort()[0],  # This will now be the public IP
                     "aport": 8010,
                     "capacity": capacity,
                     "storage": 290.4,
@@ -161,30 +161,25 @@ async def install():
 def findOpenPort():
     port = 8002
     
-    # Try to get the IP address of the default gateway interface
+    # Try to get the public IP address
     try:
-        # Get default gateway
-        gateways = netifaces.gateways()
-        default_gateway = gateways['default'][netifaces.AF_INET][1]
-        
-        # Get IP address of the interface connected to the default gateway
-        addresses = netifaces.ifaddresses(default_gateway)
-        ip = addresses[netifaces.AF_INET][0]['addr']
-    except:
-        # Fallback to getting external IP if the above method fails
-        try:
-            ip = requests.get('https://api.ipify.org').text.strip()
-        except:
-            # If all else fails, use localhost
-            ip = '127.0.0.1'
+        ip = requests.get('https://api.ipify.org').text.strip()
+        print(f"Public IP address: {ip}")
+    except Exception as e:
+        print(f"Error getting public IP: {e}")
+        # If we can't get the public IP, we'll use a placeholder
+        ip = '0.0.0.0'
+        print("Using placeholder IP: 0.0.0.0")
     
+    # Find an open port
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            result = s.connect_ex((ip, port))
+            result = s.connect_ex(('localhost', port))
             if result == 0:
                 port += 1
             else:
                 break
+    
     return ip, port
 
 
