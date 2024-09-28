@@ -534,6 +534,12 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        if len(sys.argv) > 1:
+            pipe_argument = sys.argv[1]
+        else:
+            print("No pipe argument provided. Exiting...")
+            sys.exit(1)
+            
+        main(pipe_argument)
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
