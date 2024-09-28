@@ -122,10 +122,12 @@ class infusrUnit(Unit):
         y = points_camera_rotate[1, :]
         z = points_camera_rotate[2, :]
         
+        modified_lidar_data = np.vstack((x, y, z)).T
+        
         # Write x, y, z to lidar_data
-        lidar_data[:, 0] = x
-        lidar_data[:, 1] = y
-        lidar_data[:, 2] = z
+        modified_lidar_data[:, 0] = x
+        modified_lidar_data[:, 1] = y
+        modified_lidar_data[:, 2] = z
 
         # Compute r, θ (azimuth), and φ (elevation)
         r = np.sqrt(x**2 + y**2 + z**2)
@@ -138,7 +140,7 @@ class infusrUnit(Unit):
 
         # Apply the initial FOV constraints to limit the LiDAR data to 90° horizontal and 60° vertical FOV
         fov_mask = (np.abs(theta) <= horizontal_fov) & (np.abs(phi) <= vertical_fov)
-        filtered_data = lidar_data[fov_mask]
+        filtered_data = modified_lidar_data[fov_mask]
         filtered_r = r[fov_mask]
 
         # If no points are left after filtering, return the image unchanged

@@ -74,7 +74,7 @@ def test_pipeline():
     data_token.add_sensor_data('camera', camera_data)
     data_token.add_sensor_data('lidar', lidar_data)
 
-    processed_image, img_lidar, img_taggr, img_bb = pipeline.process(data_token)
+    processed_image, img_lidar, img_taggr, img_bb, img_la = pipeline.process(data_token)
 
     bounding_boxes = data_token.get_processing_result('yoloUnit')
 
@@ -108,5 +108,5 @@ def test_lane():
     print("steer: ", steer)
 
 
-# processed_image, bounding_boxes = test_pipeline()
-test_lane()
+processed_image, bounding_boxes = test_pipeline()
+# test_lane()

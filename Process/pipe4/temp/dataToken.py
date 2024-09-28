@@ -5,7 +5,7 @@ class DataToken:
         self.sensors = sensors
         self.sensor_data = {}  # Dictionary to hold sensor data
         self.processing_results = {}  # Dictionary to hold processing results
-        self.flags = {'has_lidar_data':False, 'has_tagger_data': False}  # Dictionary to hold flags
+        self.flags = {'has_lidar_data':False, 'has_tagger_data': False, 'has_lane_data': False, 'hasObeserverData': False}  # Dictionary to hold flags
 
     def add_sensor_data(self, sensor_name, data):
         if sensor_name not in self.sensors:
