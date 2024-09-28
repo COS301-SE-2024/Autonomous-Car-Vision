@@ -18,6 +18,7 @@ import shutil
 import json
 from dotenv import load_dotenv
 import base64
+import netifaces
 
 load_dotenv()
 app = FastAPI()
@@ -136,7 +137,7 @@ async def install():
             session,
             json.dumps(
                 {
-                    "aip": socket.gethostbyname(socket.gethostname()),
+                    "aip": findOpenPort()[0],
                     "aport": 8010,
                     "capacity": capacity,
                     "storage": 290.4,
@@ -159,7 +160,24 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = socket.gethostbyname(socket.gethostname())
+    
+    # Try to get the IP address of the default gateway interface
+    try:
+        # Get default gateway
+        gateways = netifaces.gateways()
+        default_gateway = gateways['default'][netifaces.AF_INET][1]
+        
+        # Get IP address of the interface connected to the default gateway
+        addresses = netifaces.ifaddresses(default_gateway)
+        ip = addresses[netifaces.AF_INET][0]['addr']
+    except:
+        # Fallback to getting external IP if the above method fails
+        try:
+            ip = requests.get('https://api.ipify.org').text.strip()
+        except:
+            # If all else fails, use localhost
+            ip = '127.0.0.1'
+    
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex((ip, port))
