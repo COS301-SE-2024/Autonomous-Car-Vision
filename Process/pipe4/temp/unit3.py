@@ -35,6 +35,7 @@ actor_list = []
 model = YOLO('./models/yolov8n.pt')
 
 follow_lane = False
+lane_active = False
 
 
 def get_keyboard_control(vehicle):
@@ -51,7 +52,7 @@ def get_keyboard_control(vehicle):
     else:
         control.throttle = 0.3
     
-    if keys[pygame.K_q]:
+    if keys[pygame.K_q] and lane_active:
         follow_lane = not follow_lane
     return control
 
@@ -410,6 +411,7 @@ def create_directory_and_move_files(output_frames):
 
 # Example usage:
 def main(pipestring):
+    global lane_active
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
@@ -451,6 +453,10 @@ def main(pipestring):
 
         # Timer for the drive
         start_time = time.time()
+        
+        # If pipestrign contains 'laneUnit', set lane_active to True
+        if 'laneUnit' in pipestring:
+            lane_active = True
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
