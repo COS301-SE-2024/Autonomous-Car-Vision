@@ -454,7 +454,7 @@ def main():
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
-            pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnit")
+            pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,outputUnitTest.all")
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
