@@ -40,9 +40,7 @@ follow_lane = False
 def get_keyboard_control(vehicle):
     # Toggle lane following with Q
     global follow_lane
-    if keys[pygame.K_q]:
-        follow_lane = not follow_lane
-        
+    control = carla.VehicleControl()
     if not follow_lane:
         keys = pygame.key.get_pressed()
         control = carla.VehicleControl()
@@ -53,6 +51,8 @@ def get_keyboard_control(vehicle):
     else:
         control.throttle = 0.3
     
+    if keys[pygame.K_q]:
+        follow_lane = not follow_lane
     return control
 
 
@@ -409,7 +409,7 @@ def create_directory_and_move_files(output_frames):
     print(f"Files moved to: {save_directory}")
 
 # Example usage:
-def main():
+def main(pipestring):
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
@@ -454,7 +454,7 @@ def main():
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
-            pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,outputUnit.all")
+            pipe = bobTheBuilder.build_pipeline(pipestring)
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

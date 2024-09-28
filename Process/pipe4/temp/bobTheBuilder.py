@@ -109,5 +109,5 @@ def test_lane():
     print("steer: ", steer)
 
 
-processed_image, bounding_boxes = test_pipeline()
+# processed_image, bounding_boxes = test_pipeline()
 # test_lane()
