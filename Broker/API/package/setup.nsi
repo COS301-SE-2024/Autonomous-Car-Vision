@@ -39,18 +39,20 @@ Var RadioBoth
 Var TextBox
 Var HOST_IP
 
-StrCpy $HOST_IP "206.189.188.197"
-
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
+; !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"  ; Comment out or remove this line
+!insertmacro MUI_PAGE_COMPONENTS
+!insertmacro MUI_PAGE_DIRECTORY
 Page custom AgentTypePage AgentTypeLeave
 Page custom CorporationPage CorporationLeave
-!insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
 
 ; Language
 !insertmacro MUI_LANGUAGE "English"
@@ -145,7 +147,6 @@ Section "MainSection" SEC01
   FileWrite $0 "$\r$\n"
   FileWrite $0 "AGENT_TYPE=$AgentType$\r$\n"
   FileWrite $0 "CORPORATION_NAME=$CorporationName$\r$\n"
-  FileWrite $0 "HOST_IP=$HOST_IP$\r$\n"
   FileClose $0
 
   ; Install Python dependencies
