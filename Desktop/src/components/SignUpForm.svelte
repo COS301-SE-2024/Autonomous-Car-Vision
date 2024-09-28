@@ -4,6 +4,7 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import {theme } from "../stores/themeStore";
+  import { onMount } from "svelte";
 
   function handleEnterdown(e) {
     if (e.key == "Enter") {
@@ -15,6 +16,11 @@
   let eToken = "";
   let pToken = "";
   let ppToken = "";
+
+  let HOST_IP;
+  onMount(async () => {
+     HOST_IP = await window.electronAPI.getHostIp();
+  });
 
   const onSubmit = async () => {
     console.log("Sign-up");
@@ -32,7 +38,7 @@
     //! NEED TO MOVE SOON
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
-      const response = await axios.post("http://localhost:8000/signup/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/signup/", {
         uname: nToken,
         uemail: eToken,
         password: hash,

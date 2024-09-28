@@ -30,6 +30,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+HOST_IP = os.getenv("HOST_IP")
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -752,13 +754,20 @@ def uploadFile(request):
 
     if dataToken.token != utoken:
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = User.objects.get(uid=uid)
+    cid = user.cid.cname
+    
+    # corporation = Corporation.objects.get(cid=cid)
+    
+    print("Corporation: ", cid) 
 
     size = data.get("size")
-    message = {"size": size, "uid": uid, "utoken": utoken}
+    message = {"size": size, "uid": uid, "utoken": utoken, "corporation": cid}
 
     print(message)
 
-    url = "http://localhost:8006/brokerStore"
+    url = "http://" + HOST_IP + ":8006/brokerStore"
     response = requests.post(url, json=message)
     data = response.json()
     print(response.status_code)
@@ -1021,7 +1030,7 @@ def send_invite(teamName, email, token):
     from_email = "bitforge.capstone@gmail.com"
     from_password = os.getenv("APP_PASSWORD")
     subject = "Join our team!"
-    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://localhost:8000/download \n\n Use the following token to join the team: {token}"
+    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://" + HOST_IP + ":8000/download \n\n Use the following token to join the team: {token}"
     message = MIMEMultipart()
     message["From"] = from_email
     message["To"] = email

@@ -23,6 +23,8 @@ load_dotenv()
 app = FastAPI()
 RUN_ONCE_FILE = "run_once_flag.txt"
 
+HOST_IP = os.getenv("HOST_IP")
+
 
 @app.get("/")
 def status():
@@ -57,13 +59,14 @@ def getHardwareInfo():
 
 @app.on_event("startup")
 async def startup_event():
-    if not os.path.exists(RUN_ONCE_FILE):
-        await install()
-        # TODO Run initial setup
-        with open(RUN_ONCE_FILE, "w") as file:
-            file.write("This file indicates the one-time function has run.")
-    else:
-        print("One-time setup function has already run, skipping.")
+    # if not os.path.exists(RUN_ONCE_FILE):
+    #     await install()
+    #     # TODO Run initial setup
+    #     with open(RUN_ONCE_FILE, "w") as file:
+    #         file.write("This file indicates the one-time function has run.")
+    # else:
+    #     print("One-time setup function has already run, skipping.")
+    await install()
 
 
 # TODO TEST
@@ -71,7 +74,7 @@ async def startup_event():
 async def install():
     async with httpx.AsyncClient() as client:
         # # get my agent details
-        # response = await client.get('http://127.0.0.1:8006/agent')
+        # response = await client.get('http://' + HOST_IP + ':8006/agent')
         # if response.status_code != 200:
         #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
         # print("Response:", response.json())
@@ -103,7 +106,7 @@ async def install():
 
         # Transmit the encrypted data
         response2 = await client.post(
-            "http://127.0.0.1:8006/test",
+            "http://" + HOST_IP + ":8006/test",
             json={"aid": os.getenv("AID"), "message": encrypted_message},
         )
         if response2.status_code != 200:
@@ -142,7 +145,7 @@ async def install():
             ),
         )
         response3 = await client.post(
-            "http://127.0.0.1:8006/handshake",
+            "http://" + HOST_IP + ":8006/handshake",
             json={"aid": os.getenv("AID"), "corporation": os.getenv("CORPORATION_NAME"), "message": message},
         )
         if response3.status_code != 200:
@@ -156,7 +159,6 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    # ip = "127.0.0.1"
     ip = socket.gethostbyname(socket.gethostname())
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

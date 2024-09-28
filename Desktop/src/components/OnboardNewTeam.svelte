@@ -3,6 +3,12 @@
     import axios from "axios";
     import { push } from "svelte-spa-router";
     import {theme } from "../stores/themeStore";
+    import { onMount } from "svelte";
+
+    let HOST_IP;
+    onMount(async () => {
+      HOST_IP = await window.electronAPI.getHostIp();
+    });
 
     let teamName = "";
 
@@ -11,7 +17,7 @@
 
       // check if team exists, if not, create team and add user to team
       try{
-        const response = await axios.post("http://localhost:8000/createTeam/", {
+        const response = await axios.post("http://" + HOST_IP + ":8000/createTeam/", {
           teamName: teamName,
           uid: window.electronAPI.getUid(),
           admin: true,

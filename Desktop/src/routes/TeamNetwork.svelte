@@ -9,12 +9,15 @@
     import ManagerNode from "../components/ManagerNode.svelte";
     import axios from "axios";
 
+    
     let nodes = [];
-
+    let HOST_IP;
+    
     onMount(async () => {
+         HOST_IP = await window.electronAPI.getHostIp();
         try {
             // Fetch user data
-            const userResponse = await axios.post("http://localhost:8000/getCorporationUsersID/", {
+            const userResponse = await axios.post("http://" + HOST_IP + ":8000/getCorporationUsersID/", {
                 uid: window.electronAPI.getUid(),
             });
             let users = userResponse.data.users;
@@ -25,7 +28,7 @@
                 
             let agentsArray = [];
             for (let i = 0; i < userIDS.length; i++) {
-                const agentResponse = await axios.post("http://localhost:8000/getAllAgentsForUser/", {
+                const agentResponse = await axios.post("http://" + HOST_IP + ":8000/getAllAgentsForUser/", {
                     uid: userIDS[i],
                 });
                 let agents = agentResponse.data.agents;

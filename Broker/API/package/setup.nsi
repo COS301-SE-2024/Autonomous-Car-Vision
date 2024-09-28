@@ -37,17 +37,22 @@ Var RadioStore
 Var RadioProcess
 Var RadioBoth
 Var TextBox
+Var HOST_IP
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
+; !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"  ; Comment out or remove this line
+!insertmacro MUI_PAGE_COMPONENTS
+!insertmacro MUI_PAGE_DIRECTORY
 Page custom AgentTypePage AgentTypeLeave
 Page custom CorporationPage CorporationLeave
-!insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
 
 ; Language
 !insertmacro MUI_LANGUAGE "English"
@@ -167,7 +172,8 @@ Section "Uninstall"
   Delete "$INSTDIR\requirements.txt"
   Delete "$INSTDIR\start.bat"
   Delete "$INSTDIR\.env"
-  Delete "$INSTDIR\agent_type.txt"
+  Delete "$INSTDIR\cerberus.py"
+  Delete "$INSTDIR\__pycache__"
   Delete "$INSTDIR\uninstall.exe"
   Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
   Delete "$DESKTOP\${APPNAME}.lnk"

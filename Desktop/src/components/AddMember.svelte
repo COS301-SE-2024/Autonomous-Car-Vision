@@ -3,10 +3,16 @@
     import { Button, TextField, Icon } from "svelte-materialify";
     import {mdiAccountPlus} from "@mdi/js";
     import axios from "axios";
+    import { onMount } from "svelte";
     import {theme} from '../stores/themeStore';
   
    let email = ''; 
    let newMembers = []; 
+
+    let HOST_IP;
+   onMount(async () => {
+    HOST_IP = await window.electronAPI.getHostIp();
+   });
    
    function addMemberToList() {
         if (email.trim()) {
@@ -33,7 +39,7 @@
         console.log(window.electronAPI.getTeamName());
         // Send the emails to the new members
         try {
-            const response = await axios.post("http://localhost:8000/sendInviteEmail/", {
+            const response = await axios.post("http://" + HOST_IP + ":8000/sendInviteEmail/", {
                 newMembers: newMembers,
                 teamName: window.electronAPI.getTeamName(),
             });

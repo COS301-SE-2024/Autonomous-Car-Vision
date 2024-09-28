@@ -28,12 +28,14 @@
 
     export let width;
 
-    let username = "Username";
-    let name = "User Name";
-    let profileImg = "https://gravatar.com/avatar";
+    let username = "";
+    let name = "";
+    let profileImg = "";
 
     let showAccountPopup = false;
     let showTeamDropdown = false; 
+
+    let HOST_IP;
 
     let routes = [
         {
@@ -118,12 +120,13 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
+         HOST_IP = await window.electronAPI.getHostIp();
         document.addEventListener("click", handleClickOutside);
 
         // Get user data with uid
         axios
-            .post("http://localhost:8000/getUserData/", {
+            .post("http://" + HOST_IP + ":8000/getUserData/", {
                 uid: window.electronAPI.getUid(),
             })
             .then(async (response) => {

@@ -12,8 +12,14 @@ import subprocess
 import charon
 import media
 import base64
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
+
+HOST_IP = os.getenv("HOST_IP")
 
 
 @app.get("/")
@@ -48,7 +54,7 @@ async def simStore():
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 28, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 28, "aport": 8001, "aip": HOST_IP}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}
@@ -74,16 +80,16 @@ def agent():
     public = response["public"]
 
     public = base64.b64encode(public).decode("utf-8")
-
     # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
-        f.write(f"PUBLIC_TEST={public}")
+        f.write(f"PUBLIC_TEST={public}\n")
+        f.write(f"HOST_IP=206.189.188.197")
 
-    # subprocess.run(["makensis", "./package/setup.nsi"])
+    subprocess.run(["makensis", "./package/setup.nsi"])
 
     filePath = "./package/MyFastAPIAppSetup.exe"
-    return FileResponse(filePath, filename="MyFastAPIAppSetup.exe")
+    return FileResponse(filePath, filename="AgentSetup.exe")
 
 @app.get("/windows")
 def windows():
@@ -144,7 +150,7 @@ async def brokerStore(request: Request):
     message = await request.json()
     print(">>>BrokerStore initiated", message)
     print("Getting available agents")
-    agents = media.get_avail_store_agents(message['size'])
+    agents = media.get_avail_store_agents(message['size'], message['corporation'])
     print("avail agents: ", agents)
     avail = None
     for agent in agents:
@@ -152,7 +158,7 @@ async def brokerStore(request: Request):
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 1, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 1, "aport": 8001, "aip": HOST_IP, "corporation": "dev"}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}

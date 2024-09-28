@@ -2,10 +2,16 @@
     import { createEventDispatcher } from "svelte";
     import axios from "axios";
     import {theme} from '../stores/themeStore';
+    import { onMount } from "svelte";
   
     export let teamMember;
     export let uid;
     const dispatch = createEventDispatcher();
+
+    let HOST_IP;
+    onMount(async () => {
+       HOST_IP = await window.electronAPI.getHostIp();
+    });
   
     function closePopup() {
     dispatch("cancel");
@@ -14,7 +20,7 @@
     function removeMember() {
       // make a post request to remove the member
       axios
-        .post("http://localhost:8000/removeMember/", {
+        .post("http://" + HOST_IP + ":8000/removeMember/", {
           uid: window.electronAPI.getUid(),
           memberUid: uid,
         })
