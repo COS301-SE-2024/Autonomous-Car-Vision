@@ -9,8 +9,9 @@
     let email = ''; // Variable to store the email address
     let newMembers = []; // Array to store the list of new members
 
+    let HOST_IP;
     onMount(async () => {
-        const HOST_IP = await window.electronAPI.getHostIp();
+        HOST_IP = await window.electronAPI.getHostIp();
     });
 
     function addMember() {

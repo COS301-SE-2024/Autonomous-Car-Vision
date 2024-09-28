@@ -8,8 +8,9 @@
     export let uid;
     const dispatch = createEventDispatcher();
 
+    let HOST_IP;
     onMount(async () => {
-      const HOST_IP = await window.electronAPI.getHostIp();
+       HOST_IP = await window.electronAPI.getHostIp();
     });
   
     function closePopup() {

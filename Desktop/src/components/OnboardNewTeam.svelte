@@ -4,8 +4,10 @@
     import { push } from "svelte-spa-router";
     import {theme } from "../stores/themeStore";
     import { onMount } from "svelte";
+
+    let HOST_IP;
     onMount(async () => {
-      const HOST_IP = await window.electronAPI.getHostIp();
+      HOST_IP = await window.electronAPI.getHostIp();
     });
 
     let teamName = "";

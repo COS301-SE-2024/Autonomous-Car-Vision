@@ -22,9 +22,10 @@
     
     let teamName = '';
     let users = [];
+    let HOST_IP;
     
     onMount(async () => {
-        const HOST_IP = await window.electronAPI.getHostIp();
+        HOST_IP = await window.electronAPI.getHostIp();
         try {
             const response = await axios.post('http://' + HOST_IP + ':8000/getTeamName/', {
                 uid: window.electronAPI.getUid(),
@@ -38,7 +39,7 @@
 
 
     onMount(async () => {
-        const HOST_IP = await window.electronAPI.getHostIp();
+        HOST_IP = await window.electronAPI.getHostIp();
         try {
             const response = await axios.post('http://' + HOST_IP + ':8000/getTeamMembers/', {
                 uid: window.electronAPI.getUid(),

@@ -20,6 +20,7 @@
   import CryptoJS from "crypto-js";
   import { env } from '$env/dynamic/private';
 
+  let HOST_IP;
   let user = {
     username: "",
     email: "",
@@ -84,7 +85,7 @@
   // For loading screen purposes
   onMount(async () => {
     isLoading.set(true);
-    const HOST_IP = await window.electronAPI.getHostIp();
+     HOST_IP = await window.electronAPI.getHostIp();
     const firstInput = document.querySelector("#username");
     if (firstInput) {
       firstInput.focus();

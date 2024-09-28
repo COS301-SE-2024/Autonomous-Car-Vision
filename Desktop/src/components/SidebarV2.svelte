@@ -35,6 +35,8 @@
     let showAccountPopup = false;
     let showTeamDropdown = false; 
 
+    let HOST_IP;
+
     let routes = [
         {
             name: "Team",
@@ -119,7 +121,7 @@
     }
 
     onMount(async () => {
-        const HOST_IP = await window.electronAPI.getHostIp();
+         HOST_IP = await window.electronAPI.getHostIp();
         document.addEventListener("click", handleClickOutside);
 
         // Get user data with uid

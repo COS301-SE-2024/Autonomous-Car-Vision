@@ -15,6 +15,8 @@
   let confirmPassword = "";
   let passwordsMatch = true;
 
+  let HOST_IP;
+
   function checkPasswordsMatch() {
     passwordsMatch = newPassword === confirmPassword;
   }
@@ -86,7 +88,7 @@
   // For loading screen purposes
   onMount(async () => {
     isLoading.set(true);
-    const HOST_IP = await window.electronAPI.getHostIp();
+    HOST_IP = await window.electronAPI.getHostIp();
     const firstInput = document.querySelector("#oldPassword");
     if (firstInput) {
       firstInput.focus();

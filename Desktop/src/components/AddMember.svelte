@@ -9,8 +9,9 @@
    let email = ''; 
    let newMembers = []; 
 
+    let HOST_IP;
    onMount(async () => {
-    const HOST_IP = await window.electronAPI.getHostIp();
+    HOST_IP = await window.electronAPI.getHostIp();
    });
    
    function addMemberToList() {

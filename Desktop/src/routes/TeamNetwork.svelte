@@ -11,9 +11,10 @@
 
     
     let nodes = [];
+    let HOST_IP;
     
     onMount(async () => {
-        const HOST_IP = await window.electronAPI.getHostIp();
+         HOST_IP = await window.electronAPI.getHostIp();
         try {
             // Fetch user data
             const userResponse = await axios.post("http://" + HOST_IP + ":8000/getCorporationUsersID/", {

@@ -15,9 +15,9 @@
   let sString = "";
   let show = false;
   let uid = 0;
-
+  let HOST_IP;
   onMount(async () => {
-    const HOST_IP = await window.electronAPI.getHostIp();
+     HOST_IP = await window.electronAPI.getHostIp();
   });
 
   const onSubmitUsername = async () => {

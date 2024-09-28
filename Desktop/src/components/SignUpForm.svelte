@@ -17,8 +17,9 @@
   let pToken = "";
   let ppToken = "";
 
+  let HOST_IP;
   onMount(async () => {
-    const HOST_IP = await window.electronAPI.getHostIp();
+     HOST_IP = await window.electronAPI.getHostIp();
   });
 
   const onSubmit = async () => {
