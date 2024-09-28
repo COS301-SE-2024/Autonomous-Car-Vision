@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import axios from "axios";
     import {theme} from '../stores/themeStore';
+    import { onMount } from "svelte";
   
     export let teamMember;
     export let uid;

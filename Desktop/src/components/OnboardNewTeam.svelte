@@ -3,7 +3,7 @@
     import axios from "axios";
     import { push } from "svelte-spa-router";
     import {theme } from "../stores/themeStore";
-
+    import { onMount } from "svelte";
     onMount(async () => {
       const HOST_IP = await window.electronAPI.getHostIp();
     });

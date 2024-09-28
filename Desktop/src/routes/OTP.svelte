@@ -3,6 +3,7 @@
   import { push } from "svelte-spa-router";
   import {Button} from "svelte-materialify"
   import {theme } from "../stores/themeStore";
+  import { onMount } from "svelte";
 
   let HOST_IP;
 

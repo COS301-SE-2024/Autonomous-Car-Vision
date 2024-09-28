@@ -3,6 +3,7 @@
     import { Button, TextField, Icon } from "svelte-materialify";
     import {mdiAccountPlus} from "@mdi/js";
     import axios from "axios";
+    import { onMount } from "svelte";
     import {theme} from '../stores/themeStore';
   
    let email = ''; 

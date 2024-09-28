@@ -4,7 +4,7 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import {theme} from '../stores/themeStore';
-
+  import { onMount } from "svelte";
   // Loading screen imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";

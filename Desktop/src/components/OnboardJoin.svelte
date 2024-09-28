@@ -5,6 +5,7 @@
     import { push } from "svelte-spa-router";
   import { token } from "../stores/auth";
   import {theme } from "../stores/themeStore";
+  import { onMount } from "svelte";
 
   onMount(async () => {
     const HOST_IP = await window.electronAPI.getHostIp();

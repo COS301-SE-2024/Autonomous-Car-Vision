@@ -3,6 +3,7 @@
     import { mdiAccountPlus } from "@mdi/js";
   import { push } from "svelte-spa-router";
   import axios from "axios";
+  import { onMount } from "svelte";
 
     let add;
     let email = ''; // Variable to store the email address
