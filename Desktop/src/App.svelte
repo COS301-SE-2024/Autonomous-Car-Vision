@@ -58,7 +58,7 @@ $: {
 }
 </script>
 
-<div>
+<div style="height: inherit;">
   <!-- class="mainContainer" -->
   <Toaster />
   <Router {routes} />

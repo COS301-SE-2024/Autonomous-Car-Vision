@@ -8,29 +8,35 @@
     import BrokerNode from "../components/BrokerNode.svelte";
     import ManagerNode from "../components/ManagerNode.svelte";
     import axios from "axios";
+    import Spinner from "../components/Spinner.svelte";
 
-    
     let nodes = [];
     let HOST_IP;
-    
+
     onMount(async () => {
-         HOST_IP = await window.electronAPI.getHostIp();
+        HOST_IP = await window.electronAPI.getHostIp();
         try {
             // Fetch user data
-            const userResponse = await axios.post("http://" + HOST_IP + ":8000/getCorporationUsersID/", {
-                uid: window.electronAPI.getUid(),
-            });
+            const userResponse = await axios.post(
+                "http://" + HOST_IP + ":8000/getCorporationUsersID/",
+                {
+                    uid: window.electronAPI.getUid(),
+                },
+            );
             let users = userResponse.data.users;
             let userIDS = [];
             for (let i = 0; i < users.length; i++) {
                 userIDS.push(users[i].uid);
             }
-                
+
             let agentsArray = [];
             for (let i = 0; i < userIDS.length; i++) {
-                const agentResponse = await axios.post("http://" + HOST_IP + ":8000/getAllAgentsForUser/", {
-                    uid: userIDS[i],
-                });
+                const agentResponse = await axios.post(
+                    "http://" + HOST_IP + ":8000/getAllAgentsForUser/",
+                    {
+                        uid: userIDS[i],
+                    },
+                );
                 let agents = agentResponse.data.agents;
                 agentsArray.push(agents);
             }
@@ -38,17 +44,20 @@
             let agents = agentsArray[0];
             for (let i = 0; i < agents.length; i++) {
                 for (let j = 0; j < agents.length; j++) {
-                    if(i == j){
+                    if (i == j) {
                         continue;
                     }
-                    if (agents[i].aid === agents[j].aid && agents[i].uid === agents[j].uid) {
+                    if (
+                        agents[i].aid === agents[j].aid &&
+                        agents[i].uid === agents[j].uid
+                    ) {
                         agents.splice(j, 1);
                     }
                 }
             }
             console.log("User IDS:", userIDS);
             console.log("Agents:", agents);
-            
+
             // Process data and create nodes
             nodes = makeNodes({ clients: users, agents: agents });
 
@@ -59,7 +68,6 @@
             console.error("Error fetching data:", error);
         }
     });
-
 
     function makeNodes(JsonPayload) {
         let NodesMake = [];
@@ -105,16 +113,18 @@
                 type: "Client",
                 position: { x: clientIndex * 350, y: 300 },
                 label: client.uname,
-                anchors: [{id: "out1", type: "output", out: "10000"}],
+                anchors: [{ id: "out1", type: "output", out: "10000" }],
                 agents: [],
-                booleanID: clientCount++
+                booleanID: clientCount++,
             };
 
             // Connect clients to agents
-            JsonPayload.agents.forEach(agent => {
+            JsonPayload.agents.forEach((agent) => {
                 clientNode.agents.push(agent.aid.toString());
                 let agentNode = NodesMake.find(
-                    node => node.id === agent.aid.toString() && node.type === "Agent"
+                    (node) =>
+                        node.id === agent.aid.toString() &&
+                        node.type === "Agent",
                 );
                 if (agentNode) {
                     agentNode.clients.push(clientNode.id);
@@ -125,47 +135,50 @@
         });
         console.log("NodesMake:", NodesMake);
         return NodesMake;
-}
+    }
 </script>
 
 <ProtectedRoutes>
     {#if nodes.length == 0}
-        <div>Loading...</div>
+        <div class="flex justify-center w-full">
+            <Spinner />
+        </div>
     {:else}
-    <Svelvet TD fitView theme="dark" edgeStyle="bezier">
-        {#each nodes as node}
-            {#if node.type == "Agent"}
-                <TeamConnectionNodes
-                    id={node.id}
-                    position={node.position}
-                    dimensions={{ width: 150, height: 100 }}
-                    nodeData={node}
-                />
-            {:else if node.type == "Broker"}
-                <BrokerNode
-                    id={node.id}
-                    position={node.position}
-                    dimensions={{ width: 150, height: 100 }}
-                    nodeData={node}
-                />
-            {:else if node.type == "Manager"}
-                <ManagerNode
-                    id={node.id}
-                    position={node.position}
-                    dimensions={{ width: 150, height: 100 }}
-                    nodeData={node}
-                />
-            {:else}
-                <TeamNode
-                    id={node.id}
-                    position={node.position}
-                    dimensions={{ width: 300, height: 100 }}
-                    nodeData={node}
-                />
-            {/if}
-        {/each}
-    </Svelvet>
+        <Svelvet TD fitView theme="dark" edgeStyle="bezier">
+            {#each nodes as node}
+                {#if node.type == "Agent"}
+                    <TeamConnectionNodes
+                        id={node.id}
+                        position={node.position}
+                        dimensions={{ width: 150, height: 100 }}
+                        nodeData={node}
+                    />
+                {:else if node.type == "Broker"}
+                    <BrokerNode
+                        id={node.id}
+                        position={node.position}
+                        dimensions={{ width: 150, height: 100 }}
+                        nodeData={node}
+                    />
+                {:else if node.type == "Manager"}
+                    <ManagerNode
+                        id={node.id}
+                        position={node.position}
+                        dimensions={{ width: 150, height: 100 }}
+                        nodeData={node}
+                    />
+                {:else}
+                    <TeamNode
+                        id={node.id}
+                        position={node.position}
+                        dimensions={{ width: 300, height: 100 }}
+                        nodeData={node}
+                    />
+                {/if}
+            {/each}
+        </Svelvet>
     {/if}
 </ProtectedRoutes>
+
 <style>
 </style>

@@ -13,12 +13,15 @@
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
+  import { theme } from "../stores/themeStore";
 
   // Loading screen Imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
   import CryptoJS from "crypto-js";
   import { env } from '$env/dynamic/private';
+
+  let themeMaterial = "dark";
 
   let HOST_IP;
   let user = {
@@ -116,9 +119,17 @@
         });
       });
   });
+
+  theme.subscribe((value) => {
+    if(value == "highVizLight"){
+      themeMaterial = "light"
+    }else {
+      themeMaterial = "dark"
+    }
+	});
 </script>
 
-<MaterialAppMin theme={"dark"}>
+<MaterialAppMin theme={themeMaterial}>
   <ProtectedRoutes>
     {#if $isLoading}
       <div class="flex justify-center">
@@ -127,10 +138,10 @@
     {:else}
       <Toaster />
       <div
-        class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card"
+        class="flex flex-col items-center justify-center min-h-screen shadow-lg background-card"
       >
         <div
-          class="flex flex-col items-center justify-center p-4 shadow rounded-lg w-1/2 max-w-md border space-y-3"
+          class="flex flex-col items-center justify-center p-4 shadow rounded-lg w-3/4 border space-y-3"
         >
           <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
@@ -181,15 +192,19 @@
             >
           </div>
 
-          <Button class="shadow-none rounded" on:click={changePassword}
+          <div class="w-1/2 flex flex-col gap-5">
+            <!-- Change Password -->
+            <Button class="bg-highVizLight-primary text-black" rounded 
+            on:click={changePassword}
             >Change Password?</Button
-          >
-
-          <!-- Save Changes -->
-          <Button
-            class="bg-theme-dark-backgroundBlue text-theme-dark-white rounded"
+            >
+            
+            <!-- Save Changes -->
+            <Button
+            class="bg-highVizLight-primary text-black" rounded
             on:click={saveChanges}>Save Changes</Button
-          >
+            >
+          </div>
         </div>
       </div>
     {/if}
