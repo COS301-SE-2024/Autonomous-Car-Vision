@@ -72,7 +72,7 @@ class outputUnit(Unit):
                     text = f"{bbox[-1]}"
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         
-        if (self.lidar or self.all) and data_token.get_flag('has_lane_data'):
+        if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
             mask = output['mask']
             
