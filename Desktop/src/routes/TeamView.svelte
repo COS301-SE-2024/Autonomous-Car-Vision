@@ -11,19 +11,22 @@
     import CryptoJS from 'crypto-js';
     import {theme} from '../stores/themeStore';
 
+    
     let showAddPopup = false;
-
+    
     const dispatch = createEventDispatcher();
 
     function closeAddPopup() {
         showAddPopup = false;
     }
-
+    
     let teamName = '';
-
+    let users = [];
+    
     onMount(async () => {
+        const HOST_IP = await window.electronAPI.getHostIp();
         try {
-            const response = await axios.post('http://localhost:8000/getTeamName/', {
+            const response = await axios.post('http://' + HOST_IP + ':8000/getTeamName/', {
                 uid: window.electronAPI.getUid(),
             });
             teamName = response.data.teamName;
@@ -31,14 +34,14 @@
         } catch (error) {
             console.error(error);
         }
-        });
+    });
 
-        let users = [];
 
-        onMount(async () => {
+    onMount(async () => {
+        const HOST_IP = await window.electronAPI.getHostIp();
         try {
-            const response = await axios.post('http://localhost:8000/getTeamMembers/', {
-            uid: window.electronAPI.getUid(),
+            const response = await axios.post('http://' + HOST_IP + ':8000/getTeamMembers/', {
+                uid: window.electronAPI.getUid(),
             });
             users = response.data.teamMembers.sort((a, b) => {
                 if (a.is_admin === b.is_admin) return 0;
@@ -47,7 +50,7 @@
         } catch (error) {
             console.error(error);
         }
-        });     
+    });     
 
     function isOnline(lastSignin) {
         if (!lastSignin) {

@@ -9,7 +9,11 @@
   let authCode = '';
   let showCodeInput = false;
 
+  let HOST_IP;
+  
   onMount(async () => {
+    HOST_IP = await window.electronAPI.getHostIp();
+    console.log("HOST_IP:", HOST_IP);
     window.electronAPI.clearToken();
     window.electronAPI.clearUid();
     window.electronAPI.clearUname();
@@ -54,13 +58,13 @@
     window.electronAPI.storeUemail(result.user.email);
 
     // check if user is already in the database
-    const userExists = await axios.post("http://localhost:8000/userExists/", {
+    const userExists = await axios.post("http://" + HOST_IP + ":8000/userExists/", {
       email: result.user.email,
     });
     if (userExists.data.exists) {
       console.log("User already exists in database");
       console.log("Token:", window.electronAPI.getToken());
-      const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+      const storeTokenNow = await axios.post("http://" + HOST_IP + ":8000/storeToken/", {
         uid: window.electronAPI.getUid(),
         token: window.electronAPI.getToken()
       });
@@ -71,7 +75,7 @@
       console.log("User does not exist in database");
       window.electronAPI.storeTeamName("dev");
 
-      const createUser = await axios.post("http://localhost:8000/signup/", {
+      const createUser = await axios.post("http://" + HOST_IP + ":8000/signup/", {
         uname: result.user.name,
         uemail: result.user.email,
         password: "",
@@ -82,7 +86,7 @@
       });
       console.log("User created:", createUser);
 
-      const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+      const storeTokenNow = await axios.post("http://" + HOST_IP + ":8000/storeToken/", {
         uid: window.electronAPI.getUid(),
         token: window.electronAPI.getToken()
       });
@@ -102,13 +106,13 @@
         window.electronAPI.storeUemail(result.user.email);
 
         // check if user is already in the database
-        const userExists = await axios.post("http://localhost:8000/userExists/", {
+        const userExists = await axios.post("http://" + HOST_IP + ":8000/userExists/", {
           email: result.user.email,
         });
         if (userExists.data.exists) {
           console.log("User already exists in database");
           console.log("Token:", window.electronAPI.getToken());
-          const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+          const storeTokenNow = await axios.post("http://" + HOST_IP + ":8000/storeToken/", {
             uid: window.electronAPI.getUid(),
             token: window.electronAPI.getToken()
           });
@@ -119,7 +123,7 @@
           console.log("User does not exist in database");
           window.electronAPI.storeTeamName("dev");
 
-          const createUser = await axios.post("http://localhost:8000/signup/", {
+          const createUser = await axios.post("http://" + HOST_IP + ":8000/signup/", {
             uname: result.user.name,
             uemail: result.user.email,
             password: "",
@@ -130,7 +134,7 @@
           });
           console.log("User created:", createUser);
 
-          const storeTokenNow = await axios.post("http://localhost:8000/storeToken/", {
+          const storeTokenNow = await axios.post("http://" + HOST_IP + ":8000/storeToken/", {
             uid: window.electronAPI.getUid(),
             token: window.electronAPI.getToken()
           });
@@ -148,7 +152,8 @@
 
   const developerLogin = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/devLogin/", {});
+      let url = "http://" + HOST_IP + ":8000/devLogin/";
+      const response = await axios.get(url, {});
       console.log("Developer Login Response:", response.data);
       window.electronAPI.storeToken(response.data.token);
       window.electronAPI.storeUid(response.data.uid);

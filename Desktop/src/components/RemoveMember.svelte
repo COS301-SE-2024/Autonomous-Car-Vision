@@ -6,6 +6,10 @@
     export let teamMember;
     export let uid;
     const dispatch = createEventDispatcher();
+
+    onMount(async () => {
+      const HOST_IP = await window.electronAPI.getHostIp();
+    });
   
     function closePopup() {
     dispatch("cancel");
@@ -14,7 +18,7 @@
     function removeMember() {
       // make a post request to remove the member
       axios
-        .post("http://localhost:8000/removeMember/", {
+        .post("http://" + HOST_IP + ":8000/removeMember/", {
           uid: window.electronAPI.getUid(),
           memberUid: uid,
         })

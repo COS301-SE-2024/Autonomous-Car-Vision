@@ -1,6 +1,11 @@
 from fastapi import FastAPI, BackgroundTasks, Request
 import requests
 import uvicorn
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+HOST_IP = os.getenv("HOST_IP")
 
 app = FastAPI()
 
@@ -14,7 +19,7 @@ def getAgentIp():
     # Here we would use a database lookup to get the IP 
     # Then get the port from a request
     if(checkVerified()):
-        url = "http://127.0.0.1:8001/startup/"
+        url = "http://" + HOST_IP + ":8001/startup/"
         print("Sending request to: ", url)  
         response = requests.get(url)
         

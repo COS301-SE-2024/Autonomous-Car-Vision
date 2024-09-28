@@ -16,6 +16,10 @@
   let pToken = "";
   let ppToken = "";
 
+  onMount(async () => {
+    const HOST_IP = await window.electronAPI.getHostIp();
+  });
+
   const onSubmit = async () => {
     console.log("Sign-up");
     console.log(eToken);
@@ -32,7 +36,7 @@
     //! NEED TO MOVE SOON
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
-      const response = await axios.post("http://localhost:8000/signup/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/signup/", {
         uname: nToken,
         uemail: eToken,
         password: hash,

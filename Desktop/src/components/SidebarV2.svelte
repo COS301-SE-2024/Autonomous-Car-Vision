@@ -118,12 +118,13 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
+        const HOST_IP = await window.electronAPI.getHostIp();
         document.addEventListener("click", handleClickOutside);
 
         // Get user data with uid
         axios
-            .post("http://localhost:8000/getUserData/", {
+            .post("http://" + HOST_IP + ":8000/getUserData/", {
                 uid: window.electronAPI.getUid(),
             })
             .then(async (response) => {

@@ -16,10 +16,14 @@
   let show = false;
   let uid = 0;
 
+  onMount(async () => {
+    const HOST_IP = await window.electronAPI.getHostIp();
+  });
+
   const onSubmitUsername = async () => {
     window.electronAPI.storeUemail(nToken);
     try {
-      const response = await axios.post("http://localhost:8000/getSalt/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/getSalt/", {
         uemail: nToken,
       });
       uid = response.data.uid;
@@ -42,7 +46,7 @@
         sString
       );
 
-      const response = await axios.post("http://localhost:8000/signin/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/signin/", {
         uid: uid,
         password: hash,
       });

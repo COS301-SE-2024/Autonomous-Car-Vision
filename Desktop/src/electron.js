@@ -20,6 +20,7 @@ const {Worker, isMainThread} = require('worker_threads');
 const {getVideoFiles} = require('./videoScanner');
 const {getJsonData} = require('./getJsonData');
 
+const HOST_IP = process.env.HOST_IP;
 
 let mainWindow;
 let store;
@@ -101,9 +102,9 @@ app.on('activate', () => {
     }
 });
 
-try {
-    require('electron-reloader')(module)
-} catch (_) { }
+// try {
+//     require('electron-reloader')(module)
+// } catch (_) { }
 
 
 // Get app path
@@ -122,6 +123,10 @@ ipcMain.handle('read-directory', async (event, directoryPath) => {
             }
         });
     });
+});
+
+ipcMain.handle('get-host-ip', async (event) => {
+    return process.env.HOST_IP;
 });
 
 //! token
@@ -314,7 +319,7 @@ ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName
         formData.append('token', token);
         formData.append('media_name', mediaName);
 
-        const response = await axios.post('http://localhost:8000/upload/', formData, {
+        const response = await axios.post('http://' + HOST_IP + ':8000/upload/', formData, {
             headers: {
                 ...formData.getHeaders(),
             },
@@ -988,7 +993,7 @@ ipcMain.handle('open-ftp', async (event, uid, token, size, media_name, media_url
     formData.append('command', command)
 
     try {
-        const response = await axios.post('http://localhost:8000/uploadFile/', formData, {
+        const response = await axios.post('http://' + HOST_IP + ':8000/uploadFile/', formData, {
             headers: {
                 ...formData.getHeaders(),
             },
@@ -1281,7 +1286,7 @@ ipcMain.handle('get-auth-url', async () => {
       // Create an HTTP server
       const server = http.createServer(async (req, res) => {
         if (req.url.startsWith('/callback')) {
-          const urlParams = new URL(`http://localhost${req.url}`).searchParams;
+          const urlParams = new URL(`http://${HOST_IP}${req.url}`).searchParams;
           const code = urlParams.get('code');
           res.end('Authentication successful! You can close this window.');
           server.close();
@@ -1313,7 +1318,7 @@ ipcMain.handle('get-auth-url', async () => {
       // Start listening on a random port
       server.listen(0, () => {
         const port = server.address().port;
-        const redirectUri = `http://localhost:${port}/callback`;
+        const redirectUri = `http://${HOST_IP}:${port}/callback`;
   
         const oauth2Client = new OAuth2Client(
           CLIENT_ID,
@@ -1374,7 +1379,7 @@ ipcMain.handle('get-auth-url', async () => {
   ipcMain.handle('get-last-signin', async (event, uid) => {
     return new Promise((resolve, reject) => {
         //TODO: get last signin from the database with uid and an axios post
-        axios.post('http://localhost:8000/api/getLastSignin/', { uid: uid })
+        axios.post('http://' + HOST_IP + ':8000/api/getLastSignin/', { uid: uid })
         .then(response => {
             resolve(response.data);
         })
@@ -1387,7 +1392,7 @@ ipcMain.handle('get-auth-url', async () => {
   ipcMain.handle('update-last-signin', async (event, uid) => {
     return new Promise((resolve, reject) => {
         //TODO: update last signin in the database with uid and an axios post
-        axios.post('http://localhost:8000/api/updateLastSignin/', { uid: uid })
+        axios.post('http://' + HOST_IP + ':8000/api/updateLastSignin/', { uid: uid })
         .then(response => {
             resolve(response.data);
         })

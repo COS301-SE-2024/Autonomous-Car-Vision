@@ -18,6 +18,7 @@
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
   import CryptoJS from "crypto-js";
+  import { env } from '$env/dynamic/private';
 
   let user = {
     username: "",
@@ -46,7 +47,7 @@
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/changeUserDetails/",
+        "http://" + HOST_IP + ":8000/changeUserDetails/",
         {
           uid: window.electronAPI.getUid(),
           uname: user.username,
@@ -81,8 +82,9 @@
   };
 
   // For loading screen purposes
-  onMount(() => {
+  onMount(async () => {
     isLoading.set(true);
+    const HOST_IP = await window.electronAPI.getHostIp();
     const firstInput = document.querySelector("#username");
     if (firstInput) {
       firstInput.focus();
@@ -93,7 +95,7 @@
 
     // Fetch user data
     axios
-      .post("http://localhost:8000/getUserData/", {
+      .post("http://" + HOST_IP + ":8000/getUserData/", {
         uid: window.electronAPI.getUid(),
       })
       .then((response) => {

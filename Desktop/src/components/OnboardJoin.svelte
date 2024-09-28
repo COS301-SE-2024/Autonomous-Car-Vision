@@ -6,6 +6,10 @@
   import { token } from "../stores/auth";
   import {theme } from "../stores/themeStore";
 
+  onMount(async () => {
+    const HOST_IP = await window.electronAPI.getHostIp();
+  });
+
     let teamName = "";
     let tokenValue = "";
   
@@ -14,7 +18,7 @@
 
       // check if team exists, if not, create team and add user to team
       try{
-        const response = await axios.post("http://localhost:8000/joinTeam/", {
+        const response = await axios.post("http://" + HOST_IP + ":8000/joinTeam/", {
           teamName: teamName,
           uid: window.electronAPI.getUid(),
           admin: false,

@@ -4,13 +4,19 @@
   import {Button} from "svelte-materialify"
   import {theme } from "../stores/themeStore";
 
+  let HOST_IP;
+
+  onMount(async () => {
+    HOST_IP = await window.electronAPI.getHostIp();
+  });
+
   let email = "";
   let code = Array(6).fill("");
 
   const verifyCode = async () => {
     const otp = code.join("");
     try {
-      const response = await axios.post("http://localhost:8000/verifyOTP/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/verifyOTP/", {
         uid: window.electronAPI.getUid(),
         otp: otp,
       });

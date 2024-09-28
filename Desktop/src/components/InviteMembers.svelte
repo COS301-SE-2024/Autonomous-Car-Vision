@@ -8,6 +8,10 @@
     let email = ''; // Variable to store the email address
     let newMembers = []; // Array to store the list of new members
 
+    onMount(async () => {
+        const HOST_IP = await window.electronAPI.getHostIp();
+    });
+
     function addMember() {
         if (email.trim()) {
         newMembers = [...newMembers, email.trim()]; // Add the email to the array
@@ -24,7 +28,7 @@
         console.log(newMembers);
         // Send the emails to the new members
         try {
-            const response = await axios.post("http://localhost:8000/sendInviteEmail/", {
+            const response = await axios.post("http://" + HOST_IP + ":8000/sendInviteEmail/", {
                 newMembers: newMembers,
                 teamName: window.electronAPI.getTeamName(),
             });
