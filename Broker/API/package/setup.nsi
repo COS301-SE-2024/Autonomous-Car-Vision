@@ -37,6 +37,9 @@ Var RadioStore
 Var RadioProcess
 Var RadioBoth
 Var TextBox
+Var HOST_IP
+
+StrCpy $HOST_IP "206.189.188.197"
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
@@ -142,6 +145,7 @@ Section "MainSection" SEC01
   FileWrite $0 "$\r$\n"
   FileWrite $0 "AGENT_TYPE=$AgentType$\r$\n"
   FileWrite $0 "CORPORATION_NAME=$CorporationName$\r$\n"
+  FileWrite $0 "HOST_IP=$HOST_IP$\r$\n"
   FileClose $0
 
   ; Install Python dependencies
@@ -167,7 +171,8 @@ Section "Uninstall"
   Delete "$INSTDIR\requirements.txt"
   Delete "$INSTDIR\start.bat"
   Delete "$INSTDIR\.env"
-  Delete "$INSTDIR\agent_type.txt"
+  Delete "$INSTDIR\cerberus.py"
+  Delete "$INSTDIR\__pycache__"
   Delete "$INSTDIR\uninstall.exe"
   Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
   Delete "$DESKTOP\${APPNAME}.lnk"

@@ -80,13 +80,14 @@ def agent():
     public = response["public"]
 
     public = base64.b64encode(public).decode("utf-8")
-
+    
     # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
         f.write(f"PUBLIC_TEST={public}")
+        f.write(f"HOST_IP={HOST_IP}\n")
 
-    # subprocess.run(["makensis", "./package/setup.nsi"])
+    subprocess.run(["makensis", "./package/setup.nsi"])
 
     filePath = "./package/MyFastAPIAppSetup.exe"
     return FileResponse(filePath, filename="MyFastAPIAppSetup.exe")

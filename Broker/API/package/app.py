@@ -24,7 +24,7 @@ app = FastAPI()
 RUN_ONCE_FILE = "run_once_flag.txt"
 
 HOST_IP = os.getenv("HOST_IP")
-print(HOST_IP)
+
 
 @app.get("/")
 def status():
