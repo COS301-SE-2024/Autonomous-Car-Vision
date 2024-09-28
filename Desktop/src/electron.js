@@ -75,7 +75,7 @@ app.whenReady().then(() => {
       }
     });
   
-    createWindow();
+    // createWindow();
   });
 
   app.on('open-url', (event, url) => {
