@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base, AIModels
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 
 app = Flask(__name__)
 

@@ -6,41 +6,67 @@
     import AddMember from "../components/AddMember.svelte";
     import { isLoading } from "../stores/loading";
     import Spinner from "../components/Spinner.svelte";
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, onMount } from 'svelte';
+    import axios from 'axios';
+    import CryptoJS from 'crypto-js';
     import {theme} from '../stores/themeStore';
 
+    
     let showAddPopup = false;
-
+    
     const dispatch = createEventDispatcher();
 
-  function closeAddPopup() {
-    showAddPopup = false;
-  }
-
-    const users = [
-        {
-            name: 'Felix',
-            email: 'felix@miro.com',
-            role: 'Member',
-            lastActivity: '-',
-            profilePhoto: ''
-        },
-        {
-            name: "Alice",
-            email: "alice@example.com",
-            role: "Admin",
-            lastActivity: "2023-09-15",
-            profilePhoto: ''
-        },
-        {
-            name: "Bob",
-            email: "bob@example.com",
-            role: "Member",
-            lastActivity: "2023-09-10",
-            profilePhoto: ''
+    function closeAddPopup() {
+        showAddPopup = false;
+    }
+    
+    let teamName = '';
+    let users = [];
+    let HOST_IP;
+    
+    onMount(async () => {
+        HOST_IP = await window.electronAPI.getHostIp();
+        try {
+            const response = await axios.post('http://' + HOST_IP + ':8000/getTeamName/', {
+                uid: window.electronAPI.getUid(),
+            });
+            teamName = response.data.teamName;
+            console.log(teamName);
+        } catch (error) {
+            console.error(error);
         }
-        // Add more user objects here as needed
-    ];
+    });
+
+
+    onMount(async () => {
+        HOST_IP = await window.electronAPI.getHostIp();
+        try {
+            const response = await axios.post('http://' + HOST_IP + ':8000/getTeamMembers/', {
+                uid: window.electronAPI.getUid(),
+            });
+            users = response.data.teamMembers.sort((a, b) => {
+                if (a.is_admin === b.is_admin) return 0;
+                return a.is_admin ? -1 : 1;
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    });     
+
+    function isOnline(lastSignin) {
+        if (!lastSignin) {
+            return false;
+        }
+        const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+        
+        // Assuming lastSignin is a Unix timestamp in seconds
+        const lastSigninMs = lastSignin * 1000;
+        
+        console.log('Last signin:', new Date(lastSigninMs));
+        console.log('Five minutes ago:', new Date(fiveMinutesAgo));
+        
+        return lastSigninMs > fiveMinutesAgo;
+    }
 </script>
 
 <ProtectedRoutes>
@@ -70,15 +96,15 @@
             <p>Last Active</p>
         </div>
         {#each users as user}
-            <TeamMember
-                name={user.name}
-                email={user.email}
-                role={user.role}
-                lastActivity={user.lastActivity}
-                profilePhoto={user.profilePhoto}
-                
-            />
-        {/each}
+        <TeamMember
+            uid={user.uid}
+            name={user.uname}
+            email={user.uemail}
+            role={user.is_admin === true ? "Admin" : "Member"}
+            lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
+            profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
+        />
+    {/each}
     </div>
     {:else}
     <div class="user-list text-theme-dark-lightText">
@@ -94,26 +120,25 @@
             placeholder="Search..."
             class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-full border-solid text-lg"
         />
-        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-white">
+        <div class="grid grid-cols-4 mt-3 border rounded-lg border-gray-dark align-center items-center px-3 py-3 text-black">
             <div class="flex items-center col-span-2"> <p class="ml-6">Name</p>
             </div>
             <p>Role</p>
             <p>Last Active</p>
         </div>
         {#each users as user}
-            <TeamMember
-                name={user.name}
-                email={user.email}
-                role={user.role}
-                lastActivity={user.lastActivity}
-                profilePhoto={user.profilePhoto}
-                
-            />
+        <TeamMember
+            uid={user.uid}
+            name={user.uname}
+            email={user.uemail}
+            role={user.is_admin === true ? "Admin" : "Member"}
+            lastActivity={isOnline(user.last_signin) ? "Online" : user.last_signin}
+            profilePhoto={"https://www.gravatar.com/avatar/" + CryptoJS.SHA256(user.uemail.trim().toLowerCase()) + "?d=retro"} 
+        />
         {/each}
     </div>
     {/if}
     {/if}
-
      {#if showAddPopup}
     <AddMember
       on:cancel={closeAddPopup}

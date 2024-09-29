@@ -30,26 +30,34 @@ RequestExecutionLevel admin
 
 ; Custom variables
 Var AgentType
+Var CorporationName
 Var Dialog
 Var Label
 Var RadioStore
 Var RadioProcess
 Var RadioBoth
+Var TextBox
+Var HOST_IP
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
-Page custom AgentTypePage AgentTypeLeave
+; !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"  ; Comment out or remove this line
+!insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
+Page custom AgentTypePage AgentTypeLeave
+Page custom CorporationPage CorporationLeave
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
+!insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
 
 ; Language
 !insertmacro MUI_LANGUAGE "English"
 
-; Custom page function
+; Custom page function for Agent Type
 Function AgentTypePage
   !insertmacro MUI_HEADER_TEXT "Agent Type Selection" "Choose your preferred agent type"
   nsDialogs::Create 1018
@@ -84,6 +92,26 @@ Function AgentTypeLeave
   ${EndIf}
 FunctionEnd
 
+; Custom page function for Corporation Name
+Function CorporationPage
+  !insertmacro MUI_HEADER_TEXT "Corporation Name" "Enter your corporation name"
+  nsDialogs::Create 1018
+  Pop $Dialog
+
+  ${NSD_CreateLabel} 0 0 100% 20u "Please enter the corporation name:"
+  Pop $Label
+  SendMessage $Label ${WM_SETFONT} $mui.Header.Text.Font 0
+
+  ${NSD_CreateText} 10 30 80% 12u ""
+  Pop $TextBox
+
+  nsDialogs::Show
+FunctionEnd
+
+Function CorporationLeave
+  ${NSD_GetText} $TextBox $CorporationName
+FunctionEnd
+
 ; Function to check if Python 3.12.4 is installed
 Function CheckPython
   ExecWait 'cmd /c python --version' $0
@@ -113,9 +141,12 @@ Section "MainSection" SEC01
   File ".env"
   File "cerberus.py"
 
-  ; Write agent type to a file
-  FileOpen $0 "$INSTDIR\agent_type.txt" w
-  FileWrite $0 $AgentType
+  ; Write agent type and corporation name to the .env file
+  FileOpen $0 "$INSTDIR\.env" a
+  FileSeek $0 0 END
+  FileWrite $0 "$\r$\n"
+  FileWrite $0 "AGENT_TYPE=$AgentType$\r$\n"
+  FileWrite $0 "CORPORATION_NAME=$CorporationName$\r$\n"
   FileClose $0
 
   ; Install Python dependencies
@@ -126,7 +157,7 @@ Section "MainSection" SEC01
   CreateShortcut "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk" "$INSTDIR\start.bat"
 
   ; Create a shortcut on the desktop
-  CreateShortcut "$DESKTOP\${APPNAME}.lnk" \quiet "$INSTDIR\start.bat"
+  CreateShortcut "$DESKTOP\${APPNAME}.lnk" "$INSTDIR\start.bat"
 
   ; Uninstall information
   WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -141,7 +172,8 @@ Section "Uninstall"
   Delete "$INSTDIR\requirements.txt"
   Delete "$INSTDIR\start.bat"
   Delete "$INSTDIR\.env"
-  Delete "$INSTDIR\agent_type.txt"
+  Delete "$INSTDIR\cerberus.py"
+  Delete "$INSTDIR\__pycache__"
   Delete "$INSTDIR\uninstall.exe"
   Delete "$SMPROGRAMS\${APPNAME}\${APPNAME}.lnk"
   Delete "$DESKTOP\${APPNAME}.lnk"
