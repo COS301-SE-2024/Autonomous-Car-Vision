@@ -66,7 +66,7 @@ def test_pipeline():
     camera_data = load_image(camera_file_path)
     lidar_data = load_lidar_data(lidar_file_path)
 
-    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,observerUnit,outputUnitTest.all'
+    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,observerUnit,outputUnit.all'
     pipeline = build_pipeline(input_string)
 
     sensors = ['camera', 'lidar']

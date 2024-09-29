@@ -460,7 +460,7 @@ def main(pipestring):
 
         # Timer for the drive
         start_time = time.time()
-        
+
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
@@ -556,7 +556,7 @@ if __name__ == '__main__':
         else:
             print("No pipe argument provided. Exiting...")
             sys.exit(1)
-            
+
         main(pipe_argument)
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
