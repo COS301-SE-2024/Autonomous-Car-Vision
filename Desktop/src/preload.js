@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   fileExists: (filePath) => fs.existsSync(path.resolve(filePath)),
   runPythonScript: (scriptPath, args) => ipcRenderer.invoke('run-python-script', scriptPath, args),
   uploadToAgent: (ip, port, filepath, uid, size, token, mname) => ipcRenderer.invoke('upload-to-agent', ip, port, filepath, uid, size, token, mname),
-  downloadToClient: (ip, port, filepath, uid, size, token) => ipcRenderer.invoke('download-to-client', ip, port, filepath, uid, size, token),
+  downloadToClient: (ip, port, filepath, uid, size, token, videoDestination) => ipcRenderer.invoke('download-to-client', ip, port, filepath, uid, size, token, videoDestination),
   checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
   deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file',filePath),
   getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),

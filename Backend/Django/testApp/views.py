@@ -764,6 +764,8 @@ def uploadFile(request):
 
     size = data.get("size")
     message = {"size": size, "uid": uid, "utoken": utoken, "corporation": cid}
+    
+    print("CORPORATION: ", cid)
 
     print(message)
 
@@ -1030,7 +1032,7 @@ def send_invite(teamName, email, token):
     from_email = "bitforge.capstone@gmail.com"
     from_password = os.getenv("APP_PASSWORD")
     subject = "Join our team!"
-    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://" + HOST_IP + ":8000/download \n\n Use the following token to join the team: {token}"
+    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://" + HOST_IP + ":8000/download \n\n Use the following token to join the team: " + token
     message = MIMEMultipart()
     message["From"] = from_email
     message["To"] = email
@@ -1102,7 +1104,7 @@ def getTeamMembers(request):
                 "uname": member.uname,
                 "uemail": member.uemail,
                 "is_admin": member.is_admin,
-                "last_signin": member.last_signin.strftime("%H:%M:%S %d-%m-%Y")
+                "last_signin": member.last_signin.strftime("%H:%M:%S %d-%m-%Y") if member.last_signin else "Never signed in"
             })
         return Response(
             {"teamMembers": users}, status=status.HTTP_200_OK)

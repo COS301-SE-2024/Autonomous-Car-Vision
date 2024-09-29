@@ -40,6 +40,8 @@ async function createWindow() {
             contextIsolation: true,
             enableRemoteModule: false,
             webviewTag: true,
+            nodeIntegration: true, // Enable Node.js integration
+            webSecurity: false, // Disabled web security for e2e testing
         },
         autoHideMenuBar: true,
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
@@ -802,11 +804,11 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 
 
-ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token) => {
+ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
     const scriptPath = 'src/routes/pythonDownload.py';
     let rec = await LookupTable.findOne({where: {mname: filepath, uid: uid}});
     const mid = rec.mid;
-    const args = [ip, port, filepath, uid, size, token, mid];
+    const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
 
     return new Promise((resolve, reject) => {
         const {spawn} = require('child_process');
@@ -908,8 +910,8 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
 // IPC handler to move a video file from the Deleted folder to the Downloads folder
 ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
     try {
-        const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
-        const videoFilePath = path.join(deletedDir, `${videoName}`);
+        // const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));/
+        const videoFilePath = filePath;
 
         if (!fs.existsSync(videoFilePath)) {
             return {success: false, error: 'Video file does not exist'};

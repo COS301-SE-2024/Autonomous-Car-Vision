@@ -202,6 +202,7 @@
                   videoSource={url}
                   videoName={videoURLToNameMap[url]}
                   isDownloaded={downloadedStatuses[index]}
+                  id="gallery-card"
                 />
               {/each}
             </div>
@@ -277,6 +278,7 @@
                   videoSource={url}
                   videoName={videoURLToNameMap[url]}
                   isDownloaded={downloadedStatuses[index]}
+                  id="gallery-card"
                 />
               {/each}
             </div>

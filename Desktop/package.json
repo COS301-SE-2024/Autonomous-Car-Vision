@@ -7,9 +7,11 @@
     "start": "yarn run rollup -c -w & electron .",
     "build": "rollup -c && electron-builder",
     "rebuild": "electron-rebuild -f -w bcrypt",
-    "test": "vitest run",
+    "test": "vitest run & playwright test",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:report": "vitest --ui & playwright show-report",
+    "playwright" : "playwright test",
+    "playwright:report": "playwright show-report"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-svelte": "^0.3.14",
@@ -54,6 +56,7 @@
     "rollup-plugin-svelte": "^7.0.0",
     "sass": "^1.77.6",
     "sequelize": "^6.37.3",
+    "shepherd.js": "^13.0.3",
     "sqlite3": "^5.1.7",
     "svelte": "^3.0.0",
     "svelte-file-dropzone": "^2.0.7",
@@ -70,16 +73,18 @@
     "vitest": "^1.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.47.2",
     "@rollup/plugin-json": "^6.1.0",
     "@testing-library/svelte": "^5.2.0",
     "@vitest/ui": "^1.6.0",
     "babel-jest": "^27.0.0",
     "daisyui": "^4.12.10",
-    "electron": "^31.3.1",
+    "electron": "^32.1.2",
     "electron-builder": "^24.13.3",
     "electron-rebuild": "^3.2.9",
     "ffmpeg": "^0.0.4",
     "jest": "^27.0.0",
+    "playwright": "^1.47.2",
     "rollup-plugin-node-builtins": "^2.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "svelte-jester": "^1.0.0"
