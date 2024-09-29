@@ -42,12 +42,12 @@ class observerUnit(Unit):
             return data_token
         image_height, image_width, _ = image.shape
 
-        lidar_data = data_token.get_sensor_data('lidar')
+        lidar_data = data_token.get_processing_result('infusrUnit')
         if lidar_data is None:
             print("No processing results from infusrUnit found in DataToken.")
             return data_token
 
-        valid_world_positions = lidar_data
+        valid_world_positions = lidar_data['valid_world_positions']
         print("Valid World Pos")
         print(valid_world_positions)
         pixel_x = lidar_data['pixel_x']
