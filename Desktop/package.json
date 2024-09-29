@@ -10,7 +10,7 @@
     "test": "vitest run & playwright test",
     "test:watch": "vitest",
     "test:report": "vitest --ui & playwright show-report",
-    "playwright" : "playwright test",
+    "playwright": "playwright test",
     "playwright:report": "playwright show-report"
   },
   "dependencies": {

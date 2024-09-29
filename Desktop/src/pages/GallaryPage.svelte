@@ -306,7 +306,9 @@
       </div>
     </div>
   {/if}
-  <div class="w-full h-full flex justify-center items-center">
-    <UploadModal bind:showModal />
-  </div>
+  {#if showModal}
+    <div class="w-full h-full flex justify-center items-center">
+      <UploadModal bind:showModal />
+    </div>
+  {/if}
 </ProtectedRoutes>
