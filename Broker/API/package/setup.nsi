@@ -140,6 +140,7 @@ Section "MainSection" SEC01
   File "start.bat"
   File ".env"
   File "cerberus.py"
+  File "python-3.12.4-amd64.exe"
 
   ; Write agent type and corporation name to the .env file
   FileOpen $0 "$INSTDIR\.env" a

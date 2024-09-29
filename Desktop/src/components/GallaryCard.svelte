@@ -49,27 +49,14 @@
     console.error("Error calling openFTP:", error);
 }
 
-
-    await window.electronAPI.downloadToClient(aip, aport, VideoName, uid, size, token);
+    await window.electronAPI.downloadToClient(aip, aport, videoName, uid, size, token, videoSource);
     
     // move the video to the download folder
-    let currentFilePath = VideoName;
+    let currentFilePath = videoName;
     console.log("Current File Path: ", currentFilePath);
-    console.log("videoSource: ", VideoSource);
-
-    await window.electronAPI.moveVideo(currentFilePath, VideoName);
-
-    // try {
-    //   const response = await window.electronAPI.downloadVideo(
-    //     VideoName,
-    //     VideoSource
-    //   );
-    //   console.log(response.success, response.filePath);
-    // } catch (error) {}
-    // setTimeout(() => {
-    //   // isDownloading.set(false);
-    // }, 1000);
-      isDownloading = false;
+    console.log("videoSource: ", videoSource);
+ 
+    isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
 

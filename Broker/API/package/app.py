@@ -18,6 +18,7 @@ import shutil
 import json
 from dotenv import load_dotenv
 import base64
+import netifaces
 
 load_dotenv()
 app = FastAPI()
@@ -136,7 +137,7 @@ async def install():
             session,
             json.dumps(
                 {
-                    "aip": socket.gethostbyname(socket.gethostname()),
+                    "aip": findOpenPort()[0],  # This will now be the public IP
                     "aport": 8010,
                     "capacity": capacity,
                     "storage": 290.4,
@@ -159,14 +160,26 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = socket.gethostbyname(socket.gethostname())
+    
+    # Try to get the public IP address
+    try:
+        ip = requests.get('https://api.ipify.org').text.strip()
+        print(f"Public IP address: {ip}")
+    except Exception as e:
+        print(f"Error getting public IP: {e}")
+        # If we can't get the public IP, we'll use a placeholder
+        ip = '0.0.0.0'
+        print("Using placeholder IP: 0.0.0.0")
+    
+    # Find an open port
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            result = s.connect_ex((ip, port))
+            result = s.connect_ex(('localhost', port))
             if result == 0:
                 port += 1
             else:
                 break
+    
     return ip, port
 
 
