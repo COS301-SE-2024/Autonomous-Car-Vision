@@ -517,7 +517,7 @@ def main():
                 control = get_keyboard_control(vehicle)
                 observerToken = pipe.dataToken.get_processing_result('observerUnit')
                 breaking = observerToken['breaking']
-                handbreak = observerToken['handbreak']
+                handbreak = observerToken['handBreak']
                 control.brake = breaking
                 control.hand_brake = handbreak
                 if (follow_lane):
