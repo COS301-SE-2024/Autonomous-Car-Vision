@@ -16,6 +16,7 @@
         mdiChevronUp,
         mdiChevronDown,
         mdiPipeDisconnected,
+        mdiSecurity,
     } from "@mdi/js";
 
     import ThemeToggler from "./ThemeToggler.svelte";
@@ -93,6 +94,12 @@
     ];
 
     const accountPopupItems = [
+        {
+            id: "go-to-tests",
+            name: "Privacy & Security",
+            route: "#/tests",
+            iconPath: mdiSecurity,
+        },
         {
             id: "go-to-account-settings",
             name: "Account settings",
