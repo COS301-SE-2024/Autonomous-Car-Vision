@@ -182,7 +182,10 @@
       <h1 class="text-4xl text-center mb-6 font-bold text-black">Welcome to High-Viz</h1>
       <div class="flex flex-col gap-4 items-center">
         <a href="#/login" class="w-full">
-          <button class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition">
+          <button
+            class="w-full py-2 bg-theme-highVizLight-primary text-white text-white rounded-lg  transition"
+            id="#login"
+            >
             Log In
           </button>
         </a>
