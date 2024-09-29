@@ -54,11 +54,11 @@
                 },
             ]
         },
-        {
-            name: "Visualizer",
-            route: "#/visualize",
-            iconPath: mdiEyeRefresh,
-        },
+        // {
+        //     name: "Visualizer",
+        //     route: "#/visualize",
+        //     iconPath: mdiEyeRefresh,
+        // },
         {
             name: "Drive Gallery",
             route: "#/drivegallery",
@@ -158,7 +158,6 @@
 <div
     class="sidebarV2Light h-full w-auto text-black flex flex-col justify-end"
 >
-    <ThemeToggler />
     {#each routes as route}
         <div class="nav-itemLight {'#' + $location === route.route ? 'activeLight' : ''}">
             {#if route.subRoutes}
@@ -248,7 +247,6 @@
 <div
 class="sidebarV2 h-full w-auto bg-theme-dark-background text-white flex flex-col justify-end"
 >
-<ThemeToggler />
 {#each routes as route}
     <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
         {#if route.subRoutes}

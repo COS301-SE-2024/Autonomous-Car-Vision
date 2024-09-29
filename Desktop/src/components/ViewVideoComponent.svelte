@@ -125,7 +125,6 @@
     try {
       const framePaths = await window.electronAPI.extractFrames(videoPath);
       frames = framePaths.map((framePath) => framePath.replace(/\\/g, "/")); // Convert backslashes to slashes for URLs
-      console.log("Video Path: ", videoPath);
     } catch (error) {
       console.error("Error extracting frames:", error);
     }
@@ -137,12 +136,9 @@
   });
 
   onMount(async () => {
-    console.log($location);
     // const encodedPath = encodeURIComponent(VideoSource);
     videoPath = $location.replace("/video/", "");
     videoPath = decodeURIComponent(videoPath);
-    console.log("VideoPath: ", videoPath);
-    console.log("Stores: ", $VideoURL);
     extractFrames();
     await loadState();
     await getAIinfo();
@@ -153,7 +149,6 @@
   function seekToFrame(framePath) {
     const index = frames.indexOf(framePath);
     time = index * (duration / frames.length); // Adjust according to the interval
-    console.log("Seek to frame:", framePath);
     showControls = true;
 
     // Scroll the clicked frame into the center of the thumbnail bar
@@ -185,13 +180,11 @@
   }
 
   function revealAIDetails() {
-    console.log("TEST SIDEBUTTON");
     showSideAIDetail = !showSideAIDetail;
   }
 
   function selectVideo(event){
     const video = event.detail;
-    console.log("Selected video: ", video);
     videoPath = video;
     extractFrames();
   }
@@ -275,8 +268,6 @@
           mURL: video.videoURL,
         });
       });
-
-      console.log("Get AI info:", sideAIinfo);
     } catch (error) {
       console.error("Error fetching output files:", error);
     }
@@ -486,8 +477,6 @@
     transition: test 1s;
     background-color: #03191ec6;
     margin: 5px;
-    /* border-top-left-radius: 15px; */
-    /* border-bottom-left-radius: 15px; */
     border-radius: 50%;
     transition: ease-in-out 1s;
   }
@@ -499,35 +488,33 @@
     top: 0%;
     right: 0%;
     transition: test 1s;
-    background-color: #B6D9E8;
+    background-color: #b6d9e8c2;
     margin: 5px;
-    /* border-top-left-radius: 15px; */
-    /* border-bottom-left-radius: 15px; */
     border-radius: 50%;
     transition: ease-in-out 1s;
   }
 
   .sidevideo {
-    width: 20%;
+    width: 25%;
     height: fit-content;
     top: 0;
     position: absolute;
-    right: -25%;
+    right: -30%;
     margin: 5px;
-    background-color: #03191ec6;
+    background-color: #03191ec5;
     z-index: 10;
     border-radius: 15px;
     transition: ease-in-out 1s;
   }
 
   .sidevideoLight {
-    width: 20%;
+    width: 25%;
     height: fit-content;
     top: 0;
     position: absolute;
-    right: -25%;
+    right: -30%;
     margin: 5px;
-    background-color: #B6D9E8;
+    background-color: #b6d9e8c2;
     z-index: 10;
     border-radius: 15px;
     transition: ease-in-out 1s;
@@ -538,7 +525,7 @@
   }
 
   .sideButton.move-right, .sideButtonLight.move-right  {
-    right: 20.5%;
+    right: 25.5%;
   }
 
   ::-webkit-scrollbar {

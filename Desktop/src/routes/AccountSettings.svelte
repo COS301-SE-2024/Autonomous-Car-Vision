@@ -155,6 +155,7 @@
                 alt="Avatar"
                 class="avatar-image"
               />
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
               <div
                 class="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-black hover:bg-opacity-50 transition-all duration-300"
                 on:click={redirectToGravatar}

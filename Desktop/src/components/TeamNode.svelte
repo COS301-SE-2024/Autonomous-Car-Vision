@@ -8,17 +8,15 @@
     export let nodeData;
 
     let nodeType = nodeData.type;
-
     let agents = get(TeamAgents);
     let clients = get(TeamClients);
     let edgeColor = "gray";
-
     let bgColor = "gray";
+
     const getRanHex = (size = 6) => {
         const hexRef = "0123456789abcdef";
         let hexColor = "";
 
-        // Function to calculate brightness
         const calculateBrightness = (hex) => {
             let r = parseInt(hex.substring(0, 2), 16);
             let g = parseInt(hex.substring(2, 4), 16);
@@ -26,17 +24,14 @@
             return (r * 299 + g * 587 + b * 114) / 1000;
         };
 
-        // Generate a hex color and ensure it's not too light
         while (true) {
             hexColor = "";
             for (let n = 0; n < size; n++) {
                 hexColor += hexRef[Math.floor(Math.random() * 16)];
             }
 
-            // Check if the color is too bright
             let brightness = calculateBrightness(hexColor);
             if (brightness < 200) {
-                // Adjust the threshold as needed
                 break;
             }
         }
@@ -56,50 +51,38 @@
         }
     }
 
-    function resetBooleanMaps(obj) {
-        Object.keys(obj).forEach((key) => {
-            obj[key] = false;
+    // FIX 
+    function resetBooleanMaps(map) {
+        console.log("BEFORE: ",map);
+        Object.values(map).forEach((booleanID) => {
+            booleanID = false;
         });
+        console.log("AFTER : ",map);
     }
 
     function showConnectionToAgent() {
-        console.log(nodeData);
-        console.log(nodeType);
-
-        // Reset all edge colors
         resetEdgeColors();
 
-        // Access the writable stores to update agents/clients
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
         resetBooleanMaps(agentBooleans);
         resetBooleanMaps(clientBooleans);
 
-        // If the node has agents, mark them as selected
         if (nodeData?.agents) {
-            nodeData.agents.forEach((agentId) => {
-                // Ensure we're updating the boolean based on the correct key
-                if (agentBooleans.hasOwnProperty(agentId)) {
-                    agentBooleans[agentId] = true; // Set to true for active agents
+            nodeData.agents.forEach((agentID) => {
+                if (agentBooleans.hasOwnProperty(agentID)) {
+                    agentBooleans[agentID] = true;
                 }
             });
         }
 
         if (nodeType === "Client") {
-            clientBooleans[Number(nodeData.booleanID)] = true;
+            clientBooleans[nodeData.booleanID.id] = true; // Set current client as active
         }
 
-        if (nodeType === "Manager") {
-            edgeColor = "green";
-        }
-
-        // Update the writable stores
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
-
-        console.log("Updated TeamAgents:", agentBooleans);
-        console.log("Updated TeamClients:", clientBooleans);
     }
 
     function resetEdgeColors() {
@@ -107,34 +90,36 @@
     }
 
     function updateEdgeColor() {
-        // Update color based on agents or clients
-        if (nodeType === "Agent" && agents[Number(nodeData.booleanID)]) {
-            edgeColor = "blue"; // Example: change to blue if agent is active
+        if (
+            nodeType === "Agent" &&
+            agents[nodeData.booleanID.id]
+        ) {
+            edgeColor = "blue"; // Blue for active agents
         } else if (
             nodeType === "Client" &&
-            clients[Number(nodeData.booleanID)]
+            clients[nodeData.booleanID.id]
         ) {
-            edgeColor = "green"; // Example: change to green if client is active
+            edgeColor = "green"; // Green for active clients
         } else {
-            edgeColor = "gray"; // Default color
+            edgeColor = "gray"; // Default edge color
         }
     }
 
     onMount(() => {
-        updateEdgeColor();
         setBGColour();
+        updateEdgeColor();
     });
 
     TeamAgents.subscribe((newAgents) => {
         agents = newAgents;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 
     TeamClients.subscribe((newClients) => {
         clients = newClients;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 </script>
 
@@ -153,13 +138,19 @@
             {#each nodeData.anchors as anchor}
                 {#if anchor.type === "output"}
                     <Anchor
-                        direction="north"
+                        direction="south"
                         locked
                         output
                         id={anchor.id}
                         connections={[anchor.id, anchor.out]}
                     >
-                        <Edge slot="edge" end="arrow" straight color={edgeColor} />
+                        <Edge
+                            slot="edge"
+                            end="arrow"
+                            straight
+                            animate
+                            color={edgeColor}
+                        />
                     </Anchor>
                 {/if}
             {/each}
@@ -171,12 +162,20 @@
             {#each nodeData.anchors as anchor}
                 {#if anchor.type === "input"}
                     <Anchor
-                        direction="south"
+                        direction="north"
                         locked
                         input
                         id={anchor.id}
                         connections={[anchor.id]}
-                    />
+                    >
+                        <Edge
+                            slot="edge"
+                            end="arrow"
+                            straight
+                            animate
+                            color={edgeColor}
+                        />
+                    </Anchor>
                 {/if}
             {/each}
         </div>

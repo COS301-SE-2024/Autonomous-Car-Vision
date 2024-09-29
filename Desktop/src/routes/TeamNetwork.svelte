@@ -12,6 +12,7 @@
 
     let nodes = [];
     let HOST_IP;
+    let agentsGlobal = [];
 
     onMount(async () => {
         HOST_IP = await window.electronAPI.getHostIp();
@@ -23,11 +24,8 @@
                     uid: window.electronAPI.getUid(),
                 },
             );
-            let users = userResponse.data.users;
-            let userIDS = [];
-            for (let i = 0; i < users.length; i++) {
-                userIDS.push(users[i].uid);
-            }
+            let users = userResponse.data.users || []; // Ensure users is an array
+            let userIDS = users.map((user) => user.uid); // Extract user IDs
 
             let agentsArray = [];
             for (let i = 0; i < userIDS.length; i++) {
@@ -37,33 +35,48 @@
                         uid: userIDS[i],
                     },
                 );
-                let agents = agentResponse.data.agents;
-                agentsArray.push(agents);
+                let agents = agentResponse.data.agents || []; // Ensure agents is an array
+                agentsArray.push(...agents); // Combine agents into one array
             }
 
-            let agents = agentsArray[0];
-            for (let i = 0; i < agents.length; i++) {
-                for (let j = 0; j < agents.length; j++) {
-                    if (i == j) {
-                        continue;
-                    }
-                    if (
-                        agents[i].aid === agents[j].aid &&
-                        agents[i].uid === agents[j].uid
-                    ) {
-                        agents.splice(j, 1);
-                    }
-                }
-            }
-            console.log("User IDS:", userIDS);
-            console.log("Agents:", agents);
+            agentsGlobal = agentsArray;
 
-            // Process data and create nodes
-            nodes = makeNodes({ clients: users, agents: agents });
+            // Step 1: Filter agents - only keep agents if a user has uploaded to them
+            // We check if `uid` from the agent matches any in `userIDS`
+            const filteredAgents = agentsArray.filter((agent) => {
+                return userIDS.includes(agent.uid);
+            });
 
-            // Update the writable stores
-            TeamAgents.set(agents.map(() => false));
-            TeamClients.set(users.map(() => false));
+            // Step 2: Remove duplicates based on 'aid' (Agent ID)
+            const uniqueAgents = [
+                ...new Map(
+                    filteredAgents.map((agent) => [agent.aid, agent]),
+                ).values(),
+            ];
+
+            // Step 3: Process data and create nodes
+            nodes = makeNodes({ clients: users, agents: uniqueAgents });
+
+            // Step 4: Update the writable stores
+
+            // Initialize TeamAgents with agent IDs and boolean values
+            let agentBoolMap = {};
+            uniqueAgents.forEach((agent) => {
+                agentBoolMap[agent.aid] = false; // Initialize with false
+            });
+            TeamAgents.set(agentBoolMap);
+
+            // Initialize TeamClients with client IDs and boolean values
+            let clientBoolMap = {};
+            users.forEach((client) => {
+                clientBoolMap[client.uid] = false; // Initialize with false
+            });
+            TeamClients.set(clientBoolMap);
+
+            console.log("CLIENTS: ", users);
+            console.log("AGENTS: ", agentsArray);
+            console.log("FILTERED AGENTS: ", filteredAgents);
+            console.log("UNIQUE AGENTS: ", uniqueAgents);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -72,67 +85,85 @@
     function makeNodes(JsonPayload) {
         let NodesMake = [];
 
-        // Create Broker node
+        // Ensure that agents and clients are available and are arrays
+        const agents = JsonPayload.agents || [];
+        const clients = JsonPayload.clients || [];
+
+        // Step 1: Create Broker node
         let brokerNode = {
             id: "10000",
             type: "Broker",
-            position: { x: 600, y: -200 },
+            position: { x: 0, y: 0 },
             label: "Broker",
-            anchors: [
-                { id: "in1", type: "input" }, // Input for Agents
-            ],
-            agents: JsonPayload.agents.map((agent) => agent.aid.toString()),
+            anchors: [{ id: "in1", type: "input" }], // Input for Agents
+            agents: agents.map((agent) => agent.aid.toString()),
             booleanID: 0,
         };
         NodesMake.push(brokerNode);
 
         // Step 2: Create Agent nodes and connect them to the Broker
-        let agentCount = 1;
-        // Create Agent nodes
-        JsonPayload.agents.forEach((agent, index) => {
+        agents.forEach((agent, index) => {
             let agentNode = {
                 id: agent.aid.toString(),
                 type: "Agent",
                 position: { x: index * 200 - 500, y: -500 }, // Adjust positions dynamically
                 label: `Agent ${agent.aid.toString()}`,
-                anchors: [
-                    { id: "out1", type: "output", out: "10000" }, // Connected to Broker
-                ],
+                anchors: [{ id: "out1", type: "output", out: "10000" }], // Connected to Broker
                 clients: [], // Will populate later with connected clients
-                booleanID: agentCount++,
+                booleanID: {
+                    // Track boolean state for visualization
+                    bool: index,
+                    id: agent.aid,
+                },
             };
             NodesMake.push(agentNode);
         });
 
         // Step 3: Create Client nodes and connect them to their respective Agents
-        let clientCount = 1;
-        // Create Client (User) nodes
-        JsonPayload.clients.forEach((client, clientIndex) => {
+        clients.forEach((client, index) => {
             let clientNode = {
                 id: client.uid.toString(),
                 type: "Client",
-                position: { x: clientIndex * 350, y: 300 },
+                position: { x: index * 350, y: 500 },
                 label: client.uname,
                 anchors: [{ id: "out1", type: "output", out: "10000" }],
                 agents: [],
-                booleanID: clientCount++,
+                booleanID: {
+                    bool: index,
+                    id: client.uid, // Ensure unique ID for each client
+                },
             };
 
-            // Connect clients to agents
-            JsonPayload.agents.forEach((agent) => {
-                clientNode.agents.push(agent.aid.toString());
-                let agentNode = NodesMake.find(
-                    (node) =>
-                        node.id === agent.aid.toString() &&
-                        node.type === "Agent",
-                );
-                if (agentNode) {
-                    agentNode.clients.push(clientNode.id);
+            // Collect agent connections and populate clientNode.agents and agentConnections
+            agents.forEach((agent) => {
+                // Check if the agent's uid matches the client's uid
+                // Ensure the media for the agent has been uploaded by checking against uid
+                if (parseInt(clientNode.id) === parseInt(agent.uid)) {
+                    // Add the agent's aid to the clientNode's agents list
+                    if (!clientNode.agents.includes(agent.aid.toString())) {
+                        clientNode.agents.push(agent.aid.toString());
+                    }
+
+                    // Find the agent node in NodesMake
+                    let agentNode = NodesMake.find(
+                        (node) =>
+                            node.id === agent.aid.toString() &&
+                            node.type === "Agent",
+                    );
+
+                    // If the agentNode exists, connect the client to it
+                    if (agentNode) {
+                        // Check if the client is not already connected to avoid duplicates
+                        if (!agentNode.clients.includes(clientNode.id)) {
+                            agentNode.clients.push(clientNode.id); // Connect agent to client
+                        }
+                    }
                 }
             });
 
             NodesMake.push(clientNode);
         });
+
         console.log("NodesMake:", NodesMake);
         return NodesMake;
     }
