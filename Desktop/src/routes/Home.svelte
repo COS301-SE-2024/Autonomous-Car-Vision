@@ -56,7 +56,8 @@
         <a href="#/login" class="w-full">
           <button
             class="w-full py-2 bg-theme-highVizLight-primary text-white text-lightText rounded-lg  transition"
-          >
+            id="#login"
+            >
             Log In
           </button>
         </a>

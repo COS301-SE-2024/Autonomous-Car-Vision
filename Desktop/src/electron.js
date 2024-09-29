@@ -36,6 +36,7 @@ async function createWindow() {
             contextIsolation: true,
             enableRemoteModule: false,
             webviewTag: true,
+            webSecurity: false, // Disabled web security for e2e testing
         },
         autoHideMenuBar: true,
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),

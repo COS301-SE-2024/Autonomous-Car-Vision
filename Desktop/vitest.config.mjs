@@ -9,5 +9,6 @@ export default defineConfig({
         environment: 'jsdom',
         reporters: ['basic'],
         setupFiles: ['./setupTests.js'],
+        exclude: ['e2eTests/**'],
     }
 })
