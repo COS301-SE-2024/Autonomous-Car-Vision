@@ -66,7 +66,7 @@ def test_pipeline():
     camera_data = load_image(camera_file_path)
     lidar_data = load_lidar_data(lidar_file_path)
 
-    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnitTest.all'
+    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,observerUnit,outputUnitTest.all'
     pipeline = build_pipeline(input_string)
 
     sensors = ['camera', 'lidar']
@@ -82,17 +82,19 @@ def test_pipeline():
     lidar_image_path = os.path.join(test_data_folder, 'lidar_image.png')
     taggr_image_path = os.path.join(test_data_folder, 'taggr_image.png')
     bb_image_path = os.path.join(test_data_folder, 'bb_image.png')
+    lane_image_path = os.path.join('public/testData', 'lane_image.png')
     Image.fromarray(processed_image).save(processed_image_path)
     if img_lidar is not None: Image.fromarray(img_lidar).save(lidar_image_path)
     if img_taggr is not None: Image.fromarray(img_taggr).save(taggr_image_path)
     if img_bb is not None: Image.fromarray(img_bb).save(bb_image_path)
+    if img_la is not None: Image.fromarray(img_la).save(lane_image_path)
     return processed_image, bounding_boxes
 
 def test_lane():
     camera_file_path = os.path.join('public/testData/frame_000300_raw.png')
     camera_data = load_image(camera_file_path)
     
-    input_string = 'inputUnit,infusrUnit,laneUnit,outputUnitTest.la'
+    input_string = 'inputUnit,infusrUnit,laneUnit,outputUnitTest.all'
     pipeline = build_pipeline(input_string)
     
     sensors = ['camera', 'lidar']
