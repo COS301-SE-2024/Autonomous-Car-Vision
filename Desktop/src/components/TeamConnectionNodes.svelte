@@ -51,13 +51,12 @@
         }
     }
 
-    // FIX
-    function resetBooleanMaps(map) {
-        Object.values(map).forEach((booleanID) => {
-            if (typeof booleanID === "object" && booleanID !== null) {
-                booleanID.connected = false; // Reset connection status
+    function resetBooleanMaps(obj) {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                obj[key] = false; // Set each value to false
             }
-        });
+        }
     }
 
     function showConnectionToClient() {
@@ -147,7 +146,7 @@
                 {/if}
             {/each}
         </div>
-        <h1 class="text-3xl text-center">
+        <h1 class="text-3xl text-center text-white">
             {nodeData.label}
         </h1>
         <div class="flex flex-row justify-center">

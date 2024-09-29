@@ -50,18 +50,15 @@
         }
     }
 
-    function resetBooleanMaps(map) {
-        Object.values(map).forEach((booleanID) => {
-            if (typeof booleanID === "object" && booleanID !== null) {
-                booleanID.connected = false; // Reset connection status
+    function resetBooleanMaps(obj) {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                obj[key] = false; // Set each value to false
             }
-        });
+        }
     }
 
     function showConnectionToAgent() {
-        console.log(nodeData);
-        console.log(nodeType);
-
         // Reset all edge colors
         resetEdgeColors();
 
@@ -84,9 +81,6 @@
         // Update the writable stores
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
-
-        console.log("Updated TeamAgents:", agentBooleans);
-        console.log("Updated TeamClients:", clientBooleans);
     }
 
     function resetEdgeColors() {
@@ -94,15 +88,9 @@
     }
 
     function updateEdgeColor() {
-        if (
-            nodeType === "Agent" &&
-            agents[nodeData.booleanID.id]
-        ) {
+        if (nodeType === "Agent" && agents[nodeData.booleanID.id]) {
             edgeColor = "blue"; // Blue for active agents
-        } else if (
-            nodeType === "Client" &&
-            clients[nodeData.booleanID.id]
-        ) {
+        } else if (nodeType === "Client" && clients[nodeData.booleanID.id]) {
             edgeColor = "green"; // Green for active clients
         } else {
             edgeColor = "gray"; // Default edge color
@@ -152,9 +140,14 @@
                 {/if}
             {/each}
         </div>
-        <h1 class="text-3xl text-center">
-            {nodeData.label}
-        </h1>
+        <div class="text-white">
+            <h1 class="text-3xl text-center uppercase">
+                {nodeData.team_name}
+            </h1>
+            <h1 class="text-3xl text-center">
+                {nodeData.label}
+            </h1>
+        </div>
     </div>
 </Node>
 

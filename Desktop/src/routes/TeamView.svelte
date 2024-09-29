@@ -21,7 +21,7 @@
         showAddPopup = false;
     }
 
-    let teamName = "";
+    let teamName = "Team";
     let users = [];
     let HOST_IP;
 
@@ -84,7 +84,7 @@
     <Toaster />
         <div class="user-list text-black-lightText">
             <div class="headerLight text-4xl items-center text-center">
-                <h2>Team Name</h2>
+                <h2>{teamName}</h2>
             </div>
             <div class="flex text-black flex-row justify-between">
                 <h3 class="px-5">Active Members</h3>
@@ -130,7 +130,7 @@
     <Toaster />
         <div class="user-list text-theme-dark-lightText">
             <div class="header text-4xl items-center text-center">
-                <h2>Team Name</h2>
+                <h2>{teamName}</h2>
             </div>
             <div class="flex text-white flex-row justify-between">
                 <h3 class="px-5">Active Members</h3>

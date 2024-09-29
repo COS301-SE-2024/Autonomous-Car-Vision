@@ -51,13 +51,12 @@
         }
     }
 
-    // FIX 
-    function resetBooleanMaps(map) {
-        console.log("BEFORE: ",map);
-        Object.values(map).forEach((booleanID) => {
-            booleanID = false;
-        });
-        console.log("AFTER : ",map);
+    function resetBooleanMaps(obj) {
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                obj[key] = false; // Set each value to false
+            }
+        }
     }
 
     function showConnectionToAgent() {
@@ -90,15 +89,9 @@
     }
 
     function updateEdgeColor() {
-        if (
-            nodeType === "Agent" &&
-            agents[nodeData.booleanID.id]
-        ) {
+        if (nodeType === "Agent" && agents[nodeData.booleanID.id]) {
             edgeColor = "blue"; // Blue for active agents
-        } else if (
-            nodeType === "Client" &&
-            clients[nodeData.booleanID.id]
-        ) {
+        } else if (nodeType === "Client" && clients[nodeData.booleanID.id]) {
             edgeColor = "green"; // Green for active clients
         } else {
             edgeColor = "gray"; // Default edge color
@@ -133,7 +126,7 @@
     {bgColor}
     on:nodeClicked={showConnectionToAgent}
 >
-    <div class="flex flex-col justify-between h-full">
+    <div class="flex flex-col justify-between h-full w-full">
         <div class="flex flex-row justify-center">
             {#each nodeData.anchors as anchor}
                 {#if anchor.type === "output"}
@@ -155,10 +148,20 @@
                 {/if}
             {/each}
         </div>
-        <h1 class="text-3xl text-center">
+        <h1 class="text-3xl text-center text-white">
             {nodeData.label}
         </h1>
-        <div class="flex flex-row justify-center">
+        <div class="w-10/12 mx-auto">
+            <div class="p-3 w-full">
+                <img
+                src={nodeData.profilePhoto}
+                alt={nodeData.label}
+                class="px-2 rounded-full h-full w-full"
+                size="3rem"
+                />
+            </div>
+        </div>
+            <div class="flex flex-row justify-center">
             {#each nodeData.anchors as anchor}
                 {#if anchor.type === "input"}
                     <Anchor

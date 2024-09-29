@@ -8,14 +8,49 @@
     import BrokerNode from "../components/BrokerNode.svelte";
     import ManagerNode from "../components/ManagerNode.svelte";
     import axios from "axios";
+    import CryptoJS from "crypto-js";
     import Spinner from "../components/Spinner.svelte";
+    import { theme } from "../stores/themeStore";
 
     let nodes = [];
     let HOST_IP;
     let agentsGlobal = [];
+    let themeMaterial = "dark";
+
+    let users = [];
+    let teamName = "Team";
 
     onMount(async () => {
         HOST_IP = await window.electronAPI.getHostIp();
+
+        try {
+            const response = await axios.post(
+                "http://" + HOST_IP + ":8000/getTeamName/",
+                {
+                    uid: window.electronAPI.getUid(),
+                },
+            );
+            teamName = response.data.teamName;
+            console.log(teamName);
+        } catch (error) {
+            console.error(error);
+        }
+
+        try {
+            const response = await axios.post(
+                "http://" + HOST_IP + ":8000/getTeamMembers/",
+                {
+                    uid: window.electronAPI.getUid(),
+                },
+            );
+            users = response.data.teamMembers.sort((a, b) => {
+                if (a.is_admin === b.is_admin) return 0;
+                return a.is_admin ? -1 : 1;
+            });
+        } catch (error) {
+            console.error(error);
+        }
+
         try {
             // Fetch user data
             const userResponse = await axios.post(
@@ -72,11 +107,6 @@
                 clientBoolMap[client.uid] = false; // Initialize with false
             });
             TeamClients.set(clientBoolMap);
-
-            console.log("CLIENTS: ", users);
-            console.log("AGENTS: ", agentsArray);
-            console.log("FILTERED AGENTS: ", filteredAgents);
-            console.log("UNIQUE AGENTS: ", uniqueAgents);
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -98,6 +128,7 @@
             anchors: [{ id: "in1", type: "input" }], // Input for Agents
             agents: agents.map((agent) => agent.aid.toString()),
             booleanID: 0,
+            team_name: teamName
         };
         NodesMake.push(brokerNode);
 
@@ -132,13 +163,24 @@
                     bool: index,
                     id: client.uid, // Ensure unique ID for each client
                 },
+                profilePhoto: null,
             };
+            
+            // Matching user to profilePhoto
+            // Find the user corresponding to the client
+            const matchingUser = users.find((user) => user.uid === client.uid);
+            // If a matching user is found, generate the Gravatar URL
+            if (matchingUser && matchingUser.uemail) {
+                clientNode.profilePhoto =
+                    "https://www.gravatar.com/avatar/" +
+                    CryptoJS.SHA256(matchingUser.uemail.trim().toLowerCase()) +
+                    "?d=retro";
+            }
 
-            // Collect agent connections and populate clientNode.agents and agentConnections
-            agents.forEach((agent) => {
+            // Collect agent connections and populate clientNode.agents
+            agentsGlobal.forEach((agent) => {
                 // Check if the agent's uid matches the client's uid
-                // Ensure the media for the agent has been uploaded by checking against uid
-                if (parseInt(clientNode.id) === parseInt(agent.uid)) {
+                if (clientNode.id === agent.uid.toString()) {
                     // Add the agent's aid to the clientNode's agents list
                     if (!clientNode.agents.includes(agent.aid.toString())) {
                         clientNode.agents.push(agent.aid.toString());
@@ -153,7 +195,6 @@
 
                     // If the agentNode exists, connect the client to it
                     if (agentNode) {
-                        // Check if the client is not already connected to avoid duplicates
                         if (!agentNode.clients.includes(clientNode.id)) {
                             agentNode.clients.push(clientNode.id); // Connect agent to client
                         }
@@ -163,10 +204,16 @@
 
             NodesMake.push(clientNode);
         });
-
-        console.log("NodesMake:", NodesMake);
         return NodesMake;
     }
+
+    theme.subscribe((value) => {
+        if (value == "highVizLight") {
+            themeMaterial = "light";
+        } else {
+            themeMaterial = "dark";
+        }
+    });
 </script>
 
 <ProtectedRoutes>
@@ -175,7 +222,7 @@
             <Spinner />
         </div>
     {:else}
-        <Svelvet TD fitView theme="dark" edgeStyle="bezier">
+        <Svelvet TD fitView theme={themeMaterial} edgeStyle="bezier">
             {#each nodes as node}
                 {#if node.type == "Agent"}
                     <TeamConnectionNodes
@@ -188,7 +235,7 @@
                     <BrokerNode
                         id={node.id}
                         position={node.position}
-                        dimensions={{ width: 150, height: 100 }}
+                        dimensions={{ width: 250, height: 150 }}
                         nodeData={node}
                     />
                 {:else if node.type == "Manager"}
@@ -202,7 +249,7 @@
                     <TeamNode
                         id={node.id}
                         position={node.position}
-                        dimensions={{ width: 300, height: 100 }}
+                        dimensions={{ width: 300, height: 300 }}
                         nodeData={node}
                     />
                 {/if}
