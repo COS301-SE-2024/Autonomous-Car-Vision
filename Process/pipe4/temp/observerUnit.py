@@ -3,91 +3,95 @@ import cv2
 import open3d as o3d
 from units import Unit
 from dataToken import DataToken
+import matplotlib.pyplot as plt
+
 
 class observerUnit(Unit):
     def __init__(self):
         super().__init__(id="observerUnit", input_type=DataToken, output_type=DataToken)
 
+    def plot_point_cloud(self, pre_filtered_points, post_filtered_points):
+        pre_filtered_points_np = np.array(pre_filtered_points)
+        post_filtered_points_np = np.array(post_filtered_points)
+
+        pre_filtered_points_np[:, 1] = -pre_filtered_points_np[:, 1]
+        post_filtered_points_np[:, 1] = -post_filtered_points_np[:, 1]
+
+        combined_cloud = o3d.geometry.PointCloud()
+        combined_cloud.points = o3d.utility.Vector3dVector(pre_filtered_points_np)
+
+        pre_colors = np.ones_like(pre_filtered_points_np) * 0.5
+        combined_cloud.colors = o3d.utility.Vector3dVector(pre_colors)
+
+        for post_point in post_filtered_points_np:
+            distances = np.linalg.norm(pre_filtered_points_np - post_point, axis=1)
+            min_index = np.argmin(distances)
+
+            if distances[min_index] < 1e-6:
+                pre_colors[min_index] = [1.0, 0.0, 0.0]
+
+        combined_cloud.colors = o3d.utility.Vector3dVector(pre_colors)
+
+        o3d.visualization.draw_geometries([combined_cloud],
+                                          window_name="LiDAR Point Cloud: Pre-Filtered (Grey) and Post-Filtered (Red)")
+
     def process(self, data_token=DataToken):
-        # Get the image dimensions
         image = data_token.get_sensor_data('camera')
         if image is None:
             print("No camera data found in DataToken.")
             return data_token
         image_height, image_width, _ = image.shape
 
-        # Get LiDAR data from infusrUnit
         lidar_data = data_token.get_processing_result('infusrUnit')
         if lidar_data is None:
             print("No processing results from infusrUnit found in DataToken.")
             return data_token
 
         valid_world_positions = lidar_data['valid_world_positions']
+        print("Valid World Pos")
+        print(valid_world_positions)
         pixel_x = lidar_data['pixel_x']
+        print("pixel x")
+        print(pixel_x)
         pixel_y = lidar_data['pixel_y']
+        print("pixel y")
+        print(pixel_y)
+        if valid_world_positions is not None:
+            zmin, zmax = 0.5, 2.3
+            ymin, ymax = -0.95, 0.95
+            xmin, xmax = 2.4, 20.0
 
-        # Ensure pixel_x and pixel_y are integers
-        pixel_x = pixel_x.astype(np.int32)
-        pixel_y = pixel_y.astype(np.int32)
+            filtered_positions = valid_world_positions[
+                (valid_world_positions[:, 0] >= xmin) & (valid_world_positions[:, 0] <= xmax) &
+                (valid_world_positions[:, 1] >= ymin) & (valid_world_positions[:, 1] <= ymax) &
+                (valid_world_positions[:, 2] >= zmin) & (valid_world_positions[:, 2] <= zmax)
+                ]
+            average_x_filtered = 0
+            print("filtered_positions", filtered_positions)
+            if len(filtered_positions) > 0:
+                average_x_filtered = np.mean(filtered_positions[:, 0])
+                print(f"Average x-value of filtered points: {average_x_filtered}")
+            else:
+                print("No points within the filtered region.")
 
-        # Get lane data from laneUnit
-        lane_data = data_token.get_processing_result('laneUnit')
-        if lane_data is None:
-            print("No processing results from laneUnit found in DataToken.")
-            return data_token
+            breaking = 1 - (average_x_filtered / 17.7)
+            handbreak = False
+            if breaking >0.9:
+                handbreak =True
 
-        results = lane_data['results']  # Use results directly
 
-        # Initialize an empty mask to match the image dimensions
-        combined_lane_mask = np.zeros((image_height, image_width), dtype=np.uint8)
+            print("dist", breaking)
 
-        # For each result in results[0], get the mask
-        for result in results[0]:
-            # Get the class label
-            class_name = result.boxes.cls
-            # Filter for lane classes (adjust class indices as needed)
-            if int(class_name) == 0:  # Assuming class 0 corresponds to lanes
-                # Get the mask from the result
-                mask = result.masks.data.cpu().numpy()
-                mask = np.squeeze(mask)
-                if mask.size > 0:
-                    # Resize the mask to match the image dimensions
-                    mask_resized = cv2.resize(mask, (image_width, image_height), interpolation=cv2.INTER_NEAREST)
-                    # Convert to binary mask
-                    binary_mask = (mask_resized > 0.5).astype(np.uint8)
-                    # Combine masks using logical OR
-                    combined_lane_mask = np.logical_or(combined_lane_mask, binary_mask)
+            # Plot the filtered points
+            print("Plotting filtered valid world positions within the cuboid...")
+            self.plot_point_cloud(valid_world_positions, filtered_positions)
 
-        # Ensure that pixel_x and pixel_y are within the image dimensions
-        valid_indices = (pixel_x >= 0) & (pixel_x < image_width) & (pixel_y >= 0) & (pixel_y < image_height)
-        pixel_x = pixel_x[valid_indices]
-        pixel_y = pixel_y[valid_indices]
-        valid_world_positions = valid_world_positions[valid_indices]
 
-        # Check which LiDAR points fall within the lane masks
-        mask_values = combined_lane_mask[pixel_y, pixel_x]  # Note: [row, col] indexing
-        points_in_lane_mask = mask_values > 0
-
-        # Filter the LiDAR points
-        filtered_world_positions = valid_world_positions[points_in_lane_mask]
-
-        # Display the filtered LiDAR points with Open3D
-        point_cloud = o3d.geometry.PointCloud()
-        point_cloud.points = o3d.utility.Vector3dVector(filtered_world_positions)
-
-        # Optionally, set colors for visualization
-        colors = np.array([[1, 0, 0]] * len(filtered_world_positions))  # Red color
-        point_cloud.colors = o3d.utility.Vector3dVector(colors)
-
-        # Create an Open3D visualizer in blocking state
-        vis = o3d.visualization.Visualizer()
-        vis.create_window()
-        vis.add_geometry(point_cloud)
-        vis.run()  # Blocks until the window is closed
-        vis.destroy_window()
+        else:
+            print("No valid world positions found.")
 
         # Store the filtered points in data_token if needed
-        data_token.add_processing_result(self.id, {'filtered_world_positions': filtered_world_positions})
+        data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking, 'handBreak': handbreak})
         data_token.set_flag('hasObserverData', True)
 
         if self.next_unit:

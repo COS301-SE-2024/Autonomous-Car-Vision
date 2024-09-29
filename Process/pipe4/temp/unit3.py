@@ -36,12 +36,15 @@ model = YOLO('./models/yolov8n.pt')
 
 follow_lane = False
 lane_active = False
+object_avoidance= False
 
 
 def get_keyboard_control(vehicle):
     # Toggle lane following with Q
     global follow_lane
+    global object_avoidance
     control = carla.VehicleControl()
+
     if not follow_lane:
         keys = pygame.key.get_pressed()
         control = carla.VehicleControl()
@@ -51,9 +54,10 @@ def get_keyboard_control(vehicle):
         control.hand_brake = keys[pygame.K_SPACE]
     else:
         control.throttle = 0.3
-    
+
     if keys[pygame.K_q] and lane_active:
         follow_lane = not follow_lane
+
     return control
 
 
@@ -348,8 +352,11 @@ def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
     return image, world_data
 
 
-def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, output_folder, vehicle_transform):
+def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, output_folder, vehicle_transform, raw):
     # Save the processed image
+    filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
+    cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
+
     filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
     cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
 
@@ -481,17 +488,17 @@ def main(pipestring):
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
-                
+
                 # Integrate LiDAR data with the image and update world data
                 # , world_data = integrate_lidar_with_image(processed_image_array,
-                                                                                # latest_lidar_data_np, bounding_boxes)
+                # latest_lidar_data_np, bounding_boxes)
 
                 # Get vehicle transform (position and orientation)
                 vehicle_transform = vehicle.get_transform()
 
                 # Save frame and data, including the updated world data
                 save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
-                                    output_folder, vehicle_transform)
+                                    output_folder, vehicle_transform, image_array)
 
                 # Save the world data to a JSON file
                 # world_data_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_world_data.json")
@@ -507,16 +514,20 @@ def main(pipestring):
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
-                
+                observerToken = pipe.dataToken.get_processing_result('observerUnit')
+                breaking = observerToken['breaking']
+                handbreak = observerToken['handbreak']
+                control.brake = breaking
+                control.hand_brake = handbreak
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
                     control.steer = steer
-                    
+
                 vehicle.apply_control(control)
 
                 pygame.time.Clock().tick(30)
-                
+
 
     finally:
         print('destroying actors')

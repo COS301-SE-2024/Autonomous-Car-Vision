@@ -58,7 +58,7 @@ class outputUnit(Unit):
                 if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
                     min_distances[bbox_index] = min_distance
 
-        if (self.bb or self.all):
+        if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
             for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox

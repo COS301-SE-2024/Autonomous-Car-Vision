@@ -65,7 +65,7 @@ class outputUnitTest(Unit):
                 if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
                     min_distances[bbox_index] = min_distance
 
-        if (self.bb or self.all):
+        if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
             img_bb = image.copy()
             for i, bbox in enumerate(bounding_boxes):

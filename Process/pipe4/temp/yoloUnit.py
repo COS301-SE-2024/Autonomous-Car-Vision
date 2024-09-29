@@ -8,7 +8,7 @@ from datetime import datetime
 
 def append_to_drive_log(results, log_file='output_frames/driveLog.json'):
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    
+
     log_entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'preprocess_time': results[0].speed['preprocess'],
@@ -67,6 +67,7 @@ class yoloUnit(Unit):
             box[-1] = class_label  # Replace class ID with the class label
         # Now save the bounding boxes with class labels
         data_token.add_processing_result(self.id, bounding_boxes)
+        data_token.set_flag('has_bb_data',True)
 
         # Continue processing with the next unit, if available
         if self.next_unit:
