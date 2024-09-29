@@ -75,10 +75,10 @@ class observerUnit(Unit):
                 print("No points within the filtered region.")
 
             breaking = 1 - (average_x_filtered / 17.7)
+            breaking = 0 if breaking < 0.5 else breaking
             handbreak = False
-            if breaking >0.9:
-                handbreak =True
-
+            if breaking > 0.9:
+                handbreak = True
 
             print("dist", breaking)
 
@@ -91,7 +91,8 @@ class observerUnit(Unit):
             print("No valid world positions found.")
 
         # Store the filtered points in data_token if needed
-        data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking, 'handBreak': handbreak})
+        data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking,
+                                                   'handBreak': handbreak})
         data_token.set_flag('hasObserverData', True)
 
         if self.next_unit:
