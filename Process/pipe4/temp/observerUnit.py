@@ -50,16 +50,16 @@ class observerUnit(Unit):
         valid_world_positions = lidar_data['valid_world_positions']
         print("Valid World Pos")
         print(valid_world_positions)
-        pixel_x = lidar_data['pixel_x']
-        print("pixel x")
-        print(pixel_x)
-        pixel_y = lidar_data['pixel_y']
-        print("pixel y")
-        print(pixel_y)
+        # pixel_x = lidar_data['pixel_x']
+        # print("pixel x")
+        # print(pixel_x)
+        # pixel_y = lidar_data['pixel_y']
+        # print("pixel y")
+        # print(pixel_y)
         if valid_world_positions is not None:
-            zmin, zmax = 0.5, 2.3
-            ymin, ymax = -0.95, 0.95
-            xmin, xmax = 2.4, 20.0
+            zmin, zmax = 1, 2.3
+            ymin, ymax = -0.9, 0.9
+            xmin, xmax = 3, 25.0
 
             filtered_positions = valid_world_positions[
                 (valid_world_positions[:, 0] >= xmin) & (valid_world_positions[:, 0] <= xmax) &
@@ -73,11 +73,13 @@ class observerUnit(Unit):
                 print(f"Average x-value of filtered points: {average_x_filtered}")
             else:
                 print("No points within the filtered region.")
-
-            breaking = 1 - (average_x_filtered / 17.7)
-            breaking = 0 if breaking < 0.5 else breaking
+            if average_x_filtered == 0:
+                breaking = 0
+            else:
+                breaking = (1 - (average_x_filtered / 22))
+            breaking1 = 0 if breaking < 0.25 else 1
             handbreak = False
-            if breaking > 0.9:
+            if breaking > 0.5:
                 handbreak = True
 
             print("dist", breaking)
@@ -91,7 +93,7 @@ class observerUnit(Unit):
             print("No valid world positions found.")
 
         # Store the filtered points in data_token if needed
-        data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking,
+        data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking1,
                                                    'handBreak': handbreak})
         data_token.set_flag('hasObserverData', True)
 

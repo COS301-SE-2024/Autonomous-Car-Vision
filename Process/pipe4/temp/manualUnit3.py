@@ -36,7 +36,8 @@ model = YOLO('./models/yolov8n.pt')
 
 follow_lane = False
 lane_active = False
-object_avoidance= False
+object_avoidance = False
+avoid = False
 
 
 def get_keyboard_control(vehicle):
@@ -52,11 +53,16 @@ def get_keyboard_control(vehicle):
         control.brake = 1.0 if keys[pygame.K_s] else 0.0
         control.steer = -1.0 if keys[pygame.K_a] else 1.0 if keys[pygame.K_d] else 0.0
         control.hand_brake = keys[pygame.K_SPACE]
+        control.reverse = not control.reverse if keys[pygame.K_r] else control.reverse
     else:
         control.throttle = 0.3
 
     if keys[pygame.K_q] and lane_active:
         follow_lane = not follow_lane
+
+    if keys[pygame.K_o]:
+        object_avoidance = not object_avoidance
+        print("oooioioioioioioioioioioioioioioioioioioioi")
 
     return control
 
@@ -386,6 +392,7 @@ def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, o
     with open(weaver_filename, 'w') as weaver_file:
         json.dump(weaver_data, weaver_file)
 
+
 def create_directory_and_move_files(output_frames):
     # 1. Generate a timestamp for naming
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -416,9 +423,11 @@ def create_directory_and_move_files(output_frames):
 
     print(f"Files moved to: {save_directory}")
 
+
 # Example usage:
 def main():
     global lane_active
+    global avoid
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
@@ -443,8 +452,8 @@ def main():
         }
         lidar_parameters = {
             'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
-            'channels': 64, 'range': 100.0, 'lower_fov': -30, 'upper_fov': 30,
-            'points_per_second': 640000, 'rotation_frequency': 30,
+            'channels': 64, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
+            'points_per_second': 150000, 'rotation_frequency': 50,
             'sensor_label': 'lidar', 'sensor_type': 'lidar'
         }
 
@@ -465,6 +474,8 @@ def main():
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
+        if 'observerUnit' in pipestring:
+            avoid = True
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
@@ -515,12 +526,22 @@ def main():
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
-                if  pipe.dataToken.get_flag("hasObserverData"):
+                # print(object_avoidance)
+                # print( pipe.dataToken.get_flag("hasObserverData"))
+
+                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                    print("avoiding")
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
                     breaking = observerToken['breaking']
                     handbreak = observerToken['handBreak']
+                    if breaking > 0 or handbreak:
+                        control.throttle = 0
+
                     control.brake = breaking
                     control.hand_brake = handbreak
+                    print(vehicle.get_velocity().x)
+                    if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
+                        control.hand_brake = True
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
@@ -544,9 +565,9 @@ def main():
         print(f"Calculated FPS: {calculated_fps}")
 
         # Stitch frames into a video
-        video_filename = os.path.join(output_folder, "output_video.avi")
-        stitch_video_from_frames(output_folder, video_filename, calculated_fps)
-        create_directory_and_move_files("output_frames")
+        # video_filename = os.path.join(output_folder, "output_video.avi")
+        # stitch_video_from_frames(output_folder, video_filename, calculated_fps)
+        # create_directory_and_move_files("output_frames")
         print('done.')
         pygame.quit()
 
