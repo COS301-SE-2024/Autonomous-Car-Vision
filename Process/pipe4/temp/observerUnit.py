@@ -84,7 +84,7 @@ class observerUnit(Unit):
 
             # Plot the filtered points
             print("Plotting filtered valid world positions within the cuboid...")
-            self.plot_point_cloud(valid_world_positions, filtered_positions)
+            # self.plot_point_cloud(valid_world_positions, filtered_positions)
 
 
         else:
