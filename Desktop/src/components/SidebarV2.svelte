@@ -39,15 +39,18 @@
 
     let routes = [
         {
+            id: "extend-teams",
             name: "Team",
             iconPath: mdiAccountGroup,
             subRoutes: [  // Subroutes for the Team dropdown
                 {
+                    id: "go-to-teams-view",
                     name: "Team View",
                     route: "#/teamView",
                     iconPath: mdiAccountCheckOutline,
                 },
                 {
+                    id: "go-to-teams-network",
                     name: "Team Network",
                     route: "#/teamNetwork",
                     iconPath: mdiLanPending,
@@ -55,31 +58,37 @@
             ]
         },
         {
+            id: "go-to-visualizer",
             name: "Visualizer",
             route: "#/visualize",
             iconPath: mdiEyeRefresh,
         },
         {
+            id: "go-to-drive-gallery",
             name: "Drive Gallery",
             route: "#/drivegallery",
             iconPath: mdiCar,
         },
         {
+            id: "go-to-pipes",
             name: "Pipes",
             route: "#/svelvet",
             iconPath: mdiPipeDisconnected,
         },
         {
+            id: "go-to-gallery",
             name: "Gallery",
             route: "#/gallery",
             iconPath: mdiViewGallery,
         },
         {
+            id: "go-to-models",
             name: "Models",
             route: "#/models",
             iconPath: mdiCloudPrintOutline,
         },
         {
+             id: "go-to-help",
             name: "Help",
             route: "#/help",
             iconPath: mdiHelpCircle,
@@ -88,11 +97,16 @@
 
     const accountPopupItems = [
         {
+            id: "go-to-account-settings",
             name: "Account settings",
             route: "#/accountsettings",
             iconPath: mdiAccountCog,
         },
-        { name: "Log out", route: "#/", iconPath: mdiLogout },
+        { 
+            id: "go-to-logout",
+            name: "Log out", 
+            route: "#/", 
+            iconPath: mdiLogout },
     ];
 
     function toggleAccountPopup() {
@@ -164,7 +178,7 @@
             {#if route.subRoutes}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="w-full opacity-50 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
-                    <Icon path={route.iconPath} />
+                    <Icon path={route.iconPath} id={route.id}/>
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
@@ -173,16 +187,16 @@
                     <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
                 </div>
             {:else}
-            <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+            <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
                 <div class="flex justify-start gap-2 items-center">
-                    <Icon path={route.iconPath} />
+                    <Icon path={route.iconPath} id={route.id}/>
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
                         </span>
                     {/if}
                     {#if route.subRoutes}
-                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
                     {/if}
                 </div>
             </a>
@@ -254,25 +268,25 @@ class="sidebarV2 h-full w-auto bg-theme-dark-background text-white flex flex-col
         {#if route.subRoutes}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
-                <Icon path={route.iconPath} />
+                <Icon path={route.iconPath} id={route.id}/>
                 {#if width >= 150}
                     <span class="ml-2">
                         {route.name}
                     </span>
                 {/if}
-                <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
             </div>
         {:else}
-        <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+        <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
             <div class="flex justify-start gap-2 items-center">
-                <Icon path={route.iconPath} />
+                <Icon path={route.iconPath} id={route.id}/>
                 {#if width >= 150}
                     <span class="ml-2">
                         {route.name}
                     </span>
                 {/if}
                 {#if route.subRoutes}
-                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
                 {/if}
             </div>
         </a>

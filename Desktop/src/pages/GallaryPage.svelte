@@ -157,7 +157,7 @@
     </div>
   {:else}
       {#if $theme === 'highVizLight'}
-      <div class="items-center">
+      <div class="items-center" id="gallery-page">
         <div>
           <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
             <!--TODO: style the searchbar -->
@@ -185,13 +185,14 @@
               on:input={handleSearch}
               class="bg-theme-dark-white text-black rounded-lg border-2 border-highVizDark-secondary p-2 w-5/6 border-solid text-lg"
             />
-            <Button
-              rounded
-              class="bg-dark-primary text-black"
-                on:click={() => (showModal = true)}
-              >
-              Upload
-                <Icon color="white" path={mdiUpload} size="30" />
+          <Button
+            id="upload-video"
+            rounded
+            class="bg-dark-primary text-white"
+              on:click={() => (showModal = true)}
+            >
+            Upload
+              <Icon color="white" path={mdiUpload} size="30" />
             </Button>
           </div>
           {#if listType === "grid"}
@@ -205,6 +206,7 @@
                     videoSource={url}
                     videoName={videoURLToNameMap[url]}
                     isDownloaded={downloadedStatuses[index]}
+                    id="gallery-card"
                   />
                 {/each}
               </div>
@@ -218,13 +220,14 @@
               </div>
             {/if}
           {:else}
-            <div class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-1 gap-4" >
               {#each $filteredItems as url, index}
                 <GallaryCard
                   listType={listType}
                   videoSource={url}
                   videoName={videoURLToNameMap[url]}
                   isDownloaded={downloadedStatuses[index]}
+                  id="gallery-card"
                 />
               {/each}
             </div>
@@ -232,7 +235,7 @@
         </div>
       </div>
       {:else}
-      <div class="items-center">
+      <div class="items-center" id="gallery-page">
         <div>
           <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
             <!--TODO: style the searchbar -->
@@ -280,6 +283,7 @@
                     videoSource={url}
                     videoName={videoURLToNameMap[url]}
                     isDownloaded={downloadedStatuses[index]}
+                    id="gallery-card"
                   />
                 {/each}
               </div>
@@ -300,6 +304,7 @@
                   videoSource={url}
                   videoName={videoURLToNameMap[url]}
                   isDownloaded={downloadedStatuses[index]}
+                  id="gallery-card"
                 />
               {/each}
             </div>
