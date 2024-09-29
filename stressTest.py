@@ -99,35 +99,30 @@
     # print(f"Number of functions: {len(functions)}")
 
     
-import json
-from datetime import datetime
 import requests
 
-def get_uptime():
-    url = "https://api.uptimerobot.com/v2/getMonitors"
-    
-    payload = "api_key=m797755729-8a15e04da92d199157c69016"
-    headers = {
-        'content-type': "application/x-www-form-urlencoded",
-        'cache-control': "no-cache"
-    }
-    
-    response = requests.request("POST", url, data=payload, headers=headers)
-    data = response.json()
-    
-    if data['stat'] == 'ok':
-        monitors = data['monitors']
-        for monitor in monitors:
-            name = monitor['friendly_name']
-            uptime_ratio = monitor['all_time_uptime_ratio']
-            status = monitor['status']
-            
-            print(f"Monitor: {name}")
-            print(f"Uptime: {uptime_ratio}%")
-            print(f"Status: {'Up' if status == 2 else 'Down'}")
-            print("---")
-    else:
-        print("Failed to retrieve monitor data")
+# Your API Token
+API_TOKEN = 'F4UDuW3PnVe2oT3FuffE'
+TEST_ID = '7346731'  # Replace with your actual test ID
 
-if __name__ == "__main__":
-    get_uptime()
+# Set the URL for the API endpoint
+url = f'https://api.statuscake.com/v1/uptime/{TEST_ID}'
+
+# Set the headers with the Authorization token
+headers = {
+    'Authorization': f'Bearer {API_TOKEN}',
+    'Accept': 'application/json'  # Optional, ensures you get JSON response
+}
+
+# Make the GET request
+response = requests.get(url, headers=headers)
+
+# Check if the request was successful
+if response.status_code == 200:
+    data = response.json()
+    uptime = data['data']['uptime']
+    print(f"Uptime: {uptime}")
+else:
+    print(f"Failed to retrieve data. Status code: {response.status_code}")
+    print(response.text)
+
