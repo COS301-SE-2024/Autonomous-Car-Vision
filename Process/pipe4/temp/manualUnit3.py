@@ -425,7 +425,7 @@ def create_directory_and_move_files(output_frames):
 
 
 # Example usage:
-def main():
+def main(pipe):
     global lane_active
     global avoid
     pygame.init()
@@ -469,8 +469,7 @@ def main():
 
         # Timer for the drive
         start_time = time.time()
-        pipestring = "inputUnit,infusrUnit,observerUnit,outputUnit.all"
-
+        pipestring = pipe
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
@@ -564,16 +563,21 @@ def main():
         calculated_fps = frame_number / total_time
         print(f"Calculated FPS: {calculated_fps}")
 
-        # Stitch frames into a video
-        # video_filename = os.path.join(output_folder, "output_video.avi")
-        # stitch_video_from_frames(output_folder, video_filename, calculated_fps)
-        # create_directory_and_move_files("output_frames")
+
+        video_filename = os.path.join(output_folder, "output_video.avi")
+        stitch_video_from_frames(output_folder, video_filename, calculated_fps)
+        create_directory_and_move_files("output_frames")
         print('done.')
         pygame.quit()
 
-
 if __name__ == '__main__':
     try:
-        main()
+        if len(sys.argv) > 1:
+            pipe_argument = sys.argv[1]
+        else:
+            print("No pipe argument provided. Exiting...")
+            sys.exit(1)
+
+        main(pipe_argument)
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')

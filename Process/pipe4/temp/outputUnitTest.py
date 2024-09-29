@@ -106,38 +106,29 @@ class outputUnitTest(Unit):
         #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
-            results = output['results']  # Use results directly instead of output['mask']
+            results = output['results']
 
-            # Initialize an empty mask to match the size of the annotated_frame
+
             colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
 
             for result in results[0]:
-                # Get the name of the detected class
-                class_name = result.boxes.cls  # Assuming this is the class label
 
-                # Filter for specific classes if needed (e.g., exclude certain lanes)
-                if int(class_name) != 4 and int(class_name) != 3:  # Adjust class filtering as needed
-                    mask = result.masks.data.cpu().numpy()  # Get the mask from the result
+                class_name = result.boxes.cls
 
-                    # Squeeze the mask to remove unnecessary dimensions (e.g., [1, h, w] -> [h, w])
+                if int(class_name) != 4 and int(class_name) != 3:
+                    mask = result.masks.data.cpu().numpy()
                     mask = np.squeeze(mask)
 
-                    # Check if mask is non-empty before processing
                     if mask.size > 0:
-                        # Resize the mask to match the size of the annotated_frame
                         mask_resized = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-                        # Convert the resized mask to binary using thresholding
                         binary_mask = (mask_resized > 0.5).astype(np.uint8)
 
-                        # Create a white-colored version of the binary mask
                         temp_colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
-                        temp_colored_mask[binary_mask == 1] = [255, 255, 255]  # You can choose another color if desired
+                        temp_colored_mask[binary_mask == 1] = [255, 255, 255]
 
-                        # Add the temporary mask to the global colored_mask
                         colored_mask = cv2.add(colored_mask, temp_colored_mask)
 
-            # Overlay the combined colored_mask onto the original annotated_frame
             alpha = 0.5
             img_la = image.copy()
             annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
