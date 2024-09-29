@@ -11,6 +11,7 @@
     export let email;
     export let lastActivity;
     export let profilePhoto;
+    export let uid;
 
 
     let showRemovePopup = false;
@@ -59,6 +60,7 @@
     <div class="user-last-activity  text-white">{lastActivity}</div>
     {#if showRemovePopup}
     <RemoveMember
+      uid={uid}
       on:cancel={closeRemovePopup}
       on:save={closeRemovePopup}
     />

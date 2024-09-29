@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class User(models.Model):
     uid = models.IntegerField(primary_key=True)
@@ -6,6 +7,7 @@ class User(models.Model):
     uemail = models.TextField(unique=True)
     cid = models.ForeignKey("Corporation", on_delete=models.CASCADE, db_column="cid")
     is_admin = models.BooleanField(default=False)
+    last_signin = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = "users"

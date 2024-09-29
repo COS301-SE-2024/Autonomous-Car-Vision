@@ -15,6 +15,8 @@
   let confirmPassword = "";
   let passwordsMatch = true;
 
+  let HOST_IP;
+
   function checkPasswordsMatch() {
     passwordsMatch = newPassword === confirmPassword;
   }
@@ -25,7 +27,7 @@
     let uid = 0;
     if (passwordsMatch) {
       try {
-        const response = await axios.post("http://localhost:8000/getSalt/", {
+        const response = await axios.post("http://" + HOST_IP + ":8000/getSalt/", {
           uemail: window.electronAPI.getUemail(),
         });
         console.log("Salt and UID retrieved:", response.data);
@@ -54,7 +56,7 @@
         console.log("Token:", window.electronAPI.getToken());
 
         const response = await axios.post(
-          "http://localhost:8000/changePassword/",
+          "http://" + HOST_IP + ":8000/changePassword/",
           {
             uid: window.electronAPI.getUid(),
             old_password: hashOld,
@@ -84,8 +86,9 @@
   };
 
   // For loading screen purposes
-  onMount(() => {
+  onMount(async () => {
     isLoading.set(true);
+    HOST_IP = await window.electronAPI.getHostIp();
     const firstInput = document.querySelector("#oldPassword");
     if (firstInput) {
       firstInput.focus();

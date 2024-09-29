@@ -37,6 +37,15 @@
   //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
+
+    const uid = await window.electronAPI.getUid();
+
+    const lastSignin = await window.electronAPI.getLastSignin(uid);
+    console.log("Last signin: " + lastSignin);
+    //TODO: update last signin in the database
+    const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
+    console.log("Last signin updated: " + updateLastSignin);
+
     try {
       const response = await window.electronAPI.fetchVideos();
       console.log(response);
@@ -228,7 +237,7 @@
       {:else}
       <div class="items-center" id="gallery-page">
         <div>
-          <div class="flex justify-start gap-2 items-center w-full mb-4 p-4">
+          <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
             <!--TODO: style the searchbar -->
             <div class="Card-Or-List rounded-md flex">
               <button
@@ -254,6 +263,14 @@
               on:input={handleSearch}
               class="bg-theme-dark-white text-black rounded-lg border-2 border-highVizDark-secondary p-2 w-5/6 border-solid text-lg"
             />
+            <Button
+            rounded
+            class="bg-dark-primary text-white"
+              on:click={() => (showModal = true)}
+            >
+            Upload
+              <Icon color="white" path={mdiUpload} size="30" />
+            </Button>
           </div>
           {#if listType === "grid"}
             {#if $filteredItems.length > 0}
