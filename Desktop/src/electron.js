@@ -1406,7 +1406,7 @@ ipcMain.handle('get-auth-url', async () => {
 
   ipcMain.handle('request-uptime', async (event) => {
     return new Promise((resolve, reject) => {
-        //TODO: request uptime from the database with uid and an axios post
+        // use get request
         axios.get('http://' + HOST_IP + ':8000/requestUptime/')
         .then(response => {
             resolve(response.data);
@@ -1416,3 +1416,17 @@ ipcMain.handle('get-auth-url', async () => {
         });
     });
   });
+
+  ipcMain.handle('get-test-data', async (event) => {
+    return new Promise((resolve, reject) => {
+        // use get request
+        axios.get('http://' + HOST_IP + ':8000/getTestData/')
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);  
+        });
+    });
+  });
+  

@@ -1,12 +1,12 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from django.http import JsonResponse
 from django.shortcuts import render
 import psycopg2
 import requests
 from rest_framework import viewsets
 
-from stressTest import API_TOKEN
 from .serializers import (
     TokenCorporationSerializer,
     TokenSerializer,
@@ -1526,32 +1526,59 @@ def run_stress_test(num_requests, functions):
             
         end_time = time.time()
         print("Average time taken for ", i.__name__, ": ", (end_time - start_time)/num_requests)   
+        
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def getTestData(request):
+    num_requests = 100
+    functions = [send_request_hvstat, send_request_verifyOTP, send_request_otpRegenerate, send_request_getAgentUserConnections, send_request_getSalt, send_request_signin, send_request_signout, send_request_devLogin]
+    data = {}
+    for i in functions:
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+            futures = [executor.submit(i) for _ in range(num_requests)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+            
+        end_time = time.time()
+        print("Average time taken for ", i.__name__, ": ", (end_time - start_time)/num_requests)  
+        data[i.__name__] = (end_time - start_time)/num_requests
+                 
+    print("Data: ", data)             
+    return Response(
+        {"data": data}, status=status.HTTP_200_OK
+    )
+        
      
-@api_view(["GET"])      
-def requestUptime():
-    # Your API Token
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def requestUptime(request):  # Accept the 'request' argument
+    # Retrieve environment variables
     API_TOKEN = os.getenv("API_TOKEN_CAKE")
-    TEST_ID = os.getenv("TEST_ID")  # Replace with your actual test ID
+    TEST_ID = os.getenv("TEST_ID")
 
-# Set the URL for the API endpoint
+    if not API_TOKEN or not TEST_ID:
+        return Response({"error": "Missing API_TOKEN_CAKE or TEST_ID"}, status=500)
+
+    # Set the URL for the API endpoint
     url = f'https://api.statuscake.com/v1/uptime/{TEST_ID}'
 
     # Set the headers with the Authorization token
     headers = {
         'Authorization': f'Bearer {API_TOKEN}',
-        'Accept': 'application/json'  # Optional, ensures you get JSON response
+        'Accept': 'application/json'  # Ensures JSON response
     }
 
-    # Make the GET request
-    response = requests.get(url, headers=headers)
+    try:
+        # Make the GET request
+        response = requests.get(url, headers=headers)
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        data = response.json()
-        uptime = data['data']['uptime']
-        print(f"Uptime: {uptime}")
-        return uptime
-    else:
-        print(f"Failed to retrieve data. Status code: {response.status_code}")
-        print(response.text)
-        return None
+        # Check if the request was successful
+        if response.status_code == 200:
+            data = response.json()
+            uptime = data['data']['uptime']
+            return Response({"uptime": uptime}, status=200)
+        else:
+            return Response({"error": f"Failed to retrieve data. Status code: {response.status_code}"}, status=response.status_code)
+
+    except requests.RequestException as e:
+        return JsonResponse({"error": str(e)}, status=500)

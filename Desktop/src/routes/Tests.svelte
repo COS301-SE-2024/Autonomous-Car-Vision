@@ -17,11 +17,17 @@
     
 
     onMount(async () => {
-        HOST_IP = await getHostIp();
+        HOST_IP = await window.electronAPI.getHostIp();
         console.log(HOST_IP);
 
         // request up uptime
-        uptime = await requestUptime();
+        uptime = await window.electronAPI.requestUptime();
+        uptime = uptime.uptime;
+        console.log(uptime);
+
+        // get test data
+        testResults = await window.electronAPI.getTestData();
+        console.log(testResults);
     });
 
     function Test1() {
@@ -47,7 +53,7 @@
     <div class="user-list text-black-lightText">
         <div class="headerLight text-xl items-center text-center">
             <h2>Tests for Privacy and Security</h2>
-            <p>The server has been running for: [time here]{uptime}</p>
+            <p>The server has been running for: {uptime}%</p>
         </div>
         <div class="bg-highVizLight grid grid-cols-1  h-full w-full gap-3 py-2 ">
             <Button on:click={() => Test1()}>Perfomance</Button>
