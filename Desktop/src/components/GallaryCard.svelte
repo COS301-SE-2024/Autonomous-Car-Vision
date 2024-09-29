@@ -50,7 +50,8 @@
 }
 
     await window.electronAPI.downloadToClient(aip, aport, videoName, uid, size, token, videoSource);
-    
+
+    await window.electronAPI.downloadVideo(videoName, videoSource);
     // move the video to the download folder
     let currentFilePath = videoName;
     console.log("Current File Path: ", currentFilePath);

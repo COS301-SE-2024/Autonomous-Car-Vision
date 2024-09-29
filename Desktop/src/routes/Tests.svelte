@@ -5,11 +5,25 @@
     import Spinner from "../components/Spinner.svelte";
     import { createEventDispatcher } from 'svelte';
     import {theme} from '../stores/themeStore';
+    import { onMount } from 'svelte';
 
     let uptime= "";
     let loading = true;
     let runTest = "   ..  ";
     const dispatch = createEventDispatcher();
+    let testResults = [];
+
+    let HOST_IP = ""
+    
+
+    onMount(async () => {
+        HOST_IP = await getHostIp();
+        console.log(HOST_IP);
+
+        // request up uptime
+        uptime = await requestUptime();
+    });
+
     function Test1() {
         runTest = "Test 1";
         console.log("Test 1");

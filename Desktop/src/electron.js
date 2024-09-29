@@ -1403,3 +1403,16 @@ ipcMain.handle('get-auth-url', async () => {
         });
     });
   });
+
+  ipcMain.handle('request-uptime', async (event) => {
+    return new Promise((resolve, reject) => {
+        //TODO: request uptime from the database with uid and an axios post
+        axios.get('http://' + HOST_IP + ':8000/requestUptime/')
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+  });
