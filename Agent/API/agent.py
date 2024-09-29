@@ -157,7 +157,7 @@ async def install():
         print(server_ecdh)
         return {"message": "success"}
 
-
+@app.get("/findOpenPort")
 def findOpenPort():
     port = 8002
     
