@@ -7,9 +7,11 @@
     "start": "yarn run rollup -c -w & electron .",
     "build": "rollup -c && electron-builder",
     "rebuild": "electron-rebuild -f -w bcrypt",
-    "test": "vitest run",
+    "test": "vitest run & playwright test",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:report": "vitest --ui & playwright show-report",
+    "playwright" : "playwright test",
+    "playwright:report": "playwright show-report"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-svelte": "^0.3.14",
