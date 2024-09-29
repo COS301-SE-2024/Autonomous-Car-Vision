@@ -514,11 +514,12 @@ def main(pipestring):
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
-                observerToken = pipe.dataToken.get_processing_result('observerUnit')
-                breaking = observerToken['breaking']
-                handbreak = observerToken['handBreak']
-                control.brake = breaking
-                control.hand_brake = handbreak
+                if  pipe.dataToken.get_flag("hasObserverData"):
+                    observerToken = pipe.dataToken.get_processing_result('observerUnit')
+                    breaking = observerToken['breaking']
+                    handbreak = observerToken['handBreak']
+                    control.brake = breaking
+                    control.hand_brake = handbreak
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
