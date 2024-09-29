@@ -35,14 +35,13 @@ actor_list = []
 model = YOLO('./models/yolov8n.pt')
 
 follow_lane = False
+lane_active = False
 
 
 def get_keyboard_control(vehicle):
     # Toggle lane following with Q
     global follow_lane
-    if keys[pygame.K_q]:
-        follow_lane = not follow_lane
-        
+    control = carla.VehicleControl()
     if not follow_lane:
         keys = pygame.key.get_pressed()
         control = carla.VehicleControl()
@@ -53,6 +52,8 @@ def get_keyboard_control(vehicle):
     else:
         control.throttle = 0.3
     
+    if keys[pygame.K_q] and lane_active:
+        follow_lane = not follow_lane
     return control
 
 
@@ -409,7 +410,8 @@ def create_directory_and_move_files(output_frames):
     print(f"Files moved to: {save_directory}")
 
 # Example usage:
-def main():
+def main(pipestring):
+    global lane_active
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
@@ -451,10 +453,14 @@ def main():
 
         # Timer for the drive
         start_time = time.time()
+        
+        # If pipestrign contains 'laneUnit', set lane_active to True
+        if 'laneUnit' in pipestring:
+            lane_active = True
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
-            pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,outputUnit.all")
+            pipe = bobTheBuilder.build_pipeline(pipestring)
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -534,6 +540,12 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
+        if len(sys.argv) > 1:
+            pipe_argument = sys.argv[1]
+        else:
+            print("No pipe argument provided. Exiting...")
+            sys.exit(1)
+            
+        main(pipe_argument)
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')

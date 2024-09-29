@@ -52,6 +52,11 @@
             ]
         },
         {
+            name: "Start CARLA",
+            route: "#/startCarla",
+            iconPath: mdiCar,
+        },
+        {
             name: "Visualizer",
             route: "#/visualize",
             iconPath: mdiEyeRefresh,

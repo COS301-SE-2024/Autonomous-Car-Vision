@@ -398,7 +398,7 @@ def create_directory_and_move_files(output_frames):
     print(f"Files moved to: {save_directory}")
 
 # Example usage:
-def main():
+def main(pipe_string):
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
@@ -443,7 +443,7 @@ def main():
 
         # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
-            pipe = bobTheBuilder.build_pipeline("inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnit")
+            pipe = bobTheBuilder.build_pipeline(pipe_string)
             while True:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

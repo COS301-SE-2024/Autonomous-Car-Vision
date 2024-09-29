@@ -70,6 +70,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getFileSize: (filePath) => ipcRenderer.invoke('get-file-size', filePath),
     savePipeJson: async (jsonString) => { const result = await ipcRenderer.invoke('save-pipe-json', jsonString);  return result;},
     runPythonScript2: (scriptPath, args = []) => ipcRenderer.invoke('run-python-script2', scriptPath, args),
+    getPipeJson: () => ipcRenderer.invoke('get-pipe-json'),
 
     // Optional: Listen for the script completion event
 
