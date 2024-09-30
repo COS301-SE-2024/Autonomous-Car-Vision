@@ -1,6 +1,6 @@
 ; -- NSIS script for FastAPI application --
 
-!define APPNAME "MyFastAPIApp"
+!define APPNAME "HighVizAgent"
 !define APPVERSION "1.0"
 !define INSTALLDIR "$PROGRAMFILES64\${APPNAME}"
 

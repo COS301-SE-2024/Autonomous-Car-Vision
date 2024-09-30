@@ -98,7 +98,7 @@
             </div>
             <div class="bg-highVizDark grid grid-cols-1 gap-3 py-2 text-white">
                 <Button on:click={PerformanceTest}>Perfomance</Button>
-                <Button on:click={SecurityTest}>Security</Button>
+                <!-- <Button on:click={SecurityTest}>Security</Button> -->
             </div>
             <div class="results-container">
                 {#if performanceTestStarted}
@@ -106,31 +106,29 @@
                         <Spinner />
                     </div>
                 {:else}
-                    <div class="py-4">
-                        <h1 class="text-4xl font-bold text-center">Performance Test</h1>
-                        <div class="flex flex-row justify-between py-4">
-                            <div class="text-2xl font-bold">
-                                <h1>Number of Tests</h1>
-                                <h1>{Object.keys(testResults.data || {}).length}</h1>
-                            </div>
-                            <table class="table-auto w-full">
-                                <thead>
-                                    <tr>
-                                        <th>Endpoints</th>
-                                        <th>Result (seconds)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {#each Object.entries(testResults.data || {}) as [endpoint, result]}
-                                        <tr>
-                                            <td>{endpoint}</td>
-                                            <td>{result.toFixed(5)}</td>
-                                        </tr>
-                                    {/each}
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="py-4">
+                    <h1 class="text-4xl font-bold text-center">Performance Test</h1>
+                    <div class="flex flex-row justify-between text-2xl font-bold">
+                        <h1>Number of Tests</h1>
+                        <h1>{Object.keys(testResults.data || {}).length}</h1>
                     </div>
+                    <table class="table-auto w-full">
+                        <thead>
+                            <tr>
+                                <th>Endpoints</th>
+                                <th>Result (seconds)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each Object.entries(testResults.data || {}) as [endpoint, result]}
+                                <tr>
+                                    <td>{endpoint}</td>
+                                    <td>{result.toFixed(5)}</td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
                 {/if}
             </div>
         </div>
@@ -150,7 +148,7 @@
         text-align: center;
     }
     .results-container {
-        border: 2px solid #ddd;
+        border: 2px solid inherit;
         border-radius: 8px;
         padding: 20px;
         overflow-x: auto;
@@ -163,10 +161,7 @@
     th,
     td {
         padding: 12px;
-        border: 1px solid #ddd;
+        border: 1px solid inherit;
         text-align: left;
-    }
-    th {
-        background-color: #f9f9f9;
     }
 </style>

@@ -101,6 +101,16 @@ def linux():
     filepath = "./package/HighViz-1.0.0.AppImage"
     return FileResponse(filepath, filename="HighViz.AppImage")
 
+@app.get("/requirements")
+def requirements():
+    filepath = "./package/requirements.txt"
+    return FileResponse(filepath, filename="requirements.txt")
+
+@app.get("/testVid")
+def testVid():
+    filepath = "./package/testVidCarla.mp4"
+    return FileResponse(filepath, filename="testVidCarla.mp4")
+
 @app.post("/test")
 async def test(request: Request):
     message = await request.json()

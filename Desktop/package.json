@@ -1,6 +1,8 @@
 {
-  "name": "your-project-name",
-  "version": "1.0.0",
+  "name": "HighViz",
+  "version": "3.0.0",
+  "author": "Bitforge Team bitforge.capstone@gmail.com",
+  "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
   "scripts": {
@@ -91,7 +93,7 @@
   },
   "packageManager": "yarn@4.4.1",
   "build": {
-    "appId": "com.Bitforge.High-Viz",
+    "appId": "com.Bitforge.HighViz",
     "files": [
       "public/build/**/*",
       "src/**/*",
