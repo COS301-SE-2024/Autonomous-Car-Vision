@@ -1457,14 +1457,16 @@ def follow_lane(out_image, filtered_results, original, previous_left_id=None, pr
         out_image, vertical_line, right_diagonal, left_diagonal = get_angle_lines(out_image)
         out_image, in_lane, left_intersections, middle_intersections, right_intersections = find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
 
+        image_copy = original.copy()
+
         if in_lane:
             print("The vehicle is in the lane.")
 
         steer = analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
         
-        cv2.putText(out_image, f'Steer: {steer:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image_copy, f'Steer: {steer:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-        return out_image, mask, steer, previous_left_id, previous_right_id
+        return image_copy, mask, steer, previous_left_id, previous_right_id
     else:
         steer = 0
         print("Take manual control of the vehicle.")
