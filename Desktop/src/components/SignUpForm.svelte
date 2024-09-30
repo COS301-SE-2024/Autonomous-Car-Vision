@@ -23,9 +23,6 @@
   });
 
   const onSubmit = async () => {
-    console.log("Sign-up");
-    console.log(eToken);
-    console.log(pToken);
     if (pToken !== ppToken) {
       alert("Passwords do not match");
       return;
@@ -48,10 +45,8 @@
       });
       window.electronAPI.storeUid(JSON.stringify(response.data.uid));
       window.electronAPI.storeUemail(eToken);
-      //! FIX to push to otp
       window.electronAPI.storePrevPath("/signup");
       push("/otp");
-      // push("/join")
     } catch (error) {
       console.error("Sign-up Failed:", error);
     }
@@ -63,7 +58,6 @@
 {#if $theme === 'highVizLight'}
   <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClassLight">
-      <!-- <MaterialApp> -->
         <div class="flex flex-row ">
           <a
             class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
@@ -140,7 +134,6 @@
             block>Sign up</Button
           >
         </div>
-      <!-- </MaterialApp> -->
       </div>
   </div>
   {:else}

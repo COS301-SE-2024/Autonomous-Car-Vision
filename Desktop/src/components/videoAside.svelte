@@ -3,7 +3,7 @@
   import { Avatar } from "svelte-materialify";
   import { get } from "svelte/store";
   import QuantamLoader from "./QuantamLoader.svelte";
-  import {theme} from '../stores/themeStore';
+  import { theme } from "../stores/themeStore";
 
   import {
     loadState,
@@ -12,10 +12,10 @@
     videoUrl,
     remoteProcessingQueue,
   } from "../stores/processing";
-  import { each } from "svelte/internal";
 
   export let AIinfo;
 
+  let processingVideo = false;
   let currrentVideoUrl;
   let mounting = true;
   let remoteProcessingQueueList = [];
@@ -61,7 +61,7 @@
   });
 </script>
 
-{#if $theme === 'highVizLight'}
+{#if $theme === "highVizLight"}
   <div class="component">
     <div class="flex flex-row justify-between items-center text-black">
       <Avatar size="42px">
@@ -75,12 +75,6 @@
           {AIinfo.mTime}
         </p>
       </div>
-      <!-- <div
-            class="flex flex-col justify-center items-center flex-nowrap"
-            style="aspect-ratio: 16/9"
-          >
-            <QuantamLoader />
-          </div> -->
       {#if mounting == false}
         {#if AIinfo.mURL != currrentVideoUrl}
           {#if remoteProcessingQueueList.includes(AIinfo.mURL)}
@@ -91,8 +85,9 @@
               <QuantamLoader />
             </div>
           {:else}
-            <button class="rounded border viewButtonLight" on:click={selectVideo}
-              >View</button
+            <button
+              class="rounded border viewButtonLight"
+              on:click={selectVideo}>View</button
             >
           {/if}
         {:else}
@@ -155,8 +150,6 @@
   </div>
 {/if}
 
-
-
 <style>
   a:hover {
     text-decoration: underline;
@@ -190,7 +183,6 @@
     padding: 0.3rem;
   }
 
-
   .viewButtonLight {
     background-color: #0f6173c6;
     padding: 0.3rem;
@@ -201,6 +193,6 @@
   }
 
   .viewButtonLight:hover {
-    background-color: #007ACC;
+    background-color: #007acc;
   }
 </style>
