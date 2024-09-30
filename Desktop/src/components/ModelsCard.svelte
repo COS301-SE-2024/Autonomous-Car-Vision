@@ -98,8 +98,6 @@
     console.log("handleClick for " + Model.mName);
   };
 
-
-
 </script>
 
 {#if $theme === 'highVizLight'}

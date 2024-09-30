@@ -2,10 +2,8 @@
   import { onMount } from "svelte";
   import { VideoURL, OriginalVideoURL } from "../stores/video";
   import { originalVideoURL } from "../stores/processing";
-  import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
-  import { mdiDownload, mdiPlayCircle } from "@mdi/js";
-  import { Icon, Tooltip } from "svelte-materialify";
+  import { Tooltip } from "svelte-materialify";
   import {theme} from '../stores/themeStore';
 
   export let videoSource;
@@ -13,7 +11,7 @@
   export let listType;
 
   let isGalLoading = false;
-  let firstFrameURL = "";
+  let firstFrameURL = "https://www.solidbackgrounds.com/images/1920x1080/1920x1080-gray-solid-color-background.jpg";
 
   let showTooltip = false;
   let processed = false;

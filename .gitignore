@@ -10,6 +10,7 @@ ModelsVenv
 .pnp.*
 .yarnrc.yml
 package-lock.json
+dist
 
 # Python specific
 *.py[cod]
