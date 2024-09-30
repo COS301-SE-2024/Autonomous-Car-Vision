@@ -39,7 +39,7 @@ class laneUnit(Unit):
             return self.next_unit.process(data_token)
         return data_token
 
-    def filter_detections(results, model, image):
+    def filter_detections(self, results, model, image):
         height, width, channels = image.shape
         out_image = np.zeros((height, width, channels), dtype=np.uint8)
         filtered_results = []  
