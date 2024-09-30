@@ -13,7 +13,7 @@
   export let models = [];
   export let selectedModelName;
 
-  let localSelcted = "server";
+  let localSelcted = "local";
 
   const dispatch = createEventDispatcher();
 
@@ -37,7 +37,7 @@
     if (event.target.value === "local") {
       local = true;
     } else {
-      local = false;
+      local = true;
     }
     localProcess.set(local);
   }
@@ -75,6 +75,7 @@
         </select>
         {#if hasCuda}
           <select
+            style="visibility: hidden"
             on:change={handleLocalChange}
             bind:value={localSelcted}
             class="mt-2 p-2 border rounded bg-highVizLight-secondary text-white"
