@@ -55,6 +55,12 @@
       operation: "infusr",
     },
     {
+      type: "Taggr",
+      label: "Taggr",
+      bgColor: "blue",
+      operation: "taggr",
+    },
+    {
       type: "Observer",
       label: "Observer",
       bgColor: "red",
@@ -167,6 +173,7 @@
     });
 
     encoder();
+
   }
 
   async function LoadCanvas() {
@@ -266,6 +273,7 @@
     let hasYoloUnit = false;
     let hasInfusrUnit = false;
     let hasTaggrUnit = false;
+    let hasObserverUnit = false;
     if (
       tokens[0] !== "inputUnit" ||
       tokens[tokens.length - 1] !== "outputUnit"
@@ -290,6 +298,14 @@
           return false;
         }
         hasTaggrUnit = true;
+      } else if (token === "observerUnit") {
+        if (!hasInfusrUnit) {
+          toast.error(
+            "Error: taggrUnit must come after both a yoloUnit and an infusrUnit.",
+          );
+          return false;
+        }
+        hasObserverUnit = true;
       }
     }
 
@@ -307,13 +323,15 @@
     const pipe = generatePipeString($edges);
 
     const units = pipe.split(",").map((unit) => unit.replace(/^N-/, ""));
-
+    
     if (units[0] !== "inputUnit" || units[units.length - 1] !== "outputUnit") {
+      console.log("Units: ", units)
       toast.error(
         "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
       );
       savedCanvas = null;
-      return;
+      console.log(pipe);
+      return pipe;
     }
 
     const intermediateUnits = units.slice(1, -1);
@@ -330,6 +348,15 @@
         }
         if (node.label.includes("Segmentation")) {
           return "yoloUnit.yolov8n-seg"; // JUST USING v8n for this example
+        }
+        if(node.label.includes("Infusr")) {
+          return "infusrUnit"
+        }
+        if(node.label.includes("Taggr")) {
+          return "taggrUnit"
+        }
+        if(node.label.includes("Observer")) {
+          return "observerUnit"
         }
         if (node.label.includes("High-Viz v1")) {
           return "HV1";
