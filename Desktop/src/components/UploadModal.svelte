@@ -128,8 +128,8 @@
                     response2.error,
                 );
             }
-            console.log("TESTING SAVE BEFORE PUSHING SUPPOSED TO HAPPEN");
 
+            showModal = false;
             push("/gallery");
         } catch (error) {
             console.error("Error occurred:", error);

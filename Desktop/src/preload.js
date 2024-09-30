@@ -84,4 +84,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getHostIp: () => ipcRenderer.invoke('get-host-ip'),
   requestUptime: () => ipcRenderer.invoke('request-uptime'),
   getTestData: () => ipcRenderer.invoke('get-test-data'),
+  platform: process.platform,
+  getBaseDirectory: async () => await ipcRenderer.invoke('get-base-directory'),
 });
