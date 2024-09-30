@@ -47,12 +47,12 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
 - **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
 - **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
-- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
 - **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/1MB6OK7jjborCSFkLn0f7uH25fGZXDtmf/view?usp=sharing>)
 
 ## Other Documents
 - **API Contracts:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
 - **AI Design Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
+- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
 
 ## Project Management
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
