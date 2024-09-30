@@ -20,8 +20,12 @@ class laneUnit(Unit):
         image = data_token.get_sensor_data('camera')
         output = data_token.get_processing_result('laneUnit')
         
-        previous_left_id = output.get('previous_left_id', None)
-        previous_right_id = output.get('previous_right_id', None)
+        if (output):
+            previous_left_id = output.get('previous_left_id', None)
+            previous_right_id = output.get('previous_right_id', None)
+        else:
+            previous_left_id = None
+            previous_right_id = None
         
         res, output = self.start_following(image, previous_left_id, previous_right_id)
 
