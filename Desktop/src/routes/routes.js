@@ -13,7 +13,6 @@ import ModelPage from './Models.svelte'
 import VideoPage from './video/[videoUrl]/+page.svelte'
 import Drives from './drives/[videoUrl]/+page.svelte'
 import DriveGallery from './DriveGallery.svelte'
-import ThreeJS from './ThreeJS.svelte'
 import Join from './Join.svelte'
 import NewTeam from './NewTeam.svelte'
 import Invite from './Invite.svelte'
@@ -22,6 +21,7 @@ import TeamView from './TeamView.svelte'
 import TeamNetwork from './TeamNetwork.svelte'
 import StartCarla from './StartCarla.svelte'
 import Svelvet from './Svelvet.svelte'
+import Tests from './Tests.svelte'
 
 const routes = {
     '/': Home,
@@ -37,7 +37,6 @@ const routes = {
     '/help': Help,
     '/drive/:driveurl': Drives,
     '/drivegallery': DriveGallery,
-    '/threejs': ThreeJS,
     '/join': Join,
     '/newTeam': NewTeam,
     '/invite': Invite,
@@ -46,6 +45,7 @@ const routes = {
     '/teamNetwork': TeamNetwork,
     '/svelvet': Svelvet,
     '/startCarla': StartCarla,
+    '/tests': Tests
 };
 
 export default routes;

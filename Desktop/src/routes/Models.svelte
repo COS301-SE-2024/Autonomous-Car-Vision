@@ -60,16 +60,16 @@
             >
             {#each Models as Model, key}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <div on:click={() => selectModel(Model)}>
+            <div on:click={() => selectedModel.set(Model)}>
               <ModelsCard {Model} {key} />
               </div>
             {/each}
 
         </div>
-        {#if selected}
+        {#if $selectedModel}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <div class="model-content-overlay rounded-lg" on:click={closeModelContent()}>
-              <ModelsCardContent {selected} />
+          <div class="model-content-overlay rounded-lg" on:click ={() =>selectedModel.set(null)}>
+              <ModelsCardContent Model={$selectedModel} />
           </div>
         {/if}
 
@@ -83,9 +83,9 @@
     position: fixed;
     top: 11%;
     left: 18%;
-    background-image: linear-gradient(180deg, #001524, #181818);
     z-index: 1000;
     width: 125vh;
     height: 77vh;
+    border-radius: 25px;
   }
 </style>

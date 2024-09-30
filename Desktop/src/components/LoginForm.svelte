@@ -4,7 +4,7 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import {theme} from '../stores/themeStore';
-
+  import { onMount } from "svelte";
   // Loading screen imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
@@ -15,11 +15,15 @@
   let sString = "";
   let show = false;
   let uid = 0;
+  let HOST_IP;
+  onMount(async () => {
+     HOST_IP = await window.electronAPI.getHostIp();
+  });
 
   const onSubmitUsername = async () => {
     window.electronAPI.storeUemail(nToken);
     try {
-      const response = await axios.post("http://localhost:8000/getSalt/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/getSalt/", {
         uemail: nToken,
       });
       uid = response.data.uid;
@@ -42,7 +46,7 @@
         sString
       );
 
-      const response = await axios.post("http://localhost:8000/signin/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/signin/", {
         uid: uid,
         password: hash,
       });

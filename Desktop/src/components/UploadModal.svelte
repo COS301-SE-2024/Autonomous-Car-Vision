@@ -2,7 +2,6 @@
     import Dropzone from "svelte-file-dropzone";
     import { location } from "svelte-spa-router";
     import toast, { Toaster } from "svelte-french-toast";
-    import { onMount } from "svelte";
     import { isUploadLoading } from "../stores/uploadLoading";
     import RingLoader from "./RingLoader.svelte";
     import { Button, Icon } from "svelte-materialify";

@@ -18,10 +18,13 @@ import shutil
 import json
 from dotenv import load_dotenv
 import base64
+import netifaces
 
 load_dotenv()
 app = FastAPI()
 RUN_ONCE_FILE = "run_once_flag.txt"
+
+HOST_IP = os.getenv("HOST_IP")
 
 
 @app.get("/")
@@ -57,13 +60,14 @@ def getHardwareInfo():
 
 @app.on_event("startup")
 async def startup_event():
-    if not os.path.exists(RUN_ONCE_FILE):
-        await install()
-        # TODO Run initial setup
-        with open(RUN_ONCE_FILE, "w") as file:
-            file.write("This file indicates the one-time function has run.")
-    else:
-        print("One-time setup function has already run, skipping.")
+    # if not os.path.exists(RUN_ONCE_FILE):
+    #     await install()
+    #     # TODO Run initial setup
+    #     with open(RUN_ONCE_FILE, "w") as file:
+    #         file.write("This file indicates the one-time function has run.")
+    # else:
+    #     print("One-time setup function has already run, skipping.")
+    await install()
 
 
 # TODO TEST
@@ -71,7 +75,7 @@ async def startup_event():
 async def install():
     async with httpx.AsyncClient() as client:
         # # get my agent details
-        # response = await client.get('http://127.0.0.1:8006/agent')
+        # response = await client.get('http://' + HOST_IP + ':8006/agent')
         # if response.status_code != 200:
         #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
         # print("Response:", response.json())
@@ -95,7 +99,7 @@ async def install():
         }
         print("JSON data for encryption:", data_to_encrypt)
 
-        test = os.getenv("PUBLIC")
+        test = os.getenv("PUBLIC_TEST")
         test = base64.b64decode(test)
 
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
@@ -103,7 +107,7 @@ async def install():
 
         # Transmit the encrypted data
         response2 = await client.post(
-            "http://127.0.0.1:8006/test",
+            "http://" + HOST_IP + ":8006/test",
             json={"aid": os.getenv("AID"), "message": encrypted_message},
         )
         if response2.status_code != 200:
@@ -121,21 +125,29 @@ async def install():
         # TODO persist your own pem files and the server's ecdh key.
         # This simmulates message passing
         session = cerberus.get_session(agent_private, server_ecdh2)
+        capacity = ""
+        if os.getenv("AGENT_TYPE") == "S":
+            capacity = "store"
+        elif os.getenv("AGENT_TYPE") == "P": 
+            capacity = "process"
+        else:
+            capacity = "dual"       
+            
         message = cerberus.elyptic_encryptor(
             session,
             json.dumps(
                 {
-                    "aip": "127.0.0.1",
+                    "aip": findOpenPort()[0],  # This will now be the public IP
                     "aport": 8010,
-                    "capacity": "dual",
+                    "capacity": capacity,
                     "storage": 290.4,
                     "identifier": "ACDC",
                 }
             ),
         )
         response3 = await client.post(
-            "http://127.0.0.1:8006/handshake",
-            json={"aid": os.getenv("AID"), "message": message},
+            "http://" + HOST_IP + ":8006/handshake",
+            json={"aid": os.getenv("AID"), "corporation": os.getenv("CORPORATION_NAME"), "message": message},
         )
         if response3.status_code != 200:
             raise HTTPException(
@@ -148,15 +160,26 @@ async def install():
 
 def findOpenPort():
     port = 8002
-    ip = "127.0.0.1"
-    # ip = socket.gethostbyname(socket.gethostname())
+    
+    # Try to get the public IP address
+    try:
+        ip = requests.get('https://api.ipify.org').text.strip()
+        print(f"Public IP address: {ip}")
+    except Exception as e:
+        print(f"Error getting public IP: {e}")
+        # If we can't get the public IP, we'll use a placeholder
+        ip = '0.0.0.0'
+        print("Using placeholder IP: 0.0.0.0")
+    
+    # Find an open port
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            result = s.connect_ex((ip, port))
+            result = s.connect_ex(('localhost', port))
             if result == 0:
                 port += 1
             else:
                 break
+    
     return ip, port
 
 
@@ -181,8 +204,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 data = json.loads(data)
                 print(f"DATA: {data}")
 
-                uid = data.get("uid")
-                mid = data.get["mid"]
+                uid = data["uid"]
+                mid = data["mid"]
                 size = data["size"]
                 token = data["token"]
                 command = data["command"]
@@ -194,8 +217,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                 print(f"Connected by {addr}")
 
                 if command == "SEND":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break
@@ -211,8 +234,8 @@ def startFTP(ip, port, old_uid, old_size, old_token):
                     print(f"File {filename} received and saved to {filepath}")
 
                 elif command == "RETR":
-                    filename = receive_until_null(conn)
-                    print(f"File name: {filename}")
+                    filename = receive_until_null(conn).strip('"').strip("'")
+                    print(f"Received filename: '{filename}'")
 
                     if not filename:
                         break
@@ -239,11 +262,11 @@ async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request)
     ip, port = findOpenPort()
     body = await request.json()
     print(f"Body: \n{body}")
-    aid = "STUMPED"
+    aid = os.getenv("AID")
     size = "STUMPED"
     utoken = "STUMPED"
     backgroundTasks.add_task(startFTP, ip, port, aid, size, utoken)
-    return {"aip": ip, "aport": port}
+    return {"aip": ip, "aport": port, "aid": aid}
 
 
 @app.post("/process/")

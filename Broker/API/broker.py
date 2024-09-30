@@ -12,8 +12,14 @@ import subprocess
 import charon
 import media
 import base64
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
+
+HOST_IP = os.getenv("HOST_IP")
 
 
 @app.get("/")
@@ -48,7 +54,7 @@ async def simStore():
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 28, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 28, "aport": 8001, "aip": HOST_IP}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}
@@ -59,10 +65,6 @@ async def simStore():
 async def process(request: Request):
     message = await request.json()
     print("Message: ---------> ", message)
-
-
-
-
 
 @app.get("/agent")
 def agent():
@@ -78,16 +80,16 @@ def agent():
     public = response["public"]
 
     public = base64.b64encode(public).decode("utf-8")
-
     # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
-        f.write(f"PUBLIC={public}")
+        f.write(f"PUBLIC_TEST={public}\n")
+        f.write(f"HOST_IP=206.189.188.197")
 
-    # subprocess.run(["makensis", "./package/setup.nsi"])
+    subprocess.run(["makensis", "./package/setup.nsi"])
 
     filePath = "./package/MyFastAPIAppSetup.exe"
-    return FileResponse(filePath, filename="MyFastAPIAppSetup.exe")
+    return FileResponse(filePath, filename="AgentSetup.exe")
 
 @app.get("/windows")
 def windows():
@@ -98,6 +100,16 @@ def windows():
 def linux():
     filepath = "./package/HighViz-1.0.0.AppImage"
     return FileResponse(filepath, filename="HighViz.AppImage")
+
+@app.get("/requirements")
+def requirements():
+    filepath = "./package/requirements.txt"
+    return FileResponse(filepath, filename="requirements.txt")
+
+@app.get("/testVid")
+def testVid():
+    filepath = "./package/testVidCarla.mp4"
+    return FileResponse(filepath, filename="testVidCarla.mp4")
 
 @app.post("/test")
 async def test(request: Request):
@@ -137,7 +149,7 @@ async def handshake(request: Request):
     sesion = charon.get_session(server_ecdh, agent_ecdh)
     decrypted_message = charon.elyptic_decryptor(sesion, message["message"])
     print(decrypted_message)
-    resp = media.registerAgent(decrypted_message, message["aid"])
+    resp = media.registerAgent(decrypted_message, message["aid"], message["corporation"])
     print(resp)
     return resp
 
@@ -148,7 +160,7 @@ async def brokerStore(request: Request):
     message = await request.json()
     print(">>>BrokerStore initiated", message)
     print("Getting available agents")
-    agents = media.get_avail_store_agents(message['size'])
+    agents = media.get_avail_store_agents(message['size'], message['corporation'])
     print("avail agents: ", agents)
     avail = None
     for agent in agents:
@@ -156,7 +168,7 @@ async def brokerStore(request: Request):
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 1, "aport": 8001, "aip": "127.0.0.1"}
+        avail = {"aid": 1, "aport": 8001, "aip": "localhost", "corporation": "dev"}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}
@@ -175,4 +187,6 @@ async def brokerStore(request: Request):
     emessage = charon.elyptic_encryptor(sesion, json.dumps(message_to_encrypt))
     print("Encrypted message: ", emessage)
     tranmit = await charon.transmit(avail["aip"], avail["aport"], emessage)
+    # add aid to tranmit
+    print("Transmission to agent: ", tranmit)
     return {"error": "Transmission to agent failed."} if not tranmit else tranmit

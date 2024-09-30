@@ -16,7 +16,10 @@
         mdiChevronUp,
         mdiChevronDown,
         mdiPipeDisconnected,
+        mdiSecurity,
     } from "@mdi/js";
+    import axios from "axios";
+    import CryptoJS from 'crypto-js';
 
     import ThemeToggler from "./ThemeToggler.svelte";
     import {theme } from "../stores/themeStore";
@@ -26,31 +29,41 @@
 
     export let width;
 
-    let username = "Username";
-    let name = "User Name";
-    let profileImg =
-        "https://media.contentapi.ea.com/content/dam/ea/f1/f1-23/common/articles/patch-note-v109/pj-f123-bel-w01-rus.jpg.adapt.1456w.jpg";
+    let username = "";
+    let name = "";
+    let profileImg = "";
 
     let showAccountPopup = false;
     let showTeamDropdown = false; 
 
+    let HOST_IP;
+
     let routes = [
         {
+            id: "extend-teams",
             name: "Team",
             iconPath: mdiAccountGroup,
             subRoutes: [  // Subroutes for the Team dropdown
                 {
+                    id: "go-to-teams-view",
                     name: "Team View",
                     route: "#/teamView",
                     iconPath: mdiAccountCheckOutline,
                 },
                 {
+                    id: "go-to-teams-network",
                     name: "Team Network",
                     route: "#/teamNetwork",
                     iconPath: mdiLanPending,
                 },
             ]
         },
+//         {
+//             id: "go-to-visualizer",
+//             name: "Visualizer",
+//             route: "#/visualize",
+//             iconPath: mdiEyeRefresh,
+//         },
         {
             name: "Start CARLA",
             route: "#/startCarla",
@@ -62,26 +75,31 @@
             iconPath: mdiEyeRefresh,
         },
         {
+            id: "go-to-drive-gallery",
             name: "Drive Gallery",
             route: "#/drivegallery",
             iconPath: mdiCar,
         },
         {
+            id: "go-to-pipes",
             name: "Pipes",
             route: "#/svelvet",
             iconPath: mdiPipeDisconnected,
         },
         {
+            id: "go-to-gallery",
             name: "Gallery",
             route: "#/gallery",
             iconPath: mdiViewGallery,
         },
         {
+            id: "go-to-models",
             name: "Models",
             route: "#/models",
             iconPath: mdiCloudPrintOutline,
         },
         {
+             id: "go-to-help",
             name: "Help",
             route: "#/help",
             iconPath: mdiHelpCircle,
@@ -90,11 +108,22 @@
 
     const accountPopupItems = [
         {
+            id: "go-to-tests",
+            name: "Privacy & Security",
+            route: "#/tests",
+            iconPath: mdiSecurity,
+        },
+        {
+            id: "go-to-account-settings",
             name: "Account settings",
             route: "#/accountsettings",
             iconPath: mdiAccountCog,
         },
-        { name: "Log out", route: "#/", iconPath: mdiLogout },
+        { 
+            id: "go-to-logout",
+            name: "Log out", 
+            route: "#/", 
+            iconPath: mdiLogout },
     ];
 
     function toggleAccountPopup() {
@@ -122,8 +151,33 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
+         HOST_IP = await window.electronAPI.getHostIp();
         document.addEventListener("click", handleClickOutside);
+
+        // Get user data with uid
+        axios
+            .post("http://" + HOST_IP + ":8000/getUserData/", {
+                uid: window.electronAPI.getUid(),
+            })
+            .then(async (response) => {
+                username = response.data.uname;
+                name = response.data.uemail;
+                    
+                let profileEmail = response.data.uemail;
+                profileEmail = profileEmail.trim().toLowerCase();
+                // const emailHash = profileEmail;
+
+                
+                const emailHash = CryptoJS.SHA256(profileEmail);
+                profileImg = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
+                console.log(profileImg);
+            })
+            .catch((error) => {
+                console.error("Error fetching user data:", error);
+                // Set a default image in case of error
+                profileImg = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=retro";
+            });
 
         return () => {
             document.removeEventListener("click", handleClickOutside);
@@ -135,13 +189,12 @@
 <div
     class="sidebarV2Light h-full w-auto text-black flex flex-col justify-end"
 >
-    <ThemeToggler />
     {#each routes as route}
         <div class="nav-itemLight {'#' + $location === route.route ? 'activeLight' : ''}">
             {#if route.subRoutes}
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <div class="w-full opacity-50 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
-                    <Icon path={route.iconPath} />
+                    <Icon path={route.iconPath} id={route.id}/>
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
@@ -150,16 +203,16 @@
                     <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
                 </div>
             {:else}
-            <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+            <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
                 <div class="flex justify-start gap-2 items-center">
-                    <Icon path={route.iconPath} />
+                    <Icon path={route.iconPath} id={route.id}/>
                     {#if width >= 150}
                         <span class="ml-2">
                             {route.name}
                         </span>
                     {/if}
                     {#if route.subRoutes}
-                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                        <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
                     {/if}
                 </div>
             </a>
@@ -225,31 +278,30 @@
 <div
 class="sidebarV2 h-full w-auto bg-theme-dark-background text-white flex flex-col justify-end"
 >
-<ThemeToggler />
 {#each routes as route}
     <div class="nav-item {'#' + $location === route.route ? 'active' : ''}">
         {#if route.subRoutes}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="w-full opacity-70 flex justify-start gap-2 items-center cursor-pointer" on:click={toggleTeamDropdown}>
-                <Icon path={route.iconPath} />
+                <Icon path={route.iconPath} id={route.id}/>
                 {#if width >= 150}
                     <span class="ml-2">
                         {route.name}
                     </span>
                 {/if}
-                <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
             </div>
         {:else}
-        <a class="w-full" href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
+        <a class="w-full" id={route.id} href={route.route} on:click={route.subRoutes ? toggleTeamDropdown : undefined}>
             <div class="flex justify-start gap-2 items-center">
-                <Icon path={route.iconPath} />
+                <Icon path={route.iconPath} id={route.id}/>
                 {#if width >= 150}
                     <span class="ml-2">
                         {route.name}
                     </span>
                 {/if}
                 {#if route.subRoutes}
-                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} />
+                    <Icon path={showTeamDropdown ? mdiChevronUp : mdiChevronDown} id={route.id}/>
                 {/if}
             </div>
         </a>

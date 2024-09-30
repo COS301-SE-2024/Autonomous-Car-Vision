@@ -39,8 +39,8 @@ test('does not display "Details here..." link when "isDownloaded" is false', () 
 
     try{
           render(gallaryComponent, { props: { isDownloaded: false } });
-  const detailsLink = screen.queryByText('Details here...');
-  expect(detailsLink).not.toBeInTheDocument();
+    const detailsLink = screen.queryByText('Details here...');
+    expect(detailsLink).not.toBeInTheDocument();
     }
     catch(e){
         console.error("error occured", e);

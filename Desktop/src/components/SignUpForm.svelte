@@ -4,6 +4,7 @@
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import {theme } from "../stores/themeStore";
+  import { onMount } from "svelte";
 
   function handleEnterdown(e) {
     if (e.key == "Enter") {
@@ -16,19 +17,25 @@
   let pToken = "";
   let ppToken = "";
 
+  let HOST_IP;
+  onMount(async () => {
+     HOST_IP = await window.electronAPI.getHostIp();
+  });
+
   const onSubmit = async () => {
-    console.log("Sign-up");
-    console.log(eToken);
-    console.log(pToken);
     if (pToken !== ppToken) {
       alert("Passwords do not match");
+      return;
+    }
+    if(pToken.length == 0){
+      alert("Password cannot be empty");
       return;
     }
     
     //! NEED TO MOVE SOON
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
-      const response = await axios.post("http://localhost:8000/signup/", {
+      const response = await axios.post("http://" + HOST_IP + ":8000/signup/", {
         uname: nToken,
         uemail: eToken,
         password: hash,
@@ -38,10 +45,8 @@
       });
       window.electronAPI.storeUid(JSON.stringify(response.data.uid));
       window.electronAPI.storeUemail(eToken);
-      //! FIX to push to otp
       window.electronAPI.storePrevPath("/signup");
       push("/otp");
-      // push("/join")
     } catch (error) {
       console.error("Sign-up Failed:", error);
     }
@@ -53,7 +58,6 @@
 {#if $theme === 'highVizLight'}
   <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClassLight">
-      <!-- <MaterialApp> -->
         <div class="flex flex-row ">
           <a
             class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
@@ -130,7 +134,6 @@
             block>Sign up</Button
           >
         </div>
-      <!-- </MaterialApp> -->
       </div>
   </div>
   {:else}

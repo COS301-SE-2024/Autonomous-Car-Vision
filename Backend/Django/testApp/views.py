@@ -1,9 +1,12 @@
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
+from django.http import JsonResponse
 from django.shortcuts import render
+import psycopg2
 import requests
 from rest_framework import viewsets
+
 from .serializers import (
     TokenCorporationSerializer,
     TokenSerializer,
@@ -23,11 +26,16 @@ import random
 import string
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 import smtplib
 from dotenv import load_dotenv
+import requests
+import time
+import concurrent.futures
 
 load_dotenv()
+
+HOST_IP = os.getenv("HOST_IP")
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -187,7 +195,12 @@ def signup(request):
     data = request.data
     salt = data["salt"]
     hashed_password = data["password"]
-    uid = random.randint(0, 999999999)
+    # check if uid is in request
+    uid = 0
+    if "uid" in data:
+        uid = data["uid"]
+    else:    
+        uid = random.randint(0, 9999999999)
     user_data = {
         "uid": uid,
         "uname": data["uname"],
@@ -746,13 +759,22 @@ def uploadFile(request):
 
     if dataToken.token != utoken:
         return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = User.objects.get(uid=uid)
+    cid = user.cid.cname
+    
+    # corporation = Corporation.objects.get(cid=cid)
+    
+    print("Corporation: ", cid) 
 
     size = data.get("size")
-    message = {"size": size, "uid": uid, "utoken": utoken}
+    message = {"size": size, "uid": uid, "utoken": utoken, "corporation": cid}
+    
+    print("CORPORATION: ", cid)
 
     print(message)
 
-    url = "http://localhost:8006/brokerStore"
+    url = "http://" + HOST_IP + ":8006/brokerStore"
     response = requests.post(url, json=message)
     data = response.json()
     print(response.status_code)
@@ -976,6 +998,9 @@ def send_invite_email(request):
     emails = data.get("newMembers")
     teamName = data.get("teamName")
     
+    print("Team name: ", teamName)
+    print("Emails: ", emails)
+    
     if not emails or not teamName:
         return Response(
             {"error": "Emails and team name are required"}, status=status.HTTP_400_BAD_REQUEST
@@ -1007,12 +1032,12 @@ def send_invite_email(request):
         return Response(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-        
+    
 def send_invite(teamName, email, token):
     from_email = "bitforge.capstone@gmail.com"
     from_password = os.getenv("APP_PASSWORD")
     subject = "Join our team!"
-    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://localhost:8000/download \n\n Use the following token to join the team: {token}"
+    body = f"Hello, you have been invited to join {teamName} on our platform. Please sign up and join us! \n\n Download the app here: http://" + HOST_IP + ":8000/download \n\n Use the following token to join the team: " + token
     message = MIMEMultipart()
     message["From"] = from_email
     message["To"] = email
@@ -1029,3 +1054,533 @@ def send_invite(teamName, email, token):
         print("Email sent successfully")
     except Exception as e:
         print(f"Failed to send email: {str(e)}")
+  
+@api_view(["POST"])
+@permission_classes([AllowAny])        
+def getTeamName(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    print("UID: ", uid)    
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        print("Team ID: ", teamID)
+        # teamName = Corporation.objects.get(cid=teamID).cname
+        teamName = teamID.cname
+        print("Team Name: ", teamName)
+        return Response(
+            {"teamName": teamName}, status=status.HTTP_200_OK
+        )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])        
+def getTeamMembers(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        teamMembers = User.objects.filter(cid=teamID)
+        
+        for member in teamMembers:
+            print("Member " + str(member.uid))
+        # return each member's name, email, and admin statusw
+        users = []
+        for member in teamMembers:
+            users.append({
+                "uid": member.uid,
+                "uname": member.uname,
+                "uemail": member.uemail,
+                "is_admin": member.is_admin,
+                "last_signin": member.last_signin.strftime("%H:%M:%S %d-%m-%Y") if member.last_signin else "Never signed in"
+            })
+        return Response(
+            {"teamMembers": users}, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(["POST"])        
+@permission_classes([AllowAny])
+def removeMember(request):
+    data = request.data
+    uid = data.get("uid")
+    memberUID = data.get("memberUid")
+    
+    print(data)
+    
+    if not uid or not memberUID:
+        return Response(
+            {"error": "UID and member ID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+      
+    #! Put back soon    
+    if(uid == memberUID):
+        return Response(
+            {"error": "Cannot remove yourself"}, status=status.HTTP_400_BAD_REQUEST)    
+    
+    try:
+        user = User.objects.get(uid=uid)
+        teamID = user.cid
+        member = User.objects.get(uid=memberUID)
+        print(member.uemail)
+        tokenCorporation = TokenCorporation.objects.get(email=member.uemail)
+        print(tokenCorporation.email)
+        
+        if member.cid == teamID:
+            member.delete()
+            tokenCorporation.delete()
+            return Response(
+                {"message": "Member removed successfully"}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": "Member not in team"}, status=status.HTTP_400_BAD_REQUEST
+            )
+    except User.DoesNotExist:
+        return Response(
+            {"error": "Invalid UID or member ID"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def userExists(request):
+    data = request.data
+    email = data.get("email")
+    
+    print("Running userExists")
+    
+    if not email:
+        return Response(
+            {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(uemail=email).exists():
+        # return team name too
+        user = User.objects.get(uemail=email)
+        teamID = user.cid
+        teamName = teamID.cname
+        return Response(
+            {"exists": True, "teamName": teamName}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"exists": False}, status=status.HTTP_200_OK
+        )   
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def addUser(request):
+    data = request.data
+    uid = data.get("uid")
+    uname = data.get("uname")
+    uemail = data.get("uemail")
+    cid = data.get("cid")
+    is_admin = data.get("is_admin")
+    
+    if not uid or not uname or not uemail or not cid:
+        return Response(
+            {"error": "UID, name, email, and team ID are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if User.objects.filter(uid=uid).exists():
+        return Response(
+            {"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        user_data = {
+            "uid": uid,
+            "uname": uname,
+            "uemail": uemail,
+            "cid": cid,
+            "is_admin": is_admin
+        }
+        
+        user_serializer = UserSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response(user_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCorporationUsers(request):
+    data = request.data
+    cid = data.get("cid")
+    
+    if not cid:
+        return Response(
+            {"error": "Team ID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if Corporation.objects.filter(cid=cid).exists():
+        users = User.objects.filter(cid=cid)
+        user_data = []
+        for user in users:
+            user_data.append({
+                "uid": user.uid,
+                "uname": user.uname,
+                "uemail": user.uemail,
+                "is_admin": user.is_admin
+            })
+        return Response(
+            {"users": user_data}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND
+        )  
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCorporationUsersID(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    cid = User.objects.get(uid=uid).cid.cid
+    
+    if Corporation.objects.filter(cid=cid).exists():
+        users = User.objects.filter(cid=cid)
+        user_data = []
+        for user in users:
+            user_data.append({
+                "uid": user.uid,
+                "uname": user.uname,
+                "uemail": user.uemail,
+                "is_admin": user.is_admin
+            })
+        return Response(
+            {"users": user_data}, status=status.HTTP_200_OK
+        )
+    else:
+        return Response(
+            {"error": "Team not found"}, status=status.HTTP_404_NOT_FOUND
+        )            
+        
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def storeToken(request):
+    data = request.data
+    uid = data.get("uid")
+    token = data.get("token")
+    
+    if not uid or not token:
+        return Response(
+            {"error": "UID and token are required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    print("Storing token")
+    
+    token_data = {"uid": uid, "token": token}
+    try:
+        token_entry = Token.objects.get(uid=uid)
+        token_entry.token = token
+        token_entry.save()
+        return Response(
+            {"message": "Token updated successfully"}, status=status.HTTP_200_OK
+        )
+    except Token.DoesNotExist:
+        token_serializer = TokenSerializer(data=token_data)
+        if token_serializer.is_valid():
+            token_serializer.save()
+            return Response(token_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getAllAgentsForUser(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    media = Media.objects.filter(uid=uid)
+    serializer = MediaSerializer(media, many=True)
+    
+    return Response(
+        {"agents": serializer.data}, status=status.HTTP_200_OK
+    )    
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getCID(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    cname = User.objects.get(uid=uid).cid.cname
+    cid = Corporation.objects.get(cname=cname).cid
+    
+    return Response(
+        {"cid": cid}, status=status.HTTP_200_OK
+    )        
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getUserData(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user = User.objects.get(uid=uid)
+    serializer = UserSerializer(user)
+    
+    return Response(
+        serializer.data, status=status.HTTP_200_OK
+    )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getLastSignin(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = User.objects.get(uid=uid)
+    last_signin = user.last_signin
+    
+    return Response(
+        {"last_signin": last_signin}, status=status.HTTP_200_OK
+    )
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def updateLastSignin(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    user.last_signin = datetime.now()
+    user.save()
+    
+    return Response(
+        {"message": "Last signin updated successfully"}, status=status.HTTP_200_OK
+    )
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getAgentUserConnections(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    agents = user.agents.all()
+    users = user.users.all()
+    
+    return Response(
+        {"agents": agents, "users": users}, status=status.HTTP_200_OK
+    )
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def getUserAgentConnections(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    agents = user.agents.all()
+    users = user.users.all()
+    
+    return Response(
+        {"agents": agents, "users": users}, status=status.HTTP_200_OK
+    )
+    
+def send_request_hvstat():
+    url = "http://206.189.188.197:8000/hvstat/"
+    # data = {"uid": "1234567890"}
+    response = requests.get(url)
+    # return response.json()
+
+def send_request_verifyOTP():
+    url = "http://206.189.188.197:8000/verifyOTP/"
+    data = {"uid": "1234567890", "otp": "123456"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_otpRegenerate():
+    url = "http://206.189.188.197:8000/otpRegenerate/"
+    data = {"uid": "1234567890", "uemail": "test@test.com"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_getAgentUserConnections():
+    url = "http://206.189.188.197:8000/getAgentUserConnections/"
+    data = {"uid": "1"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_getSalt():
+    url = "http://206.189.188.197:8000/getSalt/"
+    data = {"uemail": "test@test.com"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_signin():
+    url = "http://206.189.188.197:8000/signin/"
+    data = {"uid": "1", "password": "password", "uemail": "dev@gmail.com"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_signout():
+    url = "http://206.189.188.197:8000/signout/"
+    data = {"uid": "1"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def send_request_devLogin():
+    url = "http://206.189.188.197:8000/devLogin/"
+    data = {"uid": "1", "password": "password", "uemail": "dev@gmail.com"}
+    response = requests.post(url, data=data)
+    # return response.json()
+    
+def send_request_findOpenPort():
+    url = "http://206.189.188.197:8010/findOpenPort/"
+    response = requests.get(url)
+    # return response.json()
+    
+def send_request_test():
+    url = "http://206.189.188.197:8006/test/"
+    data = {"message": "hello"}
+    response = requests.post(url, data=data)
+    # return response.json()
+    
+def send_request_simStore():
+    url = "http://206.189.188.197:8010/simStore/"
+    response = requests.post(url)
+    # return response.json()
+
+def send_request_getUserData():
+    url = "http://206.189.188.197:8000/getUserData/"
+    data = {"uid": "1"}
+    response = requests.post(url, data=data)
+    # return response.json()
+
+def run_stress_test(num_requests, functions):
+    for i in functions:
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+            futures = [executor.submit(i) for _ in range(num_requests)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+            
+        end_time = time.time()
+        print("Average time taken for ", i.__name__, ": ", (end_time - start_time)/num_requests)   
+        
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def getTestData(request):
+    num_requests = 100
+    
+    functions = [send_request_hvstat, send_request_verifyOTP, send_request_otpRegenerate, send_request_getAgentUserConnections, send_request_getSalt, send_request_signin, send_request_signout, send_request_devLogin, send_request_test, send_request_getUserData]
+    
+    data = {}
+    for i in functions:
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
+            futures = [executor.submit(i) for _ in range(num_requests)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+            
+        end_time = time.time()
+        print("Average time taken for ", i.__name__, ": ", (end_time - start_time)/num_requests)  
+        data[i.__name__] = (end_time - start_time)/num_requests
+                 
+    print("Data: ", data)             
+    return Response(
+        {"data": data}, status=status.HTTP_200_OK
+    )
+        
+     
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def requestUptime(request):  # Accept the 'request' argument
+    # Retrieve environment variables
+    API_TOKEN = os.getenv("API_TOKEN_CAKE")
+    TEST_ID = os.getenv("TEST_ID")
+
+    if not API_TOKEN or not TEST_ID:
+        return Response({"error": "Missing API_TOKEN_CAKE or TEST_ID"}, status=500)
+
+    # Set the URL for the API endpoint
+    url = f'https://api.statuscake.com/v1/uptime/{TEST_ID}'
+
+    # Set the headers with the Authorization token
+    headers = {
+        'Authorization': f'Bearer {API_TOKEN}',
+        'Accept': 'application/json'  # Ensures JSON response
+    }
+
+    try:
+        # Make the GET request
+        response = requests.get(url, headers=headers)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            data = response.json()
+            uptime = data['data']['uptime']
+            return Response({"uptime": uptime}, status=200)
+        else:
+            return Response({"error": f"Failed to retrieve data. Status code: {response.status_code}"}, status=response.status_code)
+
+    except requests.RequestException as e:
+        return JsonResponse({"error": str(e)}, status=500)

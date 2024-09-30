@@ -7,6 +7,7 @@
   import Spinner from "../components/Spinner.svelte";
   import { Icon } from "svelte-materialify";
   import { mdiViewList, mdiViewGrid } from "@mdi/js";
+  import { theme } from "../stores/themeStore";
 
   let data = null;
   let directoryPath = "";
@@ -74,7 +75,7 @@
       } else {
         const searchRegex = new RegExp(searchQuery, "i");
         return videoURLs.filter((url) =>
-          searchRegex.test(videoURLToNameMap[url])
+          searchRegex.test(videoURLToNameMap[url]),
         );
       }
     });
@@ -85,12 +86,12 @@
       let sortedItems;
       if (sortCategory === "Name") {
         sortedItems = [...items].sort((a, b) =>
-          videoURLToNameMap[a].localeCompare(videoURLToNameMap[b])
+          videoURLToNameMap[a].localeCompare(videoURLToNameMap[b]),
         );
       } else if (sortCategory === "Date") {
         // Assume date info is available and parse appropriately
         sortedItems = [...items].sort(
-          (a, b) => videoURLToNameMap[b].date - videoURLToNameMap[a].date
+          (a, b) => videoURLToNameMap[b].date - videoURLToNameMap[a].date,
         );
       } else {
         sortedItems = items;
@@ -114,6 +115,88 @@
   {#if $isLoading}
     <div class="flex justify-center w-full">
       <Spinner />
+    </div>
+  {:else if $theme === "highVizLight"}
+    <div class="items-center text-black">
+      <div>
+        <div class="flex justify-start gap-2 items-center w-full mb-4 p-4">
+          <div class="Card-Or-List rounded-md flex">
+            <button
+              on:click={() => handleListTypeChange("grid")}
+              class={listType === "grid"
+                ? "text-dark-secondary"
+                : "text-dark-primary"}
+            >
+              <Icon path={mdiViewGrid} size="30" />
+            </button>
+            <button
+              on:click={() => handleListTypeChange("list")}
+              class={listType === "list"
+                ? "text-dark-secondary"
+                : "text-dark-primary"}
+            >
+              <Icon path={mdiViewList} size="30" />
+            </button>
+          </div>
+          <input
+            type="text"
+            placeholder="Search..."
+            on:input={handleSearch}
+            class="bg-theme-dark-white text-black rounded-lg border-2 border-theme-dark-secondary p-2 w-5/6 border-solid text-lg"
+          />
+          <button
+            class="bg-dark-secondary p-1 rounded-full text-sm"
+            on:click={openDirectory}>Select Directory</button
+          >
+          {#if directoryPath}
+            <p class="text-black">Selected Directory: {directoryPath}</p>
+          {/if}
+        </div>
+        {#if listType === "grid"}
+          {#if $filteredItems.length > 0}
+            <div
+              class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
+            >
+              {#each $filteredItems as url}
+                <DriveCard
+                  {listType}
+                  videoSource={url}
+                  videoName={videoURLToNameMap[url]}
+                />
+              {/each}
+            </div>
+          {:else if directoryPath}
+            <div
+              class="shadow-card-blue justify-center place-items-center self-center relative overflow-hidden rounded-lg p-2 w-10/12 shadow-theme-keith-accenttwo m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+            >
+              <h3 class="text-center justify-center">
+                No results for your search. Please try a different term.
+              </h3>
+            </div>
+          {/if}
+        {:else}
+          <div class="grid grid-cols-1 gap-4">
+            {#each $filteredItems as url}
+              <DriveCard
+                {listType}
+                videoSource={url}
+                videoName={videoURLToNameMap[url]}
+              />
+            {/each}
+          </div>
+        {/if}
+        {#if !directoryPath}
+          <div class="flex flex-col justify-center items-center">
+            <h1 class="text-3xl">
+              Please select a Drive directory before proceeding
+            </h1>
+            <button
+              class="bg-dark-secondary p-2 rounded-full text-lg w-4/12"
+              on:click={openDirectory}>Select Directory</button
+            >
+          </div>
+        {/if}
+      </div>
     </div>
   {:else}
     <div class="items-center text-white">
