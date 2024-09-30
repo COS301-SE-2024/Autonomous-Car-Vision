@@ -79,7 +79,7 @@ class laneUnit(Unit):
 
         return out_image, filtered_results
 
-    def get_lines(filtered_results, image):
+    def get_lines(self, filtered_results, image):
         output_image = image.copy()  # Create a copy of the original image to draw on
         lines = []  # Array to store the lines as objects (start_point, end_point, tracking_id)
 
