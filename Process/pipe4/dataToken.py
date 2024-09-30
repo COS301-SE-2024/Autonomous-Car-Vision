@@ -1,16 +1,18 @@
 import numpy as np
 
+
 class DataToken:
     def __init__(self, sensors):
         self.sensors = sensors
         self.sensor_data = {}  # Dictionary to hold sensor data
         self.processing_results = {}  # Dictionary to hold processing results
-        self.flags = {'has_lidar_data':False, 'has_tagger_data': False}  # Dictionary to hold flags
+        self.flags = {'has_lidar_data': False, 'has_tagger_data': False,
+                      'hasObserverData': False}  # Dictionary to hold flags
 
     def add_sensor_data(self, sensor_name, data):
         if sensor_name not in self.sensors:
             raise ValueError(f"Sensor {sensor_name} is not registered in the pipeline.")
-        
+
         self.sensor_data[sensor_name] = data
         # self.flags[f'has_{sensor_name}_data'] = True  # Set flag when data is added
 

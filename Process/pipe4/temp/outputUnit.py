@@ -58,13 +58,14 @@ class outputUnit(Unit):
                 if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
                     min_distances[bbox_index] = min_distance
 
-        if (self.bb or self.all):
+        if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
             for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
                 
+                if min_distances and min_distances[i] is not None:
                 if min_distances[i] is not None:
                     text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)

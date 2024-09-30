@@ -1129,7 +1129,7 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
         // Ensure the 'pipes' directory exists
         const pipesDirectory = path.join(baseDirectory, 'pipes');
         if (!fs.existsSync(pipesDirectory)) {
-            fs.mkdirSync(pipesDirectory, {recursive: true});
+            fs.mkdirSync(pipesDirectory, { recursive: true });
         }
 
         // File path for the pipes.json
@@ -1139,21 +1139,68 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
         let existingData = [];
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf-8');
-            existingData = JSON.parse(fileContent);
+            
+            // Parse the content and ensure it is an array
+            try {
+                const parsedData = JSON.parse(fileContent);
+                if (Array.isArray(parsedData)) {
+                    existingData = parsedData; // If it's an array, use it
+                } else {
+                    console.warn('Existing data is not an array, initializing as empty array');
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
         }
 
         // Append the new JSON data
-        existingData.push(JSON.parse(jsonString));
+        const newEntry = JSON.parse(jsonString);
+        existingData.push(newEntry); // Now safe because we ensured it's an array
 
         // Write the updated data back to the file
         fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), 'utf-8');
 
-        return {success: true, message: 'JSON data saved successfully!'};
+        return { success: true, message: 'JSON data saved successfully!' };
     } catch (error) {
         console.error('Error saving JSON data:', error);
-        return {success: false, message: 'Failed to save JSON data.'};
+        return { success: false, message: 'Failed to save JSON data.' };
     }
 });
+
+ipcMain.handle('get-pipe-json', async (event) => {
+    try {
+        // Determine the base directory based on the operating system
+        let baseDirectory;
+        const platform = os.platform();
+        if (platform === 'win32') {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
+        } else if (platform === 'linux') {
+            baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
+        } else {
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); // Default to Windows for unsupported OS
+        }
+
+        // File path for the pipes.json
+        const pipesDirectory = path.join(baseDirectory, 'pipes');
+        const filePath = path.join(pipesDirectory, 'pipes.json');
+
+        // Check if the pipes.json file exists
+        if (!fs.existsSync(filePath)) {
+            return { success: true, data: [], message: 'No data found.' };
+        }
+
+        // Read and parse the JSON data
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const jsonData = JSON.parse(fileContent);
+
+        // Return the JSON data as an array
+        return { success: true, data: jsonData, message: 'Data retrieved successfully!' };
+    } catch (error) {
+        console.error('Error getting JSON data:', error);
+        return { success: false, message: 'Failed to retrieve JSON data.' };
+    }
+});
+
 ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
     return new Promise((resolve, reject) => {
         const pythonProcess = spawn('python', [scriptPath, ...args]);
