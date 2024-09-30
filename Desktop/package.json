@@ -1,15 +1,22 @@
 {
-  "name": "your-project-name",
-  "version": "1.0.0",
+  "name": "HighViz",
+  "version": "3.0.0",
+  "author": {
+    "email": "bitforge.capstone@gmail.com"
+  },
+  "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
   "scripts": {
     "start": "yarn run rollup -c -w & electron .",
     "build": "rollup -c && electron-builder",
     "rebuild": "electron-rebuild -f -w bcrypt",
-    "test": "vitest run",
+    "test": "vitest run & playwright test",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:report": "vitest --ui & playwright show-report",
+    "playwright": "playwright test",
+    "playwright:report": "playwright show-report",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-svelte": "^0.3.14",
@@ -31,7 +38,9 @@
     "babylonjs": "^7.20.1",
     "baffle": "^0.3.6",
     "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
+    "dotenv": "^16.4.5",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",
     "express": "^4.19.2",
@@ -40,6 +49,8 @@
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.3",
+    "google-auth-library": "^9.14.1",
+    "googleapis": "^144.0.0",
     "lottie-web": "^5.12.2",
     "mime": "^4.0.4",
     "node-gyp": "8.4.0",
@@ -51,6 +62,7 @@
     "rollup-plugin-svelte": "^7.0.0",
     "sass": "^1.77.6",
     "sequelize": "^6.37.3",
+    "shepherd.js": "^13.0.3",
     "sqlite3": "^5.1.7",
     "svelte": "^3.0.0",
     "svelte-file-dropzone": "^2.0.7",
@@ -60,33 +72,39 @@
     "svelte-spa-router": "^4.0.1",
     "svelte-toast": "^1.0.0",
     "svelte-toasts": "^1.1.2",
-    "svelvet": "^10.0.2",
+    "svelvet": "^10.0.0",
     "svrollbar": "^0.12.0",
     "tailwindcss": "^2.0.0",
     "three": "^0.167.1",
     "vitest": "^1.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.47.2",
     "@rollup/plugin-json": "^6.1.0",
     "@testing-library/svelte": "^5.2.0",
     "@vitest/ui": "^1.6.0",
     "babel-jest": "^27.0.0",
-    "electron": "^31.3.1",
+    "daisyui": "^4.12.10",
+    "electron": "^31.0.0",
     "electron-builder": "^24.13.3",
     "electron-rebuild": "^3.2.9",
     "ffmpeg": "^0.0.4",
     "jest": "^27.0.0",
+    "playwright": "^1.47.2",
     "rollup-plugin-node-builtins": "^2.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "svelte-jester": "^1.0.0"
   },
-  "packageManager": "yarn@4.3.1",
+  "packageManager": "yarn@4.4.1",
   "build": {
-    "appId": "com.Bitforge.High-Viz",
+    "appId": "com.Bitforge.HighViz",
     "files": [
+      "public/images",
       "public/build/**/*",
-      "src/**/*",
-      "public/index.html"
+      "src/*",
+      "public/index.html",
+      ".env",
+      "../Process"
     ],
     "win": {
       "target": [

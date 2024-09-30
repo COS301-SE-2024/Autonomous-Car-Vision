@@ -3,7 +3,7 @@ import os
 import json
 import sys
 
-def receive_file(ip, port, filename, uid, size, token, mid):
+def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
     print("File name: ", filename)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -22,6 +22,7 @@ def receive_file(ip, port, filename, uid, size, token, mid):
         filepath = "./" + filename
         s.sendall(filename.encode() + b"\0")
 
+        # move the file to the videoDestination
         with open(filepath, "wb") as f:
             print(f"Receiving file {filename}...")
             while True:
@@ -30,10 +31,13 @@ def receive_file(ip, port, filename, uid, size, token, mid):
                     break;
                 f.write(data)
         print(f"File {filename} received and saved to {filepath}")
+        
+        # move the file to the videoDestination
+        os.rename(filepath, videoDestination)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 9:
         print("Usage: python script.py <ip> <port> <filepath> <uid> <size> <token> <mid>")
         sys.exit(1)
 
@@ -44,7 +48,9 @@ if __name__ == "__main__":
     size = sys.argv[5]
     token = sys.argv[6]
     mid = sys.argv[7]
+    videoDestination = sys.argv[8]
     
-    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid}")
+    print(f"{ip} {port} {filepath} {uid} {size} {token} {mid} {videoDestination}")
     
-    receive_file(ip, port, filepath, uid, size, token, mid)
+    receive_file(ip, port, filepath, uid, size, token, mid, videoDestination)
+

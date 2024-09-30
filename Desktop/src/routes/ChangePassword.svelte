@@ -15,6 +15,8 @@
   let confirmPassword = "";
   let passwordsMatch = true;
 
+  let HOST_IP;
+
   function checkPasswordsMatch() {
     passwordsMatch = newPassword === confirmPassword;
   }
@@ -25,16 +27,14 @@
     let uid = 0;
     if (passwordsMatch) {
       try {
-        const response = await axios.post("http://localhost:8000/getSalt/", {
+        const response = await axios.post("http://" + HOST_IP + ":8000/getSalt/", {
           uemail: window.electronAPI.getUemail(),
         });
-        console.log("Salt and UID retrieved:", response.data);
 
         uid = response.data.uid;
         window.electronAPI.storeUid(uid);
         sString = response.data.salt;
       } catch (error) {
-        console.error("Failed to retrieve salt and UID:", error);
         return;
       }
 
@@ -49,12 +49,8 @@
           sString
         );
 
-        console.log("Hashed Passwords:", hashOld, hashNew);
-        console.log("UID:", uid);
-        console.log("Token:", window.electronAPI.getToken());
-
         const response = await axios.post(
-          "http://localhost:8000/changePassword/",
+          "http://" + HOST_IP + ":8000/changePassword/",
           {
             uid: window.electronAPI.getUid(),
             old_password: hashOld,
@@ -62,7 +58,6 @@
             token: window.electronAPI.getToken(),
           }
         );
-        console.log("Password Changed:", response.data);
 
         if (response.data.status === "200") {
           toast.success("Password changed successfully!", {
@@ -84,8 +79,9 @@
   };
 
   // For loading screen purposes
-  onMount(() => {
+  onMount(async () => {
     isLoading.set(true);
+    HOST_IP = await window.electronAPI.getHostIp();
     const firstInput = document.querySelector("#oldPassword");
     if (firstInput) {
       firstInput.focus();
@@ -103,58 +99,60 @@
     </div>
   {:else}
     <Toaster />
-    <div class="flex flex-col items-center justify-center min-h-screen">
+    <div class="flex text-white flex-col items-center justify-center min-h-screen shadow-lg background-card">
       <div
-        class="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg w-1/2 border border-theme-keith-accentone space-y-3"
+        class="flex flex-col items-center justify-center p-4 rounded-lg shadow w-1/2 border space-y-3"
       >
         <h2
-          class="text-2xl font-bold mb-4 text-center text-theme-keith-accentone"
+          class="text-2xl font-bold mb-4 text-center "
         >
           Change Password
         </h2>
 
         <!-- Old Password -->
         <div class="mb-4 w-1/2">
-          <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
+          <!-- <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
             >Old Password</label
-          >
+          > -->
           <TextField
             id="oldPassword"
             type="password"
             bind:value={oldPassword}
-            class="w-full p-2 border border-green rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          > Old Password</TextField>
         </div>
 
         <!-- New Password -->
         <div class="mb-4 w-1/2">
-          <label for="newPassword" class="block text-theme-keith-accentone mb-1"
+          <!-- <label for="newPassword" class="block text-theme-keith-accentone mb-1"
             >New Password</label
-          >
+          > -->
           <TextField
             id="newPassword"
             type="password"
             bind:value={newPassword}
-            class="w-full p-2 border border--theme-keith-accentone rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          > New Password</TextField>
         </div>
 
         <!-- Confirm New Password -->
         <div class="mb-4 w-1/2">
-          <label
+          <!-- <label
             for="confirmPassword"
             class="block text-theme-keith-accentone mb-1"
-            >Confirm New Password</label
-          >
+            >Confirm New Password</label > -->
           <TextField
             id="confirmPassword"
             type="password"
             bind:value={confirmPassword}
             on:input={checkPasswordsMatch}
-            class="w-full p-2 border border--theme-keith-accentone rounded"
-          />
+            outlined
+            class="w-full pt-2  border-b border-dark-primary"
+          >Confirm New Password</TextField>
           {#if !passwordsMatch}
-            <p class="text-theme-keith-highlight mt-1">
+            <p class="text-red mt-1">
               The passwords do not match
             </p>
           {/if}
@@ -175,3 +173,7 @@
     </div>
   {/if}
 </ProtectedRoutes>
+
+<style>
+
+</style>

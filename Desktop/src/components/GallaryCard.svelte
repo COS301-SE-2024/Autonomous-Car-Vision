@@ -7,6 +7,7 @@
   import axios from "axios";
   import { mdiDownload, mdiPlayCircle } from "@mdi/js";
   import { Icon, Tooltip } from "svelte-materialify";
+  import {theme } from "../stores/themeStore";
 
   export let videoSource;
   export let videoName;
@@ -34,11 +35,8 @@
 
     try {
     let response = await window.electronAPI.openFTP(uid, token, size, "FAKENAME", "FAKEURL", "RETR");
-    console.log("Response: ", response);
     
     if (response.success) {
-        console.log("IP:", response.ip);
-        console.log("Port:", response.port);
         aip = response.ip;
         aport = response.port;
     } else {
@@ -48,36 +46,19 @@
     console.error("Error calling openFTP:", error);
 }
 
+    await window.electronAPI.downloadToClient(aip, aport, videoName, uid, size, token, videoSource);
 
-    await window.electronAPI.downloadToClient(aip, aport, VideoName, uid, size, token);
-    
+    await window.electronAPI.downloadVideo(videoName, videoSource);
     // move the video to the download folder
-    let currentFilePath = VideoName;
-    console.log("Current File Path: ", currentFilePath);
-    console.log("videoSource: ", VideoSource);
-
-    await window.electronAPI.moveVideo(currentFilePath, VideoName);
-
-    // try {
-    //   const response = await window.electronAPI.downloadVideo(
-    //     VideoName,
-    //     VideoSource
-    //   );
-    //   console.log(response.success, response.filePath);
-    // } catch (error) {}
-    // setTimeout(() => {
-    //   // isDownloading.set(false);
-    // }, 1000);
-      isDownloading = false;
+    let currentFilePath = videoName;
+ 
+    isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
-
-    console.log("DOWNLOAD BUTTON");
   };
 
   function goToVideo() {
     if (!isDownloaded) return;
-    console.log("Go to video");
     const encodedPath = encodeURIComponent(videoSource);
     VideoURL.set(videoSource);
     OriginalVideoURL.set(videoSource);
@@ -86,13 +67,10 @@
   }
 
   function handleMore() {
-    console.log("More button clicked");
     showMoreModal = true;
-    console.log(videoSource);
   }
 
   function handleBack(event) {
-    console.log("Back button clicked");
     event.stopPropagation(); // Stop event propagation
     showMoreModal = false;
   }
@@ -131,7 +109,6 @@
     captureSpecificFrame(10); // Specify the frame to get
     try {
       processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
-      console.log("Processed:", processed);
     } catch (error) {
       console.error("Error checking if video is processed:", error);
     }
@@ -143,7 +120,6 @@
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
-        console.log(firstFrameURL);
       } catch (error) {}
     }
     setInterval(() => {
@@ -153,18 +129,19 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div
+{#if $theme === 'highVizLight'}
+  <div
   class="{isDownloaded
     ? 'cursor-default'
     : 'notDownloaded'} background-card relative overflow-hidden rounded-lg {listType === 'list' ? 'w-4/6 flex flex-row align-center justify-between' : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
   on:click={goToVideo}
   role="button"
   tabindex="0"
->
+  >
   {#if isGalLoading}
     <div class="flex justify-center items-center h-64">
-      <div class="content-loader flex justify-center h-full w-full">
-         <div class="img-content-loader w-full">
+      <div class="content-loaderLight flex justify-center h-full w-full">
+        <div class="img-content-loaderLight w-full">
           </div>
       </div>
     </div>
@@ -192,7 +169,7 @@
       >
         {#if !isDownloading && !isDownloaded}
           <button
-            class="more text-theme-dark-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
+            class="more text-highVizLight-secondary-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
             on:click={handleDownload}
           >
             <Icon path={mdiDownload} size="24" /></button
@@ -225,13 +202,13 @@
     </div>
     <div class="details p-2">
       <p
-        class="details-link h-12 text-wrap overflow-hidden text-theme-dark-lightText"
+        class="details-link h-12 text-wrap overflow-hidden text-highVizLight-primary-lightText"
       >
         {videoName}
       </p>
       <div id="playbtn">
         <Icon
-          class="text-dark-secondary"
+          class="text-highVizLight-secondary"
           path={mdiPlayCircle}
           size={40}
           on:click={goToVideo}
@@ -239,7 +216,97 @@
       </div>
     </div>
   {/if}
-</div>
+  </div>
+{:else}
+  <div
+  class="{isDownloaded
+    ? 'cursor-default'
+    : 'notDownloaded'} background-card relative overflow-hidden rounded-lg {listType === 'list' ? 'w-4/6 flex flex-row align-center justify-between' : 'w-11/12'} m-2 ml-auto mr-auto transition-all duration-300 ease-in-out"
+  on:click={goToVideo}
+  role="button"
+  tabindex="0"
+  >
+  {#if isGalLoading}
+    <div class="flex justify-center items-center h-64">
+      <div class="content-loader flex justify-center h-full w-full">
+        <div class="img-content-loader w-full">
+          </div>
+      </div>
+    </div>
+  {/if}
+  {#if !isGalLoading}
+    <div class="image-container relative">
+      {#if listType === "grid"}
+        <img
+          src={firstFrameURL}
+          alt="video preview"
+          class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {:else}
+        <img
+        src={firstFrameURL}
+        alt="video preview"
+        class="w-28 object-cover aspect-video rounded-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+        />
+      {/if}
+      <div
+        class="{isDownloaded
+          ? 'hover:block'
+          : 'hover:hidden'} lg:w-4/12 button-container absolute"
+        style="top:40%; left:50%; transform: translate(-50%, 50%);"
+      >
+        {#if !isDownloading && !isDownloaded}
+          <button
+            class="more text-white-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
+            on:click={handleDownload}
+          >
+            <Icon path={mdiDownload} size="24" /></button
+          >
+        {:else if !isDownloaded}
+          <div class="flex justify-center relative -top-4">
+            <RingLoader />
+          </div>
+        {/if}
+      </div>
+      <div class="TT-positioning">
+        <Tooltip left bind:active={showTooltip}>
+          {#if listType === "grid"}
+          <div
+            class="processed-info"
+            style={processed
+              ? "background-color: #1AFF00;"
+              : "background-color: red;"}
+          ></div>
+          {/if}
+          <span slot="tip">
+            {#if processed}
+              Processed
+            {:else}
+              Unprocessed
+            {/if}
+          </span>
+        </Tooltip>
+      </div>
+    </div>
+    <div class="details p-2">
+      <p
+        class="details-link h-12 text-wrap overflow-hidden text-white"
+      >
+        {videoName}
+      </p>
+      <div id="playbtn">
+        <Icon
+          class="text-white"
+          path={mdiPlayCircle}
+          size={40}
+          on:click={goToVideo}
+        />
+      </div>
+    </div>
+  {/if}
+  </div>
+{/if}
+
 
 <style>
   img {
@@ -251,8 +318,21 @@
     animation: pulse 1.5s infinite;
   }
 
+  .content-loaderLight {
+    background-color: #8ec5dd;
+    border-radius: 10px;
+    animation: pulse 1.5s infinite;
+  }
+
   .img-content-loader {
     background-color: #3d3d3d;
+    border-radius: 10px;
+    height: 83.333%;
+    animation: pulse 1.5s infinite;
+  }
+
+  .img-content-loaderLight {
+    background-color: #B6D9E8;
     border-radius: 10px;
     height: 83.333%;
     animation: pulse 1.5s infinite;

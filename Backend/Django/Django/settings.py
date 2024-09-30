@@ -19,7 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+envPath = Path('..') / '..' / '..' / '.env'
 load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -32,8 +34,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['206.189.188.197']
-
+ALLOWED_HOSTS = ['localhost', '206.189.188.197']
 
 # Application definition
 

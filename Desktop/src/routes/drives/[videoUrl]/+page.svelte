@@ -78,12 +78,9 @@
     onMount(async () => {
         videoPath = $location.replace("/drive/", "");
         videoPath = decodeURIComponent(videoPath);
-        console.log(videoPath);
         drive.videourl = videoPath;
-        console.log(drive.videourl);
         videoElement.addEventListener("loadedmetadata", () => {
             drive.length = videoElement.duration;
-            console.log("Video Length: ", drive.length, "seconds");
         });
 
         try {
@@ -91,9 +88,7 @@
                 await window.electronAPI.getDrivesDirectory();
             driveData = await window.electronAPI.readDriveLog(driveDirectory);
             calculateStatistics(driveData);
-            console.log(driveData);
             driveData = driveData[0].data.slice(1);
-            console.log(driveData);
 
             timestamps = driveData.map((entry) => entry.timestamp);
             preprocessTimes = driveData.map((entry) => entry.preprocess_time);

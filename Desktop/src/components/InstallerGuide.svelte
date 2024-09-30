@@ -2,6 +2,8 @@
     import { Button, Icon  } from "svelte-materialify";
     import { mdiEyeOff, mdiEye } from "@mdi/js";
   import { push } from "svelte-spa-router";
+  import {theme } from "../stores/themeStore";
+
 
     let currentStep = 0;
     const steps = [
@@ -82,17 +84,31 @@
     }
     .containerClass{
       background-image: linear-gradient(180deg,#181818, #001524 );
+      border-radius: 22px;
+    }
+    .containerClassLight{
+      background-image: linear-gradient(180deg,#B6D9E8, #F8F8F8);
+      border-radius: 22px;
+    }
+
+    .install-body {
+        min-height: 80vh;
+    }
+
+    .image-style {
+        min-height: 70vh;
     }
 </style>
 
 
-<div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
-    <div class="containerClass text-white items-center justify-center align-center">
+{#if $theme === 'highVizLight'}
+<div class="lg:w-8/12 w-10/12 mx-auto py-4 mb-4 install-body">
+    <div class="containerClassLight text-black items-center justify-center align-center">
         <div class="slide">
             <h2 class="text-xl">{steps[currentStep].step}</h2>
-            <p class="p-2">  {steps[currentStep].context}</p>
-            <div class="content-center"> 
-                <img src={steps[currentStep].img}   alt="{steps[currentStep].step}" class="px-4 self-center " />
+            <p class="p-2 text-lg text-bold">  {steps[currentStep].context}</p>
+            <div class="flex justify-center"> 
+                <img src={steps[currentStep].img} alt="{steps[currentStep].step}" class="self-center image-style" />
             </div>
         </div>
         
@@ -115,4 +131,37 @@
             {/if}
         </div>
     </div>
-</div>  
+</div>
+{:else}
+<div class="lg:w-8/12 w-10/12 mx-auto py-4 mb-4 install-body">
+    <div class="containerClass text-white items-center justify-center align-center">
+        <div class="slide">
+            <h2 class="text-xl">{steps[currentStep].step}</h2>
+            <p class="p text-lg text-bold-2">  {steps[currentStep].context}</p>
+            <div class="flex justify-center"> 
+                <img src={steps[currentStep].img} alt="{steps[currentStep].step}" class="self-center image-style" />
+            </div>
+        </div>
+        
+        <div class="controls p-4">
+            <button class="button bg-theme-dark-primary text-theme-dark-lightText px-4 m-2" on:click={back} disabled={currentStep === 0}>
+                Back
+            </button>
+        
+            {#if currentStep < steps.length - 1}
+                <button class="button bg-theme-dark-primary text-theme-dark-lightText px-4 m-2" on:click={next}>
+                    Next
+                </button>
+            {:else}
+                <button class="button bg-theme-dark-primary text-theme-dark-lightText px-4 m-2" on:click={next}>
+                   <!-- TODO: Just check that it doesn't lead to home but leads to the app -->
+                    <a href="#/gallery"> 
+                        Finish
+                    </a>
+                </button>
+            {/if}
+        </div>
+    </div>
+</div>
+
+{/if}

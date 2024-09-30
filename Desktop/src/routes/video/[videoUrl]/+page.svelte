@@ -5,6 +5,8 @@
 
   import { VideoURL } from "../../../stores/video";
   import { OriginalVideoURL } from "../../../stores/video";
+  import { mdiAccessPoint, mdiDeleteOutline } from "@mdi/js";
+  import { Icon } from "svelte-materialify";
 
   import { onMount } from "svelte";
 
@@ -20,15 +22,13 @@
   } from "../../../stores/processing";
 
   import { isLoading } from "../../../stores/loading";
-  import QuantamLoader from "../../../components/QuantamLoader.svelte";
 
-  import NestedTimeline from "../../../components/NestedTimeline.svelte";
   import ProtectedRoutes from "../../ProtectedRoutes.svelte";
   import ViewVideoComponent from "../../../components/ViewVideoComponent.svelte";
   import DeleteModal from "../../../components/DeleteModal.svelte";
-  import ModelList from "../../../components/ModelList.svelte";
 
   import ProcessPopup from "../../../components/ProcessPopup.svelte";
+  import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
   let showProcessPopup = false;
 
   // TODO: Styling and conditional formatting
@@ -46,6 +46,7 @@
   let extention = "";
   let models = [];
   let selectedModelName = "yolov8n";
+  let dotLottieProcess;
 
   let output = ""; // Store the output of the Python script
   let outputFiles = []; // Store the output files
@@ -86,7 +87,6 @@
       // Fetch the original video details from the database
       let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
 
-      console.log("Original video:", originalVideo);
 
       // If the original video is not found, add it to the database
       if (!originalVideo) {
@@ -97,7 +97,6 @@
           originalVidID: 0, // Original videos have their originalVidID set to 0 or null
         };
         originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
-        console.log("Original video add:", originalVideo);
       }
 
       // Start with the original video
@@ -112,7 +111,7 @@
 
       // Fetch processed videos linked to the original video
       const processedVideos = await window.electronAPI.getProcessedVideos(
-        originalVideo.videoID
+        originalVideo.videoID,
       );
 
       // Add processed videos
@@ -125,7 +124,6 @@
         });
       });
 
-      console.log("Output files:", outputFiles);
     } catch (error) {
       console.error("Error fetching output files:", error);
     }
@@ -147,18 +145,33 @@
     }
   }
 
+  function playLottie(lottie) {
+    lottie?.play();
+  }
+
+  function pauseLottie(lottie) {
+    lottie?.pause();
+  }
+
   onMount(async () => {
     await fetchModels();
     await getVideoDetails();
-    // await getOutputFiles();
     await loadState(); // Load state on mount
-
-    console.log("Test Video URL page: ", get(videoUrl));
-
-    // if (outputFiles.length > 1) {
-    //   showModelList.set(true);
-    // }
-    console.log($location);
+    lottieElement1.addEventListener("mouseenter", () =>
+      playLottie(dotLottieProcess),
+    );
+    lottieElement1.addEventListener("mouseleave", () =>
+      pauseLottie(dotLottieProcess),
+    );
+    return () => {
+      lottieElement1.removeEventListener("mouseenter", () =>
+        playLottie(dotLottieProcess),
+      );
+      lottieElement1.removeEventListener("mouseleave", () =>
+        pauseLottie(dotLottieProcess),
+      );
+      pauseLottie(dotLottieProcess);
+    };
   });
 
   let processed = false; // Check if the video has been processed
@@ -168,8 +181,6 @@
     showProcessPopup = false;
     try {
       await getVideoDetails();
-
-      console.log(isLoading, "isLoading");
 
       const videoDetails = {
         scriptPath,
@@ -181,7 +192,7 @@
 
       setInterval(() => {
         isLoading.set(false);
-      }, 15000);
+      }, 1000);
       showModelList.set(true);
 
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
@@ -192,8 +203,6 @@
       });
 
       await loadState(); // Load state after adding the video to the queue
-
-      console.log("Queued video for processing now:", videoDetails);
 
       // Add processed video information to the database
       const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
@@ -214,7 +223,7 @@
           await window.electronAPI.addVideo(newProcessedVideo);
         } else {
           console.log(
-            "Processed video already exists in the database, video will be reprocessed."
+            "Processed video already exists in the database, video will be reprocessed.",
           );
         }
       } else {
@@ -224,7 +233,6 @@
       output = error.message;
       console.error("Error:", output);
     }
-    console.log("Processing video");
     processed = true;
   }
 
@@ -269,18 +277,24 @@
 
 <ProtectedRoutes>
   <Toaster />
-  <div class="grid grid-cols-5 h-4/5">
-    <div class="col-span-5 h-full">
+  <div class="grid grid-cols-5 h-full">
+    <div class="col-span-5 h-11/12">
       <ViewVideoComponent videoPath={$location} />
-      <div class="flex space-x-4 align-center p-2 bg-theme-dark-backgroundBlue" >
+      <div class="flex space-x-4 align-center p-2">
         <button
-          class="text-white font-medium p-2 h-10 rounded bg-theme-dark-primary hover:bg-theme-dark-highlight"
-          on:click={() => (showProcessPopup = true)}>Process</button
+          class="text-white font-medium p-2 w-28 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
+          on:click={() => (showProcessPopup = true)}
         >
+          <Icon path={mdiAccessPoint} size={28} />
+          Process
+        </button>
         <button
-          class="text-white font-medium p-2 h-10 rounded bg-red hover:bg-red-hover"
-          on:click={deleteItem}>Delete</button
+          class="text-white font-medium p-2 w-28 rounded-full bg-red hover:bg-red-hover"
+          on:click={deleteItem}
         >
+          <Icon path={mdiDeleteOutline} size={28} />
+          Delete
+        </button>
         {#if showDeleteModal}
           <DeleteModal
             on:cancel={handleCancel}
@@ -288,31 +302,6 @@
             {videoPath}
           />
         {/if}
-        <div>
-          <!-- <button
-            class="text-white p-0.5 rounded-full bg-theme-dark-primary hover:bg-theme-dark-highlight"
-            on:click={toggleModelList}
-          >
-            {#if selectedModel}
-              <img
-                src={selectedModel.profileImgURL}
-                alt="Selected Model"
-                class="w-12 h-12 rounded-full"
-              />
-            {:else}
-              <img
-                src={modalDefault}
-                alt="default Model"
-                class="w-12 h-12 rounded-full"
-              />
-            {/if}
-          </button> -->
-          <!-- {#if $showModelList}
-            <ModelList
-              on:select={handleModelSelect}
-            />
-          {/if} -->
-        </div>
       </div>
       {#if showProcessPopup}
         <ProcessPopup

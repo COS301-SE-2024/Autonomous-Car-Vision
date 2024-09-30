@@ -3,10 +3,16 @@
     import { mdiAccountPlus } from "@mdi/js";
   import { push } from "svelte-spa-router";
   import axios from "axios";
+  import { onMount } from "svelte";
 
     let add;
     let email = ''; // Variable to store the email address
     let newMembers = []; // Array to store the list of new members
+
+    let HOST_IP;
+    onMount(async () => {
+        HOST_IP = await window.electronAPI.getHostIp();
+    });
 
     function addMember() {
         if (email.trim()) {
@@ -20,15 +26,12 @@
     }
 
     const sendEmails = async () => {
-        console.log("Sending invites");
-        console.log(newMembers);
         // Send the emails to the new members
         try {
-            const response = await axios.post("http://localhost:8000/sendInviteEmail/", {
+            const response = await axios.post("http://" + HOST_IP + ":8000/sendInviteEmail/", {
                 newMembers: newMembers,
                 teamName: window.electronAPI.getTeamName(),
             });
-            console.log(response);
             push("/install");
         } catch (error) {
             console.error("Sending invites failed:", error);
@@ -65,7 +68,7 @@
             {#each newMembers as member}
                 <p class="bg-theme-dark-primary rounded-lg px-1 mt-2 text-theme-dark-white hoverClass">{member}</p>
              {/each}
-            <p class="bg-theme-dark-primary rounded-lg px-1 text-theme-dark-white hoverClass"> tester@gmail.com </p>
+    
 
           </div>
         </div>

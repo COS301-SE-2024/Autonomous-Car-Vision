@@ -11,6 +11,7 @@
   import { isUploadLoading } from "../stores/uploadLoading";
   import RingLoader from "../components/RingLoader.svelte";
   import axios from "axios";
+  import {theme} from '../stores/themeStore';
 
   export let videoSource = "";
   let filename = "";
@@ -51,7 +52,6 @@
       });
       return;
     }
-    console.log("TESTING SAVE before try block");
 
     // isUploadLoading.set(true);
     isUploading = true;
@@ -70,26 +70,26 @@
   let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
     let aip = "";
     let aport = "";
-      let command = "SEND";
+    let command = "SEND";
     try {
     let response = await window.electronAPI.openFTP(uid, token, size, filename, file.path, command);
-    console.log("Response: ", response);
     
     if (response.success) {
-        console.log("IP:", response.ip);
-        console.log("Port:", response.port);
         aip = response.ip;
         aport = response.port;
         // You can now use response.ip and response.port as needed
-    } else {
-        console.error("Error:", response.error);
+      } else {
+          console.error("Error:", response.error);
+      }
+    } catch (error) {
+        console.error("Error calling openFTP:", error);
     }
-} catch (error) {
-    console.error("Error calling openFTP:", error);
-}
 
-
-    await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
+    try{
+      let testVar = await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
+    }catch(error){
+      console.error("BIG BAD ERROR OHHHH NO", error);
+    }
 
     try {
       // Save the file using the main process
@@ -100,11 +100,9 @@
       };
       // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
-      console.log("resp1", response1);
 
       // Select the record from the database
       const response2 = await window.electronAPI.selectData(filename);
-      console.log("resp2", response2);
 
       toast.success("Video uploaded successfully", {
         duration: 5000,
@@ -116,19 +114,16 @@
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
 
-      console.log("TESTING SAVE before IF");
 
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
         const uid = window.electronAPI.getUid();
         const token = window.electronAPI.getToken();
 
-        console.log($location);
 
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }
-      console.log("TESTING SAVE BEFORE PUSHING SUPPOSED TO HAPPEN");
 
       // push("/gallery");
     } catch (error) {
@@ -144,6 +139,7 @@
     </div>
   {:else}
     <Toaster />
+    {#if $theme === 'highVizLight'}
     <div class="flex justify-center items-center h-screen">
       <div
         class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 h-fit"
@@ -163,7 +159,7 @@
         <div class="w-full flex items-center mt-4">
           <span class="flex-grow"></span>
           <button
-            class="bg-theme-dark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            class="bg-highVizLight-primary bg-opacity-70  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
             on:click={saveVideo}
             >Save
           </button>
@@ -175,5 +171,41 @@
         {/if}
       </div>
     </div>
+    {:else}
+    <div class="flex justify-center items-center h-screen">
+      <div
+        class="flex flex-col items-center justify-center border-2 border-gray shadow-lg p-6 rounded-lg bg-gray-light max-w-lg mx-auto my-8 relative space-y-5 h-fit"
+      >
+        {#if videoSource}
+          <video class="video-preview w-full mt-4" src={videoSource} controls>
+            <track kind="captions" />
+          </video>
+        {:else}
+          <Dropzone
+            on:drop={handleFilesSelect}
+            accept="video/*"
+            containerStyles="border-color: #8492a6; color: black"
+            multiple={false}
+          />
+        {/if}
+        <div class="w-full flex items-center mt-4">
+          <span class="flex-grow"></span>
+          <button
+            class="bg-theme-highVizDark-background  text-theme-dark-white font-bold py-2 px-4 rounded hover:bg-theme-dark-highlight"
+            on:click={saveVideo}
+            >Save
+          </button>
+        </div>
+        {#if isUploading}
+          <div class="flex justify-center">
+            <RingLoader />
+          </div>
+        {/if}
+      </div>
+    </div>
+    {/if}
+    
+
+    
   {/if}
 </ProtectedRoutes>

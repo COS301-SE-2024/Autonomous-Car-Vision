@@ -9,6 +9,8 @@ ModelsVenv
 .svelte-kit
 .pnp.*
 .yarnrc.yml
+package-lock.json
+dist
 
 # Python specific
 *.py[cod]
@@ -24,6 +26,9 @@ agentVenv/
 brokerVenv/
 processVenv/
 .venv/
+
+# Django
+Migrations
 
 # IDE specific
 .idea
