@@ -1532,7 +1532,7 @@ def run_stress_test(num_requests, functions):
 def getTestData(request):
     num_requests = 100
     
-    functions = [send_request_hvstat, send_request_verifyOTP, send_request_otpRegenerate, send_request_getAgentUserConnections, send_request_getSalt, send_request_signin, send_request_signout, send_request_devLogin, send_request_findOpenPort, send_request_test, send_request_simStore, send_request_getUserData]
+    functions = [send_request_hvstat, send_request_verifyOTP, send_request_otpRegenerate, send_request_getAgentUserConnections, send_request_getSalt, send_request_signin, send_request_signout, send_request_devLogin, send_request_test, send_request_getUserData]
     
     data = {}
     for i in functions:
