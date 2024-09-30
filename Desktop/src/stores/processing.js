@@ -28,7 +28,6 @@ export async function loadState() {
 export async function saveState(state) {
     if (isStateLoaded) { // Only save if the state has been loaded
         await window.electronAPI.saveStoreProcess(state);
-        console.log("State saved:", state); // Debugging log
     }
 }
 

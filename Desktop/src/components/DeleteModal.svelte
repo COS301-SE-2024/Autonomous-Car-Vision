@@ -13,7 +13,6 @@
     try {
       const response = await window.electronAPI.deleteVideoFile(videoPath);
       if (response.success) {
-        console.log(`Deleted file: ${videoPath}`);
         // Handle post-deletion actions, like updating the UI or redirecting
         // For example, you might want to redirect to another page:
         // location.goto("/some-other-page");

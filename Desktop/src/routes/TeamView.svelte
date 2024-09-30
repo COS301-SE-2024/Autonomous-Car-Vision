@@ -35,7 +35,6 @@
                 },
             );
             teamName = response.data.teamName;
-            console.log(teamName);
         } catch (error) {
             console.error(error);
         }
@@ -67,9 +66,6 @@
 
         // Assuming lastSignin is a Unix timestamp in seconds
         const lastSigninMs = lastSignin * 1000;
-
-        console.log("Last signin:", new Date(lastSigninMs));
-        console.log("Five minutes ago:", new Date(fiveMinutesAgo));
 
         return lastSigninMs > fiveMinutesAgo;
     }

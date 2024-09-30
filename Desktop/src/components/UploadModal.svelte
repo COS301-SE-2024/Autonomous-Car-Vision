@@ -41,10 +41,8 @@
             return;
         }
         isUploadLoading.set(true);
-        console.log("Uploading");
         setInterval(async () => {
             isUploadLoading.set(false);
-            console.log("Done");
         }, 5000);
 
         let uid = window.electronAPI.getUid();
@@ -65,11 +63,8 @@
                 file.path,
                 command,
             );
-            console.log("Response: ", response);
 
             if (response.success) {
-                console.log("IP:", response.ip);
-                console.log("Port:", response.port);
                 aip = response.ip;
                 aport = response.port;
                 // You can now use response.ip and response.port as needed
@@ -102,11 +97,9 @@
             };
             // Insert the record into the database
             const response1 = await window.electronAPI.insertData(record);
-            console.log("resp1", response1);
 
             // Select the record from the database
             const response2 = await window.electronAPI.selectData(filename);
-            console.log("resp2", response2);
 
             toast.success("Video uploaded successfully", {
                 duration: 5000,
@@ -121,7 +114,6 @@
                 const uid = window.electronAPI.getUid();
                 const token = window.electronAPI.getToken();
 
-                console.log($location);
             } else {
                 console.error(
                     "Failed to retrieve the record:",

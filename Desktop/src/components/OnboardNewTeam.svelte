@@ -13,7 +13,6 @@
     let teamName = "";
 
     const submit = async () => {
-      console.log("Creating a new team");
 
       // check if team exists, if not, create team and add user to team
       try{
@@ -23,7 +22,6 @@
           admin: true,
         });
       window.electronAPI.storeTeamName(teamName);
-        console.log(response);
         push("/invite");
       } catch (error) {
         console.error("Creating a team failed:", error);

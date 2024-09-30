@@ -200,14 +200,12 @@
       const videoName = getFileName(originalVideoPath);
       videoNameExtract = videoName.split(".")[0];
 
-      console.log("Original video path", originalVideoPath);
 
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
 
       // Fetch the original video details from the database
       let originalVideo = await window.electronAPI.getVideoByURL(originalVideoPath);
 
-      console.log("Original video", originalVideo);
 
       // If the original video is not found, add it to the database
       if (!originalVideo) {

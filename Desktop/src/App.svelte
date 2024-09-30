@@ -13,8 +13,6 @@
     ttoken = window.electronAPI.getToken();
   }
 
-  console.log(window.electronAPI.getToken());
-
   onMount(async () => {
     window.electronAPI.onPythonScriptDone((event, message) => {
       toast.success(message, {
@@ -30,7 +28,6 @@
 
     // call cuda-check and console.log
     const isCuda = await window.electronAPI.checkCUDA();
-    console.log("Cuda: ", isCuda);
     cuda.set(isCuda);
   });
 

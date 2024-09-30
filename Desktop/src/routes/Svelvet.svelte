@@ -128,15 +128,12 @@
 
       // Update connectors based on edges
       savedEdges.forEach((edge) => {
-        console.log(nodeMap);
         const sourceNodeId = edge.sourceNode.id.replace(/^N-/, "");
         const targetNodeId = edge.targetNode.id.replace(/^N-/, "");
 
         const sourceNode = nodeMap.get(sourceNodeId);
         if (sourceNode && !sourceNode.connectors.includes(targetNodeId)) {
-          // console.log(sourceNode.connectors);
           sourceNode.connectors.push(targetNodeId);
-          // console.log(sourceNode.connectors);
         }
       });
 
@@ -156,18 +153,14 @@
   function SaveCanvas() {
     const currentNodes = get(nodes);
     const currentEdges = get(edges);
-    console.log("EDGES: ", currentEdges);
     const canvasState = { nodes: currentNodes, edges: currentEdges };
     const jsonParse = JSON.stringify(canvasState);
-
-    console.log("NODES: ", JSON.parse(jsonParse).nodes);
 
     canvas.set(jsonParse);
 
     savedCanvas = canvasState;
     savedCanvases = [...savedCanvases, canvasState];
 
-    console.log("Canvas Saved", canvasState);
     toast.success("Successfully saved your pipe!", {
       duration: 5000,
       position: "top-center",
@@ -207,9 +200,6 @@
 
       // Update the edges store with merged edges
       edges.set(mergedEdges);
-
-      console.log("Updated Nodes:", get(nodes));
-      console.log("Updated Edges:", get(edges));
     } else {
       // If no saved data is found, reset the canvas to the default state
       setCanvas();
@@ -315,7 +305,6 @@
 
   async function encoder() {
     const pipe = generatePipeString($edges);
-    console.log("Generated Pipe:", pipe);
 
     const units = pipe.split(",").map((unit) => unit.replace(/^N-/, ""));
 
@@ -353,7 +342,6 @@
 
     const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
 
-    console.log("Labeled Pipe String:", labeledPipeString);
 
     // Convert to JSON string
     const jsonPayload = JSON.stringify({ pipe: labeledPipeString });

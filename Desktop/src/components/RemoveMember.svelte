@@ -29,7 +29,6 @@
         memberUid: uid,
       })
       .then((response) => {
-        console.log(response);
         toast.success("Removed member successfully", {
           duration: 5000,
           position: "top-center",
