@@ -46,8 +46,8 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 - **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1gIxNez0D_c3PPoFBYTATHkm7MnJQVXrC/view?usp=sharing>)
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
 - **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
-- **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
-- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/1MB6OK7jjborCSFkLn0f7uH25fGZXDtmf/view?usp=sharing>)
+- **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1frFBmJ9-5B0baJFwwqG0OB90KV7_6c0b/view?usp=sharing>)
+- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/10n53AYvFU-klGODx936X99Oj-YUcWZNj/view?usp=sharing>)
 
 ## Other Documents
 - **API Contracts:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
