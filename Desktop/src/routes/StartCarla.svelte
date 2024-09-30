@@ -10,6 +10,7 @@
   let pipes = [];
   let selectedPipe = "";
   let laneFollowing = false; // Boolean to track if the checkbox is checked
+  let avoidance = false;
 
   // Reactive statement to determine text color based on theme
   $: textColor = $theme === "highVizLight" ? "black" : "white";
@@ -48,7 +49,44 @@
         const scriptPath = `${appDirectory}/Process/pipe4/temp/lane_following.py`;
 
         // Pass the selected pipe as an argument to the Python script
-        const exitCode = await window.electronAPI.runPythonScript2(scriptPath, []);
+        const exitCode = await window.electronAPI.runPythonScript2(
+          scriptPath,
+          []
+        );
+
+        isLoading.set(false);
+
+        if (exitCode === 0) {
+          toast.success("CARLA ran successfully!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        } else {
+          toast.error("Please check CARLA server!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        }
+      } catch (error) {
+        isLoading.set(false);
+        console.error("Error running CARLA:", error);
+      } finally {
+        isLoading.set(false);
+      }
+    } else if (avoidance) {
+      try {
+        const appPath = await window.electronAPI.getAppPath();
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          ".."
+        );
+        const scriptPath = `${appDirectory}/Process/pipe4/temp/manualUnit3.py`;
+
+        // Pass the selected pipe as an argument to the Python script
+        const exitCode = await window.electronAPI.runPythonScript2(
+          scriptPath,
+          []
+        );
 
         isLoading.set(false);
 
@@ -121,9 +159,7 @@
       <p class="text-message" style="color: {textColor};">
         Note: Build your pipe in the "Pipes" section.
       </p>
-      <p class="text-message" style="color: {textColor};">
-        Controls:
-      </p>
+      <p class="text-message" style="color: {textColor};">Controls:</p>
       <p class="text-message" style="color: {textColor};">
         W,A,S,D-To move the car
       </p>
@@ -150,17 +186,17 @@
 
       <!-- Styled Dropdown with dynamic text color and conditional disabling -->
       <select
-        bind:value={selectedPipe}
-        class="styled-dropdown"
-        style="color: {textColor};"
-        disabled={laneFollowing}
-      >
-        {#each pipes as pipe}
-          <option value={pipe.pipe} style="color: {textColor};"
-            >{pipe.pipe}</option
-          >
-        {/each}
-      </select>
+      bind:value={selectedPipe}
+      class="styled-dropdown"
+      style="color: {textColor};"
+      disabled={laneFollowing}
+    >
+      {#each pipes as pipe}
+        <option value={pipe.pipe} style="color: {textColor};"
+          >{pipe.pipe}</option
+        >
+      {/each}
+    </select>
 
       <!-- Checkbox to toggle lane following mode -->
       <div class="lane-following-toggle">
@@ -171,6 +207,14 @@
         />
         <label for="lane-following" style="color: {textColor};"
           >Enable Lane Following</label
+        >
+      </div>
+
+      <!-- Checkbox to toggle avoidance mode -->
+      <div class="avoidance-toggle">
+        <input type="checkbox" bind:checked={avoidance} id="avoidance" />
+        <label for="avoidance" style="color: {textColor};"
+          >Enable Avoidance</label
         >
       </div>
     </div>
@@ -225,13 +269,15 @@
     color: inherit; /* Inherit text color based on dynamic style */
   }
 
-  .lane-following-toggle {
+  .lane-following-toggle,
+  .avoidance-toggle {
     margin-top: 20px;
     display: flex;
     align-items: center;
   }
 
-  .lane-following-toggle input {
+  .lane-following-toggle input,
+  .avoidance-toggle input {
     margin-right: 10px;
   }
 </style>
