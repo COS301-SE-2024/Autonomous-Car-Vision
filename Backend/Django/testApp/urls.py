@@ -5,6 +5,7 @@ from .views import (
     AuthViewSet,
     OTPViewSet,
     TokenViewSet,
+    getTestData,
     manage_auth,
     manage_token,
     manage_user,
@@ -48,6 +49,7 @@ from .views import (
     getLastSignin,
     updateLastSignin,
     getAgentUserConnections,
+    requestUptime,
 )
 
 router = DefaultRouter()
@@ -104,4 +106,6 @@ urlpatterns = [
     path("getLastSignin/", getLastSignin),
     path("updateLastSignin/", updateLastSignin),
     path("getAgentUserConnections/", getAgentUserConnections),
+    path("requestUptime/", requestUptime),
+    path("getTestData/", getTestData),
 ]

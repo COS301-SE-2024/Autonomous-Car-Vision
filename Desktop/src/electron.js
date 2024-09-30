@@ -1403,3 +1403,30 @@ ipcMain.handle('get-auth-url', async () => {
         });
     });
   });
+
+  ipcMain.handle('request-uptime', async (event) => {
+    return new Promise((resolve, reject) => {
+        // use get request
+        axios.get('http://' + HOST_IP + ':8000/requestUptime/')
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+  });
+
+  ipcMain.handle('get-test-data', async (event) => {
+    return new Promise((resolve, reject) => {
+        // use get request
+        axios.get('http://' + HOST_IP + ':8000/getTestData/')
+        .then(response => {
+            resolve(response.data);
+        })
+        .catch(error => {
+            reject(error);  
+        });
+    });
+  });
+  

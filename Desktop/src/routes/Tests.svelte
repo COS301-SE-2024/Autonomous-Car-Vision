@@ -1,22 +1,43 @@
 <script>
-    import ProtectedRoutes from './ProtectedRoutes.svelte';
-    import {Icon, Button} from "svelte-materialify";
+    import ProtectedRoutes from "./ProtectedRoutes.svelte";
+    import { Icon, Button } from "svelte-materialify";
     import { isLoading } from "../stores/loading";
     import Spinner from "../components/Spinner.svelte";
-    import { createEventDispatcher } from 'svelte';
-    import {theme} from '../stores/themeStore';
+    import { createEventDispatcher } from "svelte";
+    import { theme } from "../stores/themeStore";
+    import { onMount } from "svelte";
 
-    let uptime= "";
+    let uptime = "";
     let loading = true;
     let runTest = "   ..  ";
     const dispatch = createEventDispatcher();
-    function Test1() {
-        runTest = "Test 1";
-        console.log("Test 1");
-        loading = false;
-    }
+    let testResults = {};
 
-    function Test2() {
+    let HOST_IP = "";
+
+    let performanceTestStarted = false;
+
+    onMount(async () => {
+        HOST_IP = await window.electronAPI.getHostIp();
+        console.log(HOST_IP);
+
+        // Request uptime
+        uptime = await window.electronAPI.requestUptime();
+        uptime = uptime.uptime;
+        console.log(uptime);
+
+        // Fetch test data
+        loading = false;
+    });
+    
+    const PerformanceTest = async () => {
+        performanceTestStarted = true;
+        runTest = "Performance Test";    
+        testResults = await window.electronAPI.getTestData();
+        performanceTestStarted = false;
+    };
+
+    function SecurityTest() {
         runTest = "Test 2";
         console.log("Test 2");
         loading = false;
@@ -24,53 +45,95 @@
 </script>
 
 <ProtectedRoutes>
-    {#if $isLoading}
-        <div class="flex justify-center w-full">
-        <Spinner />
+    {#if loading}
+        <div class="flex justify-center w-full h-fit">
+            <Spinner />
         </div>
-    {:else}
-    {#if $theme === 'highVizLight'}
-    <div class="user-list text-black-lightText">
-        <div class="headerLight text-xl items-center text-center">
-            <h2>Tests for Privacy and Security</h2>
-            <p>The server has been running for: [time here]{uptime}</p>
-        </div>
-        <div class="bg-highVizLight grid grid-cols-1  h-full w-full gap-3 py-2 ">
-            <Button on:click={() => Test1()}>Perfomance</Button>
-            <Button on:click={() => Test2()}>Security</Button>
-          </div>
-        <div class="text-primary border-2 border-highVizLight-accent rounded-lg h-96 flex items-center justify-center col-span-1 row-span-2">
-           
-                {#if loading}
+    {:else if $theme === "highVizLight"}
+        <div class="user-list text-black-lightText">
+            <div class="headerLight text-xl items-center text-center">
+                <h2>Tests for Privacy and Security</h2>
+                <p>The server has been running for: {uptime}%</p>
+            </div>
+            <div class="bg-highVizLight grid grid-cols-1 gap-3 py-2">
+                <Button on:click={PerformanceTest}>Start Perfomance Tests</Button>
+            </div>
+            <div class="results-container">
+                {#if performanceTestStarted}
                     <div class="flex justify-center w-full">
                         <Spinner />
                     </div>
                 {:else}
-                    <p>Results for {runTest} ready!</p>
+                    <div class="py-4">
+                        <h1 class="text-4xl font-bold text-center">Performance Test</h1>
+                        <div class="flex flex-row justify-between text-2xl font-bold">
+                            <h1>Number of Tests</h1>
+                            <h1>{Object.keys(testResults.data || {}).length}</h1>
+                        </div>
+                        <table class="table-auto w-full">
+                            <thead>
+                                <tr>
+                                    <th>Endpoints</th>
+                                    <th>Result (seconds)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {#each Object.entries(testResults.data || {}) as [endpoint, result]}
+                                    <tr>
+                                        <td>{endpoint}</td>
+                                        <td>{result.toFixed(5)}</td>
+                                    </tr>
+                                {/each}
+                            </tbody>
+                        </table>
+                    </div>
                 {/if}
+            </div>
         </div>
-    </div>
     {:else}
-    <div class="user-list text-theme-dark-lightText">
-        <div class="header text-xl items-center text-center">
-            <h2>Tests for Privacy and Security</h2>
-            <p>The server has been running for:  [time here] {uptime}</p>
+        <div class="user-list text-theme-dark-lightText">
+            <div class="header text-xl items-center text-center">
+                <h2>Tests for Privacy and Security</h2>
+                <p>The server has been running for: {uptime}</p>
+            </div>
+            <div class="bg-highVizDark grid grid-cols-1 gap-3 py-2 text-white">
+                <Button on:click={PerformanceTest}>Perfomance</Button>
+                <Button on:click={SecurityTest}>Security</Button>
+            </div>
+            <div class="results-container">
+                {#if performanceTestStarted}
+                    <div class="flex justify-center w-full h-fit">
+                        <Spinner />
+                    </div>
+                {:else}
+                    <div class="py-4">
+                        <h1 class="text-4xl font-bold text-center">Performance Test</h1>
+                        <div class="flex flex-row justify-between py-4">
+                            <div class="text-2xl font-bold">
+                                <h1>Number of Tests</h1>
+                                <h1>{Object.keys(testResults.data || {}).length}</h1>
+                            </div>
+                            <table class="table-auto w-full">
+                                <thead>
+                                    <tr>
+                                        <th>Endpoints</th>
+                                        <th>Result (seconds)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each Object.entries(testResults.data || {}) as [endpoint, result]}
+                                        <tr>
+                                            <td>{endpoint}</td>
+                                            <td>{result.toFixed(5)}</td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {/if}
+            </div>
         </div>
-        <div class="bg-highVizDark grid grid-cols-1 h-full w-full gap-3 py-2 text-white">
-            <Button on:click={ () => Test1()}>Perfomance</Button>
-            <Button on:click={ () => Test2()}>Security</Button>
-        </div>
-        <div class="text-theme-dark  border-highVizDark-primary border-2 h-96 rounded-lg flex items-center justify-center col-span-1 row-span-2">
-            {#if loading}
-                <div class="flex justify-center w-full">
-                    <Spinner />
-                </div>
-            {:else}
-                <p>Results {runTest} ready!</p>
-            {/if}
-       </div>
-    </div>
-    {/if}
     {/if}
 </ProtectedRoutes>
 
@@ -80,19 +143,30 @@
         max-width: 750px;
         margin: 0 auto;
     }
-    .header {
-        color: white;
-        padding: 10px;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        /* margin-left: 10px; */
-    }
-
+    .header,
     .headerLight {
-        color: rgb(0, 0, 0);
         padding: 10px;
-        border-radius: 4px;
         margin-bottom: 10px;
-        /* margin-left: 10px; */
+        text-align: center;
+    }
+    .results-container {
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        overflow-x: auto;
+        max-height: 400px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th,
+    td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    th {
+        background-color: #f9f9f9;
     }
 </style>

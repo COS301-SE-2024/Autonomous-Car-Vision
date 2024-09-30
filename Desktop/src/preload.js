@@ -81,4 +81,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getLastSignin: (uid) => ipcRenderer.invoke('get-last-signin', uid),
   updateLastSignin: (uid) => ipcRenderer.invoke('update-last-signin', uid),
   getHostIp: () => ipcRenderer.invoke('get-host-ip'),
+  requestUptime: () => ipcRenderer.invoke('request-uptime'),
+  getTestData: () => ipcRenderer.invoke('get-test-data'),
 });
