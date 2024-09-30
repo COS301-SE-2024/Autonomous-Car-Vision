@@ -128,7 +128,6 @@
 
     function toggleAccountPopup() {
         showAccountPopup = !showAccountPopup;
-        console.log("TOGGLE: ", showAccountPopup);
     }
 
     function closeAccountPopup() {
@@ -171,7 +170,6 @@
                 
                 const emailHash = CryptoJS.SHA256(profileEmail);
                 profileImg = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
-                console.log(profileImg);
             })
             .catch((error) => {
                 console.error("Error fetching user data:", error);

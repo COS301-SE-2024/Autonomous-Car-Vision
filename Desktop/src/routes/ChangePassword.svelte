@@ -30,13 +30,11 @@
         const response = await axios.post("http://" + HOST_IP + ":8000/getSalt/", {
           uemail: window.electronAPI.getUemail(),
         });
-        console.log("Salt and UID retrieved:", response.data);
 
         uid = response.data.uid;
         window.electronAPI.storeUid(uid);
         sString = response.data.salt;
       } catch (error) {
-        console.error("Failed to retrieve salt and UID:", error);
         return;
       }
 
@@ -51,10 +49,6 @@
           sString
         );
 
-        console.log("Hashed Passwords:", hashOld, hashNew);
-        console.log("UID:", uid);
-        console.log("Token:", window.electronAPI.getToken());
-
         const response = await axios.post(
           "http://" + HOST_IP + ":8000/changePassword/",
           {
@@ -64,7 +58,6 @@
             token: window.electronAPI.getToken(),
           }
         );
-        console.log("Password Changed:", response.data);
 
         if (response.data.status === "200") {
           toast.success("Password changed successfully!", {

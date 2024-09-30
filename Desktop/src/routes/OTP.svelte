@@ -25,8 +25,6 @@
         },
       );
       window.electronAPI.storeToken(response.data.token);
-      console.log("token: ");
-      console.log(window.electronAPI.getToken());
       // Update Svelte store
       // token.set(response.data.token);
       // check if previous url was signup

@@ -24,7 +24,6 @@
   function processVideo() {
     isLoading.set(true);
     dispatch("processVideo", { modelName: selectedModelName });
-    console.log("Processing video", showProcessPopup);
   }
 
   function handleModelChange(event) {
@@ -47,7 +46,6 @@
   // onMount function
   onMount(async () => {
     hasCuda = get(cuda);
-    console.log("Cuda: ", hasCuda);
     mounted = true;
   });
 </script>

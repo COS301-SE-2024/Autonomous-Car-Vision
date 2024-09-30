@@ -32,7 +32,6 @@
       const savedPath = await window.electronAPI.getDrivesDirectory();
       if (savedPath) {
         directoryPath = savedPath;
-        console.log("Saved Directory Path:", directoryPath);
 
         // Fetch video files from the directory
         const videos = await window.electronAPI.getDriveVideos(directoryPath);
@@ -102,7 +101,6 @@
 
   function handleSortChange(event) {
     sortCategory = event.target.value;
-    console.log("Sort criteria: " + sortCategory);
     sortFilteredItems();
   }
 

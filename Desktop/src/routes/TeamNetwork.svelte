@@ -31,7 +31,6 @@
                 },
             );
             teamName = response.data.teamName;
-            console.log(teamName);
         } catch (error) {
             console.error(error);
         }

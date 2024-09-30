@@ -87,7 +87,6 @@
       // Fetch the original video details from the database
       let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
 
-      console.log("Original video:", originalVideo);
 
       // If the original video is not found, add it to the database
       if (!originalVideo) {
@@ -98,7 +97,6 @@
           originalVidID: 0, // Original videos have their originalVidID set to 0 or null
         };
         originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
-        console.log("Original video add:", originalVideo);
       }
 
       // Start with the original video
@@ -126,7 +124,6 @@
         });
       });
 
-      console.log("Output files:", outputFiles);
     } catch (error) {
       console.error("Error fetching output files:", error);
     }
@@ -160,9 +157,6 @@
     await fetchModels();
     await getVideoDetails();
     await loadState(); // Load state on mount
-
-    console.log("Test Video URL page: ", get(videoUrl));
-    console.log($location);
     lottieElement1.addEventListener("mouseenter", () =>
       playLottie(dotLottieProcess),
     );
@@ -188,8 +182,6 @@
     try {
       await getVideoDetails();
 
-      console.log(isLoading, "isLoading");
-
       const videoDetails = {
         scriptPath,
         videoPath,
@@ -211,8 +203,6 @@
       });
 
       await loadState(); // Load state after adding the video to the queue
-
-      console.log("Queued video for processing now:", videoDetails);
 
       // Add processed video information to the database
       const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
@@ -243,7 +233,6 @@
       output = error.message;
       console.error("Error:", output);
     }
-    console.log("Processing video");
     processed = true;
   }
 
