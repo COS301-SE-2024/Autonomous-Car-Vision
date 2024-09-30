@@ -95,10 +95,7 @@
 
   const handleClick = () => {
     selectedModel.set(Model); 
-    console.log("handleClick for " + Model.mName);
   };
-
-
 
 </script>
 

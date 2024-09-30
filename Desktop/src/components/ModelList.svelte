@@ -27,7 +27,6 @@
 
     await getOutputFiles();
 
-    console.log("Test", get(originalVideoURL));
     mounting = false;
   });
 
@@ -86,8 +85,6 @@
           videoURL: video.videoURL,
         });
       });
-
-      console.log("Output files:", processedVideos);
     } catch (error) {
       console.error("Error fetching output files:", error);
     }

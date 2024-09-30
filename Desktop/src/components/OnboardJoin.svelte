@@ -16,8 +16,6 @@
   let tokenValue = "";
 
   const submit = async () => {
-    console.log("Joining a team");
-
     // check if team exists, if not, create team and add user to team
     try {
       const response = await axios.post(
@@ -30,7 +28,6 @@
           email: window.electronAPI.getUemail(),
         },
       );
-      console.log(response);
       push("/install");
     } catch (error) {
       console.error("Joining a team failed:", error);

@@ -19,12 +19,10 @@
 
     onMount(async () => {
         HOST_IP = await window.electronAPI.getHostIp();
-        console.log(HOST_IP);
 
         // Request uptime
         uptime = await window.electronAPI.requestUptime();
         uptime = uptime.uptime;
-        console.log(uptime);
 
         // Fetch test data
         loading = false;
@@ -39,7 +37,6 @@
 
     function SecurityTest() {
         runTest = "Test 2";
-        console.log("Test 2");
         loading = false;
     }
 </script>

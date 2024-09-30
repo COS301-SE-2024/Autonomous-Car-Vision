@@ -31,7 +31,6 @@
       remoteProcessingQueueList.push(detail.outputVideoPath);
     });
 
-    console.log("Remote Queue", remoteProcessingQueueList);
 
     if (remoteProcessingQueueList.includes(AIinfo.mURL)) {
       console.log("The list contains the URL.");

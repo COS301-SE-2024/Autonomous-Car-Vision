@@ -14,7 +14,6 @@
 
   onMount(async () => {
     HOST_IP = await window.electronAPI.getHostIp();
-    console.log("HOST_IP:", HOST_IP);
     window.electronAPI.clearToken();
     window.electronAPI.clearUid();
     window.electronAPI.clearUname();
@@ -44,7 +43,6 @@
   const googleLoginTest = async () => {
     try {
       const authUrl = await window.electronAPI.getAuthUrlTest();
-      console.log("Auth URL:", authUrl);
       window.electronAPI.openExternal(authUrl);
     } catch (error) {
       console.error("Error getting auth URL:", error);
@@ -52,7 +50,6 @@
   };
 
   const handleAuthSuccess = async (result) => {
-    console.log("Google Sign-In Result:", result);
     window.electronAPI.storeToken(result.tokens.access_token.substring(0, 40));
     window.electronAPI.storeUid(result.user.id.substring(0, 10));
     window.electronAPI.storeUname(result.user.name);
@@ -66,8 +63,6 @@
       },
     );
     if (userExists.data.exists) {
-      console.log("User already exists in database");
-      console.log("Token:", window.electronAPI.getToken());
       const storeTokenNow = await axios.post(
         "http://" + HOST_IP + ":8000/storeToken/",
         {
@@ -79,7 +74,6 @@
       window.electronAPI.storeTeamName(userExists.data.teamName);
       push("/gallery");
     } else {
-      console.log("User does not exist in database");
       window.electronAPI.storeTeamName("dev");
 
       const createUser = await axios.post(
@@ -94,7 +88,6 @@
           uid: window.electronAPI.getUid(),
         },
       );
-      console.log("User created:", createUser);
 
       const storeTokenNow = await axios.post(
         "http://" + HOST_IP + ":8000/storeToken/",
@@ -112,7 +105,6 @@
     try {
       const result = await window.electronAPI.exchangeCode(authCode);
       if (result.success) {
-        console.log("Google Sign-In Result:", result);
         window.electronAPI.storeToken(
           result.tokens.access_token.substring(0, 40),
         );
@@ -128,8 +120,6 @@
           },
         );
         if (userExists.data.exists) {
-          console.log("User already exists in database");
-          console.log("Token:", window.electronAPI.getToken());
           const storeTokenNow = await axios.post(
             "http://" + HOST_IP + ":8000/storeToken/",
             {
@@ -141,7 +131,6 @@
           window.electronAPI.storeTeamName(userExists.data.teamName);
           push("/gallery");
         } else {
-          console.log("User does not exist in database");
           window.electronAPI.storeTeamName("dev");
 
           const createUser = await axios.post(
@@ -156,7 +145,6 @@
               uid: window.electronAPI.getUid(),
             },
           );
-          console.log("User created:", createUser);
 
           const storeTokenNow = await axios.post(
             "http://" + HOST_IP + ":8000/storeToken/",
@@ -180,18 +168,11 @@
     try {
       let url = "http://" + HOST_IP + ":8000/devLogin/";
       const response = await axios.get(url, {});
-      console.log("Developer Login Response:", response.data);
       window.electronAPI.storeToken(response.data.token);
       window.electronAPI.storeUid(response.data.uid);
       window.electronAPI.storeUname(response.data.uname);
       window.electronAPI.storeUemail(response.data.uemail);
       window.electronAPI.storeTeamName("dev");
-
-      console.log("Token:", window.electronAPI.getToken());
-      console.log("UID:", window.electronAPI.getUid());
-      console.log("UName:", window.electronAPI.getUname());
-      console.log("UEmail:", window.electronAPI.getUemail());
-      console.log("TeamName:", window.electronAPI.getTeamName());
     } catch (error) {
       console.error("Failed to login as developer:", error);
       return;
@@ -233,13 +214,13 @@
             </button>
           </a>
           {#if !showCodeInput}
-            <a href="#/" class="w-full" on:click={googleLogin}>
+            <!-- <a href="#/" class="w-full" on:click={googleLogin}>
               <button
                 class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
               >
                 Log In with Google
               </button>
-            </a>
+            </a> -->
           {:else}
             <TextField
               bind:value={authCode}

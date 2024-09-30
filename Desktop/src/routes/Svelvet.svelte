@@ -55,6 +55,18 @@
       operation: "infusr",
     },
     {
+      type: "Taggr",
+      label: "Taggr",
+      bgColor: "blue",
+      operation: "taggr",
+    },
+    {
+      type: "Observer",
+      label: "Observer",
+      bgColor: "red",
+      operation: "observer",
+    },
+    {
       type: "HV1",
       label: "High-Viz v1",
       bgColor: "lightyellow",
@@ -122,15 +134,12 @@
 
       // Update connectors based on edges
       savedEdges.forEach((edge) => {
-        console.log(nodeMap);
         const sourceNodeId = edge.sourceNode.id.replace(/^N-/, "");
         const targetNodeId = edge.targetNode.id.replace(/^N-/, "");
 
         const sourceNode = nodeMap.get(sourceNodeId);
         if (sourceNode && !sourceNode.connectors.includes(targetNodeId)) {
-          // console.log(sourceNode.connectors);
           sourceNode.connectors.push(targetNodeId);
-          // console.log(sourceNode.connectors);
         }
       });
 
@@ -150,24 +159,21 @@
   function SaveCanvas() {
     const currentNodes = get(nodes);
     const currentEdges = get(edges);
-    console.log("EDGES: ", currentEdges);
     const canvasState = { nodes: currentNodes, edges: currentEdges };
     const jsonParse = JSON.stringify(canvasState);
-
-    console.log("NODES: ", JSON.parse(jsonParse).nodes);
 
     canvas.set(jsonParse);
 
     savedCanvas = canvasState;
     savedCanvases = [...savedCanvases, canvasState];
 
-    console.log("Canvas Saved", canvasState);
     toast.success("Successfully saved your pipe!", {
       duration: 5000,
       position: "top-center",
     });
 
     encoder();
+
   }
 
   async function LoadCanvas() {
@@ -201,9 +207,6 @@
 
       // Update the edges store with merged edges
       edges.set(mergedEdges);
-
-      console.log("Updated Nodes:", get(nodes));
-      console.log("Updated Edges:", get(edges));
     } else {
       // If no saved data is found, reset the canvas to the default state
       setCanvas();
@@ -270,6 +273,7 @@
     let hasYoloUnit = false;
     let hasInfusrUnit = false;
     let hasTaggrUnit = false;
+    let hasObserverUnit = false;
     if (
       tokens[0] !== "inputUnit" ||
       tokens[tokens.length - 1] !== "outputUnit"
@@ -294,6 +298,14 @@
           return false;
         }
         hasTaggrUnit = true;
+      } else if (token === "observerUnit") {
+        if (!hasInfusrUnit) {
+          toast.error(
+            "Error: taggrUnit must come after both a yoloUnit and an infusrUnit.",
+          );
+          return false;
+        }
+        hasObserverUnit = true;
       }
     }
 
@@ -309,16 +321,17 @@
 
   async function encoder() {
     const pipe = generatePipeString($edges);
-    console.log("Generated Pipe:", pipe);
 
     const units = pipe.split(",").map((unit) => unit.replace(/^N-/, ""));
-
+    
     if (units[0] !== "inputUnit" || units[units.length - 1] !== "outputUnit") {
+      console.log("Units: ", units)
       toast.error(
         "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
       );
       savedCanvas = null;
-      return;
+      console.log(pipe);
+      return pipe;
     }
 
     const intermediateUnits = units.slice(1, -1);
@@ -336,6 +349,15 @@
         if (node.label.includes("Segmentation")) {
           return "yoloUnit.yolov8n-seg"; // JUST USING v8n for this example
         }
+        if(node.label.includes("Infusr")) {
+          return "infusrUnit"
+        }
+        if(node.label.includes("Taggr")) {
+          return "taggrUnit"
+        }
+        if(node.label.includes("Observer")) {
+          return "observerUnit"
+        }
         if (node.label.includes("High-Viz v1")) {
           return "HV1";
         }
@@ -347,7 +369,6 @@
 
     const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
 
-    console.log("Labeled Pipe String:", labeledPipeString);
 
     // Convert to JSON string
     const jsonPayload = JSON.stringify({ pipe: labeledPipeString });

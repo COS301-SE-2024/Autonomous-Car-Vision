@@ -31,7 +31,6 @@
   };
 
   const redirectToGravatar = () => {
-    console.log("Redirecting to Gravatar...");
     window.open('https://en.gravatar.com/site/login', '_blank');
   };
 
@@ -41,13 +40,9 @@
 
   const saveChanges = async () => {
     // Function to handle saving other changes (username, email)
-    console.log("Username: " + user.username);
-    console.log("email: " + user.email);
-    console.log("Profile: " + user.profile_picture);
 
     // Save the changes to the database
 
-    console.log(window.electronAPI.getToken());
 
     try {
       const response = await axios.post(
@@ -59,8 +54,6 @@
           token: window.electronAPI.getToken(),
         },
       );
-
-      console.log("token" + window.electronAPI.getToken());
 
       if (response.data.status == "200") {
         toast.success("Changes saved successfully!", {
@@ -109,7 +102,7 @@
         profileEmail = profileEmail.trim().toLowerCase();
         const emailHash = CryptoJS.SHA256(profileEmail);
         user.profile_picture = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
-        console.log(user.profile_picture);
+    
       })
       .catch((error) => {
         console.error("Failed to fetch user data:", error);

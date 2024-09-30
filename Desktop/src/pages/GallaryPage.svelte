@@ -39,14 +39,11 @@
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
-    console.log("Last signin: " + lastSignin);
     //TODO: update last signin in the database
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
-    console.log("Last signin updated: " + updateLastSignin);
 
     try {
       const response = await window.electronAPI.fetchVideos();
-      console.log(response);
       if (response.success) {
         videoURLs = response.data.map((record) => record.dataValues.localurl);
         videoNames = response.data.map((record) => record.dataValues.mname);
@@ -69,7 +66,7 @@
             }
           }),
         );
-        filteredItems.set(videoURLs); // console.log("Downloaded statuses:", downloadedStatuses);
+        filteredItems.set(videoURLs); 
       } else {
         console.error("Failed to fetch video records:", response.error);
       }
@@ -101,19 +98,15 @@
 
   async function handleSearch(event) {
     searchQuery = event.target.value;
-    console.log("Search query: " + searchQuery);
-    console.log("Video URLS: " + videoURLs);
     filteredItems.update(() => {
       if (searchQuery === "") {
         // If search query is empty, display all videos
-        console.log("Search query is empty, displaying all items.");
         return videoURLs;
       } else {
         const searchRegex = new RegExp(searchQuery, "i");
         const newItems = videoURLs.filter((url) =>
           searchRegex.test(videoURLToNameMap[url]),
         );
-        console.log("FilteredItems: " + newItems);
         return newItems;
       }
     });
@@ -139,7 +132,6 @@
 
   function handleSortChange(event) {
     sortCategory = event.target.value;
-    console.log("Sort criteria: " + sortCategory);
     sortFilteredItems();
   }
 

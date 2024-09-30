@@ -69,7 +69,6 @@
 
   function navigate(route) {
     updateCurrentRoute();
-    console.log(route);
     push(route);
   }
 
@@ -82,7 +81,6 @@
         : $location;
     for (let i = 0; i < items.length; i++) {
       if (items[i].route === route) {
-        console.log(route, i);
         return `translateY(calc(calc(50% / ${items.length}) * ${i}))`;
       }
     }

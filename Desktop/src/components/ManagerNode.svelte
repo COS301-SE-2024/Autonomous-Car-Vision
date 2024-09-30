@@ -51,8 +51,6 @@
     }
 
     function showConnectionToAgent() {
-        console.log(nodeData.id);
-        console.log(nodeType);
 
         // Reset all edge colors
         resetEdgeColors();
@@ -83,9 +81,6 @@
         // Update the writable stores
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
-
-        console.log("Updated TeamAgents:", agentBooleans);
-        console.log("Updated TeamClients:", clientBooleans);
     }
 
     function resetEdgeColors() {

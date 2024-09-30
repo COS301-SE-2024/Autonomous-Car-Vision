@@ -52,7 +52,6 @@
       });
       return;
     }
-    console.log("TESTING SAVE before try block");
 
     // isUploadLoading.set(true);
     isUploading = true;
@@ -74,11 +73,8 @@
     let command = "SEND";
     try {
     let response = await window.electronAPI.openFTP(uid, token, size, filename, file.path, command);
-    console.log("Response: ", response);
     
     if (response.success) {
-        console.log("IP:", response.ip);
-        console.log("Port:", response.port);
         aip = response.ip;
         aport = response.port;
         // You can now use response.ip and response.port as needed
@@ -89,17 +85,8 @@
         console.error("Error calling openFTP:", error);
     }
 
-    console.log("AIP:", aip);
-    console.log("APORT:", aport);
-    console.log("UID:", uid);
-    console.log("SIZE:", size);
-    console.log("TOKEN:", token);
-    console.log("FILENAME:", filename);
-    console.log("FILE PATH:", file.path);
-
     try{
       let testVar = await window.electronAPI.uploadToAgent(aip, aport, file.path, uid, size, token, filename);
-      console.log("TESTVAR:", testVar);
     }catch(error){
       console.error("BIG BAD ERROR OHHHH NO", error);
     }
@@ -113,11 +100,9 @@
       };
       // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
-      console.log("resp1", response1);
 
       // Select the record from the database
       const response2 = await window.electronAPI.selectData(filename);
-      console.log("resp2", response2);
 
       toast.success("Video uploaded successfully", {
         duration: 5000,
@@ -129,19 +114,16 @@
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
 
-      console.log("TESTING SAVE before IF");
 
       if (response2.success) {
         const mid = response2.data.dataValues.mid;
         const uid = window.electronAPI.getUid();
         const token = window.electronAPI.getToken();
 
-        console.log($location);
 
       } else {
         console.error("Failed to retrieve the record:", response2.error);
       }
-      console.log("TESTING SAVE BEFORE PUSHING SUPPOSED TO HAPPEN");
 
       // push("/gallery");
     } catch (error) {
