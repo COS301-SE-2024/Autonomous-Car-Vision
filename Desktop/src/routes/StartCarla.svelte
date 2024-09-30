@@ -5,13 +5,14 @@
   import toast, { Toaster } from "svelte-french-toast";
   import { Button } from "svelte-materialify";
   import { onMount } from "svelte";
-  import { theme } from '../stores/themeStore'; // Importing the theme store
-  
+  import { theme } from "../stores/themeStore"; // Importing the theme store
+
   let pipes = [];
   let selectedPipe = "";
+  let laneFollowing = false; // Boolean to track if the checkbox is checked
 
   // Reactive statement to determine text color based on theme
-  $: textColor = $theme === 'highVizLight' ? 'black' : 'white';
+  $: textColor = $theme === "highVizLight" ? "black" : "white";
 
   async function loadPipes() {
     try {
@@ -36,33 +37,71 @@
 
   async function startCarla() {
     isLoading.set(true);
-  
-    try {
-      const appPath = await window.electronAPI.getAppPath();
-      const appDirectory = await window.electronAPI.resolvePath(appPath, "..");
-      const scriptPath = `${appDirectory}/Process/pipe4/temp/unit3.py`;
-  
-      // Pass the selected pipe as an argument to the Python script
-      const exitCode = await window.electronAPI.runPythonScript2(scriptPath, [selectedPipe]);
-  
-      isLoading.set(false);
-  
-      if (exitCode === 0) {
-        toast.success("CARLA ran successfully!", {
-          duration: 5000,
-          position: "top-center",
-        });
-      } else {
-        toast.error("Please check CARLA server!", {
-          duration: 5000,
-          position: "top-center",
-        });
+
+    if (laneFollowing) {
+      try {
+        const appPath = await window.electronAPI.getAppPath();
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          ".."
+        );
+        const scriptPath = `${appDirectory}/Process/pipe4/temp/lane_following.py`;
+
+        // Pass the selected pipe as an argument to the Python script
+        const exitCode = await window.electronAPI.runPythonScript2(scriptPath, []);
+
+        isLoading.set(false);
+
+        if (exitCode === 0) {
+          toast.success("CARLA ran successfully!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        } else {
+          toast.error("Please check CARLA server!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        }
+      } catch (error) {
+        isLoading.set(false);
+        console.error("Error running CARLA:", error);
+      } finally {
+        isLoading.set(false);
       }
-    } catch (error) {
-      isLoading.set(false);
-      console.error("Error running CARLA:", error);
-    } finally {
-      isLoading.set(false);
+    } else {
+      try {
+        const appPath = await window.electronAPI.getAppPath();
+        const appDirectory = await window.electronAPI.resolvePath(
+          appPath,
+          ".."
+        );
+        const scriptPath = `${appDirectory}/Process/pipe4/temp/unit3.py`;
+
+        // Pass the selected pipe as an argument to the Python script
+        const exitCode = await window.electronAPI.runPythonScript2(scriptPath, [
+          selectedPipe,
+        ]);
+
+        isLoading.set(false);
+
+        if (exitCode === 0) {
+          toast.success("CARLA ran successfully!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        } else {
+          toast.error("Please check CARLA server!", {
+            duration: 5000,
+            position: "top-center",
+          });
+        }
+      } catch (error) {
+        isLoading.set(false);
+        console.error("Error running CARLA:", error);
+      } finally {
+        isLoading.set(false);
+      }
     }
   }
 </script>
@@ -97,12 +136,31 @@
         Please select a pipe below:
       </p>
 
-      <!-- Styled Dropdown with dynamic text color -->
-      <select bind:value={selectedPipe} class="styled-dropdown" style="color: {textColor};">
+      <!-- Styled Dropdown with dynamic text color and conditional disabling -->
+      <select
+        bind:value={selectedPipe}
+        class="styled-dropdown"
+        style="color: {textColor};"
+        disabled={laneFollowing}
+      >
         {#each pipes as pipe}
-          <option value={pipe.pipe} style="color: {textColor};">{pipe.pipe}</option>
+          <option value={pipe.pipe} style="color: {textColor};"
+            >{pipe.pipe}</option
+          >
         {/each}
       </select>
+
+      <!-- Checkbox to toggle lane following mode -->
+      <div class="lane-following-toggle">
+        <input
+          type="checkbox"
+          bind:checked={laneFollowing}
+          id="lane-following"
+        />
+        <label for="lane-following" style="color: {textColor};"
+          >Enable Lane Following</label
+        >
+      </div>
     </div>
   {/if}
 </ProtectedRoutes>
@@ -134,7 +192,7 @@
     font-size: 1.2em;
     border: 2px solid #ccc;
     border-radius: 5px;
-    background-color: #007BFF; /* Blue background */
+    background-color: #007bff; /* Blue background */
     background-repeat: no-repeat;
     background-position: right 15px top 50%;
     background-size: 12px 12px;
@@ -153,5 +211,15 @@
   .styled-button {
     margin-top: 10px;
     color: inherit; /* Inherit text color based on dynamic style */
+  }
+
+  .lane-following-toggle {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .lane-following-toggle input {
+    margin-right: 10px;
   }
 </style>
