@@ -99,12 +99,12 @@
   "build": {
     "appId": "com.Bitforge.HighViz",
     "files": [
+      "public/images",
       "public/build/**/*",
-      "src/**/*",
+      "src/*",
       "public/index.html",
       ".env",
-      "src/routes/*",
-      "src/routes/**/*"
+      "../Process"
     ],
     "win": {
       "target": [
