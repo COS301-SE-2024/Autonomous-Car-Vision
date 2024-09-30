@@ -1,6 +1,8 @@
 {
   "name": "HighViz",
   "version": "3.0.0",
+  "author": "Bitforge Team bitforge.capstone@gmail.com",
+  "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
   "scripts": {
