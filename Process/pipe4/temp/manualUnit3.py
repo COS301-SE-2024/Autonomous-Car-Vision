@@ -472,7 +472,7 @@ def main():
 
         # Timer for the drive
         start_time = time.time()
-        pipestring = "inputUnit,yoloUnit.yolov8n,infusrUnit,observerUnit,outputUnit.all"
+        pipestring = "inputUnit,infusrUnit,observerUnit,outputUnit.all"
 
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
