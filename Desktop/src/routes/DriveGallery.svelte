@@ -48,31 +48,23 @@
   onMount(async () => {
     isLoading.set(true);
     try {
-      const savedPath = await window.electronAPI.getDrivesDirectory();
-      if (savedPath) {
-        directoryPath = savedPath;
+      console.log("Requesting base directory...");
+      const baseDirectory = await window.electronAPI.getBaseDirectory();
+      console.log("Base Directory:", baseDirectory);
+      directoryPath = baseDirectory;
+      const videos = await window.electronAPI.getDriveVideos(directoryPath);
+      console.log(videos)
 
-        // Fetch video files from the directory
-        const videos = await window.electronAPI.getDriveVideos(directoryPath);
+      // Populate videoURLs and videoNames
+      videoURLs = videos.map((video) => video.path);
+      videoNames = videos.map((video) => video.name);
 
-        // Populate videoURLs and videoNames
-        videoURLs = videos.map((video) => video.path);
-        videoNames = videos.map((video) => video.name);
-
-        // Create a map for easy lookup of names by URL
-        videoURLToNameMap = videoURLs.reduce((acc, url, index) => {
-          acc[url] = videoNames[index];
-          return acc;
-        }, {});
-
-        // Update filteredItems store
-        filteredItems.set(videoURLs);
-      } else {
-        // Prompt user to select a directory if none is saved
-        await openDirectory();
-      }
-
-      data = await fetchData();
+      // Create a map for easy lookup of names by URL
+      videoURLToNameMap = videoURLs.reduce((acc, url, index) => {
+        acc[url] = videoNames[index];
+        return acc;
+      }, {});
+      filteredItems.set(videoURLs);
     } catch (error) {
       console.error("Failed to get base directory:", error);
     } finally {
@@ -115,6 +107,7 @@
 
   function handleSortChange(event) {
     sortCategory = event.target.value;
+    console.log("Sort criteria: " + sortCategory);
     sortFilteredItems();
   }
 
