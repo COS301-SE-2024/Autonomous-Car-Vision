@@ -19,12 +19,10 @@
   let processed = false;
 
   function goToVideo() {
-    console.log("Go to video");
     const encodedPath = encodeURIComponent(videoSource);
     VideoURL.set(videoSource);
     OriginalVideoURL.set(videoSource);
     originalVideoURL.set(videoSource);
-    console.log(encodedPath);
     push(`/drive/${encodedPath}`);
   }
 
@@ -63,7 +61,6 @@
 
     try {
       processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
-      console.log("Processed:", processed);
     } catch (error) {
       console.error("Error checking if video is processed:", error);
     }

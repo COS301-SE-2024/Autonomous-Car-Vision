@@ -22,7 +22,6 @@
   }
 
   function view(videoSource) {
-    console.log("TESTING", videoSource);
     const encodedPath = encodeURIComponent(videoSource);
     push(`/video/${encodedPath}`);
   }

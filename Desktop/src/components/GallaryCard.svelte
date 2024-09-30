@@ -35,11 +35,8 @@
 
     try {
     let response = await window.electronAPI.openFTP(uid, token, size, "FAKENAME", "FAKEURL", "RETR");
-    console.log("Response: ", response);
     
     if (response.success) {
-        console.log("IP:", response.ip);
-        console.log("Port:", response.port);
         aip = response.ip;
         aport = response.port;
     } else {
@@ -54,19 +51,14 @@
     await window.electronAPI.downloadVideo(videoName, videoSource);
     // move the video to the download folder
     let currentFilePath = videoName;
-    console.log("Current File Path: ", currentFilePath);
-    console.log("videoSource: ", videoSource);
  
     isDownloading = false;
       showMoreModal = false;
       isDownloaded = true;
-
-    console.log("DOWNLOAD BUTTON");
   };
 
   function goToVideo() {
     if (!isDownloaded) return;
-    console.log("Go to video");
     const encodedPath = encodeURIComponent(videoSource);
     VideoURL.set(videoSource);
     OriginalVideoURL.set(videoSource);
@@ -75,13 +67,10 @@
   }
 
   function handleMore() {
-    console.log("More button clicked");
     showMoreModal = true;
-    console.log(videoSource);
   }
 
   function handleBack(event) {
-    console.log("Back button clicked");
     event.stopPropagation(); // Stop event propagation
     showMoreModal = false;
   }
@@ -120,7 +109,6 @@
     captureSpecificFrame(10); // Specify the frame to get
     try {
       processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
-      console.log("Processed:", processed);
     } catch (error) {
       console.error("Error checking if video is processed:", error);
     }
@@ -132,7 +120,6 @@
         );
         let videoPaths = response;
         firstFrameURL = videoPaths[0];
-        console.log(firstFrameURL);
       } catch (error) {}
     }
     setInterval(() => {
