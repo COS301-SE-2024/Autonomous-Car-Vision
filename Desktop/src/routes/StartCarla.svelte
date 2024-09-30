@@ -121,6 +121,21 @@
       <p class="text-message" style="color: {textColor};">
         Note: Build your pipe in the "Pipes" section.
       </p>
+      <p class="text-message" style="color: {textColor};">
+        Controls:
+      </p>
+      <p class="text-message" style="color: {textColor};">
+        W,A,S,D-To move the car
+      </p>
+      <p class="text-message" style="color: {textColor};">
+        R to toggle reverse
+      </p>
+      <p class="text-message" style="color: {textColor};">
+        O to toggle object detection
+      </p>
+      <p class="text-message" style="color: {textColor};">
+        Q to toggle lane following
+      </p>
 
       <!-- Button with dynamic text color -->
       <Button
