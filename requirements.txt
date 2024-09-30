@@ -20,7 +20,7 @@ comm==0.2.2
 ConfigArgParse==1.7
 contourpy==1.1.1
 coverage==7.6.1
-cryptography==42.0.4
+cryptography==43.0.1
 cycler==0.12.1
 dash==2.18.1
 dash-core-components==2.0.0
