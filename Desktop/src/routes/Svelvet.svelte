@@ -55,6 +55,12 @@
       operation: "infusr",
     },
     {
+      type: "Observer",
+      label: "Observer",
+      bgColor: "red",
+      operation: "observer",
+    },
+    {
       type: "HV1",
       label: "High-Viz v1",
       bgColor: "lightyellow",
