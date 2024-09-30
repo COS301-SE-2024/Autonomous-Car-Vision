@@ -45,9 +45,9 @@ def get_keyboard_control(vehicle):
     global follow_lane
     global object_avoidance
     control = carla.VehicleControl()
+    keys = pygame.key.get_pressed()
 
     if not follow_lane:
-        keys = pygame.key.get_pressed()
         control = carla.VehicleControl()
         control.throttle = 1.0 if keys[pygame.K_w] else 0.0
         control.brake = 1.0 if keys[pygame.K_s] else 0.0
@@ -425,7 +425,7 @@ def create_directory_and_move_files(output_frames):
 
 
 # Example usage:
-def main(pipe):
+def main():
     global lane_active
     global avoid
     pygame.init()
@@ -469,7 +469,8 @@ def main(pipe):
 
         # Timer for the drive
         start_time = time.time()
-        pipestring = pipe
+        pipestring = "inputUnit,laneUnit,outputUnit.all"
+
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
@@ -528,7 +529,7 @@ def main(pipe):
                 # print(object_avoidance)
                 # print( pipe.dataToken.get_flag("hasObserverData"))
 
-                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                if avoid and pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     print("avoiding")
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
                     breaking = observerToken['breaking']
@@ -542,9 +543,12 @@ def main(pipe):
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
                 if (follow_lane):
+                    print("Okeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
+                    print("Steer", steer)
                     control.steer = steer
+                    control.throttle = 0.15
 
                 vehicle.apply_control(control)
 
@@ -570,14 +574,9 @@ def main(pipe):
         print('done.')
         pygame.quit()
 
+
 if __name__ == '__main__':
     try:
-        if len(sys.argv) > 1:
-            pipe_argument = sys.argv[1]
-        else:
-            print("No pipe argument provided. Exiting...")
-            sys.exit(1)
-
-        main(pipe_argument)
+        main()
     except KeyboardInterrupt:
         print('\nCancelled by user. Bye!')
