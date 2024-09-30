@@ -45,14 +45,14 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 ## Demo 4 Documentation
 - **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1gIxNez0D_c3PPoFBYTATHkm7MnJQVXrC/view?usp=sharing>)
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/136Jwn4EFd_1YuSUh72xPMgggfaLIfSag/view?usp=sharing>)
-- **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
+- **Testing Policy:** [View Testing Policy](https://drive.google.com/file/d/1jk3v_G0w93nb2_aGrsvqfUDveT9uxGEh/view?usp=sharing)
+- **User Manual:** [View User Manual](https://drive.google.com/file/d/1mCSHfjwH3XtDPfdqn9FaZ7r7nIIND1vB/view?usp=sharing)
 - **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1frFBmJ9-5B0baJFwwqG0OB90KV7_6c0b/view?usp=sharing>)
 - **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/10n53AYvFU-klGODx936X99Oj-YUcWZNj/view?usp=sharing>)
 
 ## Other Documents
 - **API Contracts:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
 - **AI Design Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
-- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
 
 ## Project Management
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
