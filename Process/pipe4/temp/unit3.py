@@ -108,17 +108,23 @@ def convert_array_to_surface(image_array):
 
 
 def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
+    # Ensure the output file is in MP4 format
+    if not video_filename.endswith(".mp4"):
+        video_filename += ".mp4"
+
     images = [img for img in sorted(os.listdir(output_folder)) if img.endswith(".png")]
     if not images:
+        print("No images found in the folder.")
         return
 
     # Assuming all images have the same resolution
     first_frame = imageio.imread(os.path.join(output_folder, images[0]))
     height, width = first_frame.shape[:2]
 
-    # Create a writer object using imageio
+    # Create a writer object using imageio for MP4 format
     writer = imageio.get_writer(video_filename, fps=calculated_fps, codec='libx264', pixelformat='yuv420p')
 
+    # Append each frame to the video
     for image in images:
         frame = imageio.imread(os.path.join(output_folder, image))
         writer.append_data(frame)

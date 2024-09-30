@@ -102,7 +102,9 @@
       "public/build/**/*",
       "src/**/*",
       "public/index.html",
-      ".env"
+      ".env",
+      "src/routes/*",
+      "src/routes/**/*"
     ],
     "win": {
       "target": [
