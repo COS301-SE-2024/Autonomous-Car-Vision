@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog, View} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, View, contextBridge} = require('electron');
 const {spawn} = require('child_process');
 const path = require('path');
 const crypto = require('crypto');
@@ -12,8 +12,15 @@ const ffmpegPath = require('ffmpeg-static');
 const ffprobePath = require('ffprobe-static').path;
 const {OAuth2Client} = require('google-auth-library');
 const http = require('http');
+const dotenv = require('dotenv');
+
 // import ability to get .env data
 require('dotenv').config();
+
+let envPath = path.join(app.getAppPath(), '.env');
+if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+}
 
 const os = require('os');
 const {Worker, isMainThread} = require('worker_threads');

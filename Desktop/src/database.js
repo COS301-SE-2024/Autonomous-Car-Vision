@@ -1,20 +1,20 @@
+const { app } = require('electron');
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 const fs = require('fs');
 
-// Determine the correct path for the SQLite database
-const isPackaged = process.env.NODE_ENV === 'production' || process.argv.includes('--app');
-const basePath = isPackaged ? process.resourcesPath : __dirname;
-const databasePath = path.join(basePath, 'database.sqlite');
+// Get the path for the SQLite database
+const databasePath = path.join(app.getPath('userData'), 'database.sqlite');
 
 // Ensure the directory exists in a writable location for the database file
-if (!fs.existsSync(path.dirname(databasePath))) {
-    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+const databaseDirectory = path.dirname(databasePath);
+if (!fs.existsSync(databaseDirectory)) {
+    fs.mkdirSync(databaseDirectory, { recursive: true });
 }
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.join(__dirname, 'database.sqlite')
+    storage: databasePath,
 });
 
 const LookupTable = sequelize.define('LookupTable', {
@@ -38,7 +38,7 @@ const LookupTable = sequelize.define('LookupTable', {
     },
     uid: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     }
 });
 
@@ -157,4 +157,4 @@ sequelize.sync().then(async () => {
     }
 });
 
-module.exports = { sequelize, LookupTable, AIModels, VideoTable  };
+module.exports = { sequelize, LookupTable, AIModels, VideoTable, DataTypes };
