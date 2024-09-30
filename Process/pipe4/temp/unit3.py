@@ -525,7 +525,7 @@ def main(pipe):
                 
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     # Render the text "Object avoidance on"
-                    text_surface = font.render("Object avoidance on", True, (255, 0, 0))  # Red text
+                    text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
                     
                 frame_number += 1

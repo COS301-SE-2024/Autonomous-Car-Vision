@@ -65,7 +65,7 @@ class outputUnit(Unit):
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
                 
-                if min_distances[i] is not None:
+                if min_distances and min_distances[i] is not None:
                     text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 else:

@@ -432,6 +432,9 @@ def main():
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
 
+    pygame.font.init()
+    font = pygame.font.Font(None, 36)
+
     client = carla.Client('localhost', 2000)
     client.set_timeout(10.0)
     world = client.get_world()
@@ -469,7 +472,7 @@ def main():
 
         # Timer for the drive
         start_time = time.time()
-        pipestring = "inputUnit,laneUnit,outputUnit.all"
+        pipestring = "inputUnit,yoloUnit.yolov8n,infusrUnit,observerUnit,outputUnit.all"
 
         # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
@@ -520,6 +523,12 @@ def main():
                 # Display the processed image
                 image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
+
+                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                    # Render the text "Object avoidance on"
+                    text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Red text
+                    display.blit(text_surface, (10, 10))
+
                 frame_number += 1
 
                 pygame.display.flip()
@@ -543,7 +552,6 @@ def main():
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
                 if (follow_lane):
-                    print("Okeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
                     print("Steer", steer)
