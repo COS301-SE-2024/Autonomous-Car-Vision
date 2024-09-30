@@ -69,11 +69,11 @@
             route: "#/startCarla",
             iconPath: mdiCar,
         },
-        {
-            name: "Visualizer",
-            route: "#/visualize",
-            iconPath: mdiEyeRefresh,
-        },
+        // {
+        //     name: "Visualizer",
+        //     route: "#/visualize",
+        //     iconPath: mdiEyeRefresh,
+        // },
         {
             id: "go-to-drive-gallery",
             name: "Drive Gallery",

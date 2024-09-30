@@ -39,21 +39,35 @@ lane_active = False
 object_avoidance = False
 avoid = False
 
+reverse_toggle = False
+reverse_gear = False
+
 
 def get_keyboard_control(vehicle):
     # Toggle lane following with Q
     global follow_lane
     global object_avoidance
+    global reverse_toggle
+    global reverse_gear
+    control = carla.VehicleControl()
+
+    keys = pygame.key.get_pressed()
     control = carla.VehicleControl()
 
     if not follow_lane:
-        keys = pygame.key.get_pressed()
-        control = carla.VehicleControl()
         control.throttle = 1.0 if keys[pygame.K_w] else 0.0
         control.brake = 1.0 if keys[pygame.K_s] else 0.0
         control.steer = -1.0 if keys[pygame.K_a] else 1.0 if keys[pygame.K_d] else 0.0
         control.hand_brake = keys[pygame.K_SPACE]
-        control.reverse = not control.reverse if keys[pygame.K_r] else control.reverse
+
+        if keys[pygame.K_r] and not reverse_toggle:
+            reverse_gear = not reverse_gear
+            reverse_toggle = True
+
+        if not keys[pygame.K_r]:
+            reverse_toggle = False
+
+        control.reverse = reverse_gear
     else:
         control.throttle = 0.3
 
@@ -523,7 +537,7 @@ def main(pipe):
                 image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
                 
-                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
                     # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
@@ -537,7 +551,7 @@ def main(pipe):
                 # print(object_avoidance)
                 # print( pipe.dataToken.get_flag("hasObserverData"))
 
-                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
                     print("avoiding")
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
                     breaking = observerToken['breaking']

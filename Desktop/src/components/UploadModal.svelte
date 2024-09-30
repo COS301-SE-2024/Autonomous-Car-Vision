@@ -121,6 +121,7 @@
                 );
             }
 
+            showModal = false;
             push("/gallery");
         } catch (error) {
             console.error("Error occurred:", error);

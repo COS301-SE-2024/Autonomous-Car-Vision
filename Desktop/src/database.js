@@ -1,20 +1,20 @@
+const { app } = require('electron');
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 const fs = require('fs');
 
-// Determine the correct path for the SQLite database
-const isPackaged = process.env.NODE_ENV === 'production' || process.argv.includes('--app');
-const basePath = isPackaged ? process.resourcesPath : __dirname;
-const databasePath = path.join(basePath, 'database.sqlite');
+// Get the path for the SQLite database
+const databasePath = path.join(app.getPath('userData'), 'database.sqlite');
 
 // Ensure the directory exists in a writable location for the database file
-if (!fs.existsSync(path.dirname(databasePath))) {
-    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+const databaseDirectory = path.dirname(databasePath);
+if (!fs.existsSync(databaseDirectory)) {
+    fs.mkdirSync(databaseDirectory, { recursive: true });
 }
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.join(__dirname, 'database.sqlite')
+    storage: databasePath,
 });
 
 const LookupTable = sequelize.define('LookupTable', {
@@ -38,7 +38,7 @@ const LookupTable = sequelize.define('LookupTable', {
     },
     uid: {
         type: DataTypes.INTEGER,
-        allowNull:false
+        allowNull: false
     }
 });
 
@@ -147,9 +147,9 @@ sequelize.sync().then(async () => {
             {
                 model_id: '4',
                 model_name: 'HV1',
-                model_description: 'HV1 is an advanced model under development, focused on high-velocity object detection and tracking.',
+                model_description: 'HV1 uses a YOLO architecture to segement lanes for the purpose of lane assistance.',
                 model_version: '1.0',
-                model_summary: 'Work in progress.',
+                model_summary: 'Lane segmentation model',
                 model_profileimg: 'https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                 model_img: 'https://media1.tenor.com/m/GqOoWCxt5DEAAAAC/fast-car.gif'
             }
@@ -157,4 +157,4 @@ sequelize.sync().then(async () => {
     }
 });
 
-module.exports = { sequelize, LookupTable, AIModels, VideoTable  };
+module.exports = { sequelize, LookupTable, AIModels, VideoTable, DataTypes };

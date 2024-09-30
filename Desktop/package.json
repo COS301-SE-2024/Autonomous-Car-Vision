@@ -1,7 +1,9 @@
 {
   "name": "HighViz",
   "version": "3.0.0",
-  "author": "Bitforge Team bitforge.capstone@gmail.com",
+  "author": {
+    "email": "bitforge.capstone@gmail.com"
+  },
   "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
@@ -13,7 +15,8 @@
     "test:watch": "vitest",
     "test:report": "vitest --ui & playwright show-report",
     "playwright": "playwright test",
-    "playwright:report": "playwright show-report"
+    "playwright:report": "playwright show-report",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@lottiefiles/dotlottie-svelte": "^0.3.14",
@@ -37,6 +40,7 @@
     "bcryptjs": "^2.4.3",
     "crypto-js": "^4.2.0",
     "d3": "^7.9.0",
+    "dotenv": "^16.4.5",
     "electron-reloader": "^1.2.3",
     "electron-store": "^9.0.0",
     "express": "^4.19.2",
@@ -81,7 +85,7 @@
     "@vitest/ui": "^1.6.0",
     "babel-jest": "^27.0.0",
     "daisyui": "^4.12.10",
-    "electron": "^32.1.2",
+    "electron": "^31.0.0",
     "electron-builder": "^24.13.3",
     "electron-rebuild": "^3.2.9",
     "ffmpeg": "^0.0.4",
@@ -97,7 +101,8 @@
     "files": [
       "public/build/**/*",
       "src/**/*",
-      "public/index.html"
+      "public/index.html",
+      ".env"
     ],
     "win": {
       "target": [

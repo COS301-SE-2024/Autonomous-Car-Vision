@@ -97,8 +97,6 @@
     selectedModel.set(Model); 
   };
 
-
-
 </script>
 
 {#if $theme === 'highVizLight'}

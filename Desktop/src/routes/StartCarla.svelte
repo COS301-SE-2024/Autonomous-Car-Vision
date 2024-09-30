@@ -128,9 +128,6 @@
         W,A,S,D-To move the car
       </p>
       <p class="text-message" style="color: {textColor};">
-        R to toggle reverse
-      </p>
-      <p class="text-message" style="color: {textColor};">
         O to toggle object detection
       </p>
       <p class="text-message" style="color: {textColor};">
