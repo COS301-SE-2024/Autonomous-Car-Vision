@@ -431,6 +431,9 @@ def main(pipe):
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
+    
+    pygame.font.init()
+    font = pygame.font.Font(None, 36)
 
     client = carla.Client('localhost', 2000)
     client.set_timeout(10.0)
@@ -519,6 +522,12 @@ def main(pipe):
                 # Display the processed image
                 image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
+                
+                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                    # Render the text "Object avoidance on"
+                    text_surface = font.render("Object avoidance on", True, (255, 0, 0))  # Red text
+                    display.blit(text_surface, (10, 10))
+                    
                 frame_number += 1
 
                 pygame.display.flip()
