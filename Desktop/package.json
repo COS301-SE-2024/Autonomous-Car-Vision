@@ -1,9 +1,10 @@
 {
   "name": "HighViz",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": {
     "email": "bitforge.capstone@gmail.com"
   },
+  "description": "HighViz a comprehensive suite of AI tools for autonomous car vision that aims to imporove the driving experience by providing a host of feature such as terrain mapping, lane following, obstacle avoidance.",
   "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
@@ -31,6 +32,7 @@
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@types/bcryptjs": "^2.4.6",
+    "adm-zip": "^0.5.16",
     "apexcharts": "^3.52.0",
     "autoprefixer": "^10.0.0",
     "axios": "^1.7.2",
@@ -101,10 +103,12 @@
     "files": [
       "public/images",
       "public/build/**/*",
-      "src/*",
+      "src/**/*",
+      "src/routes/**/*.py",
       "public/index.html",
       ".env",
-      "../Process"
+      "../Process/**/*",
+      "python.zip"
     ],
     "win": {
       "target": [
@@ -113,11 +117,11 @@
       ]
     },
     "linux": {
+      "icon": "build/icons",
       "target": [
-        "AppImage",
-        "deb",
-        "rpm"
+        "AppImage"
       ]
-    }
+    },
+    "asar": true
   }
 }

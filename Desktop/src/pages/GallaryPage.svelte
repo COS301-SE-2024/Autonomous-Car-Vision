@@ -32,16 +32,18 @@
   });
 
   // Fetch the video records from the database
-  //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
-
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
     //TODO: update last signin in the database
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
+    fetchVideos();
+  });
 
+  async function fetchVideos() {
+    isLoading.set(true);
     try {
       const response = await window.electronAPI.fetchVideos();
       if (response.success) {
@@ -55,46 +57,24 @@
           videoURLs.map(async (url) => {
             const checkResponse =
               await window.electronAPI.checkFileExistence(url);
-            if (checkResponse.success) {
-              return checkResponse.exists;
-            } else {
-              console.error(
-                "Error checking file existence:",
-                checkResponse.error,
-              );
-              return false;
-            }
+            return checkResponse.success ? checkResponse.exists : false;
           }),
         );
-        filteredItems.set(videoURLs); 
+        filteredItems.set(videoURLs);
       } else {
         console.error("Failed to fetch video records:", response.error);
       }
-      data = await fetchData();
     } catch (error) {
       console.error("Failed to fetch data", error);
     } finally {
       isLoading.set(false);
     }
-  });
+  }
 
   async function fetchData() {
     // Replace with your actual data fetching logic
     return { message: "Data loaded successfully" };
   }
-
-  // $: filteredItems = videoURLs.filter(item => {
-  //  const searchRegex = new RegExp(searchQuery, 'i');
-
-  //   if (filterCategory === 'Name') {
-  //    return searchRegex.test(videoNames[item]); //TODO: check this (maybe meant to be mname)
-  //  } else if (filterCategory === 'Date') {
-  //    return searchRegex.test(item.date); //check the returned value
-  //  } else if (filterCategory === 'Model Name') {
-  //    return searchRegex.test(item.modelName); //check the returned value
-  //  }
-  //  return true;
-  // });
 
   async function handleSearch(event) {
     searchQuery = event.target.value;
@@ -137,6 +117,11 @@
 
   function handleListTypeChange(type) {
     listType = type;
+  }
+
+  function handleUploadSuccess(event) {
+    console.log("Upload successful, re-fetching videos...");
+    fetchVideos(); // Re-fetch the video list after upload
   }
 </script>
 
@@ -184,7 +169,7 @@
           </Button>
         </div>
         {#if listType === "grid"}
-          {#if $filteredItems.length > 0}
+          {#if $filteredItems.length > 0 || $isLoading}
             <div
               class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
             >
@@ -260,7 +245,7 @@
           </Button>
         </div>
         {#if listType === "grid"}
-          {#if $filteredItems.length > 0}
+          {#if $filteredItems.length > 0 || $isLoading}
             <div
               class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
             >

@@ -41,8 +41,8 @@ async function loadElectronStore() {
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 800,
+        width: 1080,
+        height: 720,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -116,6 +116,50 @@ app.on('activate', () => {
 //     require('electron-reloader')(module)
 // } catch (_) { }
 
+const AdmZip = require('adm-zip');
+
+function extractPythonFiles(pythonFile) {
+    const appDataDir = path.join(app.getPath('userData'), 'python-scripts');  // Extract in app data directory
+    const zipPath = path.join(app.getAppPath(), 'python.zip');
+
+    console.log(`Zip Path: ${zipPath}`);
+    console.log(`App Data Directory: ${appDataDir}`);
+
+    // Ensure the app data directory exists
+    if (!fs.existsSync(appDataDir)) {
+        fs.mkdirSync(appDataDir, { recursive: true });
+    }
+
+    const zip = new AdmZip(zipPath);
+
+    // Check if the python scripts have already been extracted
+    const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
+    
+    // If the specific script exists, skip extraction
+    if (fs.existsSync(extractedScriptPath)) {
+        console.log(`Python script already extracted at: ${extractedScriptPath}`);
+        return appDataDir; // Return early if the script is already extracted
+    }
+
+    // List files in the zip to verify its contents
+    const zipEntries = zip.getEntries();
+    zipEntries.forEach((entry) => {
+        console.log(`File in zip: ${entry.entryName}`);
+    });
+
+    // Extract the files to the app data directory
+    zip.extractAllTo(appDataDir, true);
+
+    // Verify extraction
+    if (fs.existsSync(extractedScriptPath)) {
+        console.log(`Python script found at: ${extractedScriptPath}`);
+    } else {
+        console.error(`Python script NOT found at: ${extractedScriptPath}`);
+    }
+
+    return appDataDir;
+}
+
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
@@ -137,14 +181,14 @@ ipcMain.handle('read-directory', async (event, directoryPath) => {
 
 function getBaseDirectory() {
     if (os.platform() === 'win32') {
-      // For Windows, use the AppData directory
-      base_directory = path.join(process.env.APPDATA, 'HVstore');
+        // For Windows, use the AppData directory
+        base_directory = path.join(process.env.APPDATA, 'HVstore');
     } else if (os.platform() === 'linux') {
-      // For Linux, use ~/.local/share
-      base_directory = path.join(os.homedir(), '.local', 'share', 'HVstore');
+        // For Linux, use ~/.local/share
+        base_directory = path.join(os.homedir(), '.local', 'share', 'HVstore');
     }
     return base_directory;
-  }
+}
 
 ipcMain.handle('get-host-ip', async (event) => {
     return process.env.HOST_IP;
@@ -395,7 +439,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 
         const duration = format.duration;
         const videoName = path.basename(videoPath, path.extname(videoPath));
-        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+        const outputDir = path.join(app.getPath('userData'), 'frames', videoName);
 
         // checks if output directory exists
 
@@ -776,15 +820,15 @@ ipcMain.handle('check-cuda', async () => {
 });
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
-    const scriptPath = 'src/routes/pythonUpload.py';
+    const extractedPath = extractPythonFiles('pythonUpload.py');  // Use app data directory
+    const scriptPath = path.join(extractedPath, 'python', 'pythonUpload.py');  // Ensure the script has the correct path
+
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
     const args = [ip, port, `"${filepath}"`, uid, size, token, mid];
-    console.log("ARGS: " + args.join(" "));
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
-
         const python = spawn('python', [scriptPath, ...args], {});
 
         console.log("Running Python script:");
@@ -824,22 +868,29 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
-    const scriptPath = 'src/routes/pythonDownload.py';
+    const extractedPath = extractPythonFiles('pythonDownload.py');  // Use app data directory
+    const scriptPath = path.join(extractedPath, 'python', 'pythonDownload.py');  // Ensure the script has the correct path
+    const fullFilepath = path.join(app.getPath('userData'), 'Downloads', filepath);
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
-    const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
-
+    const args = [ip, port, filepath, fullFilepath, uid, size, token, mid, videoDestination];
+    
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
         const python = spawn('python', [scriptPath, ...args]);
-
+        
+        
+        console.log("FILEPATH: ", filepath);
+        console.log("FULL FILE PATH: ", fullFilepath);
         console.log("Script path: " + scriptPath);
         console.log("Args: " + args.join(" "));
+        
         let output = '';
         let error = '';
 
         python.stdout.on('data', (data) => {
             output += data.toString();
+            console.log(output);
         });
 
         python.stderr.on('data', (data) => {
@@ -889,7 +940,7 @@ ipcMain.handle('delete-video-file', async (event, filePath) => {
         }
 
         // Determine the frames directory path
-        const framesDir = path.join(path.dirname(filePath), 'frames', path.basename(filePath, path.extname(filePath)));
+        const framesDir = path.join(app.getPath('userData'), 'frames', path.basename(filePath, path.extname(filePath)));
 
         // Check if frames directory exists
         if (fs.existsSync(framesDir)) {
@@ -915,7 +966,7 @@ ipcMain.handle('delete-video-file', async (event, filePath) => {
 
 ipcMain.handle('get-video-frame', async (event, videoPath) => {
     const videoName = path.basename(videoPath, path.extname(videoPath));
-    const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+    const outputDir = path.join(app.getPath('userData'), 'frames', videoName);
 
     // Checking if the frames are already generated
     const frameFiles = fs.readdirSync(outputDir);
@@ -928,8 +979,8 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
 
 // IPC handler to move a video file from the Deleted folder to the Downloads folder
 ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
+    console.log("VName: ", videoName, " -- File Path: ", filePath);
     try {
-        // const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));/
         const videoFilePath = filePath;
 
         if (!fs.existsSync(videoFilePath)) {
@@ -942,10 +993,10 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
         const destinationPath = path.join(downloadsDir, videoName);
 
         console.log('Moving video file to:', destinationPath);
-        console.log('from: ', deletedDir);
         // Move the video file to the Downloads folder
         fs.renameSync(videoFilePath, destinationPath);
 
+        console.log(destinationPath);
         return { success: true, videoFilePath: destinationPath };
     } catch (error) {
         console.error('Error moving video file:', error);

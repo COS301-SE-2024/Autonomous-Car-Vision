@@ -7,10 +7,13 @@
     import { Button, Icon } from "svelte-materialify";
     import { mdiClose, mdiDeleteOutline, mdiUpload } from "@mdi/js";
     import { theme } from "../stores/themeStore";
+    import { createEventDispatcher } from 'svelte';
+
 
     export let videoSource = "";
     export let showModal;
 
+    const dispatch = createEventDispatcher();
     let dialog;
     let filename = "";
     let file;
@@ -122,6 +125,7 @@
             }
 
             showModal = false;
+            dispatch('uploadSuccess', { success: true });
             push("/gallery");
         } catch (error) {
             console.error("Error occurred:", error);
