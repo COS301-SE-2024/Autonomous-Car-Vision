@@ -22,7 +22,7 @@
 
   import VideoAside from "./videoAside.svelte";
   import { each } from "svelte/internal";
-  import {theme} from '../stores/themeStore';
+  import { theme } from "../stores/themeStore";
 
   export let videoPath;
 
@@ -91,12 +91,30 @@
     // Find the frame index that corresponds to the current time
     const frameIndex = Math.floor((time / duration) * frames.length);
     const frameElement = document.querySelectorAll(".thumbnail")[frameIndex];
-    if (frameElement) {
-      frameElement.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+    const parentElement = document.querySelector(".thumbnail-bar"); // Assuming this is your upper div
+
+    if (frameElement && parentElement) {
+      // Get the bounding rectangles of both the frame and the parent container
+      const frameRect = frameElement.getBoundingClientRect();
+      const parentRect = parentElement.getBoundingClientRect();
+
+      // Check if the frame is out of view of the parent container
+      if (
+        frameRect.left < parentRect.left ||
+        frameRect.right > parentRect.right
+      ) {
+        // Calculate the offset needed to bring the frame into view without crossing the boundary
+        const scrollOffset =
+          frameRect.left < parentRect.left
+            ? frameRect.left - parentRect.left
+            : frameRect.right - parentRect.right;
+
+        // Adjust the scroll position of the parent element
+        parentElement.scrollBy({
+          left: scrollOffset,
+          behavior: "smooth",
+        });
+      }
     }
   }
 
@@ -112,12 +130,30 @@
     // Find the frame index that corresponds to the current time
     const frameIndex = Math.floor((time / duration) * frames.length);
     const frameElement = document.querySelectorAll(".thumbnail")[frameIndex];
-    if (frameElement) {
-      frameElement.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+    const parentElement = document.querySelector(".thumbnail-bar"); // Assuming this is your upper div
+
+    if (frameElement && parentElement) {
+      // Get the bounding rectangles of both the frame and the parent container
+      const frameRect = frameElement.getBoundingClientRect();
+      const parentRect = parentElement.getBoundingClientRect();
+
+      // Check if the frame is out of view of the parent container
+      if (
+        frameRect.left < parentRect.left ||
+        frameRect.right > parentRect.right
+      ) {
+        // Calculate the offset needed to bring the frame into view without crossing the boundary
+        const scrollOffset =
+          frameRect.left < parentRect.left
+            ? frameRect.left - parentRect.left
+            : frameRect.right - parentRect.right;
+
+        // Adjust the scroll position of the parent element
+        parentElement.scrollBy({
+          left: scrollOffset,
+          behavior: "smooth",
+        });
+      }
     }
   }
 
@@ -153,7 +189,7 @@
 
     // Scroll the clicked frame into the center of the thumbnail bar
     const frameElement = document.querySelectorAll(".thumbnail")[index];
-    if (frameElement) {
+    if (frameElement && frameElement.getBoundingClientRect().right > 0) {
       frameElement.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
@@ -183,14 +219,13 @@
     showSideAIDetail = !showSideAIDetail;
   }
 
-  function selectVideo(event){
+  function selectVideo(event) {
     const video = event.detail;
     videoPath = video;
     extractFrames();
   }
 
-  let sideAIinfo = [
-  ];
+  let sideAIinfo = [];
 
   async function getAIinfo() {
     try {
@@ -200,25 +235,26 @@
       const videoName = getFileName(originalVideoPath);
       videoNameExtract = videoName.split(".")[0];
 
-
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
 
       // Fetch the original video details from the database
-      let originalVideo = await window.electronAPI.getVideoByURL(originalVideoPath);
-
+      let originalVideo =
+        await window.electronAPI.getVideoByURL(originalVideoPath);
 
       // If the original video is not found, add it to the database
       if (!originalVideo) {
         const newOriginalVideo = {
           label: "Original",
-          profileImgURL: "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
+          profileImgURL:
+            "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
           videoURL: videoPath,
           originalVidID: 0, // Set to null instead of 0
         };
         originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
 
         // Fetch the original video again to get the complete data including ID
-        originalVideo = await window.electronAPI.getVideoByURL(originalVideoPath);
+        originalVideo =
+          await window.electronAPI.getVideoByURL(originalVideoPath);
         if (!originalVideo) {
           throw new Error("Failed to add original video to the database");
         }
@@ -237,7 +273,7 @@
 
       // Fetch processed videos linked to the original video
       const processedVideoEntries = await window.electronAPI.getProcessedVideos(
-        originalVideo.videoID
+        originalVideo.videoID,
       );
 
       // Add processed videos
@@ -247,14 +283,14 @@
           label: video.label,
           profileImgURL: video.profileImgURL,
           videoURL: video.videoURL,
-          timeStamp: video.creation_date
+          timeStamp: video.creation_date,
         });
       });
 
       // Format the timestamp
       processedVideos.forEach((video) => {
         video.timeStamp = new Date(video.timeStamp).toLocaleDateString();
-      }); 
+      });
 
       // write the processed videos to the sideAIinfo
       processedVideos.forEach((video) => {
@@ -287,11 +323,11 @@
   });
 </script>
 
-
-{#if $theme === 'highVizLight'}
+{#if $theme === "highVizLight"}
   <div>
     <div class="flex relative justify-center bg-black overflow-hidden">
       <video
+        class="thumbnail-container"
         poster={frames[1]}
         src={videoPath}
         type="video/mp4"
@@ -324,13 +360,13 @@
         </div>
       </div>
       {#if AIinfoDone}
-      <div class="sidevideoLight {showSideAIDetail ? 'move-right' : ''}">
-        <div class="m-3">
-          {#each sideAIinfo as info}
-            <VideoAside AIinfo={info} on:select={selectVideo}/>
-          {/each}
+        <div class="sidevideoLight {showSideAIDetail ? 'move-right' : ''}">
+          <div class="m-3">
+            {#each sideAIinfo as info}
+              <VideoAside AIinfo={info} on:select={selectVideo} />
+            {/each}
+          </div>
         </div>
-      </div>
       {/if}
       <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
         {#if frames.length > 0}
@@ -374,11 +410,12 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div>
 {:else}
   <div>
     <div class="flex relative justify-center bg-black overflow-hidden">
       <video
+        class="thumbnail-container"
         poster={frames[1]}
         src={videoPath}
         type="video/mp4"
@@ -411,13 +448,13 @@
         </div>
       </div>
       {#if AIinfoDone}
-      <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
-        <div class="m-3">
-          {#each sideAIinfo as info}
-            <VideoAside AIinfo={info} on:select={selectVideo}/>
-          {/each}
+        <div class="sidevideo {showSideAIDetail ? 'move-right' : ''}">
+          <div class="m-3">
+            {#each sideAIinfo as info}
+              <VideoAside AIinfo={info} on:select={selectVideo} />
+            {/each}
+          </div>
         </div>
-      </div>
       {/if}
       <div class="controls" style="opacity: {duration && showControls ? 1 : 0}">
         {#if frames.length > 0}
@@ -464,7 +501,6 @@
   </div>
 {/if}
 
-
 <style>
   .sideButton {
     width: 42px;
@@ -472,20 +508,18 @@
     position: absolute;
     top: 0%;
     right: 0%;
-    transition: test 1s;
     background-color: #03191ec6;
     margin: 5px;
     border-radius: 50%;
     transition: ease-in-out 1s;
   }
 
-    .sideButtonLight {
+  .sideButtonLight {
     width: 42px;
     height: 42px;
     position: absolute;
     top: 0%;
     right: 0%;
-    transition: test 1s;
     background-color: #b6d9e8c2;
     margin: 5px;
     border-radius: 50%;
@@ -518,11 +552,13 @@
     transition: ease-in-out 1s;
   }
 
-  .sidevideo.move-right, .sidevideoLight.move-right {
+  .sidevideo.move-right,
+  .sidevideoLight.move-right {
     right: 0;
   }
 
-  .sideButton.move-right, .sideButtonLight.move-right  {
+  .sideButton.move-right,
+  .sideButtonLight.move-right {
     right: 25.5%;
   }
 
@@ -551,6 +587,7 @@
     width: 100%;
     height: 60px;
     transition: opacity 0.5s;
+    white-space: nowrap;
   }
 
   .thumbnail {

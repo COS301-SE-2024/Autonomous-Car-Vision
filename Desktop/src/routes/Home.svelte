@@ -279,13 +279,13 @@
             </button>
           </a>
           {#if !showCodeInput}
-            <a href="#/" class="w-full" on:click={googleLogin}>
+            <!-- <a href="#/" class="w-full" on:click={googleLogin}>
               <button
                 class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
               >
                 Log In with Google
               </button>
-            </a>
+            </a> -->
           {:else}
             <TextField
               bind:value={authCode}

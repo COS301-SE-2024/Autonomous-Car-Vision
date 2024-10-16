@@ -488,9 +488,6 @@
       </select>
     </div>
     <div class="flex flex-row gap-2">
-      <!-- <Button on:click={LoadCanvas} class="bg-dark-primary text-dark-background"
-              >Load Prev</Button
-            > -->
       <Button
         rounded
         on:click={ClearCanvas}
@@ -503,22 +500,6 @@
         class="bg-dark-primary text-dark-background"
         >Save Pipe
       </Button>
-      <!-- {#if savedCanvas}
-        <Button
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
-        </Button>
-      {:else}
-        <Button
-          disabled
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
-        </Button>
-      {/if} -->
     </div>
   </div>
   <div class="canvasLight">
@@ -585,9 +566,6 @@
       </select>
     </div>
     <div class="flex flex-row gap-2">
-      <!-- <Button on:click={LoadCanvas} class="bg-dark-primary text-dark-background"
-              >Load Prev</Button
-            > -->
       <Button
         rounded
         on:click={ClearCanvas}
@@ -600,22 +578,6 @@
         class="bg-dark-primary text-dark-background"
         >Save Pipe
       </Button>
-      <!-- {#if savedCanvas}
-        <Button
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
-        </Button>
-      {:else}
-        <Button
-          disabled
-          rounded
-          on:click={runPipe}
-          class="bg-dark-primary text-dark-background"
-          >Run Pipe
-        </Button>
-      {/if} -->
     </div>
   </div>
   <div class="canvas">

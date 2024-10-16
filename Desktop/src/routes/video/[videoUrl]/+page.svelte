@@ -295,14 +295,14 @@
           <Icon path={mdiDeleteOutline} size={28} />
           Delete
         </button>
-        {#if showDeleteModal}
-          <DeleteModal
-            on:cancel={handleCancel}
-            on:save={handleDeleteSave}
-            {videoPath}
-          />
-        {/if}
       </div>
+      {#if showDeleteModal}
+        <DeleteModal
+          on:cancel={handleCancel}
+          on:save={handleDeleteSave}
+          {videoPath}
+        />
+      {/if}
       {#if showProcessPopup}
         <ProcessPopup
           on:closePopup={closeProcessPopup}
