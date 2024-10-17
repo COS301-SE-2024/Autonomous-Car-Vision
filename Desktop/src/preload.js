@@ -39,7 +39,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateData: (mid, updates) => ipcRenderer.invoke('ureq', mid, updates),
   uploadFile: (filePath, mid, uid, token, mediaName) => ipcRenderer.invoke('upload-file', filePath, mid, uid, token, mediaName),
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
-  fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
+  fetchVideos: (uid) => ipcRenderer.invoke('fetch-videos', uid),
   extractFrames: (videoPath) => ipcRenderer.invoke('extract-frames', videoPath),
   saveFile: (fileBuffer, fileName) => ipcRenderer.invoke('save-file', fileBuffer, fileName),
   fileExists: (filePath) => fs.existsSync(path.resolve(filePath)),
@@ -86,4 +86,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getTestData: () => ipcRenderer.invoke('get-test-data'),
   platform: process.platform,
   getBaseDirectory: async () => await ipcRenderer.invoke('get-base-directory'),
+  syncSqlite: (uid) => ipcRenderer.invoke('sync-sqlite', uid),
 });

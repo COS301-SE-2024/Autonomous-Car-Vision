@@ -439,9 +439,9 @@ ipcMain.handle('open-file-dialog', async () => {
         return { canceled: false, filePath: result.filePaths[0] };
     }
 });
-ipcMain.handle('fetch-videos', async () => {
+ipcMain.handle('fetch-videos', async (event, uid) => {
     try {
-        const records = await LookupTable.findAll({ where: { localurl: { [Sequelize.Op.not]: null } } });
+        const records = await LookupTable.findAll({ where: { localurl: { [Sequelize.Op.not]: null }, uid: uid } });
         return { success: true, data: records };
     } catch (error) {
         console.error('Failed to fetch videos:', error);
@@ -1607,4 +1607,67 @@ function generateThumbnail(videoPath) {
                 folder: path.dirname(thumbnailPath),
             });
     });
+}
+
+ipcMain.handle('sync-sqlite', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        axios.post('http://' + HOST_IP + ':8000/api/syncSqlite/', { uid: uid })
+            .then(response => {
+                console.log("response", response.data);
+                //insert into sqlite
+                insertLookupData(response.data);
+                // make iterable
+                console.log("DATA LOGGED", data);
+                logLookupTableContents();
+                resolve(response.data);
+            })
+            .catch(error => {
+                console.log("error", error);
+                reject(error);
+            });
+    });
+});
+
+async function insertLookupData(responseData) {
+    try {
+        const data = responseData.data; // Extract the data array
+        for (const item of data) {
+            console.log("Attempting to insert item:", item);
+            if (!item.media_name || !item.uid) {
+                console.error("Invalid item data:", item);
+                continue; // Skip this item and move to the next one
+            }
+
+            //check if the item is already in the database
+            const existingItem = await LookupTable.findOne({ where: { mname: item.media_name } });
+            if (existingItem) {
+                console.log('Item already exists in the database:', item.media_name);
+                continue; // Skip this item and move to the next one    
+            }
+
+            await LookupTable.create({
+                mid: parseInt(item.mid), // Use mid instead of id
+                mname: item.media_name,
+                localurl: item.media_url,
+                size: 0, // You'll need to calculate or provide the actual size
+                uid: item.uid
+            });
+            console.log('Item inserted successfully:', item.media_name);
+        }
+        console.log('All valid data inserted successfully');
+    } catch (error) {
+        console.error('Error inserting data:', error);
+    }
+}
+
+async function logLookupTableContents() {
+    try {
+        const allRecords = await LookupTable.findAll();
+        console.log('Contents of LookupTable:');
+        allRecords.forEach(record => {
+            console.log(record.toJSON());
+        });
+    } catch (error) {
+        console.error('Error fetching LookupTable contents:', error);
+    }
 }
