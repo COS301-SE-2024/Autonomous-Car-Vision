@@ -58,13 +58,11 @@
 
 <Node
   let:selected
-  minWidth={300}
-  minHeigth={300}
   {position}
   id={identifier}
   connections={connectors}
-  width={400}
-  height={300}
+  width={250}
+  height={125}
   useDefaults
   {label}
   {bgColor}

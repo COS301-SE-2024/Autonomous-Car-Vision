@@ -71,11 +71,6 @@
     }
   }
 
-  async function fetchData() {
-    // Replace with your actual data fetching logic
-    return { message: "Data loaded successfully" };
-  }
-
   async function handleSearch(event) {
     searchQuery = event.target.value;
     filteredItems.update(() => {
@@ -285,7 +280,7 @@
   {/if}
   {#if showModal}
     <div class="w-full h-full flex justify-center items-center">
-      <UploadModal bind:showModal />
+      <UploadModal on:uploadSuccess={handleUploadSuccess} bind:showModal />
     </div>
   {/if}
 </ProtectedRoutes>

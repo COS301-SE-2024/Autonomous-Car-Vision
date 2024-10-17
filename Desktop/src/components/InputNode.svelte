@@ -60,8 +60,8 @@
   {position}
   id={identifier}
   connections={connectors}
-  width={400}
-  height={400}
+  width={250}
+  height={125}
   useDefaults
   {label}
   {bgColor}
@@ -71,45 +71,7 @@
       <div class="header w-full h-full text-center flex justify-center align-center" >
         <h1 class="text-3xl font-bold">{label}</h1>
       </div>
-      <!-- <div class="showImage">
-        {#if $inputs.image} -->
-          <!-- <img src={$output} alt="ImageUploaded" /> -->
-        <!-- {:else} -->
-          <!-- <img
-            src="https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif"
-            alt="inputImage"
-          /> -->
-        <!-- {/if} -->
-        <!-- <img
-          class="upload"
-          src="https://static.thenounproject.com/png/625182-200.png"
-          alt=""
-          on:click={() => {
-            fileinput.click();
-          }}
-          on:keydown
-        /> -->
-        <!-- <div
-          class="chan"
-          on:keydown
-          on:click={() => {
-            fileinput.click();
-          }}
-        >
-          Choose Image
-        </div>
-        <input
-          style="display:none"
-          type="file"
-          accept=".jpg, .jpeg, .png"
-          on:change={(e) => onFileSelected(e)}
-          bind:this={fileinput}
-        /> -->
-      <!-- </div> -->
     </div>
-    <!-- <div class="input-anchors">
-      <Anchor bgColor="green" {key} inputsStore={inputs} input />
-    </div> -->
     <div class="output">
       <div class="output-anchors">
         <Anchor

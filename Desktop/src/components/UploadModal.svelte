@@ -44,9 +44,6 @@
             return;
         }
         isUploadLoading.set(true);
-        setInterval(async () => {
-            isUploadLoading.set(false);
-        }, 5000);
 
         let uid = window.electronAPI.getUid();
         let token = window.electronAPI.getToken();
@@ -124,8 +121,9 @@
                 );
             }
 
-            showModal = false;
             dispatch('uploadSuccess', { success: true });
+            isUploadLoading.set(false);
+            showModal = false;
             push("/gallery");
         } catch (error) {
             console.error("Error occurred:", error);

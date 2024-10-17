@@ -56,7 +56,21 @@ async function createWindow() {
     });
 
     mainWindow.loadFile('public/index.html');
-    // mainWindow.webContents.openDevTools();
+
+    if (app.isPackaged) {
+        mainWindow.webContents.on('devtools-opened', () => {
+            mainWindow.webContents.closeDevTools();
+        });
+
+        // Optionally, remove all context menu items related to DevTools
+        mainWindow.webContents.on('context-menu', (e) => {
+            e.preventDefault(); // Prevent context menu from showing DevTools options
+        });
+    } else {
+        // Open DevTools in development mode only
+        // mainWindow.webContents.openDevTools();
+    }
+
     // Initialize the store after the window is created
     store = await loadElectronStore();
 }
@@ -134,7 +148,7 @@ function extractPythonFiles(pythonFile) {
 
     // Check if the python scripts have already been extracted
     const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
-    
+
     // If the specific script exists, skip extraction
     if (fs.existsSync(extractedScriptPath)) {
         console.log(`Python script already extracted at: ${extractedScriptPath}`);
@@ -341,6 +355,16 @@ ipcMain.handle('hash-password-salt', async (event, password, salt) => {
 });
 ipcMain.handle('insert-data', async (event, record) => {
     try {
+        // Check if a record with the same filename (mname) already exists
+        const existingRecord = await LookupTable.findOne({ where: { mname: record.mname } });
+
+        if (existingRecord) {
+            // If the record exists, return an error message
+            console.log("ALREADY EXISTSS")
+            return { success: false, error: 'File with the same filename has already been uploaded.' };
+        }
+
+        // If no existing record, proceed with the file upload (insert)
         const result = await LookupTable.create(record);
         return { success: true, data: result };
     } catch (error) {
@@ -373,6 +397,8 @@ ipcMain.handle('ureq', async (event, mid, updates) => {
         return { success: false, error: error.message };
     }
 });
+
+
 ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName) => {
     try {
         console.log('Uploading file from path:', filePath); // Log file path for debugging
@@ -397,6 +423,8 @@ ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName
         return { success: false, error: error.message };
     }
 });
+
+
 ipcMain.handle('open-file-dialog', async () => {
     const result = await dialog.showOpenDialog({
         properties: ['openFile'],
@@ -874,17 +902,11 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
     const args = [ip, port, filepath, fullFilepath, uid, size, token, mid, videoDestination];
-    
+
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
         const python = spawn('python', [scriptPath, ...args]);
-        
-        
-        console.log("FILEPATH: ", filepath);
-        console.log("FULL FILE PATH: ", fullFilepath);
-        console.log("Script path: " + scriptPath);
-        console.log("Args: " + args.join(" "));
-        
+
         let output = '';
         let error = '';
 
@@ -928,13 +950,9 @@ ipcMain.handle('check-file-existence', async (event, filePath) => {
 // IPC handler to delete a video file
 ipcMain.handle('delete-video-file', async (event, filePath) => {
     try {
-        // Delete the video file - Move it to deleted folder
+        // Delete the video file
         if (fs.existsSync(filePath)) {
-            // Move the video file to the Deleted folder in development mode
-            const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
-            fs.mkdirSync(deletedDir, { recursive: true });
-            const newFilePath = path.join(deletedDir, path.basename(filePath));
-            fs.renameSync(filePath, newFilePath);
+            fs.unlinkSync(filePath);
         } else {
             return { success: false, error: 'File does not exist' };
         }
@@ -979,7 +997,6 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
 
 // IPC handler to move a video file from the Deleted folder to the Downloads folder
 ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
-    console.log("VName: ", videoName, " -- File Path: ", filePath);
     try {
         const videoFilePath = filePath;
 
@@ -996,7 +1013,18 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
         // Move the video file to the Downloads folder
         fs.renameSync(videoFilePath, destinationPath);
 
-        console.log(destinationPath);
+        // Update the existing record in the lookup table
+        const updatedRecord = await LookupTable.update(
+            { localurl: destinationPath }, // New data to update
+            { where: { mname: videoName } } // Condition to find the entry
+        );
+
+        if (updatedRecord[0] === 0) {
+            console.error('No record found to update');
+            return { success: false, error: 'No record found to update' };
+        }
+
+        console.log('Video moved and lookup table updated:', destinationPath);
         return { success: true, videoFilePath: destinationPath };
     } catch (error) {
         console.error('Error moving video file:', error);

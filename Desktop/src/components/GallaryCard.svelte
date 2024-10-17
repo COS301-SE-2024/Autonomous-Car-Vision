@@ -63,7 +63,7 @@
       videoSource,
     );
 
-    console.log("DONE DOWNLOADING")
+    console.log("DONE DOWNLOADING");
 
     await window.electronAPI.downloadVideo(videoName, videoSource);
     // move the video to the download folder
@@ -139,6 +139,11 @@
         firstFrameURL = videoPaths[0];
       } catch (error) {}
     }
+
+    if(firstFrameURL.length == 0) {
+      firstFrameURL = "https://i.pinimg.com/736x/dd/4a/66/dd4a66f10c138179f210314fe0f91cbb.jpg";
+    }
+
     setInterval(() => {
       isGalLoading = false;
     }, 1500);
@@ -168,11 +173,19 @@
     {#if !isGalLoading}
       <div class="image-container relative">
         {#if listType === "grid"}
-          <img
-            src={firstFrameURL}
-            alt="video preview"
-            class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-          />
+          {#if firstFrameURL.length == 0}
+            <img
+              src={firstFrameURL}
+              alt="video preview"
+              class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+            />
+          {:else}
+            <img
+              src={firstFrameURL}
+              alt="video preview"
+              class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+            />
+          {/if}
         {:else}
           <img
             src={firstFrameURL}
@@ -191,7 +204,7 @@
               class="more text-highVizLight-secondary-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
               on:click={handleDownload}
             >
-              <Icon path={mdiDownload} size="24" /></button
+              <Icon class="text-white" path={mdiDownload} size="24" /></button
             >
           {:else if !isDownloaded}
             <div class="flex justify-center relative -top-4">
@@ -258,11 +271,19 @@
     {#if !isGalLoading}
       <div class="image-container relative">
         {#if listType === "grid"}
-          <img
-            src={firstFrameURL}
-            alt="video preview"
-            class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
-          />
+          {#if firstFrameURL.length == 0}
+            <img
+              src={firstFrameURL}
+              alt="video preview"
+              class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+            />
+          {:else}
+            <img
+              src={firstFrameURL}
+              alt="video preview"
+              class="w-full object-cover aspect-video rounded-t-lg transition-filter duration-300 ease-in-out hover:filter-blur"
+            />
+          {/if}
         {:else}
           <img
             src={firstFrameURL}
@@ -281,7 +302,7 @@
               class="more text-white-lightText w-full border-none px-2 py-1 rounded lg:text-md text-sm text-center justify-content-center display-flex align-items-center cursor-pointer"
               on:click={handleDownload}
             >
-              <Icon path={mdiDownload} size="24" /></button
+              <Icon class="text-white" path={mdiDownload} size="24" /></button
             >
           {:else if !isDownloaded}
             <div class="flex justify-center relative -top-4">
