@@ -80,7 +80,7 @@
               class="bg-theme-dark-primary text-theme-dark-lightText mt-4"
               rounded
               block
-              on:click={submit}>Next</Button
+              on:click={submit}>Next  ↦</Button
             >
           </a>
         </div>
@@ -131,7 +131,7 @@
               class="bg-theme-dark-primary text-theme-dark-lightText mt-4"
               rounded
               block
-              on:click={submit}>Next</Button
+              on:click={submit}>Next  ↦</Button
             >
           </a>
         </div>

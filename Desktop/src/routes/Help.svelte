@@ -27,7 +27,7 @@
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 0 ? 'open' : '' }">
                 <p class="m-2">On the Navigation bar, find and click the Gallery tab:</p>
-                <img src="./images/NavBar.png" alt="NavBar" class="screenshots" />
+                <img src="./images/NavBar.png" alt="NavBar" class="block w-24 h-34 m-4" />
                 <p class="m-2">Once you do so, the Gallery page will open.</p>
                 <img src="./images/GalleryScreen.png" alt="Gallery" class="screenshots" />
             </div>
@@ -44,9 +44,8 @@
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 1 ? 'open' : '' }">
                 <p class="m-2">Access the Gallery page. Click on a video of your choice.</p>
                 <img src="./images/GalleryScreen.png" alt="Gallery" class="screenshots" />
-                <p class="m-2"> If the video is not downloaded on your local machine, the download button will be visible </p>
-                <img src="./images/VideoNotDownloaded.png" alt="NotDownloaded" class="screenshots" />
-                <p>click on it to download the video from our server. Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.</p>
+                <p class="m-2"> If the video is not downloaded on your local machine, the download button will be visible click on it to download the video from our server. </p>
+                <p>Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.</p>
                 <img src="./images/ViewVideoScreen.png" alt="VideoScreen" class="screenshots" />
             </div>
         </div>
@@ -125,9 +124,9 @@
                 </button>
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 6 ? 'open' : '' }">
-                <p class="m-2">Access the upload page from the Navigation Bar</p>
+                <p class="m-2">Access the upload model from the Gallery Bar</p>
                 <img src="./images/UploadScreen.png" alt="Upload" class="screenshots" />
-                <p class="m-2" > Click on the upload slot and choose a video in your directory to upload.</p>
+                <p class="m-2" > Click on the upload button and choose a video in your directory to upload.</p>
                 <img src="./images/UploadChoose.png" alt="Choose" class="screenshots" />
                 <p class="m-2" > Confirm your upload by clicking 'Save'. You will see the newly uploaded video in your Gallery page</p>
                 <img src="./images/UploadConfirm.png" alt="Confirm" class="screenshots" />
@@ -188,58 +187,43 @@
         <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(10)}>
-                <span>Start CARLA</span>
+                <span>Team View</span>
                 <button class="dropdown-btn">
                     {#if $openTopic === 10} ▲{:else}▼{/if}
                 </button>
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 10 ? 'open' : '' }">
-                <p class="m-2">Access the CARLA page from the navigation bar</p>
-                <img src="./images/carlaScreen.png" alt="Pipe" class="screenshots" />
-                <p class="m-2">Follow the prompts when you launch CARLA</p>
-                <!-- Add more instructions on pipe interaction for project day -->
+                <p class="m-2">Access the Team View page from the navigation bar</p>
+                <img src="./images/teamView.png" alt="Pipe" class="screenshots" />
+                <p class="m-2">You can now view, add and remove memebers from your team</p>
             </div>
-            <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(10)}>
-                    <span>Team View</span>
-                    <button class="dropdown-btn">
-                        {#if $openTopic === 10} ▲{:else}▼{/if}
-                    </button>
-                </div>
-                <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 10 ? 'open' : '' }">
-                    <p class="m-2">Access the Team View page from the navigation bar</p>
-                    <img src="./images/teamView.png" alt="Pipe" class="screenshots" />
-                    <p class="m-2">You can now view, add and remove memebers from your team</p>
-                </div>
+        </div>
+        <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(11)}>
+                <span>Team Network</span>
+                <button class="dropdown-btn">
+                    {#if $openTopic === 11} ▲{:else}▼{/if}
+                </button>
             </div>
-            <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(11)}>
-                    <span>Team Network</span>
-                    <button class="dropdown-btn">
-                        {#if $openTopic === 11} ▲{:else}▼{/if}
-                    </button>
-                </div>
-                <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 11 ? 'open' : '' }">
-                    <p class="m-2">Access the Team Network page from the navigation bar</p>
-                    <img src="./images/teamNetwork.png" alt="Pipe" class="screenshots" />
-                    <p class="m-2">Follow you can now view your team network and interact with it</p>
-                </div>
+            <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 11 ? 'open' : '' }">
+                <p class="m-2">Access the Team Network page from the navigation bar</p>
+                <img src="./images/teamNetwork.png" alt="Pipe" class="screenshots" />
+                <p class="m-2">Follow you can now view your team network and interact with it</p>
             </div>
+        </div>
 
-            <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(12)}>
-                    <span>Logout</span>
-                    <button class="dropdown-btn">
-                        {#if $openTopic === 12}▲{:else}▼{/if}
-                    </button>
-                </div>
-                <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 12 ? 'open' : '' }">
-                    <p class="m-2">Click on your username in the navigation bar. A pop-up menu will appear; click on the Log Out button.</p>
-                    <img src="./images/AccountPopUp.png" alt="Logout" class="screenshots" />
-                </div>
+        <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <div class="topic-title w-fit  text-black text-xl font-medium" on:click={() => toggleTopic(12)}>
+                <span>Logout</span>
+                <button class="dropdown-btn">
+                    {#if $openTopic === 12}▲{:else}▼{/if}
+                </button>
+            </div>
+            <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 12 ? 'open' : '' }">
+                <p class="m-2">Click on your username in the navigation bar. A pop-up menu will appear; click on the Log Out button.</p>
+                <img src="./images/AccountPopUp.png" alt="Logout" class="screenshots" />
             </div>
         </div>
     </div>
@@ -255,7 +239,7 @@
                 </div>
                 <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 0 ? 'open' : '' }">
                     <p class="m-2">On the Navigation bar, find and click the Gallery tab:</p>
-                    <img src="./images/NavBar.png" alt="NavBar" class="screenshots" />
+                    <img src="./images/NavBar.png" alt="NavBar" class="block w-24 h-34 m-4" />
                     <p class="m-2">Once you do so, the Gallery page will open.</p>
                     <img src="./images/GalleryScreen.png" alt="Gallery" class="screenshots" />
                 </div>
@@ -272,9 +256,8 @@
                 <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 1 ? 'open' : '' }">
                     <p class="m-2">Access the Gallery page. Click on a video of your choice.</p>
                     <img src="./images/GalleryScreen.png" alt="Gallery" class="screenshots" />
-                    <p class="m-2"> If the video is not downloaded on your local machine, the download button will be visible </p>
-                    <img src="./images/VideoNotDownloaded.png" alt="NotDownloaded" class="screenshots" />
-                    <p>click on it to download the video from our server. Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.</p>
+                    <p class="m-2">If the video is not downloaded on your local machine, the download button will be visible click on it to download the video from our server.</p>
+                    <p> Once downloaded, you can click on the video to view it and all the versions of which it was processed through models.</p>
                     <img src="./images/ViewVideoScreen.png" alt="VideoScreen" class="screenshots" />
                 </div>
             </div>
@@ -353,9 +336,9 @@
                     </button>
                 </div>
                 <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 6 ? 'open' : '' }">
-                    <p class="m-2">Access the upload page from the Navigation Bar</p>
+                    <p class="m-2">Access the upload model from the Gallery Bar</p>
                     <img src="./images/UploadScreen.png" alt="Upload" class="screenshots" />
-                    <p class="m-2" > Click on the upload slot and choose a video in your directory to upload.</p>
+                    <p class="m-2" > Click on the upload button and choose a video in your directory to upload.</p>
                     <img src="./images/UploadChoose.png" alt="Choose" class="screenshots" />
                     <p class="m-2" > Confirm your upload by clicking 'Save'. You will see the newly uploaded video in your Gallery page</p>
                     <img src="./images/UploadConfirm.png" alt="Confirm" class="screenshots" />
@@ -508,8 +491,8 @@
         align-items: center;
         justify-content: center;
         /* padding-left: 10px; */
-        width: 380px;
-        height: 210px;
+        width: 16em;
+        height: 10em;
         max-width: 100%;
         max-height: 100%;
         margin: 1rem;
