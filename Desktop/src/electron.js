@@ -62,15 +62,10 @@ async function createWindow() {
             mainWindow.webContents.closeDevTools();
         });
 
-        // Optionally, remove all context menu items related to DevTools
         mainWindow.webContents.on('context-menu', (e) => {
             e.preventDefault(); // Prevent context menu from showing DevTools options
         });
-    } else {
-        // Open DevTools in development mode only
-        // mainWindow.webContents.openDevTools();
     }
-
     // Initialize the store after the window is created
     store = await loadElectronStore();
 }
@@ -98,8 +93,6 @@ app.on('ready', () => {
             callback({ cancel: false });
         }
     });
-
-    // createWindow();
 });
 
 app.on('open-url', (event, url) => {
@@ -126,10 +119,6 @@ app.on('activate', () => {
     }
 });
 
-// try {
-//     require('electron-reloader')(module)
-// } catch (_) { }
-
 const AdmZip = require('adm-zip');
 
 function extractPythonFiles(pythonFile) {
@@ -154,12 +143,6 @@ function extractPythonFiles(pythonFile) {
         console.log(`Python script already extracted at: ${extractedScriptPath}`);
         return appDataDir; // Return early if the script is already extracted
     }
-
-    // List files in the zip to verify its contents
-    const zipEntries = zip.getEntries();
-    zipEntries.forEach((entry) => {
-        console.log(`File in zip: ${entry.entryName}`);
-    });
 
     // Extract the files to the app data directory
     zip.extractAllTo(appDataDir, true);
@@ -470,7 +453,6 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
         const outputDir = path.join(app.getPath('userData'), 'frames', videoName);
 
         // checks if output directory exists
-
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }

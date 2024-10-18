@@ -7,8 +7,7 @@
     import { Button, Icon } from "svelte-materialify";
     import { mdiClose, mdiDeleteOutline, mdiUpload } from "@mdi/js";
     import { theme } from "../stores/themeStore";
-    import { createEventDispatcher } from 'svelte';
-
+    import { createEventDispatcher } from "svelte";
 
     export let videoSource = "";
     export let showModal;
@@ -113,7 +112,6 @@
                 const mid = response2.data.dataValues.mid;
                 const uid = window.electronAPI.getUid();
                 const token = window.electronAPI.getToken();
-
             } else {
                 console.error(
                     "Failed to retrieve the record:",
@@ -121,7 +119,7 @@
                 );
             }
 
-            dispatch('uploadSuccess', { success: true });
+            dispatch("uploadSuccess", { success: true });
             isUploadLoading.set(false);
             showModal = false;
             push("/gallery");

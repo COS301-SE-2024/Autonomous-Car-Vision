@@ -276,7 +276,7 @@
     let hasObserverUnit = false;
     if (
       tokens[0] !== "inputUnit" ||
-      tokens[tokens.length - 1] !== "outputUnit"
+      tokens[tokens.length - 1] !== "outputUnitTest.all"
     ) {
       toast.error(
         "Error: Pipe string must start with 'inputUnit' and end with 'outputUnit'.",
@@ -367,7 +367,7 @@
       }
     });
 
-    const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnit`;
+    const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnitTest.all`;
 
 
     // Convert to JSON string

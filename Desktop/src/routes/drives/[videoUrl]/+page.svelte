@@ -292,7 +292,7 @@
             <Icon path={mdiArrowLeft} size={32} />
         </button>
     </div>
-    <div class="w-11/12 h-full mx-auto my-6 text-white">
+    <div class="w-11/12 h-full mx-auto my-3 text-white">
         <div class="flex flex-row justify-between">
             <div
                 id="drive"
@@ -359,9 +359,9 @@
                 <div class="grid grid-cols-2 gap-6 place-content-center m-6">
                     <div class="control-center w-full h-auto">
                         <div class="h-full flex items-center">
-                            <h1 class="text-3xl">Play Video</h1>
+                            <h1 class="lg:text-3xl text-xl">Play Video</h1>
                             <button class="hoverPlay" on:click={goToVideo}>
-                                <Icon path={mdiPlay} size={72} />
+                                <Icon path={mdiPlay} size={52} />
                             </button>
                         </div>
                     </div>
@@ -382,14 +382,14 @@
                             </a>
                         </div>
                     </div>
-                    <div class="control-center w-full h-auto">
+                    <div class="control-center w-full h-auto col-span-2">
                         <div
                             on:click={spawnP}
                             on:keypress
-                            class="w-10/12 flex flex-col"
+                            class="w-10/12 flex flex-col items-center"
                         >
                             <h1 class="text-3xl">Weaver</h1>
-                            <div bind:this={lottieElement2} class="w-full">
+                            <div bind:this={lottieElement2} class="h-auto">
                                 <DotLottieSvelte
                                     src="https://lottie.host/3c802195-f445-4f03-ba05-b24152f79226/WUP1NpZe2T.json"
                                     loop={true}
@@ -399,32 +399,6 @@
                                     autoResizeCanvas
                                 />
                             </div>
-                        </div>
-                    </div>
-                    <div class="control-center w-full h-auto">
-                        <div
-                            class="w-10/12 flex flex-col"
-                            on:focus={() => (showBB = !showBB)}
-                        >
-                            <Tooltip bottom bind:active={showBB}>
-                                <h1 class="text-3xl">Blackbox</h1>
-                                <div class="h-full flex justify-center">
-                                    <div
-                                        bind:this={lottieElement3}
-                                        class="w-1/2 mx-auto my-auto"
-                                    >
-                                        <DotLottieSvelte
-                                            src="https://lottie.host/3a913257-6101-499c-9905-2126141eca33/iE9rq5CLvE.json"
-                                            loop={true}
-                                            autoplay={false}
-                                            dotLottieRefCallback={(ref) =>
-                                                (dotLottie3 = ref)}
-                                            autoResizeCanvas
-                                        />
-                                    </div>
-                                </div>
-                                <span slot="tip">Coming soon...</span>
-                            </Tooltip>
                         </div>
                     </div>
                 </div>
