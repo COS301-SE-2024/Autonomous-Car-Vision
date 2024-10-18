@@ -346,8 +346,9 @@ def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, o
     filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
     cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
 
-    filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
-    cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
+    if image_array is not None:
+        filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
+        cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
 
     # Save the bounding boxes to a JSON fileda
     bbox_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_bboxes.json")
