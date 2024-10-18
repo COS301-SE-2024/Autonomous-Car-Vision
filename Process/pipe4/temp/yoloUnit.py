@@ -4,6 +4,7 @@ from units import Unit
 from dataToken import DataToken
 import json
 import os
+import copy
 from datetime import datetime
 
 def append_to_drive_log(results, log_file='output_frames/driveLog.json'):
@@ -53,18 +54,34 @@ class yoloUnit(Unit):
 
         frame = data_token.get_sensor_data('camera')
 
-        results = self.model(frame)
+        original_height, original_width = frame.shape[:2]
+
+        crop_percent = 37 
+
+        crop_height = int(original_height * (1 - crop_percent / 100.0))
+
+        cropped_frame = frame[:crop_height, :]
+
+        results = self.model(cropped_frame)
+
         append_to_drive_log(results)
 
         bounding_boxes = results[0].boxes.data.tolist()
+
+        adjusted_bounding_boxes = []
         for box in bounding_boxes:
-            class_id = int(box[-1])
-            class_label = self.model.names[class_id]
-            box[-1] = class_label 
-        # Now save the bounding boxes with class labels
-        data_token.add_processing_result(self.id, bounding_boxes)
-        data_token.set_flag('has_bb_data',True)
-        
+            x_min, y_min, x_max, y_max, score, class_id = box
+
+            class_label = self.model.names[int(class_id)]
+
+            adjusted_box = [x_min, y_min, x_max, y_max, score, class_id] 
+
+            adjusted_bounding_boxes.append(adjusted_box)
+
+        data_token.add_processing_result(self.id, adjusted_bounding_boxes)
+        data_token.set_flag('has_bb_data', True)
+
         if self.next_unit:
             return self.next_unit.process(data_token)
+
         return data_token

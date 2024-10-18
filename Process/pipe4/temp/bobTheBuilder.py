@@ -40,6 +40,8 @@ def build_pipeline(input_string):
     pipeline = pipe.Pipe({'camera', 'lidar'})
 
     for token in tokens:
+        if (token == ''): 
+            continue
         unit_type, init_args = parse_token(token)
         unit = create_unit(unit_type, init_args)
         pipeline.add_unit(unit)
@@ -65,7 +67,7 @@ def test_pipeline():
     camera_data = load_image(camera_file_path)
     lidar_data = load_lidar_data(lidar_file_path)
 
-    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnitTest.all'
+    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnit.all'
     pipeline = build_pipeline(input_string)
 
     sensors = ['camera', 'lidar']

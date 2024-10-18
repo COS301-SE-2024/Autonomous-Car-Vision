@@ -5,9 +5,11 @@ import matplotlib.pyplot as plt
 from dataToken import DataToken
 from ultralytics import YOLO
 import cv2
+import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import copy
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from collections import defaultdict
@@ -37,33 +39,57 @@ class laneUnit(Unit):
             return self.next_unit.process(data_token)
         return data_token
 
-    def filter_detections(self, results, model, image):
+    def filter_detections(self, results, model, image, crop_height=None):
         height, width, channels = image.shape
         out_image = np.zeros((height, width, channels), dtype=np.uint8)
-        filtered_results = []  
+        filtered_results = []
 
         for result in results:
+            # Create a copy of the result to ensure the original is not modified
+            result_copy = copy.deepcopy(result)
+
             for i in range(len(result.boxes.cls)):
-                class_id = int(result.boxes.cls[i].item()) 
+                class_id = int(result.boxes.cls[i].item())
                 confidence = result.boxes.conf[i].item()
 
                 # Check if the detected class is not 0, 3, or 4 and confidence is greater than 0.5
                 if class_id not in [0, 3, 4] and confidence > 0.5:
                     mask = result.masks.data[i].cpu().numpy()
-
                     mask = np.squeeze(mask)
 
                     if mask.size > 0:
-                        mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
+                        original_mask_shape = mask.shape  # Get the original mask shape
+                        # Resize the mask to fit the cropped region width, but only apply to the cropped area height
+                        mask_resized = cv2.resize(mask, (image.shape[1], crop_height), interpolation=cv2.INTER_NEAREST)
 
+                        # Convert the resized mask to binary
                         binary_mask = (mask_resized > 0.5).astype(np.uint8)
 
+                        # Create a colored mask for overlay
                         colored_mask = np.zeros_like(image, dtype=np.uint8)
-                        colored_mask[binary_mask == 1] = [255, 255, 255]
 
+                        # Only apply the mask to the top cropped region
+                        colored_mask[:crop_height, :] = np.stack([binary_mask] * 3, axis=-1) * 255
+
+                        # Overlay the mask onto the output image
                         out_image = cv2.addWeighted(out_image, 1, colored_mask, 0.5, 0)
 
-                        filtered_results.append(result)
+                        # Shift the mask back to its correct position in the full image
+                        full_mask = np.zeros((height, width), dtype=np.uint8)
+                        full_mask[:crop_height, :] = binary_mask
+
+                        # Resize the full mask back to the original mask size before assigning it to the result copy
+                        full_mask_resized = cv2.resize(full_mask, (original_mask_shape[1], original_mask_shape[0]), interpolation=cv2.INTER_NEAREST)
+
+                        # Modify the result's mask copy to represent its new full-image position
+                        result_copy.masks.data[i] = torch.tensor(full_mask_resized).cpu()
+
+                        # Adjust the bounding box to fit the full image's coordinate system
+                        x_min, y_min, x_max, y_max = result.boxes.xyxy[i].cpu().numpy()
+                        result_copy.boxes.xyxy[i] = torch.tensor([x_min, y_min, x_max, y_max])
+
+                        # Append the modified copy to the filtered results
+                        filtered_results.append(result_copy)
                     else:
                         print("Empty mask encountered.")
 
@@ -759,6 +785,7 @@ class laneUnit(Unit):
         bottom_length = 200
         top_length = 50
         out_image, lines = self.get_lines(filtered_results, out_image)
+        # ret_img = out_image.copy()
         out_image, lines = self.group_lines(out_image, lines)
         out_image, left, right, left_id, right_id = self.get_side_lines(out_image, lines, previous_left_id, previous_right_id) 
 
@@ -789,13 +816,33 @@ class laneUnit(Unit):
 
 
     def start_following(self, frame, previous_left_id=None, previous_right_id=None):
+        # Convert RGBA to RGB if needed
         if frame.shape[2] == 4:
             frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
-            
-        model = YOLO('laneTest.pt')
+
+        # Get original frame dimensions
+        original_height, original_width = frame.shape[:2]
         
-        results = model.track(source=frame, persist=True, stream=True)
-        out_image, filtered_results = self.filter_detections(results, model, frame)
+        cutoff_percent=37
+
+        # Calculate the height of the cropped frame
+        crop_height = int(original_height * (1 - cutoff_percent / 100.0))
+
+        # Crop the frame (keep only the top part)
+        cropped_frame = frame[:crop_height, :]
+
+        # Load the YOLO model
+        model = YOLO('laneTest.pt')
+
+        # Run detection on the cropped frame
+        results = model.track(source=cropped_frame, persist=True, stream=True)
+
+        # Filter the detections and prepare for further steps
+        out_image, filtered_results = self.filter_detections(results, model, frame, crop_height)
+
+        # Pass the original frame, not the cropped one, to the follow_lane function
         res, mask, steer, previous_left_id, previous_right_id = self.follow_lane(out_image, filtered_results, frame, previous_left_id, previous_right_id)
-        output = {'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
+
+        # Return results
+        output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
         return res, output

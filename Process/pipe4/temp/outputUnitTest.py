@@ -84,35 +84,55 @@ class outputUnitTest(Unit):
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
                                 2)
                     cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
-            results = output['results']
+            mask = output['mask']
+            
+            if len(mask.shape) == 3 and mask.shape[2] == 3:
+                mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
+            if mask.shape != annotated_frame.shape[:2]:
+                mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-            colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
-
-            for result in results[0]:
-
-                class_name = result.boxes.cls
-
-                if int(class_name) != 4 and int(class_name) != 3:
-                    mask = result.masks.data.cpu().numpy()
-                    mask = np.squeeze(mask)
-
-                    if mask.size > 0:
-                        mask_resized = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
-
-                        binary_mask = (mask_resized > 0.5).astype(np.uint8)
-
-                        temp_colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
-                        temp_colored_mask[binary_mask == 1] = [255, 255, 255]
-
-                        colored_mask = cv2.add(colored_mask, temp_colored_mask)
+            colored_mask = np.zeros_like(annotated_frame)
+            colored_mask[mask > 0] = [0, 255, 0] 
 
             alpha = 0.5
             img_la = image.copy()
             annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
             img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+            # img_la = output['image']
+            
+        # if (self.la or self.all) and data_token.get_flag('has_lane_data'):
+        #     output = data_token.get_processing_result('laneUnit')
+        #     results = output['results']
+
+
+        #     colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
+
+        #     for result in results[0]:
+
+        #         class_name = result.boxes.cls
+
+        #         if int(class_name) != 4 and int(class_name) != 3:
+        #             mask = result.masks.data.cpu().numpy()
+        #             mask = np.squeeze(mask)
+
+        #             if mask.size > 0:
+        #                 mask_resized = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+
+        #                 binary_mask = (mask_resized > 0.5).astype(np.uint8)
+
+        #                 temp_colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
+        #                 temp_colored_mask[binary_mask == 1] = [255, 255, 255]
+
+        #                 colored_mask = cv2.add(colored_mask, temp_colored_mask)
+
+        #     alpha = 0.5
+        #     img_la = image.copy()
+        #     annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
+        #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
 
 
         if (self.all and data_token.get_flag('hasObeserverData')):
