@@ -39,13 +39,20 @@
     const lastSignin = await window.electronAPI.getLastSignin(uid);
     //TODO: update last signin in the database
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
-    fetchVideos();
+
+    try {
+      const syncSqlite = await window.electronAPI.syncSqlite(uid);
+      console.log("syncSqlite", syncSqlite);
+    } catch (error) {
+      console.error("Failed to sync data", error);
+    }
+    fetchVideos(uid);
   });
 
-  async function fetchVideos() {
+  async function fetchVideos(uid) {
     isLoading.set(true);
     try {
-      const response = await window.electronAPI.fetchVideos();
+      const response = await window.electronAPI.fetchVideos(uid);
       if (response.success) {
         videoURLs = response.data.map((record) => record.dataValues.localurl);
         videoNames = response.data.map((record) => record.dataValues.mname);

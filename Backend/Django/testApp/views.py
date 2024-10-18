@@ -1584,3 +1584,27 @@ def requestUptime(request):  # Accept the 'request' argument
 
     except requests.RequestException as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def syncSqlite(request):
+    data = request.data
+    uid = data.get("uid")
+    
+    if not uid:
+        return Response(
+            {"error": "UID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+        
+    user = User.objects.get(uid=uid)
+    user.last_signin = datetime.now()
+    user.save()
+    
+    # need to return data from django for sqlite
+    
+    data = Media.objects.filter(uid=uid)
+    serializer = MediaSerializer(data, many=True)
+    
+    return Response(
+        {"data": serializer.data}, status=status.HTTP_200_OK
+    )
