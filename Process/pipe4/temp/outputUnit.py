@@ -46,6 +46,7 @@ class outputUnit(Unit):
             pixel_data = tagger_data['pixel_data']
 
             min_distances = [None] * len(pixel_data)
+            i = 0
 
             for data in pixel_data:
                 pixel_x = data['pixel_x']
@@ -55,8 +56,10 @@ class outputUnit(Unit):
 
                 cv2.circle(annotated_frame, (pixel_x, pixel_y), radius=2, color=(0, 255, 0), thickness=-1)
                 
-                if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
-                    min_distances[bbox_index] = min_distance
+                if min_distances[i] is None or min_distance < min_distances[i]:
+                    min_distances[i] = min_distance
+                
+                i = i + 1
 
         if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
@@ -65,7 +68,7 @@ class outputUnit(Unit):
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
                 
-                if min_distances and min_distances[i] is not None:
+                if min_distances is not None and min_distances[i] is not None:
                     if min_distances[i] is not None:
                         text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
                         cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
