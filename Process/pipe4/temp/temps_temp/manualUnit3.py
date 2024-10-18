@@ -501,7 +501,7 @@ def main():
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
-                processed_image_array = pipe.process(pipe.dataToken)
+                processed_image_array, img_lidar, img_taggr, img_bb, img_la  = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
 
                 # Integrate LiDAR data with the image and update world data
