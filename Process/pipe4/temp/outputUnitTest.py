@@ -62,7 +62,7 @@ class outputUnitTest(Unit):
                 cv2.circle(annotated_frame, (pixel_x, pixel_y), radius=1, color=(0, 255, 0), thickness=-1)
                 cv2.circle(img_taggr, (pixel_x, pixel_y), radius=1, color=(0, 255, 0), thickness=-1)
 
-                if min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
+                if bbox_index < len(min_distances) and min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
                     min_distances[bbox_index] = min_distance
 
         if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
@@ -74,7 +74,7 @@ class outputUnitTest(Unit):
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
                 cv2.rectangle(img_bb, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
-                if min_distances[i] is not None:
+                if min_distances is not None and i < len(min_distances) and min_distances[i] is not None:
                     text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
                                 2)

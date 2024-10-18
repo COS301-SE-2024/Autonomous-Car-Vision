@@ -60,12 +60,12 @@ def load_lidar_data(file_path):
 def test_pipeline():
     test_data_folder = 'public/testData'
 
-    camera_file_path = os.path.join(test_data_folder, 'frame_000167_raw.png')
-    lidar_file_path = os.path.join(test_data_folder, 'frame_000167_lidar.npy')
+    camera_file_path = os.path.join(test_data_folder, 'image.png')
+    lidar_file_path = os.path.join(test_data_folder, 'frame_000149_lidar.npy')
     camera_data = load_image(camera_file_path)
     lidar_data = load_lidar_data(lidar_file_path)
 
-    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,laneUnit,observerUnit,outputUnit.all'
+    input_string = 'inputUnit,yoloUnit.yolov8n,infusrUnit,taggrUnit,outputUnitTest.all'
     pipeline = build_pipeline(input_string)
 
     sensors = ['camera', 'lidar']
@@ -110,5 +110,5 @@ def test_lane():
     print("steer: ", steer)
 
 
-# processed_image, bounding_boxes = test_pipeline()
+processed_image, bounding_boxes = test_pipeline()
 # test_lane()
