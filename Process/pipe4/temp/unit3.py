@@ -342,15 +342,26 @@ def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
 
 
 def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, output_folder, vehicle_transform, raw):
-    # Save the processed image
-    filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
-    cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
+    # Check if the image_array is valid before attempting to convert it
+    if isinstance(raw, np.ndarray) and raw.size != 0:
+        # Save the processed raw image
+        filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
+        try:
+            cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
+        except cv2.error as e:
+            print(f"Error saving raw frame {frame_number}: {e}")
 
-    if image_array is not None and image_array.size != 0:
+    if isinstance(image_array, np.ndarray) and image_array.size != 0:
+        # Save the processed image
         filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
-        cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
+        try:
+            cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
+        except cv2.error as e:
+            print(f"Error saving frame {frame_number}: {e}")
+    else:
+        print(f"Invalid or empty image_array for frame {frame_number}")
 
-    # Save the bounding boxes to a JSON fileda
+    # Save the bounding boxes to a JSON file
     bbox_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_bboxes.json")
     with open(bbox_filename, 'w') as bbox_file:
         json.dump(bounding_boxes, bbox_file)
