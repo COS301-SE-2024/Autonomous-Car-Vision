@@ -32,6 +32,7 @@
 
   function handleLocalChange(event) {
     let local;
+    console.log("LOCAL OR SERVER: ", event.target.value);
 
     if (event.target.value === "local") {
       local = true;
@@ -103,7 +104,7 @@
         class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
     >
       <div class="flex flex-col boder border-theme-dark-backgroundBlue">
-        <p class="text-md">
+        <p class="text-md text-white">
           Are you sure you want to process this video? Please select a model to
           process below.
         </p>
