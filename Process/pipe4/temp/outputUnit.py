@@ -61,20 +61,21 @@ class outputUnit(Unit):
                 
                 i = i + 1
 
-        if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
+        if (self.bb or self.all) and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
             for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
                 cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
-                
-                if min_distances is not None and min_distances[i] is not None:
-                    if min_distances[i] is not None:
-                        text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
-                        cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    else:
-                        text = f"{bbox[-1]}"
-                        cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        
+                # Check if the index 'i' is within the bounds of min_distances
+                if min_distances is not None and i < len(min_distances) and min_distances[i] is not None:
+                    text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                else:
+                    # Handle case where min_distances[i] is not available
+                    text = f"{bbox[-1]}"
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
