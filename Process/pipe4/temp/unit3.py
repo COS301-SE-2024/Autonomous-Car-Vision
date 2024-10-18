@@ -342,26 +342,14 @@ def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
 
 
 def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, output_folder, vehicle_transform, raw):
-    # Check if the image_array is valid before attempting to convert it
-    if isinstance(raw, np.ndarray) and raw.size != 0:
-        # Save the processed raw image
-        filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
-        try:
-            cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
-        except cv2.error as e:
-            print(f"Error saving raw frame {frame_number}: {e}")
+    # Save the processed image
+    filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
+    cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
 
-    if isinstance(image_array, np.ndarray) and image_array.size != 0:
-        # Save the processed image
-        filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
-        try:
-            cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
-        except cv2.error as e:
-            print(f"Error saving frame {frame_number}: {e}")
-    else:
-        print(f"Invalid or empty image_array for frame {frame_number}")
+    filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
+    cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
 
-    # Save the bounding boxes to a JSON file
+    # Save the bounding boxes to a JSON fileda
     bbox_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_bboxes.json")
     with open(bbox_filename, 'w') as bbox_file:
         json.dump(bounding_boxes, bbox_file)
@@ -487,7 +475,7 @@ def main(pipe):
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
-                processed_image_array = pipe.process(pipe.dataToken)
+                processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
 
                 vehicle_transform = vehicle.get_transform()
