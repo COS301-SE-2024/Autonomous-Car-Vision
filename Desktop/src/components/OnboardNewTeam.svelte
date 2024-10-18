@@ -76,7 +76,7 @@
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"
                 rounded
-                block on:click={submit}>Next</Button
+                block on:click={submit}>Next ↦</Button
                 >
              </div>
           </div>
@@ -130,7 +130,7 @@
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"
                 rounded
-                block on:click={submit}>Next</Button
+                block on:click={submit}>Next  ↦</Button
                 >
              </div>
           </div>
