@@ -346,7 +346,7 @@ def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, o
     filename = os.path.join(output_folder, f"frame_{frame_number:06d}_raw.png")
     cv2.imwrite(filename, cv2.cvtColor(raw, cv2.COLOR_RGB2BGR))
 
-    if image_array is not None:
+    if image_array is not None and image_array.size != 0:
         filename = os.path.join(output_folder, f"frame_{frame_number:06d}.png")
         cv2.imwrite(filename, cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR))
 
