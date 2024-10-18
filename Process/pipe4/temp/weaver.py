@@ -73,7 +73,6 @@ def weave_point_clouds(output_dir):
                 lidar_path = os.path.join(output_dir, file)
                 json_path = os.path.join(output_dir, f"frame_{frame_number}_weaver.json")
 
-                # Load point cloud and sensor data
                 points = load_lidar_data(lidar_path)
                 if points is None:
                     continue
@@ -82,15 +81,12 @@ def weave_point_clouds(output_dir):
                 if sensor_data is None:
                     continue
 
-                # Transform the point cloud to the global coordinate system
                 transformed_points = transform_point_cloud(points, sensor_data['position'], sensor_data['orientation'])
                 if transformed_points is None:
                     continue
 
-                # Append to the list of all point clouds
                 point_clouds.append(transformed_points)
 
-        # Check if point_clouds is empty
         if not point_clouds:
             print("No point clouds found. Please check the input files.")
             return
@@ -101,14 +97,11 @@ def weave_point_clouds(output_dir):
         # Flip the scene along the Z-axis
         combined_points[:, 2] = -combined_points[:, 2]
 
-        # Only use the first three columns (x, y, z) for saving
         combined_xyz = combined_points[:, :3]
 
-        # Create Open3D point cloud object
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(combined_xyz)
 
-        # Save the combined point cloud
         output_file = os.path.join(output_dir, 'combined_map.ply')
         o3d.io.write_point_cloud(output_file, pcd)
         print(f"Combined point cloud saved to {output_file}")

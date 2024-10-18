@@ -50,12 +50,6 @@ class observerUnit(Unit):
         valid_world_positions = lidar_data['valid_world_positions']
         print("Valid World Pos")
         print(valid_world_positions)
-        # pixel_x = lidar_data['pixel_x']
-        # print("pixel x")
-        # print(pixel_x)
-        # pixel_y = lidar_data['pixel_y']
-        # print("pixel y")
-        # print(pixel_y)
         if valid_world_positions is not None:
             zmin, zmax = 1, 2.3
             ymin, ymax = -0.9, 0.9
@@ -84,15 +78,12 @@ class observerUnit(Unit):
 
             print("dist", breaking)
 
-            # Plot the filtered points
             print("Plotting filtered valid world positions within the cuboid...")
-            # self.plot_point_cloud(valid_world_positions, filtered_positions)
 
 
         else:
             print("No valid world positions found.")
 
-        # Store the filtered points in data_token if needed
         data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking1,
                                                    'handBreak': handbreak})
         data_token.set_flag('hasObserverData', True)

@@ -22,15 +22,12 @@ def apply_jet_colormap(pcd):
 def visualize_point_cloud(filepath):
     pcd = o3d.io.read_point_cloud(filepath)
 
-    # Apply Jet colormap to the point cloud
     apply_jet_colormap(pcd)
 
-    # Flip Z axis if necessary
     points = np.asarray(pcd.points)
     points[:, 2] = -points[:, 2]
     pcd.points = o3d.utility.Vector3dVector(points)
 
-    # Initialize the Open3D application
     app = gui.Application.instance
     app.initialize()
 
@@ -39,9 +36,8 @@ def visualize_point_cloud(filepath):
     scene_widget = gui.SceneWidget()
     scene_widget.scene = rendering.Open3DScene(window.renderer)
 
-    # Set the point size to the minimum
     material = rendering.MaterialRecord()
-    material.point_size = 1.0  # Minimum point size
+    material.point_size = 1.0
     scene_widget.scene.add_geometry("point_cloud", pcd, material)
 
     scene_widget.set_view_controls(gui.SceneWidget.FLY)

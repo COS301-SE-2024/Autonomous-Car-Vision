@@ -44,7 +44,6 @@ reverse_gear = False
 
 
 def get_keyboard_control(vehicle):
-    # Toggle lane following with Q
     global follow_lane
     global object_avoidance
     global reverse_toggle
@@ -85,7 +84,7 @@ def process_image(image):
     array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
     array = np.reshape(array, (image.height, image.width, 4))
     array = array[:, :, :3]
-    array = array[:, :, ::-1]  # Convert BGRA to RGB
+    array = array[:, :, ::-1]
     return array
 
 
@@ -97,8 +96,7 @@ def run_ai_model(image_array):
 
 def process_lidar_data(lidar_measurement):
     points = np.frombuffer(lidar_measurement.raw_data, dtype=np.dtype('f4'))
-    # Reshape to (N, 4), where N is the number of points, and each point has (x, y, z, intensity)
-    lidar_data_np = np.reshape(points, (int(points.shape[0] / 4), 4))  # x, y, z, intensity
+    lidar_data_np = np.reshape(points, (int(points.shape[0] / 4), 4))
     return lidar_data_np
 
 
@@ -108,7 +106,6 @@ def convert_array_to_surface(image_array):
 
 
 def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
-    # Ensure the output file is in MP4 format
     if not video_filename.endswith(".mp4"):
         video_filename += ".mp4"
 
@@ -117,14 +114,11 @@ def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
         print("No images found in the folder.")
         return
 
-    # Assuming all images have the same resolution
     first_frame = imageio.imread(os.path.join(output_folder, images[0]))
     height, width = first_frame.shape[:2]
 
-    # Create a writer object using imageio for MP4 format
     writer = imageio.get_writer(video_filename, fps=calculated_fps, codec='libx264', pixelformat='yuv420p')
 
-    # Append each frame to the video
     for image in images:
         frame = imageio.imread(os.path.join(output_folder, image))
         writer.append_data(frame)
@@ -183,7 +177,7 @@ def sensor_factory(world, vehicle, sensor_parameters):
             sensor_bp.set_attribute('upper_fov', str(params['upper_fov']))
             sensor_bp.set_attribute('lower_fov', str(params['lower_fov']))
         else:
-            continue  # Handle other sensor types if needed
+            continue
 
         transform = carla.Transform(carla.Location(x=params['x'], y=params['y'], z=params['z']),
                                     carla.Rotation(roll=params['roll'], pitch=params['pitch'], yaw=params['yaw']))
@@ -195,107 +189,84 @@ def sensor_factory(world, vehicle, sensor_parameters):
 
 
 def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
-    # Get image dimensions
     image_height, image_width, _ = image.shape
 
-    # Extract Cartesian coordinates from LiDAR data
     x = lidar_data[:, 0]
     y = lidar_data[:, 1]
     z = lidar_data[:, 2]
 
-    # Compute r, θ (azimuth), and φ (elevation)
     r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    theta = np.arctan2(y, x)  # Azimuth (horizontal angle)
-    phi = np.arcsin(z / r)  # Elevation (vertical angle)
+    theta = np.arctan2(y, x)
+    phi = np.arcsin(z / r)
 
-    # Convert the FOV angles from degrees to radians
-    horizontal_fov = np.radians(90 / 2)  # 90° horizontal FOV
-    vertical_fov = np.radians(60 / 2)  # 60° vertical FOV
+    horizontal_fov = np.radians(90 / 2)
+    vertical_fov = np.radians(60 / 2)
 
-    # Apply the initial FOV constraints to limit the LiDAR data to 90° horizontal and 60° vertical FOV
     fov_mask = (np.abs(theta) <= horizontal_fov) & (np.abs(phi) <= vertical_fov)
     filtered_data = lidar_data[fov_mask]
     filtered_r = r[fov_mask]
-
-    # If no points are left after filtering, return the image unchanged
+    
     if filtered_r.size == 0:
         return image, []
 
-    # Extract filtered x, y, z coordinates
     x_filtered = filtered_data[:, 0]
     y_filtered = filtered_data[:, 1]
     z_filtered = filtered_data[:, 2]
 
-    # Store indices and 3D world positions
     indices_in_fov = np.where(fov_mask)[0]
-    world_positions = filtered_data  # This keeps the x, y, z of points within FOV
+    world_positions = filtered_data
 
-    # Example intrinsic parameters (focal length and principal point)
     focal_length = image_width / (2 * np.tan(horizontal_fov))
     principal_point = np.array([image_width / 2, image_height / 2])
 
-    # Example extrinsic parameters - inverting the rotation to skew outward
-    angle_y = np.radians(-10)  # Negative rotation around the y-axis (adjust this as needed)
+    angle_y = np.radians(-10)
     R = np.array([
         [np.cos(angle_y), 0, np.sin(angle_y)],
         [0, 1, 0],
         [-np.sin(angle_y), 0, np.cos(angle_y)]
     ])
 
-    t = np.array([0.0, 0.0, 0.2])  # Negative translation along the z-axis (adjust this as needed)
+    t = np.array([0.0, 0.0, 0.2])
 
-    # Transform filtered LiDAR points from LiDAR to camera coordinates
-    points_lidar = np.vstack((x_filtered, y_filtered, z_filtered))  # Create 3xN matrix
-    points_camera = R @ points_lidar + t[:, np.newaxis]  # Apply rotation and translation
+    points_lidar = np.vstack((x_filtered, y_filtered, z_filtered))
+    points_camera = R @ points_lidar + t[:, np.newaxis]
 
-    # Perspective projection
     pixel_x = (focal_length * points_camera[1, :] / points_camera[0, :]) + principal_point[0]
     pixel_y = (focal_length * (-points_camera[2, :] / points_camera[0, :])) + principal_point[1]
 
-    # Filter based on valid pixel coordinates within the image dimensions
     valid_pixels_mask = (pixel_x >= 0) & (pixel_x < image_width) & (pixel_y >= 0) & (pixel_y < image_height)
     pixel_x = pixel_x[valid_pixels_mask].astype(int)
     pixel_y = pixel_y[valid_pixels_mask].astype(int)
-    filtered_r = filtered_r[valid_pixels_mask]  # Update filtered_r to correspond to valid pixels
+    filtered_r = filtered_r[valid_pixels_mask]
 
-    # Update indices and world positions based on valid pixels
     valid_indices = indices_in_fov[valid_pixels_mask]
     valid_world_positions = world_positions[valid_pixels_mask]
 
-    # Normalize the distances (r) for color mapping
     norm = plt.Normalize(vmin=filtered_r.min(), vmax=filtered_r.max())
-    cmap = plt.colormaps.get_cmap('plasma')  # Updated method for colormap
-    colors = cmap(norm(filtered_r))[:, :3]  # Get RGB values from the colormap
-    colors = (colors * 255).astype(int)  # Convert to 8-bit values for OpenCV
+    cmap = plt.colormaps.get_cmap('plasma')
+    colors = cmap(norm(filtered_r))[:, :3]
+    colors = (colors * 255).astype(int) 
 
-    # Overlay the points on the image
     for i in range(len(pixel_x)):
-        color = (int(colors[i][2]), int(colors[i][1]), int(colors[i][0]))  # Convert RGB to BGR for OpenCV
+        color = (int(colors[i][2]), int(colors[i][1]), int(colors[i][0]))
         cv2.circle(image, (pixel_x[i], pixel_y[i]), radius=2, color=color, thickness=-1)
-
-    # Create a list to store the world position data
+        
     world_data = []
 
-    # Process each bounding box
     for bbox in bounding_boxes:
         x_min, y_min, x_max, y_max, score, class_id = bbox
         x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
 
-        # Find LiDAR points within this bounding box
         inside_bbox_mask = (pixel_x >= x_min) & (pixel_x <= x_max) & (pixel_y >= y_min) & (pixel_y <= y_max)
         if np.any(inside_bbox_mask):
-            # Get the minimum distance within the bounding box
             min_distance_idx = np.argmin(filtered_r[inside_bbox_mask])
             min_distance = filtered_r[inside_bbox_mask][min_distance_idx]
             world_position = valid_world_positions[inside_bbox_mask][min_distance_idx]
 
-            # Draw the bounding box
             cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
-            # Start building the region of connected points
             region_points = [world_position]
 
-            # Create a local mask for points inside the bounding box
             local_world_positions = valid_world_positions[inside_bbox_mask]
             local_region_mask = np.zeros(local_world_positions.shape[0], dtype=bool)
             local_region_mask[min_distance_idx] = True
@@ -305,39 +276,31 @@ def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
             while True:
                 current_region_size = len(region_points)
                 for i, wp in enumerate(local_world_positions):
-                    if not local_region_mask[i]:  # Only consider points not already in the region
+                    if not local_region_mask[i]: 
                         if np.any(np.linalg.norm(np.array(region_points) - wp, axis=1) < distance_limit):
                             region_points.append(wp)
                             local_region_mask[i] = True
-                # Break if no new points are added
                 if len(region_points) == current_region_size:
                     break
 
-            # Get the pixel coordinates for the region points
             region_pixel_x = pixel_x[inside_bbox_mask][local_region_mask]
             region_pixel_y = pixel_y[inside_bbox_mask][local_region_mask]
 
-            # Overlay the region points as green dots
             for i in range(len(region_pixel_x)):
                 cv2.circle(image, (region_pixel_x[i], region_pixel_y[i]), radius=2, color=(0, 255, 0), thickness=-1)
 
-            # Only apply PCA if there are at least 2 points
             if len(local_world_positions[local_region_mask]) >= 2:
-                # Apply PCA to the region points to determine the orientation
                 pca = PCA(n_components=2)
                 pca.fit(local_world_positions[local_region_mask])
-                orientation_vector = pca.components_[0]  # First principal component (dominant direction)
+                orientation_vector = pca.components_[0]
 
-                # Calculate the angle of the orientation vector relative to the x-axis in radians
                 orientation_angle = np.arctan2(orientation_vector[1], orientation_vector[0])
 
-                # Display the orientation and distance inside the bounding box
                 text = f"Object: {min_distance:.2f}m, θ: {np.degrees(orientation_angle):.1f}°"
                 cv2.putText(image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
-                # Save the world position with label, distance, and orientation in the list
                 world_data.append({
-                    "label": "object",  # Change "object" to actual detected object class from YOLO if available
+                    "label": "object",
                     "world_position": {
                         "x": float(world_position[0]),
                         "y": float(world_position[1]),
@@ -359,7 +322,7 @@ def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
 
                 # Save the world position without orientation
                 world_data.append({
-                    "label": "object",  # Change "object" to actual detected object class from YOLO if available
+                    "label": "object",
                     "world_position": {
                         "x": float(world_position[0]),
                         "y": float(world_position[1]),
@@ -443,8 +406,6 @@ def create_directory_and_move_files(output_frames):
 
     print(f"Files moved to: {save_directory}")
 
-
-# Example usage:
 def main(pipe):
     global lane_active
     global avoid
@@ -490,16 +451,14 @@ def main(pipe):
         output_folder = "output_frames"
         os.makedirs(output_folder, exist_ok=True)
 
-        # Timer for the drive
         start_time = time.time()
         pipestring = pipe
-        # If pipestrign contains 'laneUnit', set lane_active to True
+        
         if 'laneUnit' in pipestring:
             lane_active = True
         if 'observerUnit' in pipestring:
             avoid = True
 
-        # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
             pipe = bobTheBuilder.build_pipeline(pipestring)
             while True:
@@ -507,44 +466,27 @@ def main(pipe):
                     if event.type == pygame.QUIT:
                         return
 
-                # Get synchronized sensor data
                 data = sync_mode.tick(timeout=2.0)
                 latest_image, latest_lidar_data = data
 
-                # Process the image
                 image_array = process_image(latest_image)
                 image_array_writable = np.copy(image_array)
-                # processed_image_array, bounding_boxes = run_ai_model(image_array)
-
-                # Process LiDAR data, including intensity
+  
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
 
-                # Integrate LiDAR data with the image and update world data
-                # , world_data = integrate_lidar_with_image(processed_image_array,
-                # latest_lidar_data_np, bounding_boxes)
-
-                # Get vehicle transform (position and orientation)
                 vehicle_transform = vehicle.get_transform()
 
-                # Save frame and data, including the updated world data
                 save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
                                     output_folder, vehicle_transform, image_array)
 
-                # Save the world data to a JSON file
-                # world_data_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_world_data.json")
-                # with open(world_data_filename, 'w') as world_data_file:
-                #     json.dump(world_data, world_data_file, indent=4)
-
-                # Display the processed image
                 image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
                 
                 if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
-                    # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
                     
@@ -554,8 +496,6 @@ def main(pipe):
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
-                # print(object_avoidance)
-                # print( pipe.dataToken.get_flag("hasObserverData"))
 
                 if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
                     print("avoiding")
@@ -570,6 +510,7 @@ def main(pipe):
                     print(vehicle.get_velocity().x)
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
+                        control.breaking = 1
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']

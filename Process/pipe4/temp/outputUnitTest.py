@@ -84,26 +84,6 @@ class outputUnitTest(Unit):
                     cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
                                 2)
                     cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-        # if (self.la or self.all) and data_token.get_flag('has_lane_data'):
-        #     output = data_token.get_processing_result('laneUnit')
-        #     # mask = output['mask']
-        #     results = output['results']
-        #
-        #     if len(mask.shape) == 3 and mask.shape[2] == 3:
-        #         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        #
-        #     if mask.shape != annotated_frame.shape[:2]:
-        #         mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]),
-        #                           interpolation=cv2.INTER_NEAREST)
-        #
-        #     colored_mask = np.zeros_like(annotated_frame)
-        #     colored_mask[mask > 0] = [0, 255, 0]
-        #
-        #     alpha = 0.5
-        #     annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
-        #     img_la = image.copy()
-        #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
             results = output['results']
@@ -142,10 +122,6 @@ class outputUnitTest(Unit):
             xMax = observer_results['xMax']
             yMin = observer_results['yMin']
             yMax = observer_results['yMax']
-
-            # text = f"{bbox[-1]}  {min_distance if min_distance else ''}"
-            # cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            # cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
         return annotated_frame, img_lidar, img_taggr, img_bb, img_la

@@ -3,8 +3,8 @@ import numpy as np
 class DataToken:
     def __init__(self, sensors):
         self.sensors = sensors
-        self.sensor_data = {}  # Dictionary to hold sensor data
-        self.processing_results = {}  # Dictionary to hold processing results
+        self.sensor_data = {} 
+        self.processing_results = {}
         self.flags = {'has_lidar_data':False, 'has_tagger_data': False, 'has_lane_data': False, 'hasObeserverData': False, 'has_bb_data':False}  # Dictionary to hold flags
 
     def add_sensor_data(self, sensor_name, data):
@@ -12,7 +12,6 @@ class DataToken:
             raise ValueError(f"Sensor {sensor_name} is not registered in the pipeline.")
 
         self.sensor_data[sensor_name] = data
-        # self.flags[f'has_{sensor_name}_data'] = True  # Set flag when data is added
 
     def get_sensor_data(self, sensor_name):
         return self.sensor_data.get(sensor_name)
