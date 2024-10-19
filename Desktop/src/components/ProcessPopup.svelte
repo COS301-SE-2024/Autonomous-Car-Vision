@@ -6,8 +6,9 @@
 
   import { cuda, localProcess } from "../stores/processing";
 
-  import { isLoading } from "../stores/loading";
-  import {theme} from '../stores/themeStore';
+  import { isLoading, isProcessing } from "../stores/loading";
+  
+  import { theme } from "../stores/themeStore";
 
   export let showProcessPopup;
   export let models = [];
@@ -22,6 +23,7 @@
   }
 
   function processVideo() {
+    isProcessing.set(true);
     isLoading.set(true);
     dispatch("processVideo", { modelName: selectedModelName });
   }
@@ -51,57 +53,55 @@
   });
 </script>
 
-
-{#if $theme === 'highVizLight'}
-{#if mounted}
-  <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
-    <div
+{#if $theme === "highVizLight"}
+  {#if mounted}
+    <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
+      <div
         class="bg-highVizLight-accent p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
-    >
-      <div class="flex flex-col boder border-theme-dark-backgroundBlue">
-        <p class="text-md">
-          Are you sure you want to process this video? Please select a model to
-          process below.
-        </p>
-        <select
-          on:change={handleModelChange}
-          bind:value={selectedModelName}
-          class="mt-2 p-2 border rounded bg-highVizLight-secondary text-white"
-        >
-          {#each models as model}
-            <option value={model.model_name}>{model.model_name}</option>
-          {/each} ▼
-        </select>
-        {#if hasCuda}
+      >
+        <div class="flex flex-col boder border-theme-dark-backgroundBlue">
+          <p class="text-md">
+            Are you sure you want to process this video? Please select a model
+            to process below.
+          </p>
           <select
-            style="visibility: hidden"
-            on:change={handleLocalChange}
-            bind:value={localSelcted}
+            on:change={handleModelChange}
+            bind:value={selectedModelName}
             class="mt-2 p-2 border rounded bg-highVizLight-secondary text-white"
           >
-            <option value="server">Server</option>
-            <option value="local">Local</option>
+            {#each models as model}
+              <option value={model.model_name}>{model.model_name}</option>
+            {/each} ▼
           </select>
-        {/if}
-        <div class="flex mt-4 space-x-4 justify-start">
-          <button
-            class="bg-highVizLight-error bg-opacity-70 font-medium text-white px-4 py-2 rounded  hover:bg-opacity-100 transition-all duration-300 ease-in-out"
-            on:click={closePopup}>No</button
-          >
-          <button
-            class="bg-highVizLight-secondary bg-opacity-70 font-medium px-4 py-2 text-white rounded hover:bg-opacity-100 transition-all duration-300 ease-in-out"
-            on:click={processVideo}>Yes</button
-          >
+          {#if hasCuda}
+            <select
+              style="visibility: hidden"
+              on:change={handleLocalChange}
+              bind:value={localSelcted}
+              class="mt-2 p-2 border rounded bg-highVizLight-secondary text-white"
+            >
+              <!-- <option value="server">Server</option> -->
+              <option value="local">Local</option>
+            </select>
+          {/if}
+          <div class="flex mt-4 space-x-4 justify-start">
+            <button
+              class="bg-highVizLight-error bg-opacity-70 font-medium text-white px-4 py-2 rounded-full hover:bg-opacity-100 transition-all duration-300 ease-in-out"
+              on:click={closePopup}>No</button
+            >
+            <button
+              class="bg-highVizLight-secondary bg-opacity-70 font-medium px-4 py-2 text-white rounded-full hover:bg-opacity-100 transition-all duration-300 ease-in-out"
+              on:click={processVideo}>Yes</button
+            >
+          </div>
         </div>
       </div>
     </div>
-  </div>
-{/if}
-{:else}
-{#if mounted}
+  {/if}
+{:else if mounted}
   <div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
     <div
-        class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
+      class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
     >
       <div class="flex flex-col boder border-theme-dark-backgroundBlue">
         <p class="text-md text-white">
@@ -123,7 +123,7 @@
             bind:value={localSelcted}
             class="mt-2 p-2 border rounded bg-theme-dark-primary text-white"
           >
-            <option value="server">Server</option>
+            <!-- <option value="server">Server</option> -->
             <option value="local">Local</option>
           </select>
         {/if}
@@ -141,5 +141,3 @@
     </div>
   </div>
 {/if}
-{/if}
-

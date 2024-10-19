@@ -55,6 +55,8 @@ async function createWindow() {
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
     });
 
+    // SHITTTTTTTTTTTTTTTTTTTTTTTTTT
+
     mainWindow.loadFile('public/index.html');
 
     if (app.isPackaged) {
@@ -122,7 +124,7 @@ app.on('activate', () => {
 const AdmZip = require('adm-zip');
 
 function extractPythonFiles(pythonFile) {
-    const appDataDir = path.join(app.getPath('userData'), 'python-scripts');  // Extract in app data directory
+    const appDataDir = path.join(app.getPath('userData'), 'python-scripts', 'python');  // Extract in app data directory
     const zipPath = path.join(app.getAppPath(), 'python.zip');
 
     console.log(`Zip Path: ${zipPath}`);
@@ -136,7 +138,7 @@ function extractPythonFiles(pythonFile) {
     const zip = new AdmZip(zipPath);
 
     // Check if the python scripts have already been extracted
-    const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
+    const extractedScriptPath = path.join(appDataDir, pythonFile);
 
     // If the specific script exists, skip extraction
     if (fs.existsSync(extractedScriptPath)) {
@@ -157,10 +159,77 @@ function extractPythonFiles(pythonFile) {
     return appDataDir;
 }
 
+function extractPtFiles() {
+    const appDataDir = path.join(app.getPath('userData'), 'model-files');  // Directory to store extracted model files
+    const zipPath = path.join(app.getAppPath(), 'python.zip');  // Path to the zip file
+
+    console.log(`Zip Path: ${zipPath}`);
+    console.log(`App Data Directory: ${appDataDir}`);
+
+    // Ensure the app data directory exists
+    if (!fs.existsSync(appDataDir)) {
+        fs.mkdirSync(appDataDir, { recursive: true });
+    }
+
+    const zip = new AdmZip(zipPath);
+
+    // Check if any `.pt` files have already been extracted
+    const extractedPtFiles = fs.readdirSync(appDataDir).filter(file => file.endsWith('.pt'));
+
+    // If `.pt` files are found, skip extraction
+    if (extractedPtFiles.length > 0) {
+        console.log('Model files already extracted:', extractedPtFiles);
+        return appDataDir;  // Return early if the files are already extracted
+    }
+
+    // Extract all files from the zip to the app data directory
+    zip.extractAllTo(appDataDir, true);
+
+    // Verify extraction and search for `.pt` files in subdirectories
+    const extractAndCheckPtFiles = (dir) => {
+        let ptFiles = [];
+
+        const traverseDir = (currentDir) => {
+            const files = fs.readdirSync(currentDir);
+            for (const file of files) {
+                const fullPath = path.join(currentDir, file);
+                const stats = fs.statSync(fullPath);
+
+                if (stats.isDirectory()) {
+                    traverseDir(fullPath);  // Recursively search directories
+                } else if (file.endsWith('.pt')) {
+                    ptFiles.push(fullPath);  // Collect .pt file paths
+                }
+            }
+        };
+
+        traverseDir(dir);  // Start traversing from the extracted directory
+
+        if (ptFiles.length > 0) {
+            console.log('Extracted .pt files:', ptFiles);
+        } else {
+            console.error('No .pt files found in the extracted directory.');
+        }
+
+        return ptFiles;
+    };
+
+    // Search for `.pt` files after extraction
+    extractAndCheckPtFiles(appDataDir);
+
+    return appDataDir;
+}
 
 // Get app path
 ipcMain.handle('get-app-path', () => {
-    return app.getAppPath();
+    return app.getPath('userData');
+    // return app.getAppPath();
+});
+
+// Get models path
+ipcMain.handle('get-models-path', () => {
+    extractPtFiles();
+    return path.join(app.getPath('userData'), 'model-files', 'models');  // Extract in app data directory
 });
 
 // Read directory handler
@@ -309,7 +378,7 @@ function updateState(updates) {
     const currentState = store.get('appProcessing', {
         processing: false,
         cuda: false,
-        localProcess: false,
+        localProcess: true,
         videoUrl: '',
         originalVideoURL: '',
         processingQueue: [],
@@ -574,8 +643,14 @@ async function processQueue() {
 
     try {
         //call the run-python-script IPC handler
+        const modelpath = "";
+        scriptPath = nextVideo.scriptPath;
+        console.log("SCRIPTPATH: ", nextVideo.scriptPath);
+        console.log(nextVideo.videoPath);
+        console.log(nextVideo.outputVideoPath);
+        console.log(nextVideo.modelPath);
 
-        const output = await runPythonScript(nextVideo.scriptPath, [
+        const output = await runPythonScript(scriptPath, [
             nextVideo.videoPath,
             nextVideo.outputVideoPath,
             nextVideo.modelPath,
@@ -795,10 +870,9 @@ ipcMain.handle('check-cuda', async () => {
         console.log("Checking cuda availability")
         // get the root directory of the app
         const appPath = app.getAppPath();
-        let pythonPath = path.join(appPath, '..');
-        pythonPath = path.join(pythonPath, 'Models/cudaCheck.py');
+        const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
+        const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
-            cwd: __dirname, // Ensure the working directory is correct
             stdio: ['pipe', 'pipe', 'pipe'],
             shell: true,
         });
@@ -831,7 +905,7 @@ ipcMain.handle('check-cuda', async () => {
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
     const extractedPath = extractPythonFiles('pythonUpload.py');  // Use app data directory
-    const scriptPath = path.join(extractedPath, 'python', 'pythonUpload.py');  // Ensure the script has the correct path
+    const scriptPath = path.join(extractedPath, 'pythonUpload.py');  // Ensure the script has the correct path
 
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
@@ -879,11 +953,10 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
     const extractedPath = extractPythonFiles('pythonDownload.py');  // Use app data directory
-    const scriptPath = path.join(extractedPath, 'python', 'pythonDownload.py');  // Ensure the script has the correct path
-    const fullFilepath = path.join(app.getPath('userData'), 'Downloads', filepath);
+    const scriptPath = path.join(extractedPath, 'pythonDownload.py');  // Ensure the script has the correct path
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
-    const args = [ip, port, filepath, fullFilepath, uid, size, token, mid, videoDestination];
+    const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
@@ -912,7 +985,20 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
 });
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
-    return path.resolve(...segments);
+    const resolvedPath = path.resolve(...segments); // Resolve the path from segments
+    
+    try {
+        // Ensure that the directory structure exists by creating it if necessary
+        fs.mkdirSync(resolvedPath, { recursive: true });
+        console.log(`Directory created or already exists: ${resolvedPath}`);
+    } catch (err) {
+        console.error(`Error creating directory at path: ${resolvedPath}`, err);
+        return { success: false, error: err.message };
+    }
+    
+    // Return the resolved path
+    console.log("RESOLVED PATH: ", resolvedPath)
+    return resolvedPath;
 });
 
 // IPC handler to check if a video file exists
@@ -986,9 +1072,16 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
             return { success: false, error: 'Video file does not exist' };
         }
 
-        // Get the user's Downloads folder path
+        // Get the user's appData folder path (change to actual Downloads if needed)
         const appDataPath = app.getPath('userData');
         const downloadsDir = path.join(appDataPath, 'Downloads');
+
+        // Ensure the Downloads directory exists
+        if (!fs.existsSync(downloadsDir)) {
+            fs.mkdirSync(downloadsDir, { recursive: true });
+            console.log('Downloads directory created:', downloadsDir);
+        }
+
         const destinationPath = path.join(downloadsDir, videoName);
 
         console.log('Moving video file to:', destinationPath);
@@ -1013,6 +1106,7 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
         return { success: false, error: error.message };
     }
 });
+
 
 ipcMain.handle('get-ai-models', async () => {
     try {

@@ -7,6 +7,7 @@
   import { OriginalVideoURL } from "../../../stores/video";
   import { mdiAccessPoint, mdiDeleteOutline } from "@mdi/js";
   import { Icon } from "svelte-materialify";
+  import { isProcessing } from "../../../stores/loading";
 
   import { onMount } from "svelte";
 
@@ -66,12 +67,22 @@
         videoNameExtract = videoName.split(".")[0];
         extention = videoName.split(".")[1];
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
           "..",
         );
-        scriptPath = `${appDirectory}/Models/processVideo.py`;
-        modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
+
+        await window.electronAPI.resolvePath(
+          `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`,
+          "..",
+        )
+
+        scriptPath = `${appDirectory}/HighViz/python-scripts/python/processVideo.py`;
+
+        // modelsDirectory = await window.electronAPI.getModelsPath();
+        // modelsPath = `${modelsDirectory}/${modelName}/${modelName}.pt`;
+        modelsPath = `${appDirectory}/HighViz/python-scripts/python/models/${modelName}/${modelName}.pt`;
         resolve();
       })();
     });
@@ -177,6 +188,7 @@
   let processed = false; // Check if the video has been processed
 
   async function processVideo(event) {
+    isProcessing.set(true);
     modelName = event.detail.modelName;
     showProcessPopup = false;
     try {
@@ -187,36 +199,31 @@
         videoPath,
         outputVideoPath,
         modelPath: modelsPath,
-        localProcess: get(localProcess),
+        localProcess: true,
       };
 
-      setInterval(() => {
-        isLoading.set(false);
-      }, 1000);
-      showModelList.set(true);
-
       await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
-
+      
       toast.success("Video queued for processing", {
         duration: 5000,
         position: "top-center",
       });
-
+      
       await loadState(); // Load state after adding the video to the queue
-
+      
       // Add processed video information to the database
       const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
       if (originalVideo) {
         const processedVideoURL = outputVideoPath;
         const existingProcessedVideo =
-          await window.electronAPI.getVideoByURL(processedVideoURL);
-
+        await window.electronAPI.getVideoByURL(processedVideoURL);
+        
         // Video added to the local database
         if (!existingProcessedVideo) {
           const newProcessedVideo = {
             label: modelName,
             profileImgURL:
-              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             videoURL: processedVideoURL,
             originalVidID: originalVideo.videoID,
           };
@@ -234,11 +241,11 @@
       console.error("Error:", output);
     }
     processed = true;
-  }
-
-  function re_process() {
-    // Re-process functionality
-    console.log("Re-processing video");
+    setInterval(() => {
+      isProcessing.set(false);
+      isLoading.set(false);
+    }, 1000);
+    showModelList.set(true);
   }
 
   let selectedModel = null;
