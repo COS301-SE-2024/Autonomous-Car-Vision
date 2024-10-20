@@ -6,14 +6,10 @@
 {#if $theme === "highVizLight"}
     <div class="min-h-screen lightScreen">
         <SignUpForm />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {:else}
     <div class="min-h-screen darkScreen">
         <SignUpForm />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {/if}
 

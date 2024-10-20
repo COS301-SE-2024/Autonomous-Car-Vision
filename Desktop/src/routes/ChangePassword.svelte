@@ -5,8 +5,6 @@
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
-
-  // Loading screen imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
@@ -111,9 +109,6 @@
 
         <!-- Old Password -->
         <div class="mb-4 w-1/2">
-          <!-- <label for="oldPassword" class="block text-theme-keith-accentone mb-1"
-            >Old Password</label
-          > -->
           <TextField
             id="oldPassword"
             type="password"
@@ -125,9 +120,6 @@
 
         <!-- New Password -->
         <div class="mb-4 w-1/2">
-          <!-- <label for="newPassword" class="block text-theme-keith-accentone mb-1"
-            >New Password</label
-          > -->
           <TextField
             id="newPassword"
             type="password"
@@ -139,10 +131,6 @@
 
         <!-- Confirm New Password -->
         <div class="mb-4 w-1/2">
-          <!-- <label
-            for="confirmPassword"
-            class="block text-theme-keith-accentone mb-1"
-            >Confirm New Password</label > -->
           <TextField
             id="confirmPassword"
             type="password"

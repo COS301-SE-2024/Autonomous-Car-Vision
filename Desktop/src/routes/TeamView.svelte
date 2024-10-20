@@ -124,7 +124,7 @@
         </div>
     {:else}
     <Toaster />
-        <div class="user-list text-theme-dark-lightText">
+        <div class="user-list text-white-lightText">
             <div class="header text-4xl items-center text-center">
                 <h2>{teamName}</h2>
             </div>
@@ -194,6 +194,5 @@
         padding: 10px;
         border-radius: 4px;
         margin-bottom: 10px;
-        /* margin-left: 10px; */
     }
 </style>

@@ -95,7 +95,6 @@
             </div>
             <div class="bg-highVizDark grid grid-cols-1 gap-3 py-2 text-white">
                 <Button on:click={PerformanceTest}>Perfomance</Button>
-                <!-- <Button on:click={SecurityTest}>Security</Button> -->
             </div>
             <div class="results-container">
                 {#if performanceTestStarted}

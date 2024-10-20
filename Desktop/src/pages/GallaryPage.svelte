@@ -32,14 +32,13 @@
   });
 
   // Fetch the video records from the database
-  //TODO: Must fetch date and model names as well for filter function
   onMount(async () => {
     isLoading.set(true);
 
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
-    //TODO: update last signin in the database
+
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
 
     try {
@@ -82,19 +81,6 @@
     // Replace with your actual data fetching logic
     return { message: "Data loaded successfully" };
   }
-
-  // $: filteredItems = videoURLs.filter(item => {
-  //  const searchRegex = new RegExp(searchQuery, 'i');
-
-  //   if (filterCategory === 'Name') {
-  //    return searchRegex.test(videoNames[item]); //TODO: check this (maybe meant to be mname)
-  //  } else if (filterCategory === 'Date') {
-  //    return searchRegex.test(item.date); //check the returned value
-  //  } else if (filterCategory === 'Model Name') {
-  //    return searchRegex.test(item.modelName); //check the returned value
-  //  }
-  //  return true;
-  // });
 
   async function handleSearch(event) {
     searchQuery = event.target.value;
@@ -149,7 +135,6 @@
     <div class="items-center">
       <div>
         <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
-          <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
               on:click={() => handleListTypeChange("grid")}
@@ -225,7 +210,6 @@
     <div class="items-center">
       <div>
         <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
-          <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
               on:click={() => handleListTypeChange("grid")}

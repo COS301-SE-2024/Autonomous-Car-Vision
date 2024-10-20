@@ -39,11 +39,6 @@
   }
 
   const saveChanges = async () => {
-    // Function to handle saving other changes (username, email)
-
-    // Save the changes to the database
-
-
     try {
       const response = await axios.post(
         "http://" + HOST_IP + ":8000/changeUserDetails/",
