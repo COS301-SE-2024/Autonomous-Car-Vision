@@ -54,7 +54,7 @@ def get_wheel_input():
 
     throttle = (joystick.get_axis(1) + 1) / 2.0  # Normalize to 0 to 1
     throttle = 1 - throttle  # Flip throttle value (0 is at the bottom, 1 is at the top)
-
+    throttle = throttle/2
     brake = (joystick.get_axis(2) + 1) / 2.0  # Normalize to 0 to 1
     brake = 1 - brake  # Flip brake value (0 is at the bottom, 1 is at the top)
 
@@ -384,6 +384,7 @@ def main(pipe):
 
                 # Process LiDAR data, including intensity
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
+                pipe.dataToken.add_processing_result('velocityUnit',vehicle.get_velocity().x)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
@@ -413,6 +414,9 @@ def main(pipe):
                     # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
+                    velocity_text = f"Velocity: {vehicle.get_velocity().x:.2f}"  # Format the velocity to 2 decimal places
+                    text_surface = font.render(velocity_text, True, (0, 255, 0))
+                    display.blit(text_surface, (10, 30))
 
                 frame_number += 1
 
@@ -422,11 +426,16 @@ def main(pipe):
                 control = get_keyboard_control(vehicle)
                 # print(object_avoidance)
                 # print( pipe.dataToken.get_flag("hasObserverData"))
-                print("flag:", pipe.dataToken.get_flag("hasObserverData"))
-                print("avoidance:", object_avoidance)
+                # print("flag:", pipe.dataToken.get_flag("hasObserverData"))
+                # print("avoidance:", object_avoidance)
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     print("avoiding")
+
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
+                    x_text = f"avgX: {observerToken['avgX']:.2f}"
+                    print(x_text)
+                    text_surface = font.render(x_text, True, (0, 255, 0))  # Green text
+                    display.blit(text_surface, (10, 50))
                     breaking = observerToken['breaking']
                     handbreak = observerToken['handBreak']
                     if breaking > 0 or handbreak:
@@ -434,7 +443,7 @@ def main(pipe):
 
                     control.brake = breaking
                     control.hand_brake = handbreak
-                    print(vehicle.get_velocity().x)
+                    # print(vehicle.get_velocity().x)
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
                 if (follow_lane):

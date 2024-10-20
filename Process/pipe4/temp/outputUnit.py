@@ -104,5 +104,5 @@ class outputUnit(Unit):
 
 
 
-        print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
+        # print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
         return annotated_frame, img_lidar, img_taggr, img_bb, img_la
