@@ -45,7 +45,7 @@
           appPath,
           ".."
         );
-        const scriptPath = `${appDirectory}/Process/pipe4/temp/lane_following.py`;
+        const scriptPath = `${appDirectory}/HighViz/python-scripts/python/lane_following.py`;
 
         const exitCode = await window.electronAPI.runPythonScript2(
           scriptPath,
@@ -78,7 +78,7 @@
           appPath,
           ".."
         );
-        const scriptPath = `${appDirectory}/Process/pipe4/temp/manualUnit3.py`;
+        const scriptPath = `${appDirectory}/HighViz/python-scripts/python/manualUnit3.py`;
 
         const exitCode = await window.electronAPI.runPythonScript2(
           scriptPath,
@@ -111,7 +111,7 @@
           appPath,
           ".."
         );
-        const scriptPath = `${appDirectory}/Process/pipe4/temp/unit3.py`;
+        const scriptPath = `${appDirectory}/HighViz/python-scripts/python/unit3.py`;
 
         const exitCode = await window.electronAPI.runPythonScript2(scriptPath, [
           selectedPipe,

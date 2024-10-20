@@ -107,8 +107,8 @@
       "src/routes/**/*.py",
       "public/index.html",
       ".env",
-      "../Process/**/*",
-      "python.zip"
+      "python.zip",
+      "processVideo"
     ],
     "win": {
       "target": [

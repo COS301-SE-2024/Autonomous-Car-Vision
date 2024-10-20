@@ -119,7 +119,7 @@ app.on('activate', () => {
 const AdmZip = require('adm-zip');
 
 function extractPythonFiles(pythonFile) {
-    const appDataDir = path.join(app.getPath('userData'), 'python-scripts'); 
+    const appDataDir = path.join(app.getPath('userData'), 'python-scripts');
     const zipPath = path.join(app.getAppPath(), 'python.zip');
 
     console.log(`Zip Path: ${zipPath}`);
@@ -135,7 +135,8 @@ function extractPythonFiles(pythonFile) {
 
     if (fs.existsSync(extractedScriptPath)) {
         console.log(`Python script already extracted at: ${extractedScriptPath}`);
-        return appDataDir;    }
+        return appDataDir;
+    }
 
     zip.extractAllTo(appDataDir, true);
 
@@ -148,13 +149,8 @@ function extractPythonFiles(pythonFile) {
     return appDataDir;
 }
 
-function extractPtFiles() {
-    const appDataDir = path.join(app.getPath('userData'), 'model-files');  // Directory to store extracted model files
-    const zipPath = path.join(app.getAppPath(), 'python.zip');  // Path to the zip file
-
 ipcMain.handle('get-app-path', () => {
     return app.getPath('userData');
-    // return app.getAppPath();
 });
 
 ipcMain.handle('read-directory', async (event, directoryPath) => {
@@ -695,14 +691,16 @@ async function processVideoRemotely(videoDetails) {
     }, 15000);
 }
 
+// const { execFile } = require('child_process');
+
 function runPythonScript(scriptPath, args) {
     console.log('Running Python Script:', scriptPath, args);
     return new Promise((resolve, reject) => {
         const python = spawn('python', [scriptPath, ...args], {
             detached: true,
             stdio: ['ignore', 'pipe', 'pipe'],
-            shell: true, 
-            windowsHide: true  
+            shell: true,
+            windowsHide: true
         });
 
         console.log("Script path: " + scriptPath);
@@ -744,7 +742,7 @@ ipcMain.handle('check-cuda', async () => {
         const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
         const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
-            cwd: __dirname, 
+            cwd: __dirname,
             stdio: ['pipe', 'pipe', 'pipe'],
             shell: true,
         });
@@ -811,7 +809,7 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
             if (code === 0) {
                 resolve(output);
             } else {
-                reject(new Error(error)); 
+                reject(new Error(error));
             }
         });
 
@@ -859,7 +857,7 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
     const resolvedPath = path.resolve(...segments); // Resolve the path from segments
-    
+
     try {
         // Ensure that the directory structure exists by creating it if necessary
         fs.mkdirSync(resolvedPath, { recursive: true });
@@ -868,7 +866,7 @@ ipcMain.handle('resolve-path', (event, ...segments) => {
         console.error(`Error creating directory at path: ${resolvedPath}`, err);
         return { success: false, error: err.message };
     }
-    
+
     // Return the resolved path
     console.log("RESOLVED PATH: ", resolvedPath)
     return resolvedPath;
@@ -1142,7 +1140,7 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
         } else if (platform === 'linux') {
             baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
         } else {
-            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); 
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
         }
 
         const pipesDirectory = path.join(baseDirectory, 'pipes');
@@ -1159,7 +1157,7 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
             try {
                 const parsedData = JSON.parse(fileContent);
                 if (Array.isArray(parsedData)) {
-                    existingData = parsedData; 
+                    existingData = parsedData;
                 } else {
                     console.warn('Existing data is not an array, initializing as empty array');
                 }
@@ -1169,7 +1167,7 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
         }
 
         const newEntry = JSON.parse(jsonString);
-        existingData.push(newEntry); 
+        existingData.push(newEntry);
 
         fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), 'utf-8');
 
@@ -1224,7 +1222,7 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         pythonProcess.on('close', (code) => {
             console.log(`Python script exited with code ${code}`);
             resolve(code);
-            event.sender.send('python-script-done', code); 
+            event.sender.send('python-script-done', code);
         });
 
         pythonProcess.on('error', (err) => {
@@ -1236,7 +1234,7 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
 
 ipcMain.handle('google-sign-in', async () => {
     const url = client.generateAuthUrl({
-        access_type: 'offline', 
+        access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
     });
 
@@ -1247,7 +1245,7 @@ ipcMain.handle('google-sign-in', async () => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            webSecurity: true, 
+            webSecurity: true,
         }
     });
 
@@ -1521,12 +1519,12 @@ ipcMain.handle('sync-sqlite', async (event, uid) => {
 
 async function insertLookupData(responseData) {
     try {
-        const data = responseData.data; 
+        const data = responseData.data;
         for (const item of data) {
             console.log("Attempting to insert item:", item);
             if (!item.media_name || !item.uid) {
                 console.error("Invalid item data:", item);
-                continue; 
+                continue;
             }
 
             const existingItem = await LookupTable.findOne({ where: { mname: item.media_name } });
@@ -1535,10 +1533,10 @@ async function insertLookupData(responseData) {
             }
 
             await LookupTable.create({
-                mid: parseInt(item.mid), 
+                mid: parseInt(item.mid),
                 mname: item.media_name,
                 localurl: item.media_url,
-                size: 0, 
+                size: 0,
                 uid: item.uid
             });
             console.log('Item inserted successfully:', item.media_name);
