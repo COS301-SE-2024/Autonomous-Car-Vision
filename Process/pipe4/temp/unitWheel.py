@@ -414,13 +414,13 @@ def main(pipe):
                     # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
-                    velocity_text = f"Velocity: {vehicle.get_velocity().x:.2f}"  # Format the velocity to 2 decimal places
+                    velocity_text = f"Velocity: {abs(vehicle.get_velocity().x):.2f}"  # Format the velocity to 2 decimal places
                     text_surface = font.render(velocity_text, True, (0, 255, 0))
                     display.blit(text_surface, (10, 30))
 
                 frame_number += 1
 
-                pygame.display.flip()
+
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
@@ -453,6 +453,7 @@ def main(pipe):
                     text_surface = font.render(f"Lane Following is on, Steer: {steer}", True, (0, 255, 0))
                     display.blit(text_surface, (10, 10))
 
+                pygame.display.flip()
 
                 vehicle.apply_control(control)
 
