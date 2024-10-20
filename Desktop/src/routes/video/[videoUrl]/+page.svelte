@@ -74,11 +74,7 @@
           `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`,
           "..",
         )
-
         scriptPath = `${appDirectory}/HVstore/python-scripts/python/processVideo.py`;
-
-        // modelsDirectory = await window.electronAPI.getModelsPath();
-        // modelsPath = `${modelsDirectory}/${modelName}/${modelName}.pt`;
         modelsPath = `${appDirectory}/HVstore/python-scripts/python/models/${modelName}/${modelName}.pt`;
         resolve();
       })();

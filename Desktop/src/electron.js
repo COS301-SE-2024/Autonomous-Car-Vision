@@ -128,13 +128,7 @@ function extractPythonFiles(pythonFile) {
     }
 
     const zip = new AdmZip(zipPath);
-
-    let extractedScriptPath;
-    if(pythonFile === "cudaCheck.py") {
-        extractedScriptPath = path.join(appDataDir, 'python', pythonFile);    
-    }else {   
-        extractedScriptPath = path.join(appDataDir, pythonFile);
-    }
+    const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
 
     if (fs.existsSync(extractedScriptPath)) {
         console.log(`Python script already extracted at: ${extractedScriptPath}`);
@@ -742,7 +736,7 @@ ipcMain.handle('check-cuda', async () => {
     return new Promise((resolve, reject) => {
         const appPath = app.getAppPath();
         const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
-        const pythonPath = path.join(extractedPath, 'python', 'cudaCheck.py');  // Ensure the script has the correct path
+        const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
             cwd: __dirname,
             stdio: ['pipe', 'pipe', 'pipe'],
@@ -778,7 +772,7 @@ ipcMain.handle('check-cuda', async () => {
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
     const extractedPath = extractPythonFiles('pythonUpload.py');
-    const scriptPath = path.join(extractedPath, 'pythonUpload.py');
+    const scriptPath = path.join(extractedPath, 'python', 'pythonUpload.py');
 
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
@@ -822,8 +816,7 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
     const extractedPath = extractPythonFiles('pythonDownload.py');
-    const scriptPath = path.join(extractedPath, 'pythonDownload.py');
-    const fullFilepath = path.join(app.getPath('userData'), 'Downloads', filepath);
+    const scriptPath = path.join(extractedPath, 'python', 'pythonDownload.py');
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
     const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
