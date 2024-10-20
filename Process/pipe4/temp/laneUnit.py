@@ -14,31 +14,9 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from collections import defaultdict
 
-class KalmanLineTracker:
-    def __init__(self):
-        # Initialize Kalman Filter for 4 states: x, y, dx, dy
-        self.kalman = cv2.KalmanFilter(4, 2)
-        self.kalman.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
-        self.kalman.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
-        self.kalman.processNoiseCov = np.eye(4, dtype=np.float32) * 0.03  # Process noise
-
-    def update(self, point):
-        # Correct with observed data (current point)
-        self.kalman.correct(np.array([[np.float32(point[0])], [np.float32(point[1])]]))
-        
-    def predict(self):
-        # Predict the next point based on the previous state
-        prediction = self.kalman.predict()
-        return (int(prediction[0]), int(prediction[1]))
-
-# Instantiate trackers for both left and right lines
-left_line_tracker = KalmanLineTracker()
-right_line_tracker = KalmanLineTracker()
 class laneUnit(Unit):
     def __init__(self):
         super().__init__(id="laneUnit", input_type=DataToken, output_type=DataToken)
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = YOLO("laneTest.pt").to(self.device)
 
     def process(self, data_token):
         image = data_token.get_sensor_data('camera')
@@ -47,13 +25,11 @@ class laneUnit(Unit):
         if (output):
             previous_left_id = output.get('previous_left_id', None)
             previous_right_id = output.get('previous_right_id', None)
-            prev_steer = output.get('steer', 0)
         else:
             previous_left_id = None
             previous_right_id = None
-            prev_steer = 0
         
-        res, output = self.start_following(image, previous_left_id, previous_right_id, prev_steer)
+        res, output = self.start_following(image, previous_left_id, previous_right_id)
 
         data_token.add_processing_result(self.id, output)
 
@@ -233,49 +209,81 @@ class laneUnit(Unit):
         left_group_distances = []
         right_group_distances = []
 
-        # If no previous left or right ID, we must wait for valid detections to initialize Kalman filter
-        if previous_left_id is None or previous_right_id is None:
-            # Process left lines
-            for object_id, group in grouped_lines.items():
-                best_line, min_dist = closest_point_in_group(group, bottom_center)
-                if best_line is not None:
-                    slope = calculate_slope(best_line)
-                    midpoint_x = (best_line[0][0] + best_line[1][0]) / 2
-
-                    if slope < 0 and midpoint_x < center_x:
-                        left_group_distances.append((min_dist, object_id, group))
-                    elif slope > 0 and midpoint_x > center_x:
-                        right_group_distances.append((min_dist, object_id, group))
-
-            if left_group_distances:
-                left_group_distances.sort(key=lambda x: x[0])
-                _, left_id, left_line = left_group_distances[0]
-                for (start, end) in left_line:
-                    left_line_tracker.update(start)  # Initialize Kalman with first valid detection
-                    cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
-
-            if right_group_distances:
-                right_group_distances.sort(key=lambda x: x[0])
-                _, right_id, right_line = right_group_distances[0]
-                for (start, end) in right_line:
-                    right_line_tracker.update(start)  # Initialize Kalman with first valid detection
-                    cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-        else:
-            # If we have previous IDs, we can use the Kalman filter predictions if no valid detections
+        if previous_left_id is not None and previous_right_id is not None:
             if previous_left_id < previous_right_id:
                 if previous_left_id in grouped_lines:
                     left_line = grouped_lines[previous_left_id]
                     left_id = previous_left_id
                     for (start, end) in left_line:
-                        left_line_tracker.update(start)  # Update Kalman with detected line
                         cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
-                else:
-                    # If no left line detected, predict using the Kalman filter
-                    predicted_left = left_line_tracker.predict()
-                    left_line = [(predicted_left, predicted_left)]  # Use prediction
-                    left_id = previous_left_id
 
-                # Process right lines
+                for object_id, group in grouped_lines.items():
+                    best_line, min_dist = closest_point_in_group(group, bottom_center)
+                    if best_line is not None:
+                        slope = calculate_slope(best_line)
+                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
+
+                        if slope > 0 and midpoint_x > center_x:
+                            right_group_distances.append((min_dist, object_id, group))
+
+                if right_group_distances:
+                    right_group_distances.sort(key=lambda x: x[0])
+                    _, right_id, right_line = right_group_distances[0]
+                    for (start, end) in right_line:
+                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
+
+            else:
+                if previous_right_id in grouped_lines:
+                    right_line = grouped_lines[previous_right_id]
+                    right_id = previous_right_id
+                    for (start, end) in right_line:
+                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
+
+                for object_id, group in grouped_lines.items():
+                    best_line, min_dist = closest_point_in_group(group, bottom_center)
+                    if best_line is not None:
+                        slope = calculate_slope(best_line)
+                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
+
+                        if slope < 0 and midpoint_x < center_x:
+                            left_group_distances.append((min_dist, object_id, group))
+
+                if left_group_distances:
+                    left_group_distances.sort(key=lambda x: x[0]) 
+                    _, left_id, left_line = left_group_distances[0]
+                    for (start, end) in left_line:
+                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
+
+        else:
+            if previous_left_id is not None and previous_left_id in grouped_lines:
+                left_line = grouped_lines[previous_left_id] 
+                left_id = previous_left_id
+                for (start, end) in left_line:
+                    cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2) 
+
+            if previous_right_id is not None and previous_right_id in grouped_lines:
+                right_line = grouped_lines[previous_right_id]
+                right_id = previous_right_id
+                for (start, end) in right_line:
+                    cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
+
+            if left_id is None:
+                for object_id, group in grouped_lines.items():
+                    best_line, min_dist = closest_point_in_group(group, bottom_center)
+                    if best_line is not None:
+                        slope = calculate_slope(best_line)
+                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
+
+                        if slope < 0 and midpoint_x < center_x:
+                            left_group_distances.append((min_dist, object_id, group))
+
+                if left_group_distances:
+                    left_group_distances.sort(key=lambda x: x[0])  
+                    _, left_id, left_line = left_group_distances[0] 
+                    for (start, end) in left_line:
+                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2) 
+
+            if right_id is None:
                 for object_id, group in grouped_lines.items():
                     best_line, min_dist = closest_point_in_group(group, bottom_center)
                     if best_line is not None:
@@ -286,38 +294,10 @@ class laneUnit(Unit):
                             right_group_distances.append((min_dist, object_id, group))
 
                 if right_group_distances:
-                    right_group_distances.sort(key=lambda x: x[0])
-                    _, right_id, right_line = right_group_distances[0]
+                    right_group_distances.sort(key=lambda x: x[0]) 
+                    _, right_id, right_line = right_group_distances[0] 
                     for (start, end) in right_line:
-                        right_line_tracker.update(start)  # Update Kalman with detected line
                         cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-            else:
-                if previous_right_id in grouped_lines:
-                    right_line = grouped_lines[previous_right_id]
-                    right_id = previous_right_id
-                    for (start, end) in right_line:
-                        right_line_tracker.update(start)  # Update Kalman with detected line
-                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-                else:
-                    predicted_right = right_line_tracker.predict()
-                    right_line = [(predicted_right, predicted_right)]  # Use prediction
-                    right_id = previous_right_id
-
-                for object_id, group in grouped_lines.items():
-                    best_line, min_dist = closest_point_in_group(group, bottom_center)
-                    if best_line is not None:
-                        slope = calculate_slope(best_line)
-                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2
-
-                        if slope < 0 and midpoint_x < center_x:
-                            left_group_distances.append((min_dist, object_id, group))
-
-                if left_group_distances:
-                    left_group_distances.sort(key=lambda x: x[0])
-                    _, left_id, left_line = left_group_distances[0]
-                    for (start, end) in left_line:
-                        left_line_tracker.update(start)  # Update Kalman with detected line
-                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
 
         return output_image, left_line, right_line, left_id, right_id
 
@@ -749,45 +729,59 @@ class laneUnit(Unit):
 
         return output_image, car_in_lane, left_diagonal_intersections, vertical_intersections, right_diagonal_intersections
 
-    def analise_results(self, in_lane, left, middle, right, previous_steer=0):
-        steer = previous_steer  # Start with the previous steer value
+    def analise_results(self, in_lane, left, middle, right):
+        steer = 0
+        if in_lane: 
+            left_angle = left[0]['angle']
+            middle_angle = middle[0]['angle']
+            right_angle = right[0]['angle']
 
-        if in_lane:
-            left_angle = left[0]['angle'] if len(left) > 0 else 0
-            right_angle = right[0]['angle'] if len(right) > 0 else 0
-
-            # Calculate average angle
-            avg_angle = (left_angle + right_angle) / 2
-
-            # If left_angle and right_angle are not balanced, adjust the steer
+            print("Keeping car in lane.")
             if left_angle < right_angle:
-                difference = avg_angle - left_angle
-                steer_adjustment = -(difference / 90)
+                print("Left angle", left_angle)
+                print("Right angle", right_angle)
+                difference = ((left_angle + right_angle) / 2) - left_angle
+                percentage = difference / 90
+                steer = -(1 * percentage)
             elif right_angle < left_angle:
-                difference = avg_angle - right_angle
-                steer_adjustment = difference / 90
+                print("Left angle", left_angle)
+                print("Right angle", right_angle)
+                difference = ((left_angle + right_angle) / 2) - right_angle
+                percentage = difference / 90
+                steer = (1 * percentage)
             else:
-                steer_adjustment = 0
-
-            # Apply a smoothing function (exponential moving average) to reduce jerky changes
-            alpha = 0.1  # Smoothing factor, adjust to control responsiveness
-            steer = (1 - alpha) * previous_steer + alpha * steer_adjustment
-
+                steer = 0
         else:
             print("Getting the car back in the lane.")
             if len(right) > 0 and len(middle) > 0 and len(left) == 0:
                 middle_angle = middle[0]['angle']
-                steer = 0.11 if middle_angle < 35 else 0.08
+                if (middle_angle > 35):
+                    steer = 0.08
+                elif (middle_angle < 15):
+                    steer = 0.17
+                else:
+                    steer = 0.11
             elif len(left) > 0 and len(middle) > 0 and len(right) == 0:
                 middle_angle = middle[0]['angle']
-                steer = -0.11 if middle_angle < 35 else -0.08
-            else:
-                steer = 0  # Default to neutral steer when no lane data is available
+                if (middle_angle > 35):
+                    steer = -0.08
+                elif (middle_angle < 15):
+                    steer = -0.17
+                else:
+                    steer = -0.11
+            elif len(left) == 0 and len(middle) == 0 and len(right) > 0:
+                steer = 0.2
+            elif len(left) > 0 and len(middle) == 0 and len(right) == 0:
+                steer = -0.2
+            elif len(left) == 0 and len(middle) == 0 and len(right) == 0:
+                steer = 0
+
+
 
         print(f"Steer: {steer}")
         return steer
 
-    def follow_lane(self, out_image, filtered_results, original, previous_left_id=None, previous_right_id=None, prev_steer=0):
+    def follow_lane(self, out_image, filtered_results, original, previous_left_id=None, previous_right_id=None):
         bottom_length = 200
         top_length = 50
         out_image, lines = self.get_lines(filtered_results, out_image)
@@ -810,7 +804,7 @@ class laneUnit(Unit):
             if in_lane:
                 print("The vehicle is in the lane.")
 
-            steer = self.analise_results(in_lane, left_intersections, middle_intersections, right_intersections, prev_steer)
+            steer = self.analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
 
             cv2.putText(out_image, f'Steer: {steer:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
@@ -821,19 +815,34 @@ class laneUnit(Unit):
             return original, mask, steer, previous_left_id, previous_right_id
 
 
-    def start_following(self, frame, previous_left_id=None, previous_right_id=None, prev_steer=0):
+    def start_following(self, frame, previous_left_id=None, previous_right_id=None):
+        # Convert RGBA to RGB if needed
         if frame.shape[2] == 4:
             frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
 
+        # Get original frame dimensions
         original_height, original_width = frame.shape[:2]
         
         cutoff_percent=37
 
+        # Calculate the height of the cropped frame
         crop_height = int(original_height * (1 - cutoff_percent / 100.0))
 
+        # Crop the frame (keep only the top part)
         cropped_frame = frame[:crop_height, :]
-        results = self.model.track(source=cropped_frame, persist=True, stream=True)
-        out_image, filtered_results = self.filter_detections(results, self.model, frame, crop_height)
-        res, mask, steer, previous_left_id, previous_right_id = self.follow_lane(out_image, filtered_results, frame, previous_left_id, previous_right_id, prev_steer)
+
+        # Load the YOLO model
+        model = YOLO('laneTest.pt')
+
+        # Run detection on the cropped frame
+        results = model.track(source=cropped_frame, persist=True, stream=True)
+
+        # Filter the detections and prepare for further steps
+        out_image, filtered_results = self.filter_detections(results, model, frame, crop_height)
+
+        # Pass the original frame, not the cropped one, to the follow_lane function
+        res, mask, steer, previous_left_id, previous_right_id = self.follow_lane(out_image, filtered_results, frame, previous_left_id, previous_right_id)
+
+        # Return results
         output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
         return res, output
