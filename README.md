@@ -7,6 +7,10 @@
 	<h1>Download the APP <a href="http://206.189.188.197:8000/download/">here </a></h1>
 	<br>
 </div>
+<div align="center">
+	<h1>You can find demo and tutorial videos on our  <a href="https://www.youtube.com/@BitForge-j3p">YouTube </a>channel.</h1>
+	<br>
+</div>
 
 <p align="center"> 
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/superLinter.yml">
