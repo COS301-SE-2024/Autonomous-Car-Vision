@@ -61,30 +61,30 @@ class outputUnit(Unit):
 
                 cv2.circle(annotated_frame, (pixel_x, pixel_y), radius=1, color=(0, 255, 0), thickness=-1)
                 cv2.circle(img_taggr, (pixel_x, pixel_y), radius=1, color=(0, 255, 0), thickness=-1)
-
-                if bbox_index < len(min_distances) and min_distances[bbox_index] is None or min_distance < min_distances[bbox_index]:
+                if (bbox_index < len(min_distances)) and (min_distances[bbox_index] is not None) and (min_distance < min_distances[bbox_index]):
                     min_distances[bbox_index] = min_distance
 
-        if (self.bb or self.all)and data_token.get_flag('has_bb_data'):
+        if (self.bb or self.all) and data_token.get_flag('has_bb_data'):
             bounding_boxes = data_token.get_processing_result('yoloUnit')
             img_bb = image.copy()
+
             for i, bbox in enumerate(bounding_boxes):
                 x_min, y_min, x_max, y_max, score, class_id = bbox
                 x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
-                cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                cv2.rectangle(img_bb, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+
+                cv2.rectangle(annotated_frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
+                cv2.rectangle(img_bb, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
 
                 if min_distances is not None and i < len(min_distances) and min_distances[i] is not None:
                     text = f"{bbox[-1]}  Dist: {min_distances[i]:.2f}m"
-                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
-                                2)
-                    cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                    cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
                 else:
                     text = f"{bbox[-1]}"
-                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0),
-                                2)
-                    cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    
+                    cv2.putText(annotated_frame, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                    cv2.putText(img_bb, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
+
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
             mask = output['mask']
@@ -100,20 +100,8 @@ class outputUnit(Unit):
 
             alpha = 0.5
             img_la = image.copy()
-            annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
             img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
-            # img_la = output['image']
 
-
-        # if (self.all and data_token.get_flag('hasObserverData')):
-        #     observer_results = data_token.get_processing_result('observerUnit')
-        #     img_grid = image.copy()
-        #     xMin = observer_results['xMin']
-        #     xMax = observer_results['xMax']
-        #     yMin = observer_results['yMin']
-        #     yMax = observer_results['yMax']
-        #     cv2.rectangle(annotated_frame, (xMin, yMin), (xMax, yMax), (0, 0, 255), 2)
-        #     cv2.rectangle(img_grid, (xMin, yMin), (xMax, yMax), (0, 0, 255), 2)
 
 
         print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")

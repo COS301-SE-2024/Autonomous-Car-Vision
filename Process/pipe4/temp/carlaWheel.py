@@ -1,7 +1,7 @@
 import pygame
 import sys
 import carla
-import time
+import numpy as np
 
 # Initialize Pygame
 pygame.init()
@@ -25,8 +25,27 @@ vehicle_bp = blueprint_library.filter('vehicle.*')[0]  # Grab the first availabl
 spawn_point = world.get_map().get_spawn_points()[0]
 vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
+# Set up camera sensor
+camera_bp = blueprint_library.find('sensor.camera.rgb')
+camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))  # Camera position relative to vehicle
+camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
+
+# Camera image handling
+camera_surface = None
+def process_image(image):
+    global camera_surface
+    # Convert CARLA raw image data to Pygame surface
+    array = np.frombuffer(image.raw_data, dtype=np.uint8)
+    array = array.reshape((image.height, image.width, 4))  # RGBA format
+    array = array[:, :, :3]  # Take only RGB (ignore A)
+    array = array[:, :, ::-1]  # Convert from BGRA to RGB
+    camera_surface = pygame.surfarray.make_surface(array.swapaxes(0, 1))  # Transpose for Pygame display
+
+# Attach callback to the camera sensor to receive images
+camera.listen(lambda image: process_image(image))
+
 # Vehicle control object
-control = carla.VehicleControl()
+
 
 # Find the connected joystick (Logitech G920)
 joystick = None
@@ -55,37 +74,25 @@ def get_wheel_input():
     """
     # Axis 0: Steering wheel (-1 to 1)
     steering = joystick.get_axis(0)
-    
+
     throttle = (joystick.get_axis(1) + 1) / 2.0  # Normalize to 0 to 1
     throttle = 1 - throttle  # Flip throttle value (0 is at the bottom, 1 is at the top)
-    
+
     brake = (joystick.get_axis(2) + 1) / 2.0  # Normalize to 0 to 1
     brake = 1 - brake  # Flip brake value (0 is at the bottom, 1 is at the top)
-    
+
     # Buttons
     buttons = []
     for i in range(joystick.get_numbuttons()):
         if joystick.get_button(i):
             buttons.append(i)
-    
-    return steering, throttle, brake, buttons
 
-def render_carla_frame():
-    """
-    Grab the current frame from the CARLA simulator and display it.
-    """
-    camera_image = None
-    for actor in world.get_actors():
-        if actor.type_id.startswith('sensor.camera'):
-            camera_image = actor.listen(lambda image: image)
-            break
-    if camera_image:
-        array = pygame.surfarray.make_surface(camera_image.raw_data)
-        screen.blit(array, (0, 0))
+    return steering, throttle, brake, buttons
 
 # Main loop
 try:
     while True:
+        control = carla.VehicleControl()
         # Handle events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -94,21 +101,21 @@ try:
                 sys.exit()
 
         pygame.event.pump()  # Process event queue
-        
+
         # Get steering wheel inputs
         steering, throttle, brake, buttons = get_wheel_input()
 
         # Apply the inputs to the vehicle control
         control.steer = steering
         control.throttle = throttle
-        control.brake = brake
+        control.brake = 0
+        control.hand_brake = False
         vehicle.apply_control(control)
-        
-        # Clear the screen (for overlay)
-        screen.fill((0, 0, 0))
 
-        # Render CARLA frame
-        render_carla_frame()
+
+        # Render the camera frame
+        if camera_surface is not None:
+            screen.blit(camera_surface, (0, 0))
 
         # Overlay the steering, throttle, brake values, and buttons on the screen
         draw_text(f"Steering: {steering:.2f}", 50, 50)
