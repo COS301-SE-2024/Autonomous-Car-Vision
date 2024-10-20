@@ -1,5 +1,5 @@
 <p align="center">
-	<img  src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/develop/Desktop/public/images/HighViz.png" width="250" height="250" alt="Logo">
+	<img  src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/develop/Desktop/public/images/HighViz.png" width="150" height="150" alt="Logo">
 </p>
 <h1 align="center"> High-Viz </h1>
 
@@ -14,7 +14,7 @@
 	</a> 
 	<a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml">
 		<img alt="Tester" src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/actions/workflows/test.yml/badge.svg">
-	</a>
+	</a> 
 	 <a href="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/issues">
 		<img src="https://img.shields.io/github/issues/COS301-SE-2024/Autonomous-Car-Vision" alt="GitHub issues">
 	</a>	
@@ -29,16 +29,13 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 ## Project Features
 <table align="center">
   <tr>
-    <td><p> Unity </p></td>
-    <td><img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/Unity.gif" width="380" height="230"/></td>
+    <td><p> Unity </p></td> <td> <p> Weaver </p> </td> <td><p> Piper </p></td>  
+   
   </tr>
   <tr>
-    <td> <p> Weaver </p> </td>
-    <td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/weaver.gif" width="380" height="230"/> </td>
-  </tr>
-  <tr>
-	<td><p> Piper </p></td>  
-	<td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/piper.gif" width="380" height="230"/> </td>
+	<td><img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/Unity.gif" width="280" height="130"/></td>
+    <td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/weaver.gif" width="280" height="130"/> </td>
+	  <td> <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/feature/hot_fixes/Documentation/Images/piper.gif" width="280" height="130"/> </td>
   </tr>
 </table>
 
@@ -46,6 +43,8 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 ## Demo Presentations
 - **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
 - **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
+- **Demo3:** [High-Viz Demo3](#)
+- **Demo4:** [High-Viz Demo4](#)
   
 ## Documentation
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
