@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { Button, TextField, Icon } from "svelte-materialify";
+    import { TextField, Icon } from "svelte-materialify";
     import {mdiAccountPlus} from "@mdi/js";
     import axios from "axios";
     import { onMount } from "svelte";

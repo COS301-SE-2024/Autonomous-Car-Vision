@@ -6,14 +6,10 @@
 {#if $theme === 'highVizLight'}
     <div class="min-h-screen lightScreen">
         <OnboardNewTeam />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {:else}
     <div class="min-h-screen">
         <OnboardNewTeam />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {/if}
 

@@ -40,15 +40,6 @@
     }
   };
 
-  const googleLoginTest = async () => {
-    try {
-      const authUrl = await window.electronAPI.getAuthUrlTest();
-      window.electronAPI.openExternal(authUrl);
-    } catch (error) {
-      console.error("Error getting auth URL:", error);
-    }
-  };
-
   const handleAuthSuccess = async (result) => {
     window.electronAPI.storeToken(result.tokens.access_token.substring(0, 40));
     window.electronAPI.storeUid(result.user.id.substring(0, 10));
@@ -213,38 +204,6 @@
               Sign Up
             </button>
           </a>
-          {#if !showCodeInput}
-            <!-- <a href="#/" class="w-full" on:click={googleLogin}>
-              <button
-                class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
-              >
-                Log In with Google
-              </button>
-            </a> -->
-          {:else}
-            <TextField
-              bind:value={authCode}
-              dense
-              outlined
-              class="text-dark-primary w-full"
-              >Enter Authorization Code</TextField
-            >
-            <div class="flex flex-row gap-2 w-full">
-              <button
-                on:click={submitAuthCode}
-                class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
-              >
-                Submit Authorization Code
-              </button>
-              <a href="#/" class="w-full" on:click={googleLogin}>
-                <button
-                  class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-                >
-                  Log In with Google
-                </button>
-              </a>
-            </div>
-          {/if}
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
@@ -278,38 +237,6 @@
               Sign Up
             </button>
           </a>
-          {#if !showCodeInput}
-            <a href="#/" class="w-full" on:click={googleLogin}>
-              <button
-                class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-              >
-                Log In with Google
-              </button>
-            </a>
-          {:else}
-            <TextField
-              bind:value={authCode}
-              dense
-              outlined
-              class="text-dark-primary w-full"
-              >Enter Authorization Code</TextField
-            >
-            <div class="flex flex-row gap-2 w-full">
-              <button
-                on:click={submitAuthCode}
-                class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-              >
-                Submit Authorization Code
-              </button>
-              <a href="#/" class="w-full" on:click={googleLogin}>
-                <button
-                  class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-                >
-                  Log In with Google
-                </button>
-              </a>
-            </div>
-          {/if}
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"

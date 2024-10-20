@@ -140,11 +140,6 @@
           <p class="text-xs text-black">Processing...</p>
         </div>
       {/if}
-
-      <!-- <div class="mb-2 cursor-pointer flex items-center rounded border-b border-theme-dark-primary text-black" on:click={() => selectModel(video)}>
-        <img src={video.profileImgURL} alt="Model Profile" class="w-12 h-12 rounded-full mr-2">
-        <p class="text-xs text-black">{video.label}</p>
-      </div> -->
     {/each}
   </div>
 {/if}

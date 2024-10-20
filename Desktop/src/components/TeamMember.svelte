@@ -17,9 +17,6 @@
     showRemovePopup = false;
   }
 
-  function toggleRemove() {
-    isRemoveOpen = !isRemoveOpen;
-  }
 </script>
 
 {#if $theme === "highVizLight"}
@@ -47,7 +44,7 @@
   </div>
 {:else}
   <div
-    class="grid grid-cols-4 border-b shadow-card border-gray-dark align-center items-center px-3 py-6"
+    class="grid grid-cols-4 border-b shadow-card border-gray-dark text-white align-center items-center px-3 py-6"
   >
     <div class="flex items-center col-span-2">
       <Button

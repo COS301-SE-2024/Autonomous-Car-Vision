@@ -4,8 +4,7 @@
     const dispatch = createEventDispatcher();
 
     let videoSource="https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
-
-    // let imgSource= "https://sveltejs.github.io/assets/caminandes-llamigos.mp4";
+    
     function save() {
         dispatch('save');
     }

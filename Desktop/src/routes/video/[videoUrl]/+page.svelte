@@ -31,7 +31,6 @@
   import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
   let showProcessPopup = false;
 
-  // TODO: Styling and conditional formatting
 
   const showModelList = writable(false);
 

@@ -4,7 +4,6 @@
   import { originalVideoURL } from "../stores/processing";
   import RingLoader from "./RingLoader.svelte";
   import { push } from "svelte-spa-router";
-  import axios from "axios";
   import { mdiDownload, mdiPlayCircle } from "@mdi/js";
   import { Icon, Tooltip } from "svelte-materialify";
   import {theme } from "../stores/themeStore";
@@ -24,7 +23,6 @@
 
   const handleDownload = async (event) => {
     event.stopPropagation();
-    // isDownloading.set(true);
     isDownloading = true;
 
     let uid = window.electronAPI.getUid();
@@ -66,14 +64,6 @@
     push(`/video/${encodedPath}`);
   }
 
-  function handleMore() {
-    showMoreModal = true;
-  }
-
-  function handleBack(event) {
-    event.stopPropagation(); // Stop event propagation
-    showMoreModal = false;
-  }
 
   function captureSpecificFrame(frameNumber) {
     const videoElement = document.createElement("video");

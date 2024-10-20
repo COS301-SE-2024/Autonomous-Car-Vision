@@ -6,14 +6,10 @@
 {#if $theme === "highVizLight"}
     <div class="lightScreen">
         <InstallerGuide />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {:else}
     <div class="darkScreen">
         <InstallerGuide />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {/if}
 
