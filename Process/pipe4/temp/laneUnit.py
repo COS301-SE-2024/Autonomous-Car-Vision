@@ -13,6 +13,8 @@ import copy
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from collections import defaultdict
+import random
+import itertools
 
 class laneUnit(Unit):
     def __init__(self):
@@ -39,436 +41,281 @@ class laneUnit(Unit):
             return self.next_unit.process(data_token)
         return data_token
 
-    def filter_detections(self, results, model, image, crop_height=None):
+    def filter_detections(self, results, model, image):
         height, width, channels = image.shape
         out_image = np.zeros((height, width, channels), dtype=np.uint8)
-        filtered_results = []
+        filtered_results = []  # Store filtered results
 
+        # Iterate over the results generator
         for result in results:
-            # Create a copy of the result to ensure the original is not modified
-            result_copy = copy.deepcopy(result)
-
+            # Assuming result.boxes.cls and result.boxes.conf could be tensors with multiple values
             for i in range(len(result.boxes.cls)):
-                class_id = int(result.boxes.cls[i].item())
-                confidence = result.boxes.conf[i].item()
+                class_id = int(result.boxes.cls[i].item())  # Extract the scalar value for class ID
+                confidence = result.boxes.conf[i].item()    # Extract the scalar value for confidence
 
                 # Check if the detected class is not 0, 3, or 4 and confidence is greater than 0.5
                 if class_id not in [0, 3, 4] and confidence > 0.5:
-                    mask = result.masks.data[i].cpu().numpy()
-                    mask = np.squeeze(mask)
+                    # Get the mask for the detected object
+                    mask = result.masks.data[i].cpu().numpy()  # Process the mask for the specific detection
 
+                    # If there are extra dimensions, squeeze the mask
+                    mask = np.squeeze(mask)  # This removes extra dimensions like [1, h, w] -> [h, w]
+
+                    # Check if the mask is non-empty before resizing
                     if mask.size > 0:
-                        original_mask_shape = mask.shape  # Get the original mask shape
-                        # Resize the mask to fit the cropped region width, but only apply to the cropped area height
-                        mask_resized = cv2.resize(mask, (image.shape[1], crop_height), interpolation=cv2.INTER_NEAREST)
+                        # Resize the mask to match the original image size
+                        mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))
 
-                        # Convert the resized mask to binary
-                        binary_mask = (mask_resized > 0.5).astype(np.uint8)
+                        # Convert the mask into a binary mask (thresholding)
+                        binary_mask = (mask_resized > 0.5).astype(np.uint8)  # Thresholding mask
 
-                        # Create a colored mask for overlay
+                        # Create a colored version of the mask with a random color
                         colored_mask = np.zeros_like(image, dtype=np.uint8)
+                        random_color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        colored_mask[binary_mask == 1] = random_color  # Assign a random color to the mask
 
-                        # Only apply the mask to the top cropped region
-                        colored_mask[:crop_height, :] = np.stack([binary_mask] * 3, axis=-1) * 255
-
-                        # Overlay the mask onto the output image
+                        # Add the mask to the output image with some transparency
                         out_image = cv2.addWeighted(out_image, 1, colored_mask, 0.5, 0)
 
-                        # Shift the mask back to its correct position in the full image
-                        full_mask = np.zeros((height, width), dtype=np.uint8)
-                        full_mask[:crop_height, :] = binary_mask
-
-                        # Resize the full mask back to the original mask size before assigning it to the result copy
-                        full_mask_resized = cv2.resize(full_mask, (original_mask_shape[1], original_mask_shape[0]), interpolation=cv2.INTER_NEAREST)
-
-                        # Modify the result's mask copy to represent its new full-image position
-                        result_copy.masks.data[i] = torch.tensor(full_mask_resized).cpu()
-
-                        # Adjust the bounding box to fit the full image's coordinate system
-                        x_min, y_min, x_max, y_max = result.boxes.xyxy[i].cpu().numpy()
-                        result_copy.boxes.xyxy[i] = torch.tensor([x_min, y_min, x_max, y_max])
-
-                        # Append the modified copy to the filtered results
-                        filtered_results.append(result_copy)
+                        # Add this result to the filtered list
+                        filtered_results.append(result)
                     else:
                         print("Empty mask encountered.")
-
+        
         return out_image, filtered_results
 
     def get_lines(self, filtered_results, image):
-        output_image = image.copy()
-        lines = [] 
+        output_image = image.copy()  # Create a copy of the original image to draw on
+        lines = []  # Array to store the lines as objects (start_point, end_point, tracking_id)
 
         for result in filtered_results:
-            boxes = result.boxes.xyxy 
-            ids = result.boxes.id  
-            masks = result.masks.data  
+            # Get the boxes, ids, and masks for each object
+            boxes = result.boxes.xyxy  # Bounding boxes in xyxy format
+            ids = result.boxes.id  # Object tracking IDs
+            masks = result.masks.data  # Segmentation masks
 
+            # Iterate over the objects detected in the current frame
             for i in range(len(boxes)):
+                # Get object tracking ID if available, otherwise use None
                 object_id = int(ids[i]) if ids is not None else None
+                class_id = int(result.boxes.cls[i].item())
 
-                mask = masks[i].cpu().numpy()
-                mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0])) 
-                binary_mask = (mask_resized > 0.5).astype(np.uint8)
+                # Extract the binary mask for the detected object
+                mask = masks[i].cpu().numpy()  # Convert mask to numpy array
+                mask_resized = cv2.resize(mask, (image.shape[1], image.shape[0]))  # Resize mask to match the image size
+                binary_mask = (mask_resized > 0.5).astype(np.uint8)  # Convert to binary mask
 
+                # Find contours in the binary mask
                 contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 for contour in contours:
-                    if len(contour) >= 2:
+                    if len(contour) >= 2:  # Ensure there are enough points to fit a line
+                        # Fit a straight line to the contour points
                         [vx, vy, x, y] = cv2.fitLine(contour, cv2.DIST_L2, 0, 0.01, 0.01)
 
+                        # Get the bounding box of the contour
                         x_min, y_min, w, h = cv2.boundingRect(contour)
                         x_max = x_min + w
                         y_max = y_min + h
 
+                        # Calculate the intersection points of the fitted line with the bounding box
                         def compute_intersection(x_start, y_start, vx, vy, x_min, x_max, y_min, y_max):
                             points = []
 
+                            # Handle vertical lines (vx == 0)
                             if vx == 0:
                                 x_bound = x_start
+                                # Intersection with horizontal boundaries
                                 for y_bound in [y_min, y_max]:
                                     if y_min <= y_bound <= y_max:
-                                        points.append((int(x_bound), int(y_bound)))
+                                        points.append((int(x_bound.item() if isinstance(x_bound, np.ndarray) else x_bound), int(y_bound.item() if isinstance(y_bound, np.ndarray) else y_bound)))
                             else:
+                                # Intersection with vertical boundaries (x_min and x_max)
                                 for x_bound in [x_min, x_max]:
                                     y_bound = vy / vx * (x_bound - x_start) + y_start
                                     if y_min <= y_bound <= y_max:
-                                        points.append((int(x_bound), int(y_bound)))
+                                        points.append((int(x_bound.item() if isinstance(x_bound, np.ndarray) else x_bound), int(y_bound.item() if isinstance(y_bound, np.ndarray) else y_bound)))
 
+                            # Handle horizontal lines (vy == 0)
                             if vy == 0:
                                 y_bound = y_start
+                                # Intersection with vertical boundaries
                                 for x_bound in [x_min, x_max]:
                                     if x_min <= x_bound <= x_max:
-                                        points.append((int(x_bound), int(y_bound)))
+                                        points.append((int(x_bound.item() if isinstance(x_bound, np.ndarray) else x_bound), int(y_bound.item() if isinstance(y_bound, np.ndarray) else y_bound)))
                             else:
+                                # Intersection with horizontal boundaries (y_min and y_max)
                                 for y_bound in [y_min, y_max]:
                                     x_bound = vx / vy * (y_bound - y_start) + x_start
                                     if x_min <= x_bound <= x_max:
-                                        points.append((int(x_bound), int(y_bound)))
+                                        points.append((int(x_bound.item() if isinstance(x_bound, np.ndarray) else x_bound), int(y_bound.item() if isinstance(y_bound, np.ndarray) else y_bound)))
 
                             return points
 
+                        # Calculate the intersection points of the fitted line with the bounding box
                         intersections = compute_intersection(x, y, vx, vy, x_min, x_max, y_min, y_max)
 
                         if len(intersections) >= 2:
+                            # Sort intersections to get consistent line endpoints
                             intersections = sorted(intersections, key=lambda pt: (pt[0], pt[1]))
                             pt1, pt2 = intersections[0], intersections[1]
 
+                            # Draw the line within the contour bounding box
                             cv2.line(output_image, pt1, pt2, (0, 255, 0), 2)
 
-                            lines.append((pt1, pt2, object_id))
+                            # Append the line as a tuple (start, end, tracking_id, class_id) to the lines array
+                            lines.append((pt1, pt2, object_id, class_id))
 
         return output_image, lines
 
-    def group_lines(self, image, lines):
+    def identify_dotted(self, lines, image):
         output_image = image.copy()
+        dotted_lines = [line for line in lines if line[3] == 1]  # Class ID 1 represents dotted lines
+        other_lines = [line for line in lines if line[3] != 1]  # Lines that are not dotted lines
 
-        grouped_lines = defaultdict(list)
+        # Initialize groups as a list of lists
+        groups = []
 
-        for (start, end, object_id) in lines:
-            grouped_lines[object_id].append((start, end))
+        # Function to calculate the slope of a line
+        def calculate_slope(pt1, pt2):
+            if (pt2[0] - pt1[0]) == 0:  # Avoid division by zero
+                return float('inf')
+            return (pt2[1] - pt1[1]) / (pt2[0] - pt1[0])
 
-        for object_id, group in grouped_lines.items():
-            color = (np.random.randint(0, 255), np.random.randint(0, 255), np.random.randint(0, 255))  # Random color for each group
-            for (start, end) in group:
-                cv2.line(output_image, start, end, color, 2)
-                cv2.putText(output_image, f"ID: {object_id}", start, cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        # Function to check if three points form a smooth line
+        def is_smooth_line(pt1, pt2, pt3):
+            slope1 = calculate_slope(pt1, pt2)
+            slope2 = calculate_slope(pt2, pt3)
+            return abs(slope1 - slope2) < 0.2  # Threshold for smoothness
 
-        grouped_lines = dict(grouped_lines)
+        # Grouping dotted lines based on smooth alignment
+        for line in dotted_lines:
+            pt1, pt2, _, _ = line
+            added_to_group = False
 
-        return output_image, grouped_lines
+            # Try to add the line to an existing group
+            for group in groups:
+                for grouped_line in group:
+                    grouped_pt1, grouped_pt2, _, _ = grouped_line
 
-    def get_side_lines(self, image, grouped_lines, previous_left_id, previous_right_id):
+                    # Check if the current line forms a smooth continuation with any line in the group
+                    if is_smooth_line(grouped_pt1, grouped_pt2, pt1) or is_smooth_line(grouped_pt1, grouped_pt2, pt2):
+                        group.append(line)
+                        added_to_group = True
+                        break
+                if added_to_group:
+                    break
+
+            # If the line was not added to any group, create a new group
+            if not added_to_group:
+                groups.append([line])
+
+        # Add each of the other lines as their own group
+        for line in other_lines:
+            groups.append([line])
+
+        # Connect lines in the same group and add them as new lines
+        for group in groups:
+            if len(group) > 1:
+                group_points = []
+                for line in group:
+                    group_points.append(line[0])  # Start point
+                    group_points.append(line[1])  # End point
+
+                # Sort points by x-coordinate to connect them sequentially
+                group_points = sorted(group_points, key=lambda pt: pt[0])
+
+                for i in range(len(group_points) - 1):
+                    pt1 = group_points[i]
+                    pt2 = group_points[i + 1]
+                    new_line = (pt1, pt2, None, 1)  # Create a new line tuple
+                    group.append(new_line)  # Add the new line to the group
+                    cv2.line(output_image, pt1, pt2, (0, 255, 0), 2)  # Draw the connecting line
+
+        # Draw each group with a random color
+        for group in groups:
+            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))  # Generate random RGB color
+            for line in group:
+                pt1, pt2, _, _ = line
+                cv2.line(output_image, pt1, pt2, color, 2)
+
+        return output_image, groups
+
+    def extend_lines(self, groups, image):
         output_image = image.copy()
         height, width, _ = image.shape
-        center_x = width // 2
-        bottom_y = height - 1
-        bottom_center = np.array([center_x, bottom_y])
 
-        left_line, right_line = [], []
-        left_id, right_id = None, None
+        for group in groups:
+            # Find the line with the highest y-coordinate in the group (i.e., the lowest line)
+            lowest_line = max(group, key=lambda line: max(line[0][1], line[1][1]))
+            pt1, pt2, _, _ = lowest_line
 
-        def closest_point_in_group(group, reference_point):
-            min_dist = np.inf
-            best_line = None
-            for (start, end) in group:
-                start, end = np.array(start), np.array(end)
-                for point in [start, end]:
-                    dist = np.linalg.norm(point - reference_point)
-                    if dist < min_dist:
-                        min_dist = dist
-                        best_line = (start, end)
-            return best_line, min_dist
-
-        def calculate_slope(line):
-            (x1, y1), (x2, y2) = line
-            if x1 == x2:
-                return np.inf
-            return (y2 - y1) / (x2 - x1)
-
-        left_group_distances = []
-        right_group_distances = []
-
-        if previous_left_id is not None and previous_right_id is not None:
-            if previous_left_id < previous_right_id:
-                if previous_left_id in grouped_lines:
-                    left_line = grouped_lines[previous_left_id]
-                    left_id = previous_left_id
-                    for (start, end) in left_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
-
-                for object_id, group in grouped_lines.items():
-                    best_line, min_dist = closest_point_in_group(group, bottom_center)
-                    if best_line is not None:
-                        slope = calculate_slope(best_line)
-                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
-
-                        if slope > 0 and midpoint_x > center_x:
-                            right_group_distances.append((min_dist, object_id, group))
-
-                if right_group_distances:
-                    right_group_distances.sort(key=lambda x: x[0])
-                    _, right_id, right_line = right_group_distances[0]
-                    for (start, end) in right_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-
+            # Calculate the slope of the line
+            if (pt2[0] - pt1[0]) != 0:
+                slope = (pt2[1] - pt1[1]) / (pt2[0] - pt1[0])
             else:
-                if previous_right_id in grouped_lines:
-                    right_line = grouped_lines[previous_right_id]
-                    right_id = previous_right_id
-                    for (start, end) in right_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
+                slope = float('inf')
 
-                for object_id, group in grouped_lines.items():
-                    best_line, min_dist = closest_point_in_group(group, bottom_center)
-                    if best_line is not None:
-                        slope = calculate_slope(best_line)
-                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
-
-                        if slope < 0 and midpoint_x < center_x:
-                            left_group_distances.append((min_dist, object_id, group))
-
-                if left_group_distances:
-                    left_group_distances.sort(key=lambda x: x[0]) 
-                    _, left_id, left_line = left_group_distances[0]
-                    for (start, end) in left_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2)
-
-        else:
-            if previous_left_id is not None and previous_left_id in grouped_lines:
-                left_line = grouped_lines[previous_left_id] 
-                left_id = previous_left_id
-                for (start, end) in left_line:
-                    cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2) 
-
-            if previous_right_id is not None and previous_right_id in grouped_lines:
-                right_line = grouped_lines[previous_right_id]
-                right_id = previous_right_id
-                for (start, end) in right_line:
-                    cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-
-            if left_id is None:
-                for object_id, group in grouped_lines.items():
-                    best_line, min_dist = closest_point_in_group(group, bottom_center)
-                    if best_line is not None:
-                        slope = calculate_slope(best_line)
-                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2 
-
-                        if slope < 0 and midpoint_x < center_x:
-                            left_group_distances.append((min_dist, object_id, group))
-
-                if left_group_distances:
-                    left_group_distances.sort(key=lambda x: x[0])  
-                    _, left_id, left_line = left_group_distances[0] 
-                    for (start, end) in left_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (0, 255, 0), 2) 
-
-            if right_id is None:
-                for object_id, group in grouped_lines.items():
-                    best_line, min_dist = closest_point_in_group(group, bottom_center)
-                    if best_line is not None:
-                        slope = calculate_slope(best_line)
-                        midpoint_x = (best_line[0][0] + best_line[1][0]) / 2
-
-                        if slope > 0 and midpoint_x > center_x:
-                            right_group_distances.append((min_dist, object_id, group))
-
-                if right_group_distances:
-                    right_group_distances.sort(key=lambda x: x[0]) 
-                    _, right_id, right_line = right_group_distances[0] 
-                    for (start, end) in right_line:
-                        cv2.line(output_image, tuple(start), tuple(end), (255, 0, 0), 2)
-
-        return output_image, left_line, right_line, left_id, right_id
-
-    def extend_lines(self, image, left_line, right_line):
-        output_image = image.copy()
-        height, width, _ = image.shape
-
-        def find_lowest_line(line_group):
-            lowest_y = -np.inf
-            lowest_line = None
-            for (start, end) in line_group:
-                if max(start[1], end[1]) > lowest_y:
-                    lowest_y = max(start[1], end[1])
-                    lowest_line = (start, end)
-            return lowest_line
-
-        def extend_to_bottom_preserving_slope(start, end):
- 
-            dx = end[0] - start[0]
-            dy = end[1] - start[1]
-
-            if dx == 0:
-                if start[1] > end[1]: 
-                    new_start = start
+            # Extend the line downward by its own slope until it reaches the bottom of the screen
+            if slope != float('inf'):
+                if pt1[1] > pt2[1]:
+                    lower_point = pt1
                 else:
-                    new_start = end
-                new_end = (start[0], height)
+                    lower_point = pt2
+
+                # Calculate the new point that extends to the bottom of the image
+                extension_length = height - lower_point[1]
+                new_x = int(lower_point[0] + extension_length / slope) if slope != 0 else lower_point[0]
+                new_y = height
             else:
-                slope = dy / dx 
-                if slope == 0:
-                    new_start = start if start[1] > end[1] else end
-                    new_end = (new_start[0], height)  
-                else:
-                    y_extension = height - max(start[1], end[1]) 
-                    x_extension = y_extension / slope 
+                # Vertical line case
+                new_x = pt1[0]
+                new_y = height
 
-                    if start[1] > end[1]:
-                        new_end = (int(start[0] + x_extension), height)
-                        new_start = start
-                    else: 
-                        new_end = (int(end[0] + x_extension), height) 
-                        new_start = end
+            # Draw the extended line
+            cv2.line(output_image, (lower_point[0], lower_point[1]), (new_x, new_y), (255, 0, 0), 2)
+            group.append(((lower_point[0], lower_point[1]), (new_x, new_y), None, 1))
 
-            return new_start, new_end
+        return output_image, groups
 
-        if len(left_line) > 0:
-            lowest_left_line = find_lowest_line(left_line)
-            if lowest_left_line:
-                left_start, left_end = lowest_left_line
-                new_left_start, new_left_end = extend_to_bottom_preserving_slope(left_start, left_end)
-                cv2.line(output_image, new_left_start, new_left_end, (0, 255, 0), 2)
-                left_line.append((new_left_start, new_left_end)) 
-
-        if len(right_line) > 0:
-            lowest_right_line = find_lowest_line(right_line)
-            if lowest_right_line:
-                right_start, right_end = lowest_right_line
-                new_right_start, new_right_end = extend_to_bottom_preserving_slope(right_start, right_end)
-                cv2.line(output_image, new_right_start, new_right_end, (255, 0, 0), 2) 
-                right_line.append((new_right_start, new_right_end))
-
-        return output_image, left_line, right_line
-
-    def get_inners(self, image, left_line, right_line):
+    def get_current_lane(self, groups, image):
         output_image = image.copy()
         height, width, _ = image.shape
+        bottom_center = (width // 2, height - 1)
 
-        left_lines_at_height = {}
-        right_lines_at_height = {}
+        # Sort each group based on the x-coordinates of their start points
+        sorted_groups = sorted(groups, key=lambda group: min(line[0][0] for line in group))
 
-        def track_rightmost_line_for_height(start, end, lines_at_height):
-            for y in range(min(start[1], end[1]), max(start[1], end[1]) + 1):
-                if y not in lines_at_height or max(start[0], end[0]) > lines_at_height[y][0]:
-                    lines_at_height[y] = (max(start[0], end[0]), (start, end))
+        # Iterate over the groups to find the current lane that contains the bottom center point
+        for i in range(len(sorted_groups) - 1):
+            left_group = sorted_groups[i]
+            right_group = sorted_groups[i + 1]
 
-        def track_leftmost_line_for_height(start, end, lines_at_height):
-            for y in range(min(start[1], end[1]), max(start[1], end[1]) + 1):
-                if y not in lines_at_height or min(start[0], end[0]) < lines_at_height[y][0]:
+            # Get all start and end points from the lines in the two groups
+            left_points = list(itertools.chain.from_iterable([(line[0], line[1]) for line in left_group]))
+            right_points = list(itertools.chain.from_iterable([(line[0], line[1]) for line in right_group]))
 
-                    lines_at_height[y] = (min(start[0], end[0]), (start, end))
+            # Sort points to form a polygon (we use x-coordinates to help sorting)
+            left_points = sorted(left_points, key=lambda pt: pt[1])  # Sort by y-coordinate
+            right_points = sorted(right_points, key=lambda pt: pt[1], reverse=True)  # Sort by y-coordinate in reverse
 
-        for (start, end) in left_line:
-            track_rightmost_line_for_height(start, end, left_lines_at_height)
+            # Create a polygon that connects the left and right line points
+            polygon_points = left_points + right_points
 
-        for (start, end) in right_line:
-            track_leftmost_line_for_height(start, end, right_lines_at_height)
+            # Convert points to a numpy array in the format required by pointPolygonTest
+            polygon_points_np = np.array(polygon_points, np.int32)
 
-        inner_left_lines = set()
-        inner_right_lines = set()
+            # Check if the bottom center point is inside the polygon
+            if cv2.pointPolygonTest(polygon_points_np, bottom_center, False) >= 0:
+                # Fill the polygon with green color to indicate the current lane
+                cv2.fillPoly(output_image, [polygon_points_np.reshape((-1, 1, 2))], (0, 255, 0))
+                left_lines = [(line[0], line[1]) for line in left_group]
+                right_lines = [(line[0], line[1]) for line in right_group]
+                lane_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
+                cv2.fillPoly(lane_mask, [polygon_points_np.reshape((-1, 1, 2))], 255)
+                return output_image, lane_mask, left_lines, right_lines
 
-        for y, (x, line) in left_lines_at_height.items():
-            inner_left_lines.add(line) 
-
-        for y, (x, line) in right_lines_at_height.items():
-            inner_right_lines.add(line) 
-
-        color_left = (0, 0, 255) 
-        for (start, end) in inner_left_lines:
-            cv2.line(output_image, start, end, color_left, 2)
-
-        color_right = (255, 0, 255) 
-        for (start, end) in inner_right_lines:
-            cv2.line(output_image, start, end, color_right, 2)
-
-        return output_image, list(inner_left_lines), list(inner_right_lines)
-
-    def fill_polygon_between_lines(self, image, left_inner_lines, right_inner_lines):
-        height, width, _ = image.shape
-        center_x = width // 2 
-
-        if (len(left_inner_lines) == 0) and (len(right_inner_lines) == 0):
-            return image, np.zeros_like(image), ([], [])
-
-        output_image = image.copy()
-        mask = np.zeros_like(image) 
-
-        left_points = []
-        right_points = []
-        left_lines_returned = []
-        right_lines_returned = []
-
-        def mirror_points_across_center(points):
-            mirrored_points = []
-            for x, y in points:
-                mirrored_x = 2 * center_x - x
-                mirrored_points.append((mirrored_x, y))
-            return mirrored_points
-
-        if len(left_inner_lines) == 0 and len(right_inner_lines) > 0:
-            for (start, end) in right_inner_lines:
-                right_points.append(start)
-                right_points.append(end)
-            left_points = mirror_points_across_center(right_points)
-            left_lines_returned = []
-            for i in range(0, len(left_points), 2):
-                if i+1 < len(left_points):
-                    left_lines_returned.append((left_points[i], left_points[i+1]))
-            right_lines_returned = right_inner_lines
-        elif len(right_inner_lines) == 0 and len(left_inner_lines) > 0:
-            for (start, end) in left_inner_lines:
-                left_points.append(start)
-                left_points.append(end)
-            right_points = mirror_points_across_center(left_points)
-            right_lines_returned = []
-            for i in range(0, len(right_points), 2):
-                if i+1 < len(right_points):
-                    right_lines_returned.append((right_points[i], right_points[i+1]))
-            left_lines_returned = left_inner_lines
-        else:
-            for (start, end) in left_inner_lines:
-                left_points.append(start)
-                left_points.append(end)
-            for (start, end) in right_inner_lines:
-                right_points.append(start)
-                right_points.append(end)
-            left_lines_returned = left_inner_lines
-            right_lines_returned = right_inner_lines
-
-        left_points = sorted(left_points, key=lambda p: p[1])
-        right_points = sorted(right_points, key=lambda p: p[1])
-
-        if len(left_points) == 0 or len(right_points) == 0:
-            return output_image, mask, (left_lines_returned, right_lines_returned)
-
-        polygon_points = np.array(left_points + right_points[::-1], dtype=np.int32)
-
-        cv2.fillPoly(mask, [polygon_points], (0, 255, 0))
-
-        output_image = cv2.addWeighted(output_image, 1, mask, 0.5, 0) 
-
-        return output_image, mask, (left_lines_returned, right_lines_returned)
+        return output_image, None, None, None
 
     def get_safe_zone(self, image, lane_mask, left_lines, right_lines, factor):
         output_image = image.copy()
@@ -776,73 +623,61 @@ class laneUnit(Unit):
             elif len(left) == 0 and len(middle) == 0 and len(right) == 0:
                 steer = 0
 
-
-
         print(f"Steer: {steer}")
         return steer
 
-    def follow_lane(self, out_image, filtered_results, original, previous_left_id=None, previous_right_id=None):
+
+    def follow_lane(self, out_image, filtered_results, original):
         bottom_length = 200
         top_length = 50
         out_image, lines = self.get_lines(filtered_results, out_image)
-        # ret_img = out_image.copy()
-        out_image, lines = self.group_lines(out_image, lines)
-        out_image, left, right, left_id, right_id = self.get_side_lines(out_image, lines, previous_left_id, previous_right_id) 
-
-        previous_left_id = left_id
-        previous_right_id = right_id
-
-        out_image, left, right = self.extend_lines(out_image, left, right)
-        out_image, left, right = self.get_inners(out_image, left, right)
-        out_image, mask, (left, right) = self.fill_polygon_between_lines(out_image, left, right)
-        out_image, mask = self.get_safe_zone(original, mask, left, right, 0.3)
+        out_image, groups = self.identify_dotted(lines, out_image)
+        out_image, groups = self.extend_lines(groups, out_image)
+        out_image, lane_mask, left_lines, right_lines = self.get_current_lane(groups, out_image)
+        out_image, mask = self.get_safe_zone(original, lane_mask, left_lines, right_lines, 0.3)
 
         if np.any(mask):
             out_image, vertical_line, right_diagonal, left_diagonal = self.get_angle_lines(out_image)
             out_image, in_lane, left_intersections, middle_intersections, right_intersections = self.find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
-
             if in_lane:
                 print("The vehicle is in the lane.")
-
             steer = self.analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
-
             cv2.putText(out_image, f'Steer: {steer:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-            return out_image, mask, steer, previous_left_id, previous_right_id
+            return out_image, mask, steer
         else:
             steer = 0
             print("Take manual control of the vehicle.")
-            return original, mask, steer, previous_left_id, previous_right_id
+            return original, mask, steer
 
 
     def start_following(self, frame, previous_left_id=None, previous_right_id=None):
-        # Convert RGBA to RGB if needed
-        if frame.shape[2] == 4:
-            frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
+        # # Convert RGBA to RGB if needed
+        # if frame.shape[2] == 4:
+        #     frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
 
-        # Get original frame dimensions
-        original_height, original_width = frame.shape[:2]
+        # # Get original frame dimensions
+        # original_height, original_width = frame.shape[:2]
         
-        cutoff_percent=37
+        # cutoff_percent=0
 
-        # Calculate the height of the cropped frame
-        crop_height = int(original_height * (1 - cutoff_percent / 100.0))
+        # # Calculate the height of the cropped frame
+        # crop_height = int(original_height * (1 - cutoff_percent / 100.0))
 
-        # Crop the frame (keep only the top part)
-        cropped_frame = frame[:crop_height, :]
+        # # Crop the frame (keep only the top part)
+        # cropped_frame = frame[:crop_height, :]
 
         # Load the YOLO model
         model = YOLO('laneTest.pt')
 
         # Run detection on the cropped frame
-        results = model.track(source=cropped_frame, persist=True, stream=True)
+        results = model.track(source=frame, persist=True, stream=True)
 
         # Filter the detections and prepare for further steps
-        out_image, filtered_results = self.filter_detections(results, model, frame, crop_height)
+        out_image, filtered_results = self.filter_detections(results, model, frame)
 
         # Pass the original frame, not the cropped one, to the follow_lane function
-        res, mask, steer, previous_left_id, previous_right_id = self.follow_lane(out_image, filtered_results, frame, previous_left_id, previous_right_id)
+        res, mask, steer = self.follow_lane(out_image, filtered_results, frame)
 
         # Return results
-        output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
+        output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': None, 'previous_right_id': None}
         return res, output
