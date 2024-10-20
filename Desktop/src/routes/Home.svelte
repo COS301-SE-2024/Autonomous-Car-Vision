@@ -211,28 +211,6 @@
               Sign Up
             </button>
           </a>
-            <TextField
-              bind:value={authCode}
-              dense
-              outlined
-              class="text-dark-primary w-full"
-              >Enter Authorization Code</TextField
-            >
-            <div class="flex flex-row gap-2 w-full">
-              <button
-                on:click={submitAuthCode}
-                class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
-              >
-                Submit Authorization Code
-              </button>
-              <a href="#/" class="w-full" on:click={googleLogin}>
-                <button
-                  class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-                >
-                  Log In with Google
-                </button>
-              </a>
-          </div>
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
@@ -266,28 +244,6 @@
               Sign Up
             </button>
           </a>
-          <TextField
-            bind:value={authCode}
-            dense
-            outlined
-              class="text-dark-primary w-full"
-              >Enter Authorization Code</TextField
-            >
-            <div class="flex flex-row gap-2 w-full">
-              <button
-                on:click={submitAuthCode}
-                class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-              >
-                Submit Authorization Code
-              </button>
-              <a href="#/" class="w-full" on:click={googleLogin}>
-                <button
-                  class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-                >
-                  Log In with Google
-                </button>
-            </a>
-          </div>
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"

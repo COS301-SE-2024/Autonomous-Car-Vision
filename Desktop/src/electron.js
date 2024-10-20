@@ -740,7 +740,7 @@ ipcMain.handle('check-cuda', async () => {
         console.log("Checking cuda availability")
         const appPath = app.getAppPath();
         const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
-        const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
+        const pythonPath = path.join(extractedPath, 'python', 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
             cwd: __dirname,
             stdio: ['pipe', 'pipe', 'pipe'],
