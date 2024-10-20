@@ -37,7 +37,7 @@ def create_unit(unit_type, init_args):
 
 def build_pipeline(input_string):
     tokens = input_string.split(',')
-    pipeline = pipe.Pipe({'camera', 'lidar'})
+    pipeline = pipe.Pipe({'camera', 'lidar', 'camera_two'})
 
     for token in tokens:
         if (token == ''): 

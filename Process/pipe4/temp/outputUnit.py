@@ -27,6 +27,7 @@ class outputUnit(Unit):
 
     def process(self, data_token):
         image = data_token.get_sensor_data('camera')
+        image_two = data_token.get_sensor_data('camera_two')
         annotated_frame = image.copy()
         min_distances = []
         img_lidar = None
@@ -99,7 +100,7 @@ class outputUnit(Unit):
             colored_mask[mask > 0] = [0, 255, 0] 
 
             alpha = 0.5
-            img_la = image.copy()
+            img_la = image_two.copy()
             img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
 
 

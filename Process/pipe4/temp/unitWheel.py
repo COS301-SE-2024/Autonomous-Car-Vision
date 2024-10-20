@@ -339,6 +339,11 @@ def main(pipe):
             'width': 800, 'height': 600, 'fov': 90,
             'sensor_label': 'camera', 'sensor_type': 'camera'
         }
+        camera_two_parameters = {
+            'x': 2.0, 'y': 0.00, 'z': 1, 'roll': 0, 'pitch': -10, 'yaw': 0,
+            'width': 800, 'height': 600, 'fov': 60,
+            'sensor_label': 'camera', 'sensor_type': 'camera'
+        }
         lidar_parameters = {
             'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
             'channels': 32, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
@@ -347,7 +352,7 @@ def main(pipe):
         }
 
         # Attach sensors to the vehicle
-        sensor_list = [camera_parameters, lidar_parameters]
+        sensor_list = [camera_parameters, camera_two_parameters, lidar_parameters]
         sensors, sensor_labels = sensor_factory(world, vehicle, sensor_list)
         actor_list.extend(sensors)
 
@@ -375,17 +380,21 @@ def main(pipe):
 
                 # Get synchronized sensor data
                 data = sync_mode.tick(timeout=2.0)
-                latest_image, latest_lidar_data = data
+                latest_image, latest_image_two, latest_lidar_data = data
 
                 # Process the image
                 image_array = process_image(latest_image)
                 image_array_writable = np.copy(image_array)
+
+                image_array_two = process_image(latest_image_two)
+                image_array_writable_two = np.copy(image_array_two)
                 # processed_image_array, bounding_boxes = run_ai_model(image_array)
 
                 # Process LiDAR data, including intensity
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
                 pipe.dataToken.add_processing_result('velocityUnit',vehicle.get_velocity().x)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
+                pipe.dataToken.add_sensor_data('camera_two', image_array_writable_two)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
@@ -407,7 +416,7 @@ def main(pipe):
                 #     json.dump(world_data, world_data_file, indent=4)
 
                 # Display the processed image
-                image_surface = convert_array_to_surface(processed_image_array)
+                image_surface = convert_array_to_surface(img_la)
                 display.blit(image_surface, (0, 0))
 
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
