@@ -4,7 +4,7 @@
 <h1 align="center"> High-Viz </h1>
 
 <div align="center">
-	<h3>View the res of our important links below</h3>
+	<h3>Access the rest of our important links below</h3>
 	<br>
 </div>
 
@@ -26,4 +26,4 @@
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
   
 ## Collaborate with us
-<p> Please do not hesistate to reach us on our email: <a>mailto:bitforge.capstone@gmail.com </a>for collaboration. Note that the project is property of the University of Pretoria, the Computer Science Department. Permissions must thus be acquired from the university to use this project (or some features) in your own project.<p>
+<a> Please do not hesistate to reach us on our email: [bitforge.capstone@gmail.com](<mailto:bitforge.capstone@gmail.com>) for collaboration. Note that the project is property of the University of Pretoria, the Computer Science Department. Permissions must thus be acquired from the university to use this project (or some features) in your own project.</a>
