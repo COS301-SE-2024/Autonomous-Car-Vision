@@ -75,11 +75,11 @@
           "..",
         )
 
-        scriptPath = `${appDirectory}/HighViz/python-scripts/python/processVideo.py`;
+        scriptPath = `${appDirectory}/HVstore/python-scripts/python/processVideo.py`;
 
         // modelsDirectory = await window.electronAPI.getModelsPath();
         // modelsPath = `${modelsDirectory}/${modelName}/${modelName}.pt`;
-        modelsPath = `${appDirectory}/HighViz/python-scripts/python/models/${modelName}/${modelName}.pt`;
+        modelsPath = `${appDirectory}/HVstore/python-scripts/python/models/${modelName}/${modelName}.pt`;
         resolve();
       })();
     });

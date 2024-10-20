@@ -54,8 +54,6 @@ async function createWindow() {
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
     });
 
-    // SHITTTTTTTTTTTTTTTTTTTTTTTTTT
-
     mainWindow.loadFile('public/index.html');
 
     if (app.isPackaged) {
@@ -119,7 +117,7 @@ app.on('activate', () => {
 const AdmZip = require('adm-zip');
 
 function extractPythonFiles(pythonFile) {
-    const appDataDir = path.join(app.getPath('userData'), 'python-scripts');
+    const appDataDir = path.join(getBaseDirectory(), 'python-scripts');
     const zipPath = path.join(app.getAppPath(), 'python.zip');
 
     console.log(`Zip Path: ${zipPath}`);
@@ -131,7 +129,12 @@ function extractPythonFiles(pythonFile) {
 
     const zip = new AdmZip(zipPath);
 
-    const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
+    let extractedScriptPath;
+    if(pythonFile === "cudaCheck.py") {
+        extractedScriptPath = path.join(appDataDir, 'python', pythonFile);    
+    }else {   
+        extractedScriptPath = path.join(appDataDir, pythonFile);
+    }
 
     if (fs.existsSync(extractedScriptPath)) {
         console.log(`Python script already extracted at: ${extractedScriptPath}`);
@@ -150,7 +153,7 @@ function extractPythonFiles(pythonFile) {
 }
 
 ipcMain.handle('get-app-path', () => {
-    return app.getPath('userData');
+    return getBaseDirectory();
 });
 
 ipcMain.handle('read-directory', async (event, directoryPath) => {
@@ -737,7 +740,6 @@ function runPythonScript(scriptPath, args) {
 
 ipcMain.handle('check-cuda', async () => {
     return new Promise((resolve, reject) => {
-        console.log("Checking cuda availability")
         const appPath = app.getAppPath();
         const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
         const pythonPath = path.join(extractedPath, 'python', 'cudaCheck.py');  // Ensure the script has the correct path
@@ -759,6 +761,7 @@ ipcMain.handle('check-cuda', async () => {
         });
 
         python.on('close', (code) => {
+            resolve(true);
             if (code === 0) {
                 console.log("CUDA available:", output.trim() == 'True');
                 resolve(output.trim() == 'True');
@@ -775,7 +778,7 @@ ipcMain.handle('check-cuda', async () => {
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
     const extractedPath = extractPythonFiles('pythonUpload.py');
-    const scriptPath = path.join(extractedPath, 'python', 'pythonUpload.py');
+    const scriptPath = path.join(extractedPath, 'pythonUpload.py');
 
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
@@ -784,10 +787,6 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
         const python = spawn('python', [scriptPath, ...args], {});
-
-        console.log("Running Python script:");
-        console.log("Script path: " + scriptPath);
-        console.log("Args: " + args.join(" "));
 
         let output = '';
         let error = '';
@@ -823,7 +822,7 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
     const extractedPath = extractPythonFiles('pythonDownload.py');
-    const scriptPath = path.join(extractedPath, 'python', 'pythonDownload.py');
+    const scriptPath = path.join(extractedPath, 'pythonDownload.py');
     const fullFilepath = path.join(app.getPath('userData'), 'Downloads', filepath);
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
