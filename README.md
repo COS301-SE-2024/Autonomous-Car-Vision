@@ -42,7 +42,7 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 
 ## Demo Presentations
 - **Final Demo & Tutorial:** [High-Viz Final Demo & Tutorial](<#>)
-- **Demo 1 to 4:** [High-Viz Previous Demos](<#>)
+- **Demo 1 to 4:** [High-Viz Previous Demos](<https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/hotfix/code_cleaning_kea/Documentation/MoreLinks.md>)
 
 ## Documentation
 - **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1frFBmJ9-5B0baJFwwqG0OB90KV7_6c0b/view?usp=sharing>)
@@ -50,7 +50,7 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 - **Testing Policy:** [View Testing Policy](https://drive.google.com/file/d/1jk3v_G0w93nb2_aGrsvqfUDveT9uxGEh/view?usp=sharing)
 -  **User Manual:** [View User Manual](https://drive.google.com/file/d/1mCSHfjwH3XtDPfdqn9FaZ7r7nIIND1vB/view?usp=sharing)
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/136Jwn4EFd_1YuSUh72xPMgggfaLIfSag/view?usp=sharing>)
-- **Other Documents:** [View our other documents here](<#>) 
+- **Other Documents:** [View our other documents here](<https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/hotfix/code_cleaning_kea/Documentation/MoreLinks.md>) 
 
 ## Project Management
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
