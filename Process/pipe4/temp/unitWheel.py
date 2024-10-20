@@ -41,63 +41,77 @@ avoid = False
 
 reverse_toggle = False
 reverse_gear = False
+o_key_toggle = False
+
+joystick = None
 
 def get_wheel_input():
+    global joystick
+    if joystick is None:
+        return 0, 0, 0, []
+    # Axis 0: Steering wheel (-1 to 1)
     steering = joystick.get_axis(0)
-    
-    throttle = (joystick.get_axis(1) + 1) / 2.0
-    throttle = 1 - throttle
-    
-    brake = (joystick.get_axis(2) + 1) / 2.0 
-    brake = 1 - brake 
-    
+
+    throttle = (joystick.get_axis(1) + 1) / 2.0  # Normalize to 0 to 1
+    throttle = 1 - throttle  # Flip throttle value (0 is at the bottom, 1 is at the top)
+
+    brake = (joystick.get_axis(2) + 1) / 2.0  # Normalize to 0 to 1
+    brake = 1 - brake  # Flip brake value (0 is at the bottom, 1 is at the top)
+
     # Buttons
     buttons = []
     for i in range(joystick.get_numbuttons()):
         if joystick.get_button(i):
             buttons.append(i)
-    
+
     return steering, throttle, brake, buttons
 
-def get_wheel_control(vehicle):
+def get_keyboard_control(vehicle):
+    # Toggle lane following with Q
     global follow_lane
     global object_avoidance
     global reverse_toggle
     global reverse_gear
+    global o_key_toggle
     control = carla.VehicleControl()
 
-    # keys = pygame.key.get_pressed()
+    keys = pygame.key.get_pressed()
     control = carla.VehicleControl()
-    
+
     steering, throttle, brake, buttons = get_wheel_input()
-    
-    control.steer = steering
-    control.throttle = throttle
-    control.brake = brake
 
-    # if not follow_lane:
-    #     control.throttle = 1.0 if keys[pygame.K_w] else 0.0
-    #     control.brake = 1.0 if keys[pygame.K_s] else 0.0
-    #     control.steer = -1.0 if keys[pygame.K_a] else 1.0 if keys[pygame.K_d] else 0.0
-    #     control.hand_brake = keys[pygame.K_SPACE]
+    if brake < 0.01:
+        brake = 0
 
-    #     if keys[pygame.K_r] and not reverse_toggle:
-    #         reverse_gear = not reverse_gear
-    #         reverse_toggle = True
 
-    #     if not keys[pygame.K_r]:
-    #         reverse_toggle = False
 
-    #     control.reverse = reverse_gear
-    # else:
-    #     control.throttle = 0.3
+    if not follow_lane:
+        control.throttle = throttle
+        control.brake = brake
+        control.hand_brake = False
+        control.steer = steering
 
-    # if keys[pygame.K_q] and lane_active:
-    #     follow_lane = not follow_lane
+        if 5 in buttons and not reverse_toggle:
+            reverse_gear = not reverse_gear
+            reverse_toggle = True
 
-    # if keys[pygame.K_o]:
-    #     object_avoidance = not object_avoidance
-    #     print("oooioioioioioioioioioioioioioioioioioioioi")
+        if 5 not in buttons:
+            reverse_toggle = False
+
+        control.reverse = reverse_gear
+    else:
+        control.throttle = 0.3
+
+    if 1 in buttons and lane_active:
+        follow_lane = not follow_lane
+
+    if 3 in buttons and not o_key_toggle:
+        object_avoidance = not object_avoidance
+        print("Object avoidance:", object_avoidance)
+        o_key_toggle = True
+
+    if 3 not in buttons:
+        o_key_toggle = False
 
     return control
 
@@ -106,7 +120,7 @@ def process_image(image):
     array = np.frombuffer(image.raw_data, dtype=np.dtype("uint8"))
     array = np.reshape(array, (image.height, image.width, 4))
     array = array[:, :, :3]
-    array = array[:, :, ::-1]
+    array = array[:, :, ::-1]  # Convert BGRA to RGB
     return array
 
 
@@ -118,7 +132,8 @@ def run_ai_model(image_array):
 
 def process_lidar_data(lidar_measurement):
     points = np.frombuffer(lidar_measurement.raw_data, dtype=np.dtype('f4'))
-    lidar_data_np = np.reshape(points, (int(points.shape[0] / 4), 4))
+    # Reshape to (N, 4), where N is the number of points, and each point has (x, y, z, intensity)
+    lidar_data_np = np.reshape(points, (int(points.shape[0] / 4), 4))  # x, y, z, intensity
     return lidar_data_np
 
 
@@ -128,6 +143,7 @@ def convert_array_to_surface(image_array):
 
 
 def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
+    # Ensure the output file is in MP4 format
     if not video_filename.endswith(".mp4"):
         video_filename += ".mp4"
 
@@ -136,11 +152,14 @@ def stitch_video_from_frames(output_folder, video_filename, calculated_fps):
         print("No images found in the folder.")
         return
 
+    # Assuming all images have the same resolution
     first_frame = imageio.imread(os.path.join(output_folder, images[0]))
     height, width = first_frame.shape[:2]
 
+    # Create a writer object using imageio for MP4 format
     writer = imageio.get_writer(video_filename, fps=calculated_fps, codec='libx264', pixelformat='yuv420p')
 
+    # Append each frame to the video
     for image in images:
         frame = imageio.imread(os.path.join(output_folder, image))
         writer.append_data(frame)
@@ -199,7 +218,7 @@ def sensor_factory(world, vehicle, sensor_parameters):
             sensor_bp.set_attribute('upper_fov', str(params['upper_fov']))
             sensor_bp.set_attribute('lower_fov', str(params['lower_fov']))
         else:
-            continue
+            continue  # Handle other sensor types if needed
 
         transform = carla.Transform(carla.Location(x=params['x'], y=params['y'], z=params['z']),
                                     carla.Rotation(roll=params['roll'], pitch=params['pitch'], yaw=params['yaw']))
@@ -208,159 +227,6 @@ def sensor_factory(world, vehicle, sensor_parameters):
         sensor_labels.append(params['sensor_label'])
 
     return sensors, sensor_labels
-
-
-def integrate_lidar_with_image(image, lidar_data, bounding_boxes):
-    image_height, image_width, _ = image.shape
-
-    x = lidar_data[:, 0]
-    y = lidar_data[:, 1]
-    z = lidar_data[:, 2]
-
-    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    theta = np.arctan2(y, x)
-    phi = np.arcsin(z / r)
-
-    horizontal_fov = np.radians(90 / 2)
-    vertical_fov = np.radians(60 / 2)
-
-    fov_mask = (np.abs(theta) <= horizontal_fov) & (np.abs(phi) <= vertical_fov)
-    filtered_data = lidar_data[fov_mask]
-    filtered_r = r[fov_mask]
-    
-    if filtered_r.size == 0:
-        return image, []
-
-    x_filtered = filtered_data[:, 0]
-    y_filtered = filtered_data[:, 1]
-    z_filtered = filtered_data[:, 2]
-
-    indices_in_fov = np.where(fov_mask)[0]
-    world_positions = filtered_data
-
-    focal_length = image_width / (2 * np.tan(horizontal_fov))
-    principal_point = np.array([image_width / 2, image_height / 2])
-
-    angle_y = np.radians(-10)
-    R = np.array([
-        [np.cos(angle_y), 0, np.sin(angle_y)],
-        [0, 1, 0],
-        [-np.sin(angle_y), 0, np.cos(angle_y)]
-    ])
-
-    t = np.array([0.0, 0.0, 0.2])
-
-    points_lidar = np.vstack((x_filtered, y_filtered, z_filtered))
-    points_camera = R @ points_lidar + t[:, np.newaxis]
-
-    pixel_x = (focal_length * points_camera[1, :] / points_camera[0, :]) + principal_point[0]
-    pixel_y = (focal_length * (-points_camera[2, :] / points_camera[0, :])) + principal_point[1]
-
-    valid_pixels_mask = (pixel_x >= 0) & (pixel_x < image_width) & (pixel_y >= 0) & (pixel_y < image_height)
-    pixel_x = pixel_x[valid_pixels_mask].astype(int)
-    pixel_y = pixel_y[valid_pixels_mask].astype(int)
-    filtered_r = filtered_r[valid_pixels_mask]
-
-    valid_indices = indices_in_fov[valid_pixels_mask]
-    valid_world_positions = world_positions[valid_pixels_mask]
-
-    norm = plt.Normalize(vmin=filtered_r.min(), vmax=filtered_r.max())
-    cmap = plt.colormaps.get_cmap('plasma')
-    colors = cmap(norm(filtered_r))[:, :3]
-    colors = (colors * 255).astype(int) 
-
-    for i in range(len(pixel_x)):
-        color = (int(colors[i][2]), int(colors[i][1]), int(colors[i][0]))
-        cv2.circle(image, (pixel_x[i], pixel_y[i]), radius=2, color=color, thickness=-1)
-        
-    world_data = []
-
-    for bbox in bounding_boxes:
-        x_min, y_min, x_max, y_max, score, class_id = bbox
-        x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
-
-        inside_bbox_mask = (pixel_x >= x_min) & (pixel_x <= x_max) & (pixel_y >= y_min) & (pixel_y <= y_max)
-        if np.any(inside_bbox_mask):
-            min_distance_idx = np.argmin(filtered_r[inside_bbox_mask])
-            min_distance = filtered_r[inside_bbox_mask][min_distance_idx]
-            world_position = valid_world_positions[inside_bbox_mask][min_distance_idx]
-
-            cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-
-            region_points = [world_position]
-
-            local_world_positions = valid_world_positions[inside_bbox_mask]
-            local_region_mask = np.zeros(local_world_positions.shape[0], dtype=bool)
-            local_region_mask[min_distance_idx] = True
-
-            distance_limit = min_distance / 10
-
-            while True:
-                current_region_size = len(region_points)
-                for i, wp in enumerate(local_world_positions):
-                    if not local_region_mask[i]: 
-                        if np.any(np.linalg.norm(np.array(region_points) - wp, axis=1) < distance_limit):
-                            region_points.append(wp)
-                            local_region_mask[i] = True
-                if len(region_points) == current_region_size:
-                    break
-
-            region_pixel_x = pixel_x[inside_bbox_mask][local_region_mask]
-            region_pixel_y = pixel_y[inside_bbox_mask][local_region_mask]
-
-            for i in range(len(region_pixel_x)):
-                cv2.circle(image, (region_pixel_x[i], region_pixel_y[i]), radius=2, color=(0, 255, 0), thickness=-1)
-
-            if len(local_world_positions[local_region_mask]) >= 2:
-                pca = PCA(n_components=2)
-                pca.fit(local_world_positions[local_region_mask])
-                orientation_vector = pca.components_[0]
-
-                orientation_angle = np.arctan2(orientation_vector[1], orientation_vector[0])
-
-                text = f"Object: {min_distance:.2f}m, θ: {np.degrees(orientation_angle):.1f}°"
-                cv2.putText(image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-                world_data.append({
-                    "label": "object",
-                    "world_position": {
-                        "x": float(world_position[0]),
-                        "y": float(world_position[1]),
-                        "z": float(world_position[2])
-                    },
-                    "distance": float(min_distance),
-                    "orientation": {
-                        "angle_degrees": float(np.degrees(orientation_angle)),
-                        "vector": {
-                            "x": float(orientation_vector[0]),
-                            "y": float(orientation_vector[1])
-                        }
-                    }
-                })
-            else:
-                # Handle the case with fewer than 2 points
-                text = f"Object: {min_distance:.2f}m"
-                cv2.putText(image, text, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-                # Save the world position without orientation
-                world_data.append({
-                    "label": "object",
-                    "world_position": {
-                        "x": float(world_position[0]),
-                        "y": float(world_position[1]),
-                        "z": float(world_position[2])
-                    },
-                    "distance": float(min_distance),
-                    "orientation": {
-                        "angle_degrees": float(np.degrees(0)),
-                        "vector": {
-                            "x": float(0),
-                            "y": float(0)
-                        }
-                    }
-                })
-
-    return image, world_data
 
 
 def save_frame_and_data(image_array, bounding_boxes, lidar_data, frame_number, output_folder, vehicle_transform, raw):
@@ -427,24 +293,17 @@ def create_directory_and_move_files(output_frames):
             shutil.move(full_file_path, save_directory)
 
     print(f"Files moved to: {save_directory}")
-    
-joystick = None
-for i in range(pygame.joystick.get_count()):
-    j = pygame.joystick.Joystick(i)
-    j.init()
-    print(f"Joystick {i}: {j.get_name()}")
-    if "Logitech G HUB G920 Driving Force Racing Wheel USB" in j.get_name():
-        joystick = j
-        print(f"Found {joystick.get_name()}!")
-        break
 
+
+# Example usage:
 def main(pipe):
     global lane_active
     global avoid
+    global joystick
     pygame.init()
     display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
-    
+
     pygame.font.init()
     font = pygame.font.Font(None, 36)
 
@@ -460,6 +319,20 @@ def main(pipe):
         vehicle = world.spawn_actor(bd, spawn_point)
         actor_list.append(vehicle)
 
+        for i in range(pygame.joystick.get_count()):
+            j = pygame.joystick.Joystick(i)
+            j.init()
+            print(f"Joystick {i}: {j.get_name()}")
+            if "Logitech G HUB G920 Driving Force Racing Wheel USB" in j.get_name():
+                joystick = j
+                print(f"Found {joystick.get_name()}!")
+                break
+
+        if not joystick:
+            print("No Logitech G920 found. Exiting...")
+            vehicle.destroy()
+            sys.exit()
+
         # Define the camera and LiDAR parameters
         camera_parameters = {
             'x': 0.15, 'y': 0.00, 'z': 1.65, 'roll': 0, 'pitch': -10, 'yaw': 0,
@@ -468,8 +341,8 @@ def main(pipe):
         }
         lidar_parameters = {
             'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
-            'channels': 64, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
-            'points_per_second': 150000, 'rotation_frequency': 50,
+            'channels': 32, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
+            'points_per_second': 56000, 'rotation_frequency': 10,
             'sensor_label': 'lidar', 'sensor_type': 'lidar'
         }
 
@@ -483,14 +356,16 @@ def main(pipe):
         output_folder = "output_frames"
         os.makedirs(output_folder, exist_ok=True)
 
+        # Timer for the drive
         start_time = time.time()
         pipestring = pipe
-        
+        # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
         if 'observerUnit' in pipestring:
             avoid = True
 
+        # Main loop with CarlaSyncMode
         with CarlaSyncMode(world, sensors, fps=30) as sync_mode:
             pipe = bobTheBuilder.build_pipeline(pipestring)
             while True:
@@ -498,38 +373,58 @@ def main(pipe):
                     if event.type == pygame.QUIT:
                         return
 
+                # Get synchronized sensor data
                 data = sync_mode.tick(timeout=2.0)
                 latest_image, latest_lidar_data = data
 
+                # Process the image
                 image_array = process_image(latest_image)
                 image_array_writable = np.copy(image_array)
-  
+                # processed_image_array, bounding_boxes = run_ai_model(image_array)
+
+                # Process LiDAR data, including intensity
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
 
+                # Integrate LiDAR data with the image and update world data
+                # , world_data = integrate_lidar_with_image(processed_image_array,
+                # latest_lidar_data_np, bounding_boxes)
+
+                # Get vehicle transform (position and orientation)
                 vehicle_transform = vehicle.get_transform()
 
-                save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
-                                    output_folder, vehicle_transform, image_array)
+                # Save frame and data, including the updated world data
+                # save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
+                #                     output_folder, vehicle_transform, image_array)
 
+                # Save the world data to a JSON file
+                # world_data_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_world_data.json")
+                # with open(world_data_filename, 'w') as world_data_file:
+                #     json.dump(world_data, world_data_file, indent=4)
+
+                # Display the processed image
                 image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
-                
-                if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
+
+                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
+                    # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
-                    
+
                 frame_number += 1
 
                 pygame.display.flip()
 
                 # Apply vehicle control (manual control)
-                control = get_wheel_control(vehicle)
-
-                if pipe.dataToken.get_flag("hasObeserverData") and object_avoidance:
+                control = get_keyboard_control(vehicle)
+                # print(object_avoidance)
+                # print( pipe.dataToken.get_flag("hasObserverData"))
+                print("flag:", pipe.dataToken.get_flag("hasObserverData"))
+                print("avoidance:", object_avoidance)
+                if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     print("avoiding")
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
                     breaking = observerToken['breaking']
@@ -542,11 +437,13 @@ def main(pipe):
                     print(vehicle.get_velocity().x)
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
-                        control.breaking = 1
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
                     steer = output['steer']
                     control.steer = steer
+                    text_surface = font.render(f"Lane Following is on, Steer: {steer}", True, (0, 255, 0))
+                    display.blit(text_surface, (10, 10))
+
 
                 vehicle.apply_control(control)
 
@@ -565,12 +462,12 @@ def main(pipe):
         calculated_fps = frame_number / total_time
         print(f"Calculated FPS: {calculated_fps}")
 
-
-        video_filename = os.path.join(output_folder, "output_video.avi")
-        stitch_video_from_frames(output_folder, video_filename, calculated_fps)
-        create_directory_and_move_files("output_frames")
+        # video_filename = os.path.join(output_folder, "output_video.avi")
+        # stitch_video_from_frames(output_folder, video_filename, calculated_fps)
+        # create_directory_and_move_files("output_frames")
         print('done.')
         pygame.quit()
+
 
 if __name__ == '__main__':
     try:
