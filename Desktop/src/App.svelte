@@ -64,8 +64,4 @@
 
 <style>
   @import "./global.css";
-  /* .mainContainer {
-    background-image: linear-gradient(180deg, #001524, #181818);
-    width: 100% !important;
-  } */
 </style>
