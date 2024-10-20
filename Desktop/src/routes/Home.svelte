@@ -194,7 +194,7 @@
     >
       <div class="modalLight p-8 rounded-lg shadow-lg w-1/2">
         <h1 class="text-4xl text-center mb-6 font-bold text-black">
-          Welcome to High-Viz
+          Welcome to HighViz
         </h1>
         <div class="flex flex-col gap-4 items-center">
           <a href="#/login" class="w-full">
@@ -249,7 +249,7 @@
     >
       <div class="modal p-8 rounded-lg shadow-lg w-1/2">
         <h1 class="text-4xl text-center mb-6 font-bold text-white">
-          Welcome to High-Viz
+          Welcome to HighViz
         </h1>
         <div class="flex flex-col gap-4 items-center">
           <a href="#/login" class="w-full">

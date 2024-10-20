@@ -54,6 +54,8 @@ async function createWindow() {
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
     });
 
+    // SHITTTTTTTTTTTTTTTTTTTTTTTTTT
+
     mainWindow.loadFile('public/index.html');
 
     if (app.isPackaged) {
@@ -146,9 +148,13 @@ function extractPythonFiles(pythonFile) {
     return appDataDir;
 }
 
+function extractPtFiles() {
+    const appDataDir = path.join(app.getPath('userData'), 'model-files');  // Directory to store extracted model files
+    const zipPath = path.join(app.getAppPath(), 'python.zip');  // Path to the zip file
 
 ipcMain.handle('get-app-path', () => {
-    return app.getAppPath();
+    return app.getPath('userData');
+    // return app.getAppPath();
 });
 
 ipcMain.handle('read-directory', async (event, directoryPath) => {
@@ -293,7 +299,7 @@ function updateState(updates) {
     const currentState = store.get('appProcessing', {
         processing: false,
         cuda: false,
-        localProcess: false,
+        localProcess: true,
         videoUrl: '',
         originalVideoURL: '',
         processingQueue: [],
@@ -735,8 +741,8 @@ ipcMain.handle('check-cuda', async () => {
     return new Promise((resolve, reject) => {
         console.log("Checking cuda availability")
         const appPath = app.getAppPath();
-        let pythonPath = path.join(appPath, '..');
-        pythonPath = path.join(pythonPath, 'Models/cudaCheck.py');
+        const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
+        const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
             cwd: __dirname, 
             stdio: ['pipe', 'pipe', 'pipe'],
@@ -823,7 +829,7 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
     const fullFilepath = path.join(app.getPath('userData'), 'Downloads', filepath);
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
-    const args = [ip, port, filepath, fullFilepath, uid, size, token, mid, videoDestination];
+    const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
@@ -852,7 +858,20 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
 });
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
-    return path.resolve(...segments);
+    const resolvedPath = path.resolve(...segments); // Resolve the path from segments
+    
+    try {
+        // Ensure that the directory structure exists by creating it if necessary
+        fs.mkdirSync(resolvedPath, { recursive: true });
+        console.log(`Directory created or already exists: ${resolvedPath}`);
+    } catch (err) {
+        console.error(`Error creating directory at path: ${resolvedPath}`, err);
+        return { success: false, error: err.message };
+    }
+    
+    // Return the resolved path
+    console.log("RESOLVED PATH: ", resolvedPath)
+    return resolvedPath;
 });
 
 ipcMain.handle('check-file-existence', async (event, filePath) => {
@@ -920,6 +939,13 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
 
         const appDataPath = app.getPath('userData');
         const downloadsDir = path.join(appDataPath, 'Downloads');
+
+        // Ensure the Downloads directory exists
+        if (!fs.existsSync(downloadsDir)) {
+            fs.mkdirSync(downloadsDir, { recursive: true });
+            console.log('Downloads directory created:', downloadsDir);
+        }
+
         const destinationPath = path.join(downloadsDir, videoName);
 
         console.log('Moving video file to:', destinationPath);
@@ -942,6 +968,7 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
         return { success: false, error: error.message };
     }
 });
+
 
 ipcMain.handle('get-ai-models', async () => {
     try {

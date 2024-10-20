@@ -4,6 +4,7 @@
   import { get } from "svelte/store";
   import QuantamLoader from "./QuantamLoader.svelte";
   import { theme } from "../stores/themeStore";
+  import { isProcessing } from "../stores/loading";
 
   import {
     loadState,
@@ -73,7 +74,7 @@
       </div>
       {#if mounting == false}
         {#if AIinfo.mURL != currrentVideoUrl}
-          {#if remoteProcessingQueueList.includes(AIinfo.mURL)}
+          {#if remoteProcessingQueueList.includes(AIinfo.mURL) && $isProcessing}
             <div
               class="flex flex-col justify-center items-center flex-nowrap"
               style="aspect-ratio: 14/7"
@@ -114,7 +115,7 @@
       </div>
       {#if mounting == false}
         {#if AIinfo.mURL != currrentVideoUrl}
-          {#if remoteProcessingQueueList.includes(AIinfo.mURL)}
+          {#if remoteProcessingQueueList.includes(AIinfo.mURL) && $isProcessing}
             <div
               class="flex flex-col justify-center items-center flex-nowrap"
               style="aspect-ratio: 14/7"

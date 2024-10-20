@@ -7,6 +7,7 @@
   import { OriginalVideoURL } from "../../../stores/video";
   import { mdiAccessPoint, mdiDeleteOutline } from "@mdi/js";
   import { Icon } from "svelte-materialify";
+  import { isProcessing } from "../../../stores/loading";
 
   import { onMount } from "svelte";
 
@@ -63,12 +64,22 @@
         videoNameExtract = videoName.split(".")[0];
         extention = videoName.split(".")[1];
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
           "..",
         );
-        scriptPath = `${appDirectory}/Models/processVideo.py`;
-        modelsPath = `${appDirectory}/Models/${modelName}/${modelName}.pt`;
+
+        await window.electronAPI.resolvePath(
+          `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`,
+          "..",
+        )
+
+        scriptPath = `${appDirectory}/HighViz/python-scripts/python/processVideo.py`;
+
+        // modelsDirectory = await window.electronAPI.getModelsPath();
+        // modelsPath = `${modelsDirectory}/${modelName}/${modelName}.pt`;
+        modelsPath = `${appDirectory}/HighViz/python-scripts/python/models/${modelName}/${modelName}.pt`;
         resolve();
       })();
     });
@@ -168,6 +179,7 @@
   let processed = false;
 
   async function processVideo(event) {
+    isProcessing.set(true);
     modelName = event.detail.modelName;
     showProcessPopup = false;
     try {
@@ -178,7 +190,7 @@
         videoPath,
         outputVideoPath,
         modelPath: modelsPath,
-        localProcess: get(localProcess),
+        localProcess: true,
       };
 
       setInterval(() => {
@@ -205,7 +217,7 @@
           const newProcessedVideo = {
             label: modelName,
             profileImgURL:
-              "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/flagged/photo-1554042329-269abab49dc9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             videoURL: processedVideoURL,
             originalVidID: originalVideo.videoID,
           };
@@ -223,6 +235,11 @@
       console.error("Error:", output);
     }
     processed = true;
+    setInterval(() => {
+      isProcessing.set(false);
+      isLoading.set(false);
+    }, 1000);
+    showModelList.set(true);
   }
 
   function re_process() {

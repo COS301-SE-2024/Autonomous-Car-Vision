@@ -12,6 +12,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getAppPath: async () => await ipcRenderer.invoke('get-app-path'),
+  getModelsPath: async () => await ipcRenderer.invoke('get-models-path'),
   resolvePath: async (...segments) => await ipcRenderer.invoke('resolve-path', ...segments),
   readDirectory: (directoryPath) => ipcRenderer.invoke('read-directory', directoryPath),
   storeToken: (token) => ipcRenderer.send('store-token', token),
