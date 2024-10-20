@@ -47,7 +47,7 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 ## Documentation
 - **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1frFBmJ9-5B0baJFwwqG0OB90KV7_6c0b/view?usp=sharing>)
 - **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/10n53AYvFU-klGODx936X99Oj-YUcWZNj/view?usp=sharing>)
-- **Testing Policy:** [View Testing Policy](https://drive.google.com/file/d/1jk3v_G0w93nb2_aGrsvqfUDveT9uxGEh/view?usp=sharing)
+- **Testing Policy:** [View Testing Policy](https://drive.google.com/file/d/1yAt0e-8MyQN4BhKwX3IWhDTOXeV64W0o/view?usp=drivesdk)
 -  **User Manual:** [View User Manual](https://drive.google.com/file/d/1mCSHfjwH3XtDPfdqn9FaZ7r7nIIND1vB/view?usp=sharing)
 - **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/136Jwn4EFd_1YuSUh72xPMgggfaLIfSag/view?usp=sharing>)
 - **Other Documents:** [View our other documents here](<https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/hotfix/code_cleaning_kea/Documentation/MoreLinks.md>) 
