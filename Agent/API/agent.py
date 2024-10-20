@@ -19,6 +19,7 @@ import json
 from dotenv import load_dotenv
 import base64
 import netifaces
+import select
 
 load_dotenv()
 app = FastAPI()
@@ -174,62 +175,71 @@ def startFTP(ip, port, old_uid, old_size, old_token):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
+        s.setblocking(False)
         print(f"Server started and listening on {ip}:{port}")
-        while True:
-            conn, addr = s.accept()
-            with conn:
-                data = receive_until_null(conn)
-                data = json.loads(data)
-                print(f"DATA: {data}")
+        
+        # Add timeout logic
+        timeout = 10  # 10 seconds timeout
+        ready = select.select([s], [], [], timeout)
+        
+        if not ready[0]:
+            print(f"No connection received within {timeout} seconds. Closing the server.")
+            return "Timeout: No connection received."
 
-                uid = data["uid"]
-                mid = data["mid"]
-                size = data["size"]
-                token = data["token"]
-                command = data["command"]
+        conn, addr = s.accept()
+        with conn:
+            data = receive_until_null(conn)
+            data = json.loads(data)
+            print(f"DATA: {data}")
 
-                directory = f"./Download/{uid}/"
-                os.makedirs(directory, exist_ok=True)
-                print(f"Directory {directory} created to store information.")
+            uid = data["uid"]
+            mid = data["mid"]
+            size = data["size"]
+            token = data["token"]
+            command = data["command"]
 
-                print(f"Connected by {addr}")
+            directory = f"./Download/{uid}/"
+            os.makedirs(directory, exist_ok=True)
+            print(f"Directory {directory} created to store information.")
 
-                if command == "SEND":
-                    filename = receive_until_null(conn).strip('"').strip("'")
-                    print(f"Received filename: '{filename}'")
+            print(f"Connected by {addr}")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+            if command == "SEND":
+                filename = receive_until_null(conn).strip('"').strip("'")
+                print(f"Received filename: '{filename}'")
 
-                    with open(filepath, "wb") as f:
-                        print(f"Receiving file {filename}...")
-                        while True:
-                            data = conn.recv(1024)
-                            if not data:
-                                break
-                            f.write(data)
+                if not filename:
+                    return "No filename received."
+                filepath = os.path.join(directory, filename)
+
+                with open(filepath, "wb") as f:
+                    print(f"Receiving file {filename}...")
+                    while True:
+                        data = conn.recv(1024)
+                        if not data:
+                            break
+                        f.write(data)
                     print(f"File {filename} received and saved to {filepath}")
 
-                elif command == "RETR":
-                    filename = receive_until_null(conn).strip('"').strip("'")
-                    print(f"Received filename: '{filename}'")
+            elif command == "RETR":
+                filename = receive_until_null(conn).strip('"').strip("'")
+                print(f"Received filename: '{filename}'")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+                if not filename:
+                    return "No filename received."
+                filepath = os.path.join(directory, filename)
 
-                    if os.path.exists(filepath):
-                        with open(filepath, "rb") as f:
-                            print(f"Sending file {filename}...")
-                            while True:
-                                data = f.read(1024)
-                                if not data:
-                                    break
-                                conn.sendall(data)
+                if os.path.exists(filepath):
+                    with open(filepath, "rb") as f:
+                        print(f"Sending file {filename}...")
+                        while True:
+                            data = f.read(1024)
+                            if not data:
+                                break
+                            conn.sendall(data)
                         print(f"File {filename} sent successfully.")
-                    else:
-                        print(f"File {filename} does not exist.")
+                else:
+                    print(f"File {filename} does not exist.")
 
     s.close()
     return "Operation completed successfully."
