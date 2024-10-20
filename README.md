@@ -41,21 +41,20 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
 
 
 ## Demo Presentations
-- **Demo2:** [High-Viz Demo2](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
-- **Demo1:** [High-Viz Demo1](<https://www.canva.com/design/DAGHDod0PGQ/IawRzaL5_SG34O-CZUu1Fw/edit?utm_content=DAGHDod0PGQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton>)
-- **Demo3:** [High-Viz Demo3](#)
-- **Demo4:** [High-Viz Demo4](#)
-  
+- **Final Demo & Tutorial:** [High-Viz Final Demo & Tutorial](<#>)
+- **Demo 1 to 4:** [High-Viz Previous Demos](<#>)
+
 ## Documentation
-- **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/1TRmjrjNh_AZopuFUlaI60RjdbWSxYVNf/view?usp=sharing>)
-- **User Manual:** [View User Manual](<https://drive.google.com/file/d/1QmKCmwLTs2nng9JqcgtTnrsZAZlylDFs/view?usp=sharing>)
-- **Architecture Documentation:** [View Arch Doc](<https://drive.google.com/file/d/1_-aVUgu6myCXf3xeL3x6jl85uQNEHegc/view?usp=sharing>)
-- **Requirement Specification (SRS):** [View SRS v2](<https://drive.google.com/file/d/1Y6546ZOQqh2pYuIZYp_laMmvruK5ycUq/view?usp=sharing>)
-- **Design Specification:** [View DRS](<https://drive.google.com/file/d/1qlXPdZ7k5Kj7xHfDDIvM44YPxRgmIq8r/view?usp=sharing>)
-- **AI Specification:** [View AI Model Spec](<https://drive.google.com/file/d/1H5kAPRiWeNOP77nWBHZLexBLX-Sfm2T_/view?usp=sharing>)
+- **Requirement Specification (SRS):** [View SRS](<https://drive.google.com/file/d/1frFBmJ9-5B0baJFwwqG0OB90KV7_6c0b/view?usp=sharing>)
+- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/10n53AYvFU-klGODx936X99Oj-YUcWZNj/view?usp=sharing>)
+- **Testing Policy:** [View Testing Policy](https://drive.google.com/file/d/1jk3v_G0w93nb2_aGrsvqfUDveT9uxGEh/view?usp=sharing)
+-  **User Manual:** [View User Manual](https://drive.google.com/file/d/1mCSHfjwH3XtDPfdqn9FaZ7r7nIIND1vB/view?usp=sharing)
+- **Installation Manual:** [View Installation Manual](<https://drive.google.com/file/d/136Jwn4EFd_1YuSUh72xPMgggfaLIfSag/view?usp=sharing>)
+- **Other Documents:** [View our other documents here](<#>) 
+
+## Project Management
 - **GitHub Project Board:** [View Project Board](<https://github.com/orgs/COS301-SE-2024/projects/64>)
-- **Contract Doc:** [View API Smart Contracts](<https://drive.google.com/file/d/185UBxNNEh1OEQbargCCvkV1UawCUloPH/view?usp=sharing>)
-- **Coding Standards:** [View Coding Standards](<https://drive.google.com/file/d/138qQ2a141yoY-sG7PY3I0nQTkwcz7CTC/view?usp=sharing>)
+  
 
 <h2 align="center"> Meet The Team </h2>
 
