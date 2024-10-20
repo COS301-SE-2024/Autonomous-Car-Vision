@@ -801,29 +801,24 @@ class laneUnit(Unit):
         if frame.shape[2] == 4:
             frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
 
-        # Get original frame dimensions
         original_height, original_width = frame.shape[:2]
-        
-        cutoff_percent=37
 
-        # Calculate the height of the cropped frame
+        cutoff_percent = 37
         crop_height = int(original_height * (1 - cutoff_percent / 100.0))
-
-        # Crop the frame (keep only the top part)
         cropped_frame = frame[:crop_height, :]
 
-        # Load the YOLO model
         model = YOLO('laneTest.pt')
+        if torch.cuda.is_available():
+            print("CUDA is available. Using GPU.")
+            model = model.to('cuda') 
+        else:
+            print("CUDA is not available. Using CPU.")
 
-        # Run detection on the cropped frame
         results = model.track(source=cropped_frame, persist=True, stream=True)
 
-        # Filter the detections and prepare for further steps
         out_image, filtered_results = self.filter_detections(results, model, frame, crop_height)
 
-        # Pass the original frame, not the cropped one, to the follow_lane function
         res, mask, steer, previous_left_id, previous_right_id = self.follow_lane(out_image, filtered_results, frame, previous_left_id, previous_right_id, prev_steer)
 
-        # Return results
-        output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
+        output = {'image': res, 'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': previous_left_id, 'previous_right_id': previous_right_id}
         return res, output
