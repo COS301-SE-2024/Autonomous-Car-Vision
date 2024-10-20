@@ -36,21 +36,21 @@ class outputUnit(Unit):
 
         if (self.lidar or self.all) and data_token.get_flag('has_lidar_data'):
             lidar_data = data_token.get_processing_result('infusrUnit')
-            pixel_x = lidar_data['pixel_x']
-            pixel_y = lidar_data['pixel_y']
-            colors = lidar_data['colors']
-            img_lidar = image.copy()
-            for i in range(len(pixel_x)):
-                color = (int(colors[i][2]), int(colors[i][1]), int(colors[i][0]))
-                cv2.circle(annotated_frame, (pixel_x[i], pixel_y[i]), radius=1, color=color, thickness=-1)
-                cv2.circle(img_lidar, (pixel_x[i], pixel_y[i]), radius=1, color=color, thickness=-1)
+            if lidar_data:
+
+                pixel_x = lidar_data['pixel_x']
+                pixel_y = lidar_data['pixel_y']
+                colors = lidar_data['colors']
+                img_lidar = image.copy()
+                for i in range(len(pixel_x)):
+                    color = (int(colors[i][2]), int(colors[i][1]), int(colors[i][0]))
+                    cv2.circle(annotated_frame, (pixel_x[i], pixel_y[i]), radius=2, color=color, thickness=-1)
+                    cv2.circle(img_lidar, (pixel_x[i], pixel_y[i]), radius=1, color=color, thickness=-1)
 
         if (self.taggr or self.all) and data_token.get_flag('has_tagger_data'):
             tagger_data = data_token.get_processing_result('taggrUnit')
             pixel_data = tagger_data['pixel_data']
-
             min_distances = [None] * len(pixel_data)
-
             img_taggr = image.copy()
 
             for data in pixel_data:
@@ -103,45 +103,18 @@ class outputUnit(Unit):
             annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
             img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
             # img_la = output['image']
-            
-        # if (self.la or self.all) and data_token.get_flag('has_lane_data'):
-        #     output = data_token.get_processing_result('laneUnit')
-        #     results = output['results']
 
 
-        #     colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
+        # if (self.all and data_token.get_flag('hasObserverData')):
+        #     observer_results = data_token.get_processing_result('observerUnit')
+        #     img_grid = image.copy()
+        #     xMin = observer_results['xMin']
+        #     xMax = observer_results['xMax']
+        #     yMin = observer_results['yMin']
+        #     yMax = observer_results['yMax']
+        #     cv2.rectangle(annotated_frame, (xMin, yMin), (xMax, yMax), (0, 0, 255), 2)
+        #     cv2.rectangle(img_grid, (xMin, yMin), (xMax, yMax), (0, 0, 255), 2)
 
-        #     for result in results[0]:
-
-        #         class_name = result.boxes.cls
-
-        #         if int(class_name) != 4 and int(class_name) != 3:
-        #             mask = result.masks.data.cpu().numpy()
-        #             mask = np.squeeze(mask)
-
-        #             if mask.size > 0:
-        #                 mask_resized = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
-
-        #                 binary_mask = (mask_resized > 0.5).astype(np.uint8)
-
-        #                 temp_colored_mask = np.zeros_like(annotated_frame, dtype=np.uint8)
-        #                 temp_colored_mask[binary_mask == 1] = [255, 255, 255]
-
-        #                 colored_mask = cv2.add(colored_mask, temp_colored_mask)
-
-        #     alpha = 0.5
-        #     img_la = image.copy()
-        #     annotated_frame = cv2.addWeighted(annotated_frame, 1 - alpha, colored_mask, alpha, 0)
-        #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
-
-
-        if (self.all and data_token.get_flag('hasObeserverData')):
-            observer_results = data_token.get_processing_result('observerUnit')
-            img_grid = image.copy()
-            xMin = observer_results['xMin']
-            xMax = observer_results['xMax']
-            yMin = observer_results['yMin']
-            yMax = observer_results['yMax']
 
         print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
         return annotated_frame, img_lidar, img_taggr, img_bb, img_la
