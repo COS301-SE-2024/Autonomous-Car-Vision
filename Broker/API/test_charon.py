@@ -84,7 +84,7 @@ def test_obol(mock_db_connection):
     from charon import obol
 
     mock_cursor = mock_db_connection.cursor.return_value
-    mock_cursor.fetchone.return_value = [1]  # Mocking the returned aid
+    mock_cursor.fetchone.return_value = [1]
     result = obol()
     assert "aid" in result
     assert "public" in result

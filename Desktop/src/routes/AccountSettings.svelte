@@ -14,8 +14,6 @@
   import ProtectedRoutes from "./ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
   import { theme } from "../stores/themeStore";
-
-  // Loading screen Imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
   import CryptoJS from "crypto-js";
@@ -39,11 +37,6 @@
   }
 
   const saveChanges = async () => {
-    // Function to handle saving other changes (username, email)
-
-    // Save the changes to the database
-
-
     try {
       const response = await axios.post(
         "http://" + HOST_IP + ":8000/changeUserDetails/",
@@ -78,7 +71,6 @@
     }
   };
 
-  // For loading screen purposes
   onMount(async () => {
     isLoading.set(true);
      HOST_IP = await window.electronAPI.getHostIp();
@@ -90,7 +82,6 @@
       isLoading.set(false);
     }, 2000);
 
-    // Fetch user data
     axios
       .post("http://" + HOST_IP + ":8000/getUserData/", {
         uid: window.electronAPI.getUid(),
@@ -138,7 +129,6 @@
         >
           <h2 class="text-2xl font-bold mb-4 text-center">Account Settings</h2>
 
-          <!-- Profile Picture -->
           <div
             class="flex flex-col items-center mb-4 rounded-full border avatar-container"
           >
@@ -163,7 +153,6 @@
             </Tooltip>
           </div>
 
-          <!-- Edit Username -->
           <div class="mb-2 w-1/2">
             <TextField
               bind:value={user.username}
@@ -174,7 +163,6 @@
             >
           </div>
 
-          <!-- Edit Email -->
           <div class="mb-2 w-1/2">
             <TextField
               bind:value={user.email}
@@ -187,13 +175,11 @@
           </div>
 
           <div class="w-1/2 flex flex-col gap-5">
-            <!-- Change Password -->
             <Button class="bg-highVizLight-primary text-black" rounded 
             on:click={changePassword}
             >Change Password?</Button
             >
             
-            <!-- Save Changes -->
             <Button
             class="bg-highVizLight-primary text-black" rounded
             on:click={saveChanges}>Save Changes</Button
@@ -217,5 +203,4 @@
     object-fit: cover;
   }
 
-  /* Remove other avatar-related styles */
 </style>

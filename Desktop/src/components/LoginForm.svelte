@@ -1,11 +1,10 @@
 <script>
-  import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
+  import { Button, TextField, Icon } from "svelte-materialify";
   import { mdiEyeOff, mdiEye } from "@mdi/js";
   import axios from "axios";
   import { push } from "svelte-spa-router";
   import {theme} from '../stores/themeStore';
   import { onMount } from "svelte";
-  // Loading screen imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 
@@ -59,7 +58,6 @@
 {#if $theme === 'highVizLight'}
 <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
   <div class="containerClassLight">
-  <!-- <MaterialApp> -->
     <div class="flex flex-row ">
       <a
         class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-theme-dark-primary "
@@ -125,13 +123,11 @@
         </div>
       {/if}
     </div>
-  <!-- </MaterialApp> -->
   </div>
 </div>
 {:else}
 <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
   <div class="containerClass">
-  <!-- <MaterialApp> -->
     <div class="flex flex-row ">
       <a
         class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary "
@@ -197,7 +193,6 @@
         </div>
       {/if}
     </div>
-  <!-- </MaterialApp> -->
   </div>
 </div>
 

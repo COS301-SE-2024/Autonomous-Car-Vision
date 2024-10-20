@@ -31,8 +31,6 @@
   import { DotLottieSvelte } from "@lottiefiles/dotlottie-svelte";
   let showProcessPopup = false;
 
-  // TODO: Styling and conditional formatting
-
   const showModelList = writable(false);
 
   let appPath = "";
@@ -48,8 +46,8 @@
   let selectedModelName = "yolov8n";
   let dotLottieProcess;
 
-  let output = ""; // Store the output of the Python script
-  let outputFiles = []; // Store the output files
+  let output = "";
+  let outputFiles = [];
 
   function getFileName(filePath) {
     const parts = filePath.split(/[/\\]/);
@@ -62,7 +60,6 @@
         appPath = await window.electronAPI.getAppPath();
         videoPath = value;
         videoName = await getFileName(videoPath);
-        //extract video name from video name without the extention
         videoNameExtract = videoName.split(".")[0];
         extention = videoName.split(".")[1];
         outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
@@ -84,22 +81,18 @@
 
       await loadState();
 
-      // Fetch the original video details from the database
       let originalVideo = await window.electronAPI.getVideoByURL(videoPath);
 
-
-      // If the original video is not found, add it to the database
       if (!originalVideo) {
         const newOriginalVideo = {
           label: "Original",
           profileImgURL: "https://placekitten.com/300/300",
           videoURL: videoPath,
-          originalVidID: 0, // Original videos have their originalVidID set to 0 or null
+          originalVidID: 0,
         };
         originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
       }
 
-      // Start with the original video
       outputFiles = [
         {
           id: originalVideo.videoID,
@@ -109,12 +102,10 @@
         },
       ];
 
-      // Fetch processed videos linked to the original video
       const processedVideos = await window.electronAPI.getProcessedVideos(
         originalVideo.videoID,
       );
 
-      // Add processed videos
       processedVideos.forEach((video) => {
         outputFiles.push({
           id: video.videoID,
@@ -156,7 +147,7 @@
   onMount(async () => {
     await fetchModels();
     await getVideoDetails();
-    await loadState(); // Load state on mount
+    await loadState();
     lottieElement1.addEventListener("mouseenter", () =>
       playLottie(dotLottieProcess),
     );
@@ -174,7 +165,7 @@
     };
   });
 
-  let processed = false; // Check if the video has been processed
+  let processed = false;
 
   async function processVideo(event) {
     modelName = event.detail.modelName;
@@ -195,23 +186,21 @@
       }, 1000);
       showModelList.set(true);
 
-      await window.electronAPI.queueVideo(videoDetails); // Queue the video for processing
+      await window.electronAPI.queueVideo(videoDetails);
 
       toast.success("Video queued for processing", {
         duration: 5000,
         position: "top-center",
       });
 
-      await loadState(); // Load state after adding the video to the queue
+      await loadState();
 
-      // Add processed video information to the database
       const originalVideo = await window.electronAPI.getVideoByURL(videoPath);
       if (originalVideo) {
         const processedVideoURL = outputVideoPath;
         const existingProcessedVideo =
           await window.electronAPI.getVideoByURL(processedVideoURL);
 
-        // Video added to the local database
         if (!existingProcessedVideo) {
           const newProcessedVideo = {
             label: modelName,
@@ -237,7 +226,6 @@
   }
 
   function re_process() {
-    // Re-process functionality
     console.log("Re-processing video");
   }
 
@@ -256,7 +244,6 @@
   }
 
   function handleDeleteSave() {
-    // Logic to delete the video
     showDeleteModal = false;
   }
 

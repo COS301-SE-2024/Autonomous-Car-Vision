@@ -13,13 +13,8 @@
   <div class="particle"></div>
   <div class="particle"></div>
 </div>
-<!-- <h1 class="processing-text text-sm font-semibold">Processing</h1> -->
 
 <style>
-  .processing-text {
-    width: 90px;
-  }
-
   .processing-text:after {
     overflow: hidden;
     display: inline-block;

@@ -99,33 +99,3 @@ class ModelsTestCase(TestCase):
                 media_name="Duplicate Media",
                 media_url="media/media1.mp4",
             )
-
-    # def test_media_file_deletion(self):
-    #     media = Media.objects.get(uid=self.user1)
-    #     media.delete()
-    #     self.assertFalse(media.media_url.exists())
-
-    # def test_media_file_deletion_on_object_deletion(self):
-    #     media = Media.objects.get(uid=self.user1)
-    #     media.delete()
-    #     with self.assertRaises(Exception):
-    #         Media.objects.get(uid=self.user1)
-    #     self.assertFalse(media.media_url.exists())
-
-    # def test_media_file_deletion_on_object_update(self):
-    #     media = Media.objects.get(uid=self.user1)
-    #     media.media_url = "media/media3.mp4"
-    #     media.save()
-    #     self.assertFalse(media.media_url.exists())
-
-    # def test_media_file_deletion_on_object_update_with_new_file(self):
-    #     media = Media.objects.get(uid=self.user1)
-    #     media.media_url = "media/media3.mp4"
-    #     media.save()
-    #     self.assertFalse(media.media_url.exists())
-
-    # def test_media_file_deletion_on_object_update_with_new_file(self):
-    #     media = Media.objects.get(uid=self.user1)
-    #     media.media_url = "media/media3.mp4"
-    #     media.save()
-    #     self.assertFalse(media.media_url.exists())

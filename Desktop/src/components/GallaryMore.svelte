@@ -17,7 +17,7 @@
   })
 
   function back(event) {
-    event.stopPropagation(); // Stop event propagation
+    event.stopPropagation();
     dispatch("close");
   }
 

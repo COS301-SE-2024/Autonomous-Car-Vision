@@ -63,8 +63,6 @@
             return false;
         }
         const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-
-        // Assuming lastSignin is a Unix timestamp in seconds
         const lastSigninMs = lastSignin * 1000;
 
         return lastSigninMs > fiveMinutesAgo;
@@ -186,7 +184,6 @@
         padding: 10px;
         border-radius: 4px;
         margin-bottom: 10px;
-        /* margin-left: 10px; */
     }
 
     .headerLight {
@@ -194,6 +191,5 @@
         padding: 10px;
         border-radius: 4px;
         margin-bottom: 10px;
-        /* margin-left: 10px; */
     }
 </style>

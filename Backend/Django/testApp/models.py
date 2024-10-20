@@ -81,7 +81,6 @@ class Media(models.Model):
 
 
 def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return f"media/user_{instance.uid.id}/{filename}"
 
 class Corporation(models.Model):

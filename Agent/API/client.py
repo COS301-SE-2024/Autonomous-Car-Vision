@@ -55,12 +55,5 @@ if __name__ == "__main__":
     ip = "10.32.130.218"
     port = 8002
     filepath = "../../Documentation/Images/Donatello.png"
-    
-    # To send a file
-    # send_file(ip, port, filepath)
-    
-    # To receive a file
     receive_file(ip, port, "Donatello.png")
-    
-    # move file to new dir
-    # os.rename("test.txt", "../../Documentation/Images/Temp/test.txt")
+    os.rename("test.txt", "../../Documentation/Images/Temp/test.txt")

@@ -48,7 +48,6 @@
         if (currentStep < steps.length - 1) {
             currentStep += 1;
         } else {
-            // Logic to move to the rest of the application can go here
             alert("Installation complete! Moving on to the rest of the application...");
             push("/gallery");
         }

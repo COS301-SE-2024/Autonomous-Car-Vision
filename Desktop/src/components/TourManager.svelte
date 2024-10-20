@@ -1,13 +1,12 @@
 <script>
     import Shepherd from 'shepherd.js';
     import {theme} from '../stores/themeStore';
-    import { push, location } from "svelte-spa-router"; // Assuming you're using svelte-routing for navigation
+    import { push, location } from "svelte-spa-router";
     import { Icon, Button } from "svelte-materialify";
   
 
-    let tour; // Declare tour in the top-level scope
+    let tour;
 
-   // Function to initialize a basic tour
   function initTour(steps) {
     tour = new Shepherd.Tour({
       defaultStepOptions: {
@@ -26,7 +25,6 @@
     tour.start();
   }
 
-  // Tour: Gallery
   function tourViewGallery() {
     const steps = [
       {
@@ -37,7 +35,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/gallery');  // Navigating using svelte-spa-router
+              push('/gallery');
               tour.next();
             }
           }
@@ -77,11 +75,10 @@
         ]
       },
     ];
-          initTour(steps);  // Start the tour once the element exists
+          initTour(steps);
   }
 
 
-  // Tour: Account Settings
   function tourAccount() {
     const steps = [
       {
@@ -92,7 +89,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/accountsettings');  // Navigating using svelte-spa-router
+              push('/accountsettings');
               tour.next();
             }
           }
@@ -106,7 +103,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/changepassword');  // Navigating using svelte-spa-router
+              push('/changepassword');
               tour.next();
             }
           }
@@ -127,7 +124,6 @@
     initTour(steps);
   }
 
-  // Tour: Models
   function tourModels() {
     const steps = [
       {
@@ -138,7 +134,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/models');  // Navigating using svelte-spa-router
+              push('/models');
               tour.next();
             }
           }
@@ -171,8 +167,7 @@
   }
 
 
-   // Tour: Pipes
-   function tourPipes() {
+  function tourPipes() {
     const steps = [
       {
         id: 'go-to-pipes',
@@ -182,7 +177,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/svelvet');  // Navigating using svelte-spa-router
+              push('/svelvet');
               tour.next();
             }
           }
@@ -203,8 +198,7 @@
     initTour(steps);
   }
 
-   // Tour: Drive Gallery
-   function tourDriveGallery() {
+  function tourDriveGallery() {
     const steps = [
       {
         id: 'go-to-drive-gallery',
@@ -214,7 +208,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/drivegallery');  // Navigating using svelte-spa-router
+              push('/drivegallery');
               tour.next();
             }
           }
@@ -243,11 +237,10 @@
         ]
       },
     ];
-          initTour(steps);  // Start the tour once the element exists
+          initTour(steps);
   }
 
-   // Tour: Teams
-   function tourTeams() {
+  function tourTeams() {
     const steps = [
       {
         id: 'go-to-teams-view',
@@ -257,7 +250,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/teamView');  // Navigating using svelte-spa-router
+              push('/teamView');
               tour.next();
             }
           }
@@ -282,18 +275,17 @@
           {
             text: 'Done',
             action: () => {
-              push('/teamNetwork');  // Navigating using svelte-spa-router
+              push('/teamNetwork');
               tour.complete();
             }
           }
         ]
       },
     ];
-          initTour(steps);  // Start the tour once the element exists
+          initTour(steps);
   }
 
-    // Tour: Visualizer
-    function tourVisualizer() {
+  function tourVisualizer() {
     const steps = [
       {
         id: 'go-to-visualizer',
@@ -303,7 +295,7 @@
           {
             text: 'Next',
             action: () => {
-              push('/visualize');  // Navigating using svelte-spa-router
+              push('/visualize');
               tour.next();
             }
           }
@@ -332,7 +324,7 @@
         ]
       },
     ];
-          initTour(steps);  // Start the tour once the element exists
+          initTour(steps);
   }
 
 </script>
@@ -365,8 +357,4 @@
 
 
 <style>
-  .shepherd-theme-default, .shepherd-button {
-    background: #1d72b8;
-    color: white;
-  }
 </style>

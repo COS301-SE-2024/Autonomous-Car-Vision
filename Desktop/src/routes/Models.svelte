@@ -22,7 +22,7 @@
           mDescription: model.model_summary,
           mVersion: model.model_version,
           mSummary: model.model_description,
-          mStatus: "green", // Assuming a default status; you can adjust this as needed
+          mStatus: "green",
           mProfileImg: model.model_profileimg,
           mImg: model.model_img,
         }));
@@ -77,8 +77,6 @@
 </ProtectedRoutes>
 
 <style>
-  /* @import "../assets/base.css"; */
-
   .model-content-overlay {
     position: fixed;
     top: 11%;

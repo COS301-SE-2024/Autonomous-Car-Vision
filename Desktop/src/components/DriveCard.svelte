@@ -27,10 +27,10 @@
   function captureSpecificFrame(frameNumber) {
     const videoElement = document.createElement("video");
     videoElement.src = videoSource;
-    videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
+    videoElement.crossOrigin = "anonymous";
 
     videoElement.addEventListener("loadedmetadata", () => {
-      const fps = 30; // Assuming the video has 30 frames per second
+      const fps = 30; 
       const targetTime = frameNumber / fps;
 
       videoElement.currentTime = targetTime;
@@ -38,14 +38,12 @@
     
     videoElement.addEventListener("seeked", () => {
       if (videoElement.readyState >= 2) {
-        // Ensure the video is loaded
         const canvas = document.createElement("canvas");
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
         const context = canvas.getContext("2d");
         context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         firstFrameURL = canvas.toDataURL("image/png");
-        // Remove the video element from the DOM
         videoElement.remove();
       } else {
         console.error("Video is not ready to capture the frame.");

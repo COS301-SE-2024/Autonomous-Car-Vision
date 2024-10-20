@@ -1,10 +1,8 @@
-// setupTests.js
 import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-// Mock axios for tests
 const mock = new MockAdapter(axios);
 mock.onGet("http://localhost:8000/devLogin/").reply(200, {
   token: 'mock-token',
@@ -16,16 +14,16 @@ mock.onGet("http://localhost:8000/devLogin/").reply(200, {
 global.window = {
   electronAPI: {
     storeToken: vi.fn(),
-    getToken: vi.fn(() => 'mock-token'),  // Mock return value if needed
+    getToken: vi.fn(() => 'mock-token'),  
     clearToken: vi.fn(),
     storeUname: vi.fn(),
-    getUname: vi.fn(() => 'mock-uname'),  // Mock return value if needed
+    getUname: vi.fn(() => 'mock-uname'),  
     clearUname: vi.fn(),
     storeUid: vi.fn(),
-    getUid: vi.fn(() => 'mock-uid'),  // Mock return value if needed
+    getUid: vi.fn(() => 'mock-uid'),  
     clearUid: vi.fn(),
     storeUemail: vi.fn(),
-    getUemail: vi.fn(() => 'mock-uemail'),  // Mock return value if needed
+    getUemail: vi.fn(() => 'mock-uemail'),  
     clearUemail: vi.fn(),
     hashPassword: vi.fn(),
     hashPasswordSalt: vi.fn(),
@@ -41,10 +39,3 @@ global.window = {
     origin: 'http://localhost',
   },
 };
-
-// global.document = {
-//   createElement: () => ({
-//     setAttribute: vi.fn(),
-//     getAttribute: vi.fn(),
-//   }),
-// };

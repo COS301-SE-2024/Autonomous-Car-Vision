@@ -23,7 +23,6 @@
     imageURL: "",
   };
 
-  // Create initial values for your parameters
   /**
    * @type {InputStructure}
    */
@@ -31,10 +30,8 @@
     imageURL: "Processing Node",
   };
 
-  // Generate a formatted inputs store
   let inputs = generateInput(initialData);
 
-  // Specify processor function
   /**
    * @param {InputStructure} inputs
    * @returns {number}
@@ -42,8 +39,7 @@
   const processor = (inputs) => {
     return inputs.imageURL;
   };
-
-  // Generate output store
+  
   let output = generateOutput(inputs, processor);
 
   $: (inputs) => {

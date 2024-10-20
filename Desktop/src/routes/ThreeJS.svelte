@@ -51,7 +51,6 @@
         renderer = new THREE.WebGLRenderer({ canvas });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // Use PointerLockControls for camera rotation
         controls = new PointerLockControls(camera, renderer.domElement);
 
         const loader = new PLYLoader();
@@ -72,24 +71,20 @@
             camera.position.set(center.x, center.y, center.z + size);
             camera.lookAt(center);
 
-            // Initialize camera rotation and movement objects
             pitchObject = new THREE.Object3D();
             yawObject = new THREE.Object3D();
             pitchObject.add(camera);
             scene.add(pitchObject);
 
-            // Set initial camera orientation
             pitchObject.rotation.x = -Math.PI / 6;
 
             animate();
         });
 
-        // Add event listener to enable Pointer Lock on click
         canvas.addEventListener("click", () => {
             canvas.requestPointerLock();
         });
 
-        // Add event listener to exit Pointer Lock on 'Escape' key
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") {
                 document.exitPointerLock();
@@ -101,7 +96,6 @@
             keys[event.key] = false;
         });
 
-        // Mouse movement event
         document.addEventListener("mousemove", (event) => {
             if (document.pointerLockElement === canvas) {
                 const movementX = event.movementX || 0;
@@ -110,7 +104,6 @@
                 yawObject.rotation.y -= movementX * 0.002;
                 pitchObject.rotation.x -= movementY * 0.002;
 
-                // Constrain pitch rotation
                 pitchObject.rotation.x = Math.max(
                     -Math.PI / 2,
                     Math.min(Math.PI / 2, pitchObject.rotation.x),
@@ -118,26 +111,23 @@
             }
         });
 
-        // Handle yaw with 'Q' and 'E' keys
         function handleYaw() {
             const yawSpeed = 2;
-            if (keys["q"]) yawObject.rotation.y -= yawSpeed; // Yaw left
-            if (keys["e"]) yawObject.rotation.y += yawSpeed; // Yaw right
+            if (keys["q"]) yawObject.rotation.y -= yawSpeed;
+            if (keys["e"]) yawObject.rotation.y += yawSpeed;
         }
 
         function animate() {
             requestAnimationFrame(animate);
 
-            // Update camera movement based on keys
             const speed = 3;
-            if (keys["w"]) camera.translateZ(-speed); // Move forward
-            if (keys["s"]) camera.translateZ(speed); // Move backward
-            if (keys["a"]) camera.translateX(-speed); // Move left
-            if (keys["d"]) camera.translateX(speed); // Move right
-            if (keys[" "]) camera.translateY(speed); // Move up
-            if (keys["Shift"]) camera.translateY(-speed); // Move down
+            if (keys["w"]) camera.translateZ(-speed);
+            if (keys["s"]) camera.translateZ(speed);
+            if (keys["a"]) camera.translateX(-speed);
+            if (keys["d"]) camera.translateX(speed);
+            if (keys[" "]) camera.translateY(speed);
+            if (keys["Shift"]) camera.translateY(-speed);
 
-            // Apply yaw controls
             handleYaw();
 
             renderer.render(scene, camera);
@@ -149,7 +139,6 @@
     onMount(() => {
         initializeScene();
 
-        // Handle window resizing
         function onWindowResize() {
             const width = window.innerWidth;
             const height = window.innerHeight;

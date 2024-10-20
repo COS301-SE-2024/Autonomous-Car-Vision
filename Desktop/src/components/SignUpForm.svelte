@@ -32,7 +32,6 @@
       return;
     }
     
-    //! NEED TO MOVE SOON
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
       const response = await axios.post("http://" + HOST_IP + ":8000/signup/", {
@@ -139,7 +138,6 @@
   {:else}
   <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClass">
-      <!-- <MaterialApp> -->
         <div class="flex flex-row ">
           <a
             class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
@@ -216,7 +214,6 @@
             block>Sign up</Button
           >
         </div>
-      <!-- </MaterialApp> -->
       </div>
   </div>
   {/if}
@@ -224,7 +221,7 @@
 <style>
 
   .custom-text-field input {
-    color: #f56565; /* Tailwind CSS red-500 color */
+    color: #f56565;
   }
 
   .containerClass{

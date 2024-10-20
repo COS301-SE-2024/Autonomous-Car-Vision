@@ -123,7 +123,6 @@ export const tours = {
         target: '.dashboard',
         content: 'Click on a drive to view the dashboard.',
       },
-    //   add more for the weaver and the other features...
     ],
     pipesTour: [
       {
@@ -188,7 +187,6 @@ export const tours = {
         target: '.screen',
         content: 'Here you can view how your team network is set up.',
       },
-      //add more here on team network
     ],
     themeTour: [
       {
@@ -210,6 +208,5 @@ export const tours = {
         content: 'Click here to log out of the app.',
       },
     ],
-    // Add more tours here
   };
   

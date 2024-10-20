@@ -7,7 +7,6 @@
   export let label = "Output";
   export let bgColor = "lightblue";
 
-  // To select an image to process
   let fileinput;
 
   /**
@@ -33,7 +32,6 @@
    * @property {string} image
    */
 
-  // Create initial values for your parameters
   /**
    * @type {InputStructure}
    */
@@ -41,13 +39,12 @@
     image: "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif",
   };
 
-  // Specify processor function
   /**
    * @param {InputStructure} inputs
    * @returns {number}
    */
   const processor = (inputs) => {
-    return inputs.image; // Show Image and return string image to processorNode
+    return inputs.image;
   };
 
   let inputs = generateInput(initialData);

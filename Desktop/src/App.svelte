@@ -21,12 +21,10 @@
       });
     });
 
-    // Listen for state changes from Electron main process
     window.electronAPI.onProcessChanged(async () => {
       await loadState();
     });
 
-    // call cuda-check and console.log
     const isCuda = await window.electronAPI.checkCUDA();
     cuda.set(isCuda);
   });
@@ -49,7 +47,6 @@
   $: {
     theme.subscribe((value) => {
       currentTheme = value;
-      // Change the body class when the theme changes
       document.body.className =
         theme === "theme" ? "highVizLight" : "highVizDark";
     });
@@ -57,15 +54,10 @@
 </script>
 
 <div style="height: inherit;">
-  <!-- class="mainContainer" -->
   <Toaster />
   <Router {routes} />
 </div>
 
 <style>
   @import "./global.css";
-  /* .mainContainer {
-    background-image: linear-gradient(180deg, #001524, #181818);
-    width: 100% !important;
-  } */
 </style>

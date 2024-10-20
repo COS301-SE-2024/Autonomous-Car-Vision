@@ -31,13 +31,11 @@
     videoURLToNameMap[url] = videoNames[index];
   });
 
-  // Fetch the video records from the database
   onMount(async () => {
     isLoading.set(true);
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
-    //TODO: update last signin in the database
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
 
     try {
@@ -82,7 +80,6 @@
     searchQuery = event.target.value;
     filteredItems.update(() => {
       if (searchQuery === "") {
-        // If search query is empty, display all videos
         return videoURLs;
       } else {
         const searchRegex = new RegExp(searchQuery, "i");
@@ -123,7 +120,7 @@
 
   function handleUploadSuccess(event) {
     console.log("Upload successful, re-fetching videos...");
-    fetchVideos(); // Re-fetch the video list after upload
+    fetchVideos(); 
   }
 </script>
 
@@ -212,7 +209,6 @@
     <div class="items-center">
       <div>
         <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
-          <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
               on:click={() => handleListTypeChange("grid")}

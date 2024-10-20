@@ -2,7 +2,7 @@
 <script>
   import { token } from "../stores/auth";
   import { onMount } from "svelte";
-  import { navigate } from "@sveltejs/kit/navigation"; // If using SvelteKit for navigation
+  import { navigate } from "@sveltejs/kit/navigation"; 
   import SidebarV2 from "../components/SidebarV2.svelte";
   import { sidebarWidth } from "../stores/store";
   import { theme } from '../stores/themeStore';
@@ -10,24 +10,20 @@
 
   let currentTheme;
 
-  // Subscribe to the theme store and apply the theme class
   theme.subscribe(value => {
     currentTheme = value;
-    document.documentElement.className = currentTheme; // Apply the theme to root HTML element
+    document.documentElement.className = currentTheme; 
   });
 
   let authToken;
 
-  // Subscribe to the token store to get the current authentication state
   $: token.subscribe((value) => {
     authToken = window.electronAPI.getToken();
   });
 
-  // On component mount, check the authentication state
   onMount(() => {
     if (!authToken) {
-      // Redirect to the login page if the user is not authenticated
-      navigate("#login"); // Change this to your login route
+      navigate("#login"); 
     }
   });
 
@@ -68,7 +64,6 @@
   });
 </script>
 
-<!-- Slot to render the protected content if authenticated -->
  {#if $theme === 'highVizLight'}
   <div
   class="h-screen w-full overflow-none overscroll-none bg-dark-background_secondary"

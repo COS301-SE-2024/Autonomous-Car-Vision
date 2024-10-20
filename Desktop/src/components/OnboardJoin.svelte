@@ -16,7 +16,6 @@
   let tokenValue = "";
 
   const submit = async () => {
-    // check if team exists, if not, create team and add user to team
     try {
       const response = await axios.post(
         "http://" + HOST_IP + ":8000/joinTeam/",
@@ -38,7 +37,6 @@
 {#if $theme === "highVizLight"}
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClassLight">
-      <!-- <MaterialApp> -->
       <div class="flex flex-row">
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-theme-dark-primary"
@@ -59,8 +57,6 @@
           <p class="text-black">Please enter the team name below.</p>
         </div>
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
-          <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
-
           <TextField
             bind:value={teamName}
             outlined
@@ -71,7 +67,6 @@
             outlined
             class="border-b border-dark-primary ">Token</TextField
           >
-          <!-- TODO: Link the next button to next page -->
           <a
             class="w-full h-8 flex flex-col flex-wrap justify-center items-center"
             href="#/"
@@ -90,7 +85,6 @@
 {:else}
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClass">
-      <!-- <MaterialApp> -->
       <div class="flex flex-row">
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-dark-primary"
@@ -111,8 +105,6 @@
           <p class="text-white">Please enter the team name below.</p>
         </div>
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
-          <!-- TODO: check if exists: if not, give sad feedback and button grey. else, fine -->
-
           <TextField
             bind:value={teamName}
             outlined
@@ -140,10 +132,7 @@
   </div>
 {/if}
 
-<!-- TODO: add error messages -->
 
-<!-- </MaterialApp> -->
-<!-- </div> -->
 
 <style>
   .containerClass {

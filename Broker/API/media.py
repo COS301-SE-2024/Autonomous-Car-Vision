@@ -32,7 +32,6 @@ def close_all_connections():
 
 
 def registerAgent(message, aid, corporation):
-    # Takes in a json object with aid, aip, aport, capacity(0,1,2), identifier(Unique string to ensure agent identity)
     message = json.loads(message)
     conn = get_connection()
     cursor = conn.cursor()

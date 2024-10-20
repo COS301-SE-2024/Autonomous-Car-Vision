@@ -25,9 +25,6 @@
         },
       );
       window.electronAPI.storeToken(response.data.token);
-      // Update Svelte store
-      // token.set(response.data.token);
-      // check if previous url was signup
       if (window.electronAPI.getPrevPath() === "/signup") {
         push("/join");
       } else {
@@ -140,10 +137,6 @@
 
   .containerClass {
     background-image: linear-gradient(180deg, #181818, #001524);
-  }
-
-  .hoverClass {
-    background-image: #012431b1;
   }
 
   .containerClassLight {

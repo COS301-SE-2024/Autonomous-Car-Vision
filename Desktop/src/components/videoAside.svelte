@@ -26,7 +26,6 @@
 
     let remoteQueue = get(remoteProcessingQueue);
 
-    // Get video urls from the remote processing queue
     remoteQueue.forEach((detail) => {
       remoteProcessingQueueList.push(detail.outputVideoPath);
     });
@@ -47,13 +46,11 @@
     dispatch("select", AIinfo.mURL);
   }
 
-  // Subscribe to remote processing queue
   remoteProcessingQueue.subscribe((value) => {
     let remoteQueue = value;
 
     remoteProcessingQueueList = [];
 
-    // Get video urls from the remote processing queue
     remoteQueue.forEach((detail) => {
       remoteProcessingQueueList.push(detail.outputVideoPath);
     });
@@ -115,12 +112,6 @@
           {AIinfo.mTime}
         </p>
       </div>
-      <!-- <div
-            class="flex flex-col justify-center items-center flex-nowrap"
-            style="aspect-ratio: 16/9"
-          >
-            <QuantamLoader />
-          </div> -->
       {#if mounting == false}
         {#if AIinfo.mURL != currrentVideoUrl}
           {#if remoteProcessingQueueList.includes(AIinfo.mURL)}
@@ -170,11 +161,6 @@
     height: 20px;
     position: absolute;
     left: 20px;
-  }
-
-  .loaderDiv {
-    width: 10%;
-    height: 10%;
   }
 
   .viewButton {

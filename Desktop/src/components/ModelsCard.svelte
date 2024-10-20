@@ -48,7 +48,6 @@
     if (!animationRunning) {
       animationRunning = true;
 
-      // Stop any ongoing baffle animation
       b.stop();
       b1.stop();
     
@@ -59,7 +58,7 @@
       });
       b.start();
       b.reveal(5000, () => {
-          animationRunning = false;  // Mark as finished after reveal
+          animationRunning = false;
         });;
 
       b1 = baffle(nameElement, {
@@ -68,7 +67,7 @@
       });
       b1.start();
       b1.reveal(5000, () => {
-          animationRunning = false;  // Mark as finished after reveal
+          animationRunning = false;
         });
       }
   };
@@ -180,10 +179,7 @@ on:mouseenter={handleHover}>
 
 
 <style>
-  /* @import "../assets/base.css"; */
-
   .background-card {
-    /* border: 0.5px solid #012431; */
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
@@ -195,6 +191,5 @@ on:mouseenter={handleHover}>
     writing-mode: vertical-rl;
     position: relative;
     -webkit-writing-mode: vertical-rl;
-    /* padding-left: 15px; */
   }
 </style>

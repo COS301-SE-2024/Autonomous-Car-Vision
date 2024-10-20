@@ -3,18 +3,13 @@
     import {theme } from "../stores/themeStore";
 </script>
 
-
 {#if $theme === 'highVizLight'}
     <div class="min-h-screen lightScreen">
         <OnboardJoin />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {:else}
     <div class="min-h-screen">
         <OnboardJoin />
-        <!-- TODO: Add error success message depending after successful signUp -->
-        <!-- TODO: Add back button -->
     </div>
 {/if}
 

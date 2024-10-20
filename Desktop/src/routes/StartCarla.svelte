@@ -5,14 +5,13 @@
   import toast, { Toaster } from "svelte-french-toast";
   import { Button } from "svelte-materialify";
   import { onMount } from "svelte";
-  import { theme } from "../stores/themeStore"; // Importing the theme store
+  import { theme } from "../stores/themeStore"; 
 
   let pipes = [];
   let selectedPipe = "";
-  let laneFollowing = false; // Boolean to track if the checkbox is checked
+  let laneFollowing = false; 
   let avoidance = false;
 
-  // Reactive statement to determine text color based on theme
   $: textColor = $theme === "highVizLight" ? "black" : "white";
 
   async function loadPipes() {
@@ -48,7 +47,6 @@
         );
         const scriptPath = `${appDirectory}/Process/pipe4/temp/lane_following.py`;
 
-        // Pass the selected pipe as an argument to the Python script
         const exitCode = await window.electronAPI.runPythonScript2(
           scriptPath,
           []
@@ -82,7 +80,6 @@
         );
         const scriptPath = `${appDirectory}/Process/pipe4/temp/manualUnit3.py`;
 
-        // Pass the selected pipe as an argument to the Python script
         const exitCode = await window.electronAPI.runPythonScript2(
           scriptPath,
           []
@@ -116,7 +113,6 @@
         );
         const scriptPath = `${appDirectory}/Process/pipe4/temp/unit3.py`;
 
-        // Pass the selected pipe as an argument to the Python script
         const exitCode = await window.electronAPI.runPythonScript2(scriptPath, [
           selectedPipe,
         ]);
@@ -152,7 +148,6 @@
   {:else}
     <Toaster />
     <div class="center-content">
-      <!-- Apply text color dynamically based on theme -->
       <p class="text-message" style="color: {textColor};">
         Please start the CARLA server before pressing the button.
       </p>
@@ -170,7 +165,6 @@
         Q to toggle lane following
       </p>
 
-      <!-- Button with dynamic text color -->
       <Button
         rounded
         class="bg-dark-primary styled-button"
@@ -184,7 +178,6 @@
         Please select a pipe below:
       </p>
 
-      <!-- Styled Dropdown with dynamic text color and conditional disabling -->
       <select
       bind:value={selectedPipe}
       class="styled-dropdown"
@@ -198,7 +191,6 @@
       {/each}
     </select>
 
-      <!-- Checkbox to toggle lane following mode -->
       <div class="lane-following-toggle">
         <input
           type="checkbox"
@@ -210,7 +202,6 @@
         >
       </div>
 
-      <!-- Checkbox to toggle avoidance mode -->
       <div class="avoidance-toggle">
         <input type="checkbox" bind:checked={avoidance} id="avoidance" />
         <label for="avoidance" style="color: {textColor};"
@@ -248,7 +239,7 @@
     font-size: 1.2em;
     border: 2px solid #ccc;
     border-radius: 5px;
-    background-color: #007bff; /* Blue background */
+    background-color: #007bff;
     background-repeat: no-repeat;
     background-position: right 15px top 50%;
     background-size: 12px 12px;
@@ -256,17 +247,11 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     outline: none;
-    color: inherit; /* Inherit text color based on dynamic style */
+    color: inherit;
   }
 
   .styled-dropdown:focus {
     border-color: #ccc;
-  }
-
-  /* Dynamic styling for the button */
-  .styled-button {
-    margin-top: 10px;
-    color: inherit; /* Inherit text color based on dynamic style */
   }
 
   .lane-following-toggle,

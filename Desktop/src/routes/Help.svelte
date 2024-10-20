@@ -4,10 +4,8 @@
     import { writable } from 'svelte/store';
     import {theme} from '../stores/themeStore';
 
-    // Store for tracking the open topic index
     const openTopic = writable(null);
 
-    // Function to toggle the topic details view
     function toggleTopic(index) {
         openTopic.update((current) => (current === index ? null : index));
     }
@@ -161,7 +159,6 @@
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 8 ? 'open' : '' }">
                 <p class="m-2">Access the Pipes page from the Navigation Bar</p>
                 <img src="./images/PipesScreen.png" alt="Pipe" class="screenshots" />
-                <!-- Add more instructions on pipe interaction for demo 4 -->
             </div>
         </div>
 
@@ -176,12 +173,10 @@
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 9 ? 'open' : '' }">
                 <p class="m-2">Access the CARLA page from the navigation bar</p>
                 <img src="./images/carlaScreen.png" alt="Pipe" class="screenshots" />
-                <!-- Add more instructions on pipe interaction for demo 4 -->
             </div>
             <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 9 ? 'open' : '' }">
                 <p class="m-2">Follow the prompts when you launch CARLA</p>
                 <img src="./images/carlaScreen.png" alt="Pipe" class="screenshots" />
-                <!-- Add more instructions on pipe interaction for demo 4 -->
             </div>
         </div>
 
@@ -197,7 +192,6 @@
                 <p class="m-2">Access the CARLA page from the navigation bar</p>
                 <img src="./images/carlaScreen.png" alt="Pipe" class="screenshots" />
                 <p class="m-2">Follow the prompts when you launch CARLA</p>
-                <!-- Add more instructions on pipe interaction for project day -->
             </div>
             <div class="topicLight shadow-md shadow-theme-keith-accenttwo shadow-card">
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -389,7 +383,6 @@
                 <div class="topic-details text-gray text-md font-normal pl-10 { $openTopic === 8 ? 'open' : '' }">
                     <p class="m-2">Access the Pipes page from the Navigation Bar</p>
                     <img src="./images/PipesScreen.png" alt="Pipe" class="screenshots" />
-                    <!-- Add more instructions on pipe interaction for demo 4 -->
                 </div>
             </div>
 
@@ -507,7 +500,6 @@
         display: block;
         align-items: center;
         justify-content: center;
-        /* padding-left: 10px; */
         width: 380px;
         height: 210px;
         max-width: 100%;

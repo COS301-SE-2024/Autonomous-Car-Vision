@@ -8,7 +8,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import subprocess
 
-# import setup
 import charon
 import media
 import base64
@@ -68,19 +67,13 @@ async def process(request: Request):
 
 @app.get("/agent")
 def agent():
-    # So Obol refers to the journey of a soul to the underworld.
-    # A person is burried with a gold coin. The soul takes its gold coin, offers it to charon,
-    # who then ferries the soul across the river Styx. In this case. It bundles the agent...
     response = charon.obol()
     print("result of obol:\n", response)
-    # TODO agent packaging...
-    # TODO part of agent packaging is to persist aid to an env and pem_pub to a .pem
 
     aid = response["aid"]
     public = response["public"]
 
     public = base64.b64encode(public).decode("utf-8")
-    # make env file
     with open("./package/.env", "w") as f:
         f.write(f"AID={aid}\n")
         f.write(f"PUBLIC_TEST={public}\n")
@@ -156,7 +149,6 @@ async def handshake(request: Request):
 
 @app.post("/brokerStore")
 async def brokerStore(request: Request):
-    # gets file size, mid, uid, token,
     message = await request.json()
     print(">>>BrokerStore initiated", message)
     print("Getting available agents")
@@ -187,6 +179,5 @@ async def brokerStore(request: Request):
     emessage = charon.elyptic_encryptor(sesion, json.dumps(message_to_encrypt))
     print("Encrypted message: ", emessage)
     tranmit = await charon.transmit(avail["aip"], avail["aport"], emessage)
-    # add aid to tranmit
     print("Transmission to agent: ", tranmit)
     return {"error": "Transmission to agent failed."} if not tranmit else tranmit

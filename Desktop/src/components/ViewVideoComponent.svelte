@@ -65,14 +65,11 @@
   let lastMouseDown;
 
   function handleMouseEnter(e) {
-    // Clear any existing timeout to prevent the controls from hiding
     clearTimeout(showControlsTimeout);
-    // Show the controls immediately
     showControls = true;
   }
 
   function handleMouseLeave(e) {
-    // Start the timeout to hide the controls after 2500ms
     showControlsTimeout = setTimeout(() => (showControls = false), 2500);
   }
 
@@ -88,28 +85,23 @@
     const { left, right } = this.getBoundingClientRect();
     time = (duration * (clientX - left)) / (right - left);
 
-    // Find the frame index that corresponds to the current time
     const frameIndex = Math.floor((time / duration) * frames.length);
     const frameElement = document.querySelectorAll(".thumbnail")[frameIndex];
-    const parentElement = document.querySelector(".thumbnail-bar"); // Assuming this is your upper div
+    const parentElement = document.querySelector(".thumbnail-bar");
 
     if (frameElement && parentElement) {
-      // Get the bounding rectangles of both the frame and the parent container
       const frameRect = frameElement.getBoundingClientRect();
       const parentRect = parentElement.getBoundingClientRect();
 
-      // Check if the frame is out of view of the parent container
       if (
         frameRect.left < parentRect.left ||
         frameRect.right > parentRect.right
       ) {
-        // Calculate the offset needed to bring the frame into view without crossing the boundary
         const scrollOffset =
           frameRect.left < parentRect.left
             ? frameRect.left - parentRect.left
             : frameRect.right - parentRect.right;
 
-        // Adjust the scroll position of the parent element
         parentElement.scrollBy({
           left: scrollOffset,
           behavior: "smooth",
@@ -127,28 +119,23 @@
       if (paused) e.target.play();
       else e.target.pause();
     }
-    // Find the frame index that corresponds to the current time
     const frameIndex = Math.floor((time / duration) * frames.length);
     const frameElement = document.querySelectorAll(".thumbnail")[frameIndex];
-    const parentElement = document.querySelector(".thumbnail-bar"); // Assuming this is your upper div
+    const parentElement = document.querySelector(".thumbnail-bar");
 
     if (frameElement && parentElement) {
-      // Get the bounding rectangles of both the frame and the parent container
       const frameRect = frameElement.getBoundingClientRect();
       const parentRect = parentElement.getBoundingClientRect();
 
-      // Check if the frame is out of view of the parent container
       if (
         frameRect.left < parentRect.left ||
         frameRect.right > parentRect.right
       ) {
-        // Calculate the offset needed to bring the frame into view without crossing the boundary
         const scrollOffset =
           frameRect.left < parentRect.left
             ? frameRect.left - parentRect.left
             : frameRect.right - parentRect.right;
 
-        // Adjust the scroll position of the parent element
         parentElement.scrollBy({
           left: scrollOffset,
           behavior: "smooth",
@@ -160,19 +147,17 @@
   async function extractFrames() {
     try {
       const framePaths = await window.electronAPI.extractFrames(videoPath);
-      frames = framePaths.map((framePath) => framePath.replace(/\\/g, "/")); // Convert backslashes to slashes for URLs
+      frames = framePaths.map((framePath) => framePath.replace(/\\/g, "/"));
     } catch (error) {
       console.error("Error extracting frames:", error);
     }
   }
 
-  // Subscribe to the videoURL store to get the clicked video
   $: VideoURL.subscribe((value) => {
     videoPath = value;
   });
 
   onMount(async () => {
-    // const encodedPath = encodeURIComponent(VideoSource);
     videoPath = $location.replace("/video/", "");
     videoPath = decodeURIComponent(videoPath);
     extractFrames();
@@ -184,10 +169,9 @@
 
   function seekToFrame(framePath) {
     const index = frames.indexOf(framePath);
-    time = index * (duration / frames.length); // Adjust according to the interval
+    time = index * (duration / frames.length);
     showControls = true;
 
-    // Scroll the clicked frame into the center of the thumbnail bar
     const frameElement = document.querySelectorAll(".thumbnail")[index];
     if (frameElement && frameElement.getBoundingClientRect().right > 0) {
       frameElement.scrollIntoView({
@@ -229,7 +213,6 @@
 
   async function getAIinfo() {
     try {
-      // Fetch video details
       originalVideoPath = get(originalVideoURL);
       appPath = await window.electronAPI.getAppPath();
       const videoName = getFileName(originalVideoPath);
@@ -237,22 +220,19 @@
 
       const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
 
-      // Fetch the original video details from the database
       let originalVideo =
         await window.electronAPI.getVideoByURL(originalVideoPath);
 
-      // If the original video is not found, add it to the database
       if (!originalVideo) {
         const newOriginalVideo = {
           label: "Original",
           profileImgURL:
             "https://www.ibm.com/blog/wp-content/uploads/2023/03/What-is-Generative-AI-what-are-Foundation-Models-and-why-do-they-matter-1200x630.jpg",
           videoURL: videoPath,
-          originalVidID: 0, // Set to null instead of 0
+          originalVidID: 0,
         };
         originalVideo = await window.electronAPI.addVideo(newOriginalVideo);
 
-        // Fetch the original video again to get the complete data including ID
         originalVideo =
           await window.electronAPI.getVideoByURL(originalVideoPath);
         if (!originalVideo) {
@@ -260,7 +240,6 @@
         }
       }
 
-      // Start with the original video
       processedVideos = [
         {
           id: originalVideo.videoID,
@@ -271,12 +250,10 @@
         },
       ];
 
-      // Fetch processed videos linked to the original video
       const processedVideoEntries = await window.electronAPI.getProcessedVideos(
         originalVideo.videoID,
       );
 
-      // Add processed videos
       processedVideoEntries.forEach((video) => {
         processedVideos.push({
           id: video.videoID,
@@ -287,12 +264,10 @@
         });
       });
 
-      // Format the timestamp
       processedVideos.forEach((video) => {
         video.timeStamp = new Date(video.timeStamp).toLocaleDateString();
       });
 
-      // write the processed videos to the sideAIinfo
       processedVideos.forEach((video) => {
         sideAIinfo.push({
           id: video.id,
@@ -312,12 +287,10 @@
     return parts[parts.length - 1];
   }
 
-  // Subscripe to the processing store
   processing.subscribe((value) => {
     processingVideo = value;
   });
 
-  // Subscribe to the videoUrl store
   videoUrl.subscribe((value) => {
     currrentVideoUrl = value;
   });

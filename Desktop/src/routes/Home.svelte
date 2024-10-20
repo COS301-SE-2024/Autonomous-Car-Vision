@@ -55,7 +55,6 @@
     window.electronAPI.storeUname(result.user.name);
     window.electronAPI.storeUemail(result.user.email);
 
-    // check if user is already in the database
     const userExists = await axios.post(
       "http://" + HOST_IP + ":8000/userExists/",
       {
@@ -112,7 +111,6 @@
         window.electronAPI.storeUname(result.user.name);
         window.electronAPI.storeUemail(result.user.email);
 
-        // check if user is already in the database
         const userExists = await axios.post(
           "http://" + HOST_IP + ":8000/userExists/",
           {
@@ -213,15 +211,6 @@
               Sign Up
             </button>
           </a>
-          {#if !showCodeInput}
-            <!-- <a href="#/" class="w-full" on:click={googleLogin}>
-              <button
-                class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
-              >
-                Log In with Google
-              </button>
-            </a> -->
-          {:else}
             <TextField
               bind:value={authCode}
               dense
@@ -243,8 +232,7 @@
                   Log In with Google
                 </button>
               </a>
-            </div>
-          {/if}
+          </div>
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-highVizLight-primary text-white rounded-lg transition"
@@ -278,19 +266,10 @@
               Sign Up
             </button>
           </a>
-          {#if !showCodeInput}
-            <!-- <a href="#/" class="w-full" on:click={googleLogin}>
-              <button
-                class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"
-              >
-                Log In with Google
-              </button>
-            </a> -->
-          {:else}
-            <TextField
-              bind:value={authCode}
-              dense
-              outlined
+          <TextField
+            bind:value={authCode}
+            dense
+            outlined
               class="text-dark-primary w-full"
               >Enter Authorization Code</TextField
             >
@@ -307,9 +286,8 @@
                 >
                   Log In with Google
                 </button>
-              </a>
-            </div>
-          {/if}
+            </a>
+          </div>
           <a href="#/" class="w-full" on:click={developerLogin}>
             <button
               class="w-full py-2 bg-theme-dark-primary text-white rounded-lg transition"

@@ -5,21 +5,16 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Construct the database URL
 DATABASE_URL = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 
-# Create an engine and bind the base
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
 
-# Create a session
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Add initial data (example)
 def populate_initial_data():
     user = User(uname='JohnDoe', uemail='john@example.com')
     session.add(user)

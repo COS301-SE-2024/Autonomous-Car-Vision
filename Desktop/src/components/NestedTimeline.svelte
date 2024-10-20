@@ -3,7 +3,6 @@
 
   const dispatch = createEventDispatcher();
 
-  // Placeholder list of models with profile images
   let models = [
     {
       id: 1,

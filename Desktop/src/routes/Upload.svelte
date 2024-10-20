@@ -19,14 +19,6 @@
 
   let isUploading = false;
 
-  // For loading screen purposes
-  onMount(() => {
-    // isLoading.set(true);
-    // setTimeout(() => {
-    //   isLoading.set(false);
-    // }, 1000);
-  });
-
   function handleFilesSelect(e) {
     const { acceptedFiles, fileRejections } = e.detail;
 
@@ -36,7 +28,6 @@
       file = acceptedFiles[0];
     }
 
-    // Alert for rejected files
     fileRejections.forEach((rejection) => {
       alert(
         `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`,
@@ -53,20 +44,15 @@
       return;
     }
 
-    // isUploadLoading.set(true);
     isUploading = true;
     setInterval(async () => {
-      // isUploadLoading.set(true);
       isUploading = false;
     }, 6000);
 
     let uid = window.electronAPI.getUid();
     let token = window.electronAPI.getToken();
-    // let size = "10";
-    // let size = window.electronAPI.getFileSize(file.path);
     let sizeInBytes = file.size;
 
-    // Convert size to MB and round to 2 decimal places
     let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
     let aip = "";
     let aport = "";
@@ -84,7 +70,6 @@
       if (response.success) {
         aip = response.ip;
         aport = response.port;
-        // You can now use response.ip and response.port as needed
       } else {
         console.error("Error:", response.error);
       }
@@ -107,16 +92,13 @@
     }
 
     try {
-      // Save the file using the main process
       videoSource = await window.electronAPI.saveFile(file.path, filename);
       let record = {
         mname: filename,
         localurl: videoSource,
       };
-      // Insert the record into the database
       const response1 = await window.electronAPI.insertData(record);
 
-      // Select the record from the database
       const response2 = await window.electronAPI.selectData(filename);
 
       if (response1.success) {
@@ -131,7 +113,6 @@
         });
       }
 
-      // sleep for 5 seconds
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       if (response2.success) {
@@ -142,7 +123,6 @@
         console.error("Failed to retrieve the record:", response2.error);
       }
 
-      // push("/gallery");
     } catch (error) {
       console.error("Error occurred:", error);
     }

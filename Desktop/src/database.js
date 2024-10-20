@@ -3,10 +3,8 @@ const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
 const fs = require('fs');
 
-// Get the path for the SQLite database
 const databasePath = path.join(app.getPath('userData'), 'database.sqlite');
 
-// Ensure the directory exists in a writable location for the database file
 const databaseDirectory = path.dirname(databasePath);
 if (!fs.existsSync(databaseDirectory)) {
     fs.mkdirSync(databaseDirectory, { recursive: true });

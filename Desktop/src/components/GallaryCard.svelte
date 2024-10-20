@@ -24,7 +24,6 @@
 
   const handleDownload = async (event) => {
     event.stopPropagation();
-    // isDownloading.set(true);
     isDownloading = true;
 
     let uid = window.electronAPI.getUid();
@@ -66,7 +65,6 @@
     console.log("DONE DOWNLOADING");
 
     await window.electronAPI.downloadVideo(videoName, videoSource);
-    // move the video to the download folder
     let currentFilePath = videoName;
 
     isDownloading = false;
@@ -88,17 +86,17 @@
   }
 
   function handleBack(event) {
-    event.stopPropagation(); // Stop event propagation
+    event.stopPropagation();
     showMoreModal = false;
   }
 
   function captureSpecificFrame(frameNumber) {
     const videoElement = document.createElement("video");
     videoElement.src = videoSource;
-    videoElement.crossOrigin = "anonymous"; // Ensure CORS is handled
+    videoElement.crossOrigin = "anonymous";
 
     videoElement.addEventListener("loadedmetadata", () => {
-      const fps = 30; // Assuming the video has 30 frames per second
+      const fps = 30;
       const targetTime = frameNumber / fps;
 
       videoElement.currentTime = targetTime;
@@ -106,14 +104,12 @@
 
     videoElement.addEventListener("seeked", () => {
       if (videoElement.readyState >= 2) {
-        // Ensure the video is loaded
         const canvas = document.createElement("canvas");
         canvas.width = videoElement.videoWidth;
         canvas.height = videoElement.videoHeight;
         const context = canvas.getContext("2d");
         context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         firstFrameURL = canvas.toDataURL("image/png");
-        // Remove the video element from the DOM
         videoElement.remove();
       } else {
         console.error("Video is not ready to capture the frame.");
@@ -123,7 +119,7 @@
 
   onMount(async () => {
     isGalLoading = true;
-    captureSpecificFrame(10); // Specify the frame to get
+    captureSpecificFrame(10);
     try {
       processed = await window.electronAPI.checkIfVideoProcessed(videoSource);
     } catch (error) {
@@ -393,7 +389,6 @@
   .notDownloaded {
     filter: grayscale(100%);
     cursor: pointer;
-    shadow: grayscale;
   }
 
   .cursor-default {

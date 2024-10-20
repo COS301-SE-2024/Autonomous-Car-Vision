@@ -13,8 +13,6 @@
     let teamName = "";
 
     const submit = async () => {
-
-      // check if team exists, if not, create team and add user to team
       try{
         const response = await axios.post("http://" + HOST_IP + ":8000/createTeam/", {
           teamName: teamName,
@@ -33,7 +31,6 @@
   {#if $theme === 'highVizLight'}
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClassLight">
-    <!-- <MaterialApp> -->
       <div class="flex flex-row ">
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
@@ -61,13 +58,11 @@
           <h1 class="text-2xl text-black">Start a new!</h1>
           <p class="text-black">Please enter a new team name below.</p>
         </div>
-       <!-- TODO: check for uniqueness: if not, make box red and button grey. else, fine -->
 
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
             <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team name
             </TextField>
 
-            <!-- TODO: link next button to next page -->
              <div> 
                 <a
                 class="w-full mt-4 h-8 flex flex-col flex-wrap justify-center items-center"
@@ -82,12 +77,10 @@
           </div>
           </div>      
       </div>
-    <!-- </MaterialApp> -->
     </div>
   {:else}
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClass">
-    <!-- <MaterialApp> -->
       <div class="flex flex-row ">
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center"
@@ -115,13 +108,11 @@
           <h1 class="text-2xl text-white">Start a new!</h1>
           <p class="text-white">Please enter a new team name below.</p>
         </div>
-       <!-- TODO: check for uniqueness: if not, make box red and button grey. else, fine -->
 
           <div id="form" class="flex flex-col gap-2 py-3 text-white">
             <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team name
             </TextField>
 
-            <!-- TODO: link next button to next page -->
              <div> 
                 <a
                 class="w-full mt-4 h-8 flex flex-col flex-wrap justify-center items-center"
@@ -137,13 +128,8 @@
           </div>
         
       </div>
-    <!-- </MaterialApp> -->
     </div>
-  {/if}
-
-  <!-- TODO: add error messages -->
-
-  
+  {/if}  
   
   <style>
       .containerClass{

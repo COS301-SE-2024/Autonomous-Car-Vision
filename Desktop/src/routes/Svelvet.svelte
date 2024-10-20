@@ -21,7 +21,6 @@
   let savedCanvases = [];
   let nodeIdCounter = 0;
 
-  // Variables for when you need to put the images inside after running the pipe
   let pipeRunModal = false;
   let preProcessImg =
     "https://media1.tenor.com/m/a0IapXcGUMYAAAAC/wheee-rally-car.gif";
@@ -82,7 +81,7 @@
         operation: nodeType.operation,
         label: nodeType.label,
         bgColor: nodeType.bgColor,
-        position: { x: Math.random() * 500, y: Math.random() * 500 }, // Set a random position
+        position: { x: Math.random() * 500, y: Math.random() * 500 },
         component: ProcessingNode,
       };
       nodes.update((currentNodes) => {
@@ -96,13 +95,11 @@
 
   function addSavedNodes(savedNodes, savedEdges) {
     return new Promise((resolve) => {
-      // Create a map of node ID to node configuration
       const nodeMap = new Map();
 
       savedNodes.forEach((savedNode) => {
         let componentToUse;
 
-        // Determine which component to use based on the saved node's component
         if (savedNode.operation === "input") {
           componentToUse = InputNode;
         } else if (savedNode.operation === "output") {
@@ -116,15 +113,14 @@
           operation: savedNode.operation,
           label: savedNode.label,
           bgColor: savedNode.bgColor,
-          position: savedNode.position || { x: 100, y: 100 }, // Default position if none
+          position: savedNode.position || { x: 100, y: 100 },
           component: componentToUse,
-          connectors: [], // Initialize connectors array
+          connectors: [],
         };
 
         nodeMap.set(savedNode.id, newNode);
       });
 
-      // Add nodes to the store
       nodes.update((currentNodes) => {
         if (!Array.isArray(currentNodes)) {
           currentNodes = [];
@@ -132,7 +128,6 @@
         return [...currentNodes, ...Array.from(nodeMap.values())];
       });
 
-      // Update connectors based on edges
       savedEdges.forEach((edge) => {
         const sourceNodeId = edge.sourceNode.id.replace(/^N-/, "");
         const targetNodeId = edge.targetNode.id.replace(/^N-/, "");
@@ -143,7 +138,6 @@
         }
       });
 
-      // Add edges to the store
       edges.update((currentEdges) => {
         if (!Array.isArray(currentEdges)) {
           currentEdges = [];
@@ -151,7 +145,6 @@
         return [...currentEdges, ...savedEdges];
       });
 
-      // Resolve the promise after nodes and edges are added
       resolve();
     });
   }
@@ -182,40 +175,34 @@
       const parsedData = JSON.parse(savedData);
       const { nodes: savedNodes, edges: savedEdges } = parsedData;
 
-      // Get the current edges from the store
       const currentEdges = get(edges);
 
-      // Clear current nodes
       nodes.set([]);
 
-      // Add saved nodes
       if (Array.isArray(savedNodes)) {
         await addSavedNodes(savedNodes, savedEdges);
       }
 
-      // Merge current edges with saved edges, avoiding duplicates
       const mergedEdges = [
-        ...currentEdges, // Retain existing edges
+        ...currentEdges,
         ...savedEdges.filter((savedEdge) => {
           return !currentEdges.some(
             (currentEdge) =>
               currentEdge.sourceNode.id === savedEdge.sourceNode.id &&
               currentEdge.targetNode.id === savedEdge.targetNode.id,
           );
-        }), // Add new edges from saved data
+        }),
       ];
 
-      // Update the edges store with merged edges
       edges.set(mergedEdges);
     } else {
-      // If no saved data is found, reset the canvas to the default state
       setCanvas();
     }
   }
 
   function ClearCanvas() {
-    nodes.set([]); // set nodes array empty
-    edges.set([]); // set edges array empty
+    nodes.set([]);
+    edges.set([]);
     setCanvas();
     toast.success("Successfully cleared the pipe!", {
       duration: 5000,
@@ -223,7 +210,6 @@
     });
   }
 
-  // function to handle when a node gets a connection
   function handleEdgeConnect(event) {
     edges.update((currentEdges) => [
       ...currentEdges,
@@ -236,11 +222,10 @@
     ]);
   }
 
-  // function to handle when a node loses a connection
   function handleEdgeDisconnect(event) {
     edges.update((currentEdges) => {
       if (!Array.isArray(currentEdges)) {
-        return []; // Ensure we start with an empty array if currentEdges is not valid
+        return [];
       }
       return currentEdges.filter(
         (edge) =>
@@ -347,7 +332,7 @@
           return "yoloUnit.yolov8s";
         }
         if (node.label.includes("Segmentation")) {
-          return "yoloUnit.yolov8n-seg"; // JUST USING v8n for this example
+          return "yoloUnit.yolov8n-seg";
         }
         if(node.label.includes("Infusr")) {
           return "infusrUnit"
@@ -363,14 +348,12 @@
         }
       } else {
         console.error(`Error: No label found for node with ID ${id}.`);
-        return "Unknown Node"; // Handle the case where the node is not found
+        return "Unknown Node";
       }
     });
 
     const labeledPipeString = `inputUnit,${labeledUnits.join(",")},outputUnitTest.all`;
 
-
-    // Convert to JSON string
     const jsonPayload = JSON.stringify({ pipe: labeledPipeString });
 
     if (validatePipe(labeledPipeString)) {
@@ -387,7 +370,7 @@
     while (currentNode) {
       orderedNodes.push(currentNode);
       const neighbors = adjacencyList.get(currentNode);
-      currentNode = neighbors ? neighbors[0] : null; // Assuming single outgoing edge for simplicity
+      currentNode = neighbors ? neighbors[0] : null;
     }
 
     return orderedNodes;
@@ -424,7 +407,7 @@
         return node;
       }
     }
-    return null; // No start node found
+    return null;
   }
 
   function createPipeString(orderedNodes) {
@@ -438,7 +421,7 @@
       id: `inputUnit`,
       component: InputNode,
       label: "Input",
-      position: { x: 100, y: 100 }, // Customize the position
+      position: { x: 100, y: 100 },
       operation: "input",
     };
 
@@ -446,11 +429,10 @@
       id: `outputUnit`,
       component: OutputNode,
       label: "Output",
-      position: { x: 1000, y: 100 }, // Customize the position
+      position: { x: 1000, y: 100 },
       operation: "output",
     };
 
-    // Add the nodes to the writable store
     nodes.set([inputNode, outputNode]);
   }
 
@@ -459,7 +441,6 @@
   }
 
   function runPipe() {
-    // Open modal of images
     toggleRunModal();
   }
 
@@ -673,10 +654,5 @@
     top: 50%;
     left: 55%;
     transform: translate(-55%, -50%);
-  }
-
-  .threeJSwindow {
-    height: 100%;
-    width: 100%;
   }
 </style>

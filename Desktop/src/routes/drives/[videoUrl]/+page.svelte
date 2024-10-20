@@ -45,13 +45,10 @@
             throw new Error("Invalid driveData format");
         }
 
-        // Extract the data
         const data = driveData[0].data;
 
-        // Calculate total frames
         const totalFrames = data.length;
 
-        // Calculate total inference time and total FPS
         let totalInferenceTime = 0;
         let totalFps = 0;
 
@@ -60,7 +57,6 @@
             totalFps += entry.fps;
         });
 
-        // Calculate averages
         const averageInferenceTime = totalInferenceTime / totalFrames;
         const averageFps = totalFps / totalFrames;
 
@@ -69,8 +65,8 @@
         drive.frame_count = totalFrames;
 
         return {
-            averageFps: averageFps.toFixed(2), // rounding to 2 decimal places
-            averageInferenceTime: averageInferenceTime.toFixed(3), // rounding to 3 decimal places
+            averageFps: averageFps.toFixed(2),
+            averageInferenceTime: averageInferenceTime.toFixed(3),
             totalFrames,
         };
     }
@@ -170,7 +166,6 @@
 
         chartData.render();
 
-        // Adding event listeners
         lottieElement1.addEventListener("mouseenter", () =>
             playLottie(dotLottie1),
         );
@@ -238,15 +233,15 @@
 
     function handleVideoHover(event) {
         const video = event.currentTarget;
-        video.currentTime = 0; // Start from the beginning
-        video.playbackRate = 1; // Slow down the playback
-        video.play(); // Play the video
+        video.currentTime = 0;
+        video.playbackRate = 1;
+        video.play();
     }
 
     function handleVideoLeave(event) {
         const video = event.currentTarget;
-        video.pause(); // Pause the video
-        video.currentTime = 0; // Reset to the beginning
+        video.pause();
+        video.currentTime = 0;
     }
 
     let show = false;
@@ -352,7 +347,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Control panel div -->
             <div
                 class="w-full h-full gradient-card rounded-2xl flex flex-col justify-center"
             >

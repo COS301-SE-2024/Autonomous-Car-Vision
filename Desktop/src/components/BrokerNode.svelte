@@ -18,7 +18,6 @@
         const hexRef = "0123456789abcdef";
         let hexColor = "";
 
-        // Function to calculate brightness
         const calculateBrightness = (hex) => {
             let r = parseInt(hex.substring(0, 2), 16);
             let g = parseInt(hex.substring(2, 4), 16);
@@ -26,17 +25,14 @@
             return (r * 299 + g * 587 + b * 114) / 1000;
         };
 
-        // Generate a hex color and ensure it's not too light
         while (true) {
             hexColor = "";
             for (let n = 0; n < size; n++) {
                 hexColor += hexRef[Math.floor(Math.random() * 16)];
             }
 
-            // Check if the color is too bright
             let brightness = calculateBrightness(hexColor);
             if (brightness < 200) {
-                // Adjust the threshold as needed
                 break;
             }
         }
@@ -53,32 +49,28 @@
     function resetBooleanMaps(obj) {
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
-                obj[key] = false; // Set each value to false
+                obj[key] = false;
             }
         }
     }
 
     function showConnectionToAgent() {
-        // Reset all edge colors
         resetEdgeColors();
 
-        // Access the writable stores to update agents/clients
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
         resetBooleanMaps(agentBooleans);
         resetBooleanMaps(clientBooleans);
 
-        // If the node has clients, mark them as selected
         if (nodeData?.clients) {
             nodeData.clients.forEach((clientID) => {
                 if (clientBooleans.hasOwnProperty(clientID)) {
-                    clientBooleans[clientID] = true; // Set to true for active clients
+                    clientBooleans[clientID] = true;
                 }
             });
         }
 
-        // Update the writable stores
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
     }
@@ -89,11 +81,11 @@
 
     function updateEdgeColor() {
         if (nodeType === "Agent" && agents[nodeData.booleanID.id]) {
-            edgeColor = "blue"; // Blue for active agents
+            edgeColor = "blue";
         } else if (nodeType === "Client" && clients[nodeData.booleanID.id]) {
-            edgeColor = "green"; // Green for active clients
+            edgeColor = "green";
         } else {
-            edgeColor = "gray"; // Default edge color
+            edgeColor = "gray";
         }
     }
 
@@ -105,13 +97,13 @@
     TeamAgents.subscribe((newAgents) => {
         agents = newAgents;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 
     TeamClients.subscribe((newClients) => {
         clients = newClients;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 </script>
 

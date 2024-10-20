@@ -28,7 +28,6 @@ def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
                     break;
                 f.write(data)
         print(f"File {filename} received and saved to {filepath}")
-        # move the file to the videoDestination
         os.rename(filepath, videoDestination)
 
 

@@ -34,12 +34,6 @@ export default {
         autoprefixer,
       ]
     }),
-    // url({
-    //   include: ['**/*.svg', '**/*.png', '**/*.jpg', '**/*.gif'],
-    //   limit: 8192,
-    //   emitFiles: true,
-    //   fileName: 'assets/[name][hash][extname]',
-    // }),
     resolve({
       browser: true,
       dedupe: ['svelte']

@@ -25,8 +25,7 @@
             filename = acceptedFiles[0].name;
             file = acceptedFiles[0];
         }
-
-        // Alert for rejected files
+        
         fileRejections.forEach((rejection) => {
             alert(
                 `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`,
@@ -47,8 +46,6 @@
         let uid = window.electronAPI.getUid();
         let token = window.electronAPI.getToken();
         let sizeInBytes = file.size;
-
-        // Convert size to MB and round to 2 decimal places
         let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
         let aip = "";
         let aport = "";
@@ -66,7 +63,6 @@
             if (response.success) {
                 aip = response.ip;
                 aport = response.port;
-                // You can now use response.ip and response.port as needed
             } else {
                 console.error("Error:", response.error);
             }
@@ -85,7 +81,6 @@
         );
 
         try {
-            // Save the file using the main process
             videoSource = await window.electronAPI.saveFile(
                 file.path,
                 filename,
@@ -94,18 +89,15 @@
                 mname: filename,
                 localurl: videoSource,
             };
-            // Insert the record into the database
             const response1 = await window.electronAPI.insertData(record);
 
-            // Select the record from the database
             const response2 = await window.electronAPI.selectData(filename);
 
             toast.success("Video uploaded successfully", {
                 duration: 5000,
                 position: "top-center",
             });
-
-            // sleep for 5 seconds
+            
             await new Promise((resolve) => setTimeout(resolve, 5000));
 
             if (response2.success) {

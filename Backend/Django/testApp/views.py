@@ -195,7 +195,6 @@ def signup(request):
     data = request.data
     salt = data["salt"]
     hashed_password = data["password"]
-    # check if uid is in request
     uid = 0
     if "uid" in data:
         uid = data["uid"]
@@ -763,8 +762,6 @@ def uploadFile(request):
     user = User.objects.get(uid=uid)
     cid = user.cid.cname
     
-    # corporation = Corporation.objects.get(cid=cid)
-    
     print("Corporation: ", cid) 
 
     size = data.get("size")
@@ -919,7 +916,6 @@ def joinTeam(request):
                 {"error": "Corporation not found"}, status=status.HTTP_404_NOT_FOUND
             )
             
-        # check if email is in TokenCorporation and token matches
         if TokenCorporation.objects.filter(email=email, token=token).exists():
             print("email and token match")
         else:
@@ -1006,12 +1002,11 @@ def send_invite_email(request):
             {"error": "Emails and team name are required"}, status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Generate a token
     token = ''.join(random.choices(string.ascii_letters + string.digits, k=40))
     
     for email in emails:
         tokencorporation_data = {
-            'token': token,  # Ensure 'token' matches the field name in the serializer/model
+            'token': token,
             'email': email
         }
         
@@ -1072,7 +1067,6 @@ def getTeamName(request):
         user = User.objects.get(uid=uid)
         teamID = user.cid
         print("Team ID: ", teamID)
-        # teamName = Corporation.objects.get(cid=teamID).cname
         teamName = teamID.cname
         print("Team Name: ", teamName)
         return Response(
@@ -1101,7 +1095,6 @@ def getTeamMembers(request):
         
         for member in teamMembers:
             print("Member " + str(member.uid))
-        # return each member's name, email, and admin statusw
         users = []
         for member in teamMembers:
             users.append({
@@ -1175,7 +1168,6 @@ def userExists(request):
         )
     
     if User.objects.filter(uemail=email).exists():
-        # return team name too
         user = User.objects.get(uemail=email)
         teamID = user.cid
         teamName = teamID.cname
@@ -1449,21 +1441,17 @@ def getUserAgentConnections(request):
     
 def send_request_hvstat():
     url = "http://206.189.188.197:8000/hvstat/"
-    # data = {"uid": "1234567890"}
     response = requests.get(url)
-    # return response.json()
 
 def send_request_verifyOTP():
     url = "http://206.189.188.197:8000/verifyOTP/"
     data = {"uid": "1234567890", "otp": "123456"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def send_request_otpRegenerate():
     url = "http://206.189.188.197:8000/otpRegenerate/"
     data = {"uid": "1234567890", "uemail": "test@test.com"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def send_request_getAgentUserConnections():
     url = "http://206.189.188.197:8000/getAgentUserConnections/"
@@ -1475,47 +1463,39 @@ def send_request_getSalt():
     url = "http://206.189.188.197:8000/getSalt/"
     data = {"uemail": "test@test.com"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def send_request_signin():
     url = "http://206.189.188.197:8000/signin/"
     data = {"uid": "1", "password": "password", "uemail": "dev@gmail.com"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def send_request_signout():
     url = "http://206.189.188.197:8000/signout/"
     data = {"uid": "1"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def send_request_devLogin():
     url = "http://206.189.188.197:8000/devLogin/"
     data = {"uid": "1", "password": "password", "uemail": "dev@gmail.com"}
     response = requests.post(url, data=data)
-    # return response.json()
     
 def send_request_findOpenPort():
     url = "http://206.189.188.197:8010/findOpenPort/"
     response = requests.get(url)
-    # return response.json()
     
 def send_request_test():
     url = "http://206.189.188.197:8006/test/"
     data = {"message": "hello"}
     response = requests.post(url, data=data)
-    # return response.json()
     
 def send_request_simStore():
     url = "http://206.189.188.197:8010/simStore/"
     response = requests.post(url)
-    # return response.json()
 
 def send_request_getUserData():
     url = "http://206.189.188.197:8000/getUserData/"
     data = {"uid": "1"}
     response = requests.post(url, data=data)
-    # return response.json()
 
 def run_stress_test(num_requests, functions):
     for i in functions:
@@ -1553,28 +1533,23 @@ def getTestData(request):
      
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def requestUptime(request):  # Accept the 'request' argument
-    # Retrieve environment variables
+def requestUptime(request):
     API_TOKEN = os.getenv("API_TOKEN_CAKE")
     TEST_ID = os.getenv("TEST_ID")
 
     if not API_TOKEN or not TEST_ID:
         return Response({"error": "Missing API_TOKEN_CAKE or TEST_ID"}, status=500)
 
-    # Set the URL for the API endpoint
     url = f'https://api.statuscake.com/v1/uptime/{TEST_ID}'
 
-    # Set the headers with the Authorization token
     headers = {
         'Authorization': f'Bearer {API_TOKEN}',
-        'Accept': 'application/json'  # Ensures JSON response
+        'Accept': 'application/json'
     }
 
     try:
-        # Make the GET request
         response = requests.get(url, headers=headers)
 
-        # Check if the request was successful
         if response.status_code == 200:
             data = response.json()
             uptime = data['data']['uptime']
@@ -1599,8 +1574,6 @@ def syncSqlite(request):
     user = User.objects.get(uid=uid)
     user.last_signin = datetime.now()
     user.save()
-    
-    # need to return data from django for sqlite
     
     data = Media.objects.filter(uid=uid)
     serializer = MediaSerializer(data, many=True)

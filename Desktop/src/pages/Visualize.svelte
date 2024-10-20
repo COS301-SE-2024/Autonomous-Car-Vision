@@ -1,8 +1,6 @@
 <script>
   import NetworkVisualizer from '../components/VisualizerComp.svelte'
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
-  import { writable } from 'svelte/store';
-
 </script>
 
 <ProtectedRoutes >
@@ -15,7 +13,6 @@
   .main {
     text-align: center;
     padding: 1em;
-    /* max-width: 800px; */
     margin: 0 auto;
   }
 </style>

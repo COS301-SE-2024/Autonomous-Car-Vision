@@ -43,7 +43,6 @@
 
   let mounted = false;
   let hasCuda = false;
-  // onMount function
   onMount(async () => {
     hasCuda = get(cuda);
     mounted = true;

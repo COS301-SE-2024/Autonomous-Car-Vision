@@ -27,7 +27,6 @@
     imageURL: "",
   };
 
-  // Create initial values for your parameters
   /**
    * @type {InputStructure}
    */
@@ -35,7 +34,6 @@
     imageURL: "images/static_processed_output.png",
   };
 
-  // Specify processor function
   /**
    * @param {InputStructure} inputs
    * @returns {number}
@@ -49,7 +47,6 @@
     output = generateOutput(inputs, processor);
   }
 
-  // Generate a formatted inputs store
   let inputs = generateInput(initialData);
   let output = generateOutput(inputs, processor);
 
@@ -75,12 +72,6 @@
       <div class="input-anchors">
         <Anchor dynamic bgColor="green" {key} inputsStore={inputs} input />
       </div>
-      <!-- <div class="output">
-        {#if $output !== "noImage.jpeg"} -->
-          <!-- svelte-ignore a11y-img-redundant-alt -->
-          <!-- <img src={$output} alt="image.jpeg" /> -->
-        <!-- {/if} -->
-      <!-- </div> -->
     </div>
   </div>
 </Node>
@@ -99,14 +90,6 @@
     width: 100%;
     height: 100%;
     justify-content: center;
-  }
-
-  .output {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80%;
-    width: 80%;
   }
 
   .input-anchors {

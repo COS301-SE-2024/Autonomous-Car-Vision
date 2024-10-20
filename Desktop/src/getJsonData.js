@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to get JSON file paths
 function getJsonData(directory) {
     return new Promise((resolve, reject) => {
       fs.readdir(directory, (err, files) => {
@@ -31,7 +30,6 @@ function getJsonData(directory) {
                 data: jsonData
               });
   
-              // If all files have been read, resolve the promise
               if (jsonDataArray.length === jsonFiles.length) {
                 resolve(jsonDataArray);
               }
@@ -42,7 +40,6 @@ function getJsonData(directory) {
           });
         });
   
-        // If no JSON files were found, resolve with an empty array
         if (jsonFiles.length === 0) {
           resolve([]);
         }

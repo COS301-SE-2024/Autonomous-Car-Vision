@@ -25,7 +25,6 @@
     <span class="mode-text">{$theme === "highVizLight" ? "Light" : "Dark"}</span
     >
 
-    <!-- Slider Button -->
     <input
       type="checkbox"
       on:change={toggleTheme}
@@ -33,7 +32,6 @@
       aria-label="Theme toggle"
     />
 
-    <!-- Slider Knob -->
     {#if $theme === "highVizLight"}
       <span class="slider-knob-light"></span>
     {:else}
@@ -43,7 +41,6 @@
 </div>
 
 <style>
-  /* General layout */
   .light-theme,
   .dark-theme {
     display: flex;
@@ -51,7 +48,6 @@
     align-items: center;
   }
 
-  /* Toggler container */
   .toggler {
     position: relative;
     display: flex;
@@ -65,7 +61,6 @@
     padding: 5px;
   }
 
-  /* Mode Text (Light or Dark Mode) */
   .mode-text {
     font-size: 16px;
     color: var(--text-color, #333);
@@ -74,7 +69,6 @@
     transition: color 0.3s ease;
   }
 
-  /* Slider knob */
   .slider-knob-light {
     position: absolute;
     top: 5px;
@@ -95,7 +89,6 @@
     border-radius: 50%;
   }
 
-  /* Slider input (invisible but functional) */
   .slider-input {
     appearance: none;
     position: absolute;
@@ -104,17 +97,15 @@
     margin: 0;
     cursor: pointer;
     outline: none;
-    z-index: 2; /* Make sure input is clickable */
+    z-index: 2;
   }
 
-  /* Light Mode colors */
   .light-theme {
     --toggle-background: #eee;
     --base-100: #fff;
     --text-color: #000;
   }
 
-  /* Dark Mode colors */
   .dark-theme {
     --toggle-background: #555;
     --base-100: #333;

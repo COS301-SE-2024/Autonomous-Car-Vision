@@ -17,14 +17,10 @@ from fastapi import HTTPException
 load_dotenv()
 
 def obol():
-    # Time to ferry a Soul
     print(">>> Coin for the ferry man?")
-    # First, Generate an RSA key pair for the broker
     print("Generating Server side RSA key pair")
     init_key_pair = asymmetric()
     print("RSA KEY PAIR: ", init_key_pair)
-
-    # establish connection to db
 
     dbname = os.getenv("POSTGRES_DB")
     user = os.getenv("POSTGRES_USER")
@@ -39,8 +35,6 @@ def obol():
     )
     cursor = conn.cursor()
 
-    # update the keystore db, setting the init_key (also known as the server's RSA private key) and initkey_validation
-    # which indicates whether initial key exchange has taken place.
     insert_query = """
     INSERT INTO keystore (init_key, initkey_validation)
     VALUES (%s, %s)
@@ -106,19 +100,16 @@ def asymmetric_decryption(aid, message):
                 cursor.execute(select_query, (aid,))
                 priv_key = cursor.fetchone()[0]
 
-                # priv_key is already in string format, no need to decode
                 print("Private key in PEM format:")
                 print(priv_key)
                 private_key = serialization.load_pem_private_key(
                     priv_key.encode(), password=None, backend=default_backend()
                 )
 
-                # Decode the Base64 encoded components
                 encrypted_symmetric_key = base64.b64decode(message["encrypted_key"])
                 encrypted_data = base64.b64decode(message["encrypted_data"])
                 iv = base64.b64decode(message["iv"])
 
-                # Decrypt the symmetric key using the RSA private key
                 symmetric_key = private_key.decrypt(
                     encrypted_symmetric_key,
                     padding.OAEP(
@@ -128,7 +119,6 @@ def asymmetric_decryption(aid, message):
                     ),
                 )
 
-                # Decrypt the data using the symmetric key and IV
                 cipher = Cipher(
                     algorithms.AES(symmetric_key),
                     modes.CFB(iv),
@@ -137,7 +127,6 @@ def asymmetric_decryption(aid, message):
                 decryptor = cipher.decryptor()
                 decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
 
-                # Convert the decrypted data back into a JSON object
                 decrypted_message = decrypted_data.decode("utf-8")
                 decrypted_json = json.loads(decrypted_message)
 
@@ -243,14 +232,12 @@ def generate_broker_ecdh_keys(aid, agent_rsa_pub_pem):
     broker_private = broker_ecdh_keys["private"]
     broker_public = broker_ecdh_keys["public"]
 
-    # Serialize the private key to PEM format
     broker_private_pem = broker_private.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     ).decode("utf-8")
 
-    # Serialize the public key to PEM format for encryption
     broker_public_pem = broker_public.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo,
@@ -280,7 +267,6 @@ def generate_broker_ecdh_keys(aid, agent_rsa_pub_pem):
     cursor.close()
     conn.close()
 
-    # Encrypt the broker public key with the agent's RSA public key
     encrypted_broker_ecdh_pub = encrypt_messageecdh(
         agent_rsa_pub_pem, broker_public_pem
     )
@@ -315,7 +301,6 @@ def encrypt_messageecdh(rsa_public_key_pem, ecdh_public_key_pem):
 
 def get_session(private_key, peer_public_key):
     shared_key = private_key.exchange(ec.ECDH(), peer_public_key)
-    # Derive a session key using HKDF
     session_key = HKDF(
         algorithm=hashes.SHA256(), length=32, salt=None, info=b"session key"
     ).derive(shared_key)
