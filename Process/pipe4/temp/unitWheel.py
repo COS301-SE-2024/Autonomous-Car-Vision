@@ -416,7 +416,7 @@ def main(pipe):
                 #     json.dump(world_data, world_data_file, indent=4)
 
                 # Display the processed image
-                image_surface = convert_array_to_surface(img_la)
+                image_surface = convert_array_to_surface(processed_image_array)
                 display.blit(image_surface, (0, 0))
 
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
@@ -457,8 +457,8 @@ def main(pipe):
                         control.hand_brake = True
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
-                    steer = output['steer']
-                    control.steer = steer
+                    steer = output['steering']
+                    control.steer = steer if steer is not None else 0
                     text_surface = font.render(f"Lane Following is on, Steer: {steer}", True, (0, 255, 0))
                     display.blit(text_surface, (10, 10))
 

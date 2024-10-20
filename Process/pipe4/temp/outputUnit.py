@@ -88,20 +88,59 @@ class outputUnit(Unit):
 
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
-            mask = output['mask']
-            
-            if len(mask.shape) == 3 and mask.shape[2] == 3:
-                mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+            mask = output.get('mask', None)
 
-            if mask.shape != annotated_frame.shape[:2]:
-                mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+            # Extract relevant lines from the output
+            solid_line_points = output.get('solid_line_points', [])
+            green_line_points = output.get('green_line_points', [])
+            red_line_points = output.get('red_line_points', [])
+            pink_line_points = output.get('pink_line_points', [])  # Pink corresponds to divisor points (dotted line)
 
-            colored_mask = np.zeros_like(annotated_frame)
-            colored_mask[mask > 0] = [0, 255, 0] 
+            # Prepare mask processing
+            if mask is not None:
+                if len(mask.shape) == 3 and mask.shape[2] == 3:
+                    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-            alpha = 0.5
-            img_la = image_two.copy()
-            img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+                if mask.shape != annotated_frame.shape[:2]:
+                    mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+
+                # Apply the green mask overlay to the frame
+                colored_mask = np.zeros_like(annotated_frame)
+                colored_mask[mask > 0] = [0, 255, 0]  # Green mask
+
+                alpha = 0.5
+                img_la = image_two.copy()
+                img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+
+            # Draw the orange solid line
+            if solid_line_points:
+                for i in range(len(solid_line_points) - 1):
+                    pt1 = tuple(solid_line_points[i])
+                    pt2 = tuple(solid_line_points[i + 1])
+                    cv2.line(annotated_frame, pt1, pt2, (0, 165, 255), 2)  # Orange color (BGR: 0, 165, 255)
+
+            # Draw the green recommended line
+            if green_line_points:
+                for i in range(len(green_line_points) - 1):
+                    pt1 = tuple(green_line_points[i])
+                    pt2 = tuple(green_line_points[i + 1])
+                    cv2.line(annotated_frame, pt1, pt2, (0, 255, 0), 2)  # Bright green color (BGR: 0, 255, 0)
+
+            # Draw the red origin line (vertical center line)
+            if red_line_points:
+                for i in range(len(red_line_points) - 1):
+                    pt1 = tuple(red_line_points[i])
+                    pt2 = tuple(red_line_points[i + 1])
+                    cv2.line(annotated_frame, pt1, pt2, (0, 0, 255), 2)  # Red color (BGR: 0, 0, 255)
+
+            # Draw the pink divisor line (best fit line or fallback)
+            if pink_line_points:
+                for i in range(len(pink_line_points) - 1):
+                    pt1 = tuple(pink_line_points[i])
+                    pt2 = tuple(pink_line_points[i + 1])
+                    cv2.line(annotated_frame, pt1, pt2, (255, 105, 180), 2)  # Pink color (BGR: 255, 105, 180)
+
+                # At this point, 'annotated_frame' contains the overlay of all lines on the frame
 
 
 
