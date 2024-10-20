@@ -78,7 +78,7 @@ HighViz a comprehensive suite of AI tools for autonomous car vision that aims to
             <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/master/Documentation/Images/Jordan.png" width="150" height="150" alt="Jordan Timberlake">
         </td>
         <td>
-            <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/master/Documentation/Images/Kea.png" width="150" height="150" alt="Keabetswe Mothapo">
+            <p align="center"><img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/master/Documentation/Images/Kea.png" width="130" height="150" alt="Keabetswe Mothapo"> </p>
         </td>
         <td>
             <img src="https://github.com/COS301-SE-2024/Autonomous-Car-Vision/blob/master/Documentation/Images/Dawie.jpeg" width="150" height="150" alt="Dawie Reyneke">
