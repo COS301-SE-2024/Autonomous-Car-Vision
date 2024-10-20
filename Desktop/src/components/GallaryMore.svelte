@@ -4,7 +4,6 @@
   import { VideoURL } from "../stores/video";
   import { createEventDispatcher } from "svelte";
   import { push } from "svelte-spa-router";
-  import {theme} from '../stores/themeStore';
 
   const dispatch = createEventDispatcher();
 

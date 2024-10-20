@@ -6,11 +6,6 @@
 
   export let items = [];
 
-  const dispatch = createEventDispatcher();
-
-  function handleOptionClick() {
-    dispatch("close");
-  }
 </script>
 
 {#if $theme === "highVizLight"}

@@ -37,11 +37,6 @@
       <div class="align-right font-bold text-black justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
     </div>
 
-    <!-- Placeholder for Dashboard
-    <div class="text-primary bg-highVizLight-accent rounded-lg flex items-center justify-center col-span-1 row-span-2">
-      <span>placeholder for {Model.mName} dashboard </span>
-    </div> -->
-
     <!-- Summary -->
     <div class="text-black p-4 text-xl col-span-1 row-span-2">
       {Model.mSummary}
@@ -70,11 +65,6 @@
       <div class="align-right font-bold text-theme-dark-white justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
     </div>
 
-    <!-- Placeholder for Dashboard
-    <div class="text-theme-dark bg-theme-dark-primary rounded-lg flex items-center justify-center col-span-1 row-span-2">
-      <span>placeholder for {Model.mName} dashboard </span>
-    </div> -->
-
     <!-- Summary -->
     <div class="text-white p-4 text-xl col-span-1 row-span-2">
       {Model.mSummary}
@@ -86,7 +76,6 @@
 
 
 <style>
-     /* @import '../assets/base.css'; */
 
      Button:hover{
       color: aliceblue;

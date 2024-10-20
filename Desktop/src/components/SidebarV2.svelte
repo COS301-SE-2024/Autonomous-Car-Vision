@@ -9,7 +9,6 @@
         mdiAccountCog,
         mdiLogout,
         mdiCar,
-        mdiEyeRefresh,
         mdiAccountGroup,
         mdiAccountCheckOutline,
         mdiLanPending,
@@ -20,8 +19,6 @@
     } from "@mdi/js";
     import axios from "axios";
     import CryptoJS from 'crypto-js';
-
-    import ThemeToggler from "./ThemeToggler.svelte";
     import {theme } from "../stores/themeStore";
 
 
@@ -58,22 +55,11 @@
                 },
             ]
         },
-//         {
-//             id: "go-to-visualizer",
-//             name: "Visualizer",
-//             route: "#/visualize",
-//             iconPath: mdiEyeRefresh,
-//         },
         {
             name: "Start CARLA",
             route: "#/startCarla",
             iconPath: mdiCar,
         },
-        // {
-        //     name: "Visualizer",
-        //     route: "#/visualize",
-        //     iconPath: mdiEyeRefresh,
-        // },
         {
             id: "go-to-drive-gallery",
             name: "Drive Gallery",

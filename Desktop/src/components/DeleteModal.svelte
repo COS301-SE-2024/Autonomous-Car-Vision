@@ -13,9 +13,6 @@
     try {
       const response = await window.electronAPI.deleteVideoFile(videoPath);
       if (response.success) {
-        // Handle post-deletion actions, like updating the UI or redirecting
-        // For example, you might want to redirect to another page:
-        // location.goto("/some-other-page");
         dispatch("deleteVideo");
         push("/gallery");
       } else {
@@ -52,7 +49,7 @@
   </div>
 </div>
 {:else}
-<div class="fixed inset-0 flex items-center justify-center bg-modal z-50">
+<div class="fixed inset-0 flex items-center text-white justify-center bg-modal z-50">
   <div
     class="bg-theme-dark-background p-6 rounded-lg shadow-lg border border-theme-keith-primary w-1/4"
   >
