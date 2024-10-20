@@ -41,10 +41,3 @@ global.window = {
     origin: 'http://localhost',
   },
 };
-
-// global.document = {
-//   createElement: () => ({
-//     setAttribute: vi.fn(),
-//     getAttribute: vi.fn(),
-//   }),
-// };
