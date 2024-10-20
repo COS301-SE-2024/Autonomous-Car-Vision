@@ -44,37 +44,32 @@ class observerUnit(Unit):
 
         lidar_data = data_token.get_processing_result('infusrUnit')
         if not lidar_data:
-            # print("No processing results from infusrUnit found in DataToken.")
             if self.next_unit:
                 return self.next_unit.process(data_token)
             return data_token
 
         valid_world_positions = lidar_data['valid_world_positions']
-        # print("Valid World Pos")
-        # print(valid_world_positions)
-        # pixel_x = lidar_data['pixel_x']
-        # print("pixel x")
-        # print(pixel_x)
-        # pixel_y = lidar_data['pixel_y']
-        # print("pixel y")
-        # print(pixel_y)
+        average_x_filtered = 0
         if valid_world_positions is not None:
             zmin, zmax = 1, 2.3
             ymin, ymax = -0.9, 0.9
-            xmin, xmax = 3, 25.0
 
+            velocity = abs(data_token.get_processing_result('velocityUnit'))
+            print("Velocity----->", velocity)
+            baseDist = 1.5
+            lookahead = 1.5
+            # xmax = baseDist + velocity * lookahead
+            # xmin  =3
+            xmin, xmax = 3, 15 if velocity < 5 else 25
+            # xmax = 25 + (velocity / 15) * 35
             filtered_positions = valid_world_positions[
                 (valid_world_positions[:, 0] >= xmin) & (valid_world_positions[:, 0] <= xmax) &
                 (valid_world_positions[:, 1] >= ymin) & (valid_world_positions[:, 1] <= ymax) &
                 (valid_world_positions[:, 2] >= zmin) & (valid_world_positions[:, 2] <= zmax)
                 ]
-            average_x_filtered = 0
-            # print("filtered_positions", filtered_positions)
+
             if len(filtered_positions) > 0:
                 average_x_filtered = np.mean(filtered_positions[:, 0])
-                # print(f"Average x-value of filtered points: {average_x_filtered}")
-            # else:
-            #     # print("No points within the filtered region.")
             if average_x_filtered == 0:
                 breaking = 0
             else:
@@ -84,20 +79,11 @@ class observerUnit(Unit):
             if breaking > 0.5:
                 handbreak = True
 
-            print("dist", breaking)
+            # print("dist", breaking)
 
-            # Plot the filtered points
-            # print("Plotting filtered valid world positions within the cuboid...")
-            # self.plot_point_cloud(valid_world_positions, filtered_positions)
-
-
-        # else:
-        #     print("No valid world positions found.")
-
-        # Store the filtered points in data_token if needed
-        print("hello im here")
+        # print("hello im here")
         data_token.add_processing_result(self.id, {'observed_lidar': filtered_positions, 'breaking': breaking1,
-                                                   'handBreak': handbreak})
+                                                   'handBreak': handbreak, 'avgX': average_x_filtered, })
         data_token.set_flag('hasObserverData', True)
         print("flag set")
 
