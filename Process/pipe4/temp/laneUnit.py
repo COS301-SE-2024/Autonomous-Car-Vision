@@ -22,7 +22,7 @@ class laneUnit(Unit):
         image = data_token.get_sensor_data('camera')
         output = data_token.get_processing_result('laneUnit')
 
-        if output:
+        if (output):
             previous_left_id = output.get('previous_left_id', None)
             previous_right_id = output.get('previous_right_id', None)
         else:
@@ -126,7 +126,7 @@ class laneUnit(Unit):
         lines = []
         image_height = image.shape[0]
         image_center = (image.shape[1] // 2, image.shape[0] // 2)
-        closest_line = None
+        closest_solid_line = None
         min_distance = float('inf')
         dotted_points = []
         fallback_lines = []
@@ -188,8 +188,7 @@ class laneUnit(Unit):
                             intersections = sorted(intersections, key=lambda pt: (pt[0], pt[1]))
                             pt1, pt2 = intersections[0], intersections[1]
 
-                            # For both double and solid lines, we treat them the same, evaluating distance
-                            if class_id in [2, 5]:  # 2: double-line, 5: solid-line
+                            if class_id == 2:  # Double line prioritized
                                 purple_lines.append((pt1, pt2))
                                 lines.append((pt1, pt2, object_id))
                                 fallback_lines.append((pt1, pt2))
@@ -197,11 +196,23 @@ class laneUnit(Unit):
                                 midpoint = ((pt1[0] + pt2[0]) // 2, (pt1[1] + pt2[1]) // 2)
                                 distance_to_center = abs(midpoint[0] - image_center[0])
 
-                                # Update closest line regardless of class_id
+                                if distance_to_center < min_distance:
+                                    min_distance = distance_to_center
+                                    solid_line_points = [pt1, pt2]  # Treating double line as "solid"
+                                    closest_solid_line = (pt1, pt2)
+
+                            elif class_id == 5 and closest_solid_line is None:  # Solid line only if no double line found
+                                purple_lines.append((pt1, pt2))
+                                lines.append((pt1, pt2, object_id))
+                                fallback_lines.append((pt1, pt2))
+
+                                midpoint = ((pt1[0] + pt2[0]) // 2, (pt1[1] + pt2[1]) // 2)
+                                distance_to_center = abs(midpoint[0] - image_center[0])
+
                                 if distance_to_center < min_distance:
                                     min_distance = distance_to_center
                                     solid_line_points = [pt1, pt2]
-                                    closest_line = (pt1, pt2)
+                                    closest_solid_line = (pt1, pt2)
 
                             if class_id == 1:
                                 midpoint = ((pt1[0] + pt2[0]) // 2, (pt1[1] + pt2[1]) // 2)
