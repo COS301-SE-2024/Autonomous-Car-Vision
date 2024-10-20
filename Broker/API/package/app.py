@@ -19,10 +19,10 @@ import json
 from dotenv import load_dotenv
 import base64
 import netifaces
+import select
 
 load_dotenv()
 app = FastAPI()
-RUN_ONCE_FILE = "run_once_flag.txt"
 
 HOST_IP = os.getenv("HOST_IP")
 
@@ -60,13 +60,6 @@ def getHardwareInfo():
 
 @app.on_event("startup")
 async def startup_event():
-    # if not os.path.exists(RUN_ONCE_FILE):
-    #     await install()
-    #     # TODO Run initial setup
-    #     with open(RUN_ONCE_FILE, "w") as file:
-    #         file.write("This file indicates the one-time function has run.")
-    # else:
-    #     print("One-time setup function has already run, skipping.")
     await install()
 
 
@@ -74,13 +67,6 @@ async def startup_event():
 @app.get("/install")
 async def install():
     async with httpx.AsyncClient() as client:
-        # # get my agent details
-        # response = await client.get('http://' + HOST_IP + ':8006/agent')
-        # if response.status_code != 200:
-        #     raise HTTPException(status_code=response.status_code, detail="Error fetching external data")
-        # print("Response:", response.json())
-
-        # encrypt my public ecd key
         init_elyptic = cerberus.elyptic(True)
         agent_public = init_elyptic["public"]
         agent_private = init_elyptic["private"]
@@ -105,7 +91,6 @@ async def install():
         encrypted_message = cerberus.encrypt_message(test, data_to_encrypt)
         print("Encrypted message: ", encrypted_message)
 
-        # Transmit the encrypted data
         response2 = await client.post(
             "http://" + HOST_IP + ":8006/test",
             json={"aid": os.getenv("AID"), "message": encrypted_message},
@@ -115,15 +100,12 @@ async def install():
                 status_code=response2.status_code, detail="Error posting encrypted data"
             )
         print("Response:", response2.json())
-        # session = cerberus.get_session(agent_private,)
         server_ecdh = cerberus.decrypt_ecdh_key_with_rsa(
             agent_rsa_private, response2.json()["encrypted_ecdh"]
         )
         print("server ecdh decoded", server_ecdh)
         server_ecdh2 = load_pem_public_key(server_ecdh.encode("utf-8"))
 
-        # TODO persist your own pem files and the server's ecdh key.
-        # This simmulates message passing
         session = cerberus.get_session(agent_private, server_ecdh2)
         capacity = ""
         if os.getenv("AGENT_TYPE") == "S":
@@ -137,7 +119,7 @@ async def install():
             session,
             json.dumps(
                 {
-                    "aip": findOpenPort()[0],  # This will now be the public IP
+                    "aip": findOpenPort()[0], 
                     "aport": 8010,
                     "capacity": capacity,
                     "storage": 290.4,
@@ -157,21 +139,18 @@ async def install():
         print(server_ecdh)
         return {"message": "success"}
 
-
+@app.get("/findOpenPort")
 def findOpenPort():
     port = 8002
     
-    # Try to get the public IP address
     try:
         ip = requests.get('https://api.ipify.org').text.strip()
         print(f"Public IP address: {ip}")
     except Exception as e:
         print(f"Error getting public IP: {e}")
-        # If we can't get the public IP, we'll use a placeholder
         ip = '0.0.0.0'
         print("Using placeholder IP: 0.0.0.0")
     
-    # Find an open port
     while True:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             result = s.connect_ex(('localhost', port))
@@ -196,62 +175,71 @@ def startFTP(ip, port, old_uid, old_size, old_token):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((ip, port))
         s.listen()
+        s.setblocking(False)
         print(f"Server started and listening on {ip}:{port}")
-        while True:
-            conn, addr = s.accept()
-            with conn:
-                data = receive_until_null(conn)
-                data = json.loads(data)
-                print(f"DATA: {data}")
+        
+        # Add timeout logic
+        timeout = 10  # 10 seconds timeout
+        ready = select.select([s], [], [], timeout)
+        
+        if not ready[0]:
+            print(f"No connection received within {timeout} seconds. Closing the server.")
+            return "Timeout: No connection received."
 
-                uid = data["uid"]
-                mid = data["mid"]
-                size = data["size"]
-                token = data["token"]
-                command = data["command"]
+        conn, addr = s.accept()
+        with conn:
+            data = receive_until_null(conn)
+            data = json.loads(data)
+            print(f"DATA: {data}")
 
-                directory = f"./Download/{uid}/"
-                os.makedirs(directory, exist_ok=True)
-                print(f"Directory {directory} created to store information.")
+            uid = data["uid"]
+            mid = data["mid"]
+            size = data["size"]
+            token = data["token"]
+            command = data["command"]
 
-                print(f"Connected by {addr}")
+            directory = f"./Download/{uid}/"
+            os.makedirs(directory, exist_ok=True)
+            print(f"Directory {directory} created to store information.")
 
-                if command == "SEND":
-                    filename = receive_until_null(conn).strip('"').strip("'")
-                    print(f"Received filename: '{filename}'")
+            print(f"Connected by {addr}")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+            if command == "SEND":
+                filename = receive_until_null(conn).strip('"').strip("'")
+                print(f"Received filename: '{filename}'")
 
-                    with open(filepath, "wb") as f:
-                        print(f"Receiving file {filename}...")
-                        while True:
-                            data = conn.recv(1024)
-                            if not data:
-                                break
-                            f.write(data)
+                if not filename:
+                    return "No filename received."
+                filepath = os.path.join(directory, filename)
+
+                with open(filepath, "wb") as f:
+                    print(f"Receiving file {filename}...")
+                    while True:
+                        data = conn.recv(1024)
+                        if not data:
+                            break
+                        f.write(data)
                     print(f"File {filename} received and saved to {filepath}")
 
-                elif command == "RETR":
-                    filename = receive_until_null(conn).strip('"').strip("'")
-                    print(f"Received filename: '{filename}'")
+            elif command == "RETR":
+                filename = receive_until_null(conn).strip('"').strip("'")
+                print(f"Received filename: '{filename}'")
 
-                    if not filename:
-                        break
-                    filepath = os.path.join(directory, filename)
+                if not filename:
+                    return "No filename received."
+                filepath = os.path.join(directory, filename)
 
-                    if os.path.exists(filepath):
-                        with open(filepath, "rb") as f:
-                            print(f"Sending file {filename}...")
-                            while True:
-                                data = f.read(1024)
-                                if not data:
-                                    break
-                                conn.sendall(data)
+                if os.path.exists(filepath):
+                    with open(filepath, "rb") as f:
+                        print(f"Sending file {filename}...")
+                        while True:
+                            data = f.read(1024)
+                            if not data:
+                                break
+                            conn.sendall(data)
                         print(f"File {filename} sent successfully.")
-                    else:
-                        print(f"File {filename} does not exist.")
+                else:
+                    print(f"File {filename} does not exist.")
 
     s.close()
     return "Operation completed successfully."
@@ -271,17 +259,13 @@ async def startupFTPListener(backgroundTasks: BackgroundTasks, request: Request)
 
 @app.post("/process/")
 async def process(request: Request):
-    # gets the name from the request
     try:
         body = await request.json()
         uid = body["uid"]
         mid = body["mid"]
         token = body["token"]
-        # fetch the file url
-        # process the file
         if getHardwareInfo():
             return JSONResponse(status_code=200, content={"message": "Success"})
-        # subprocess.run(['makensis', './package/setup.nsi'])
     except:
         return JSONResponse(status_code=400, content={"message": "Invalid request"})
 
