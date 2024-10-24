@@ -294,6 +294,11 @@ def main(pipe):
             'width': 800, 'height': 600, 'fov': 90,
             'sensor_label': 'camera', 'sensor_type': 'camera'
         }
+        camera_two_parameters = {
+            'x': 2.0, 'y': 0.00, 'z': 1, 'roll': 0, 'pitch': -10, 'yaw': 0,
+            'width': 800, 'height': 600, 'fov': 60,
+            'sensor_label': 'camera', 'sensor_type': 'camera'
+        }
         lidar_parameters = {
             'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
             'channels': 32, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
@@ -302,7 +307,7 @@ def main(pipe):
         }
 
         # Attach sensors to the vehicle
-        sensor_list = [camera_parameters, lidar_parameters]
+        sensor_list = [camera_parameters, camera_two_parameters, lidar_parameters]
         sensors, sensor_labels = sensor_factory(world, vehicle, sensor_list)
         actor_list.extend(sensors)
 
@@ -330,20 +335,23 @@ def main(pipe):
 
                 # Get synchronized sensor data
                 data = sync_mode.tick(timeout=2.0)
-                latest_image, latest_lidar_data = data
+                latest_image, latest_image_two, latest_lidar_data = data
 
                 # Process the image
                 image_array = process_image(latest_image)
                 image_array_writable = np.copy(image_array)
+                image_array_two = process_image(latest_image_two)
+                image_array_writable_two = np.copy(image_array_two)
                 # processed_image_array, bounding_boxes = run_ai_model(image_array)
 
                 # Process LiDAR data, including intensity
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
+                pipe.dataToken.add_processing_result('velocityUnit',vehicle.get_velocity().x)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
+                pipe.dataToken.add_sensor_data('camera_two', image_array_writable_two)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
                 processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
                 bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
-
                 # Integrate LiDAR data with the image and update world data
                 # , world_data = integrate_lidar_with_image(processed_image_array,
                 # latest_lidar_data_np, bounding_boxes)
@@ -368,10 +376,11 @@ def main(pipe):
                     # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
+                    velocity_text = f"Velocity: {abs(vehicle.get_velocity().x):.2f}"  # Format the velocity to 2 decimal places
+                    text_surface = font.render(velocity_text, True, (0, 255, 0))
+                    display.blit(text_surface, (10, 30))
 
                 frame_number += 1
-
-                pygame.display.flip()
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
@@ -381,21 +390,33 @@ def main(pipe):
                 print("avoidance:", object_avoidance)
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     print("avoiding")
+
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
+                    x_text = f"avgX: {observerToken['avgX']:.2f}"
+                    print(x_text)
+                    # text_surface = font.render(x_text, True, (0, 255, 0))  # Green text
+                    # display.blit(text_surface, (10, 50))
                     breaking = observerToken['breaking']
                     handbreak = observerToken['handBreak']
                     if breaking > 0 or handbreak:
                         control.throttle = 0
+                    if breaking > 0.5 or handbreak:
+                        text_surface = font.render("Obstacle detected, stopping vehicle", True, (255,255,0))  # Green text
+                        display.blit(text_surface, (200, 150))
 
                     control.brake = breaking
                     control.hand_brake = handbreak
-                    print(vehicle.get_velocity().x)
+                    # print(vehicle.get_velocity().x)
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
-                    steer = output['steer']
-                    control.steer = steer
+                    steer = output['steering']
+                    control.steer = steer if steer is not None else 0
+                    text_surface = font.render(f"Lane Following is on, Steer: {steer}", True, (0, 255, 0))
+                    display.blit(text_surface, (10, 10))
+
+                pygame.display.flip()
 
                 vehicle.apply_control(control)
 

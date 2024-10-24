@@ -443,12 +443,15 @@ def main(pipe):
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
                     x_text = f"avgX: {observerToken['avgX']:.2f}"
                     print(x_text)
-                    text_surface = font.render(x_text, True, (0, 255, 0))  # Green text
-                    display.blit(text_surface, (10, 50))
+                    # text_surface = font.render(x_text, True, (0, 255, 0))  # Green text
+                    # display.blit(text_surface, (10, 50))
                     breaking = observerToken['breaking']
                     handbreak = observerToken['handBreak']
                     if breaking > 0 or handbreak:
                         control.throttle = 0
+                    if breaking > 0.5 or handbreak:
+                        text_surface = font.render("Obstacle detected, stopping vehicle", True, (255,255,0))  # Green text
+                        display.blit(text_surface, (200, 150))
 
                     control.brake = breaking
                     control.hand_brake = handbreak
