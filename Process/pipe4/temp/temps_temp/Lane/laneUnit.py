@@ -649,22 +649,22 @@ class laneUnit(Unit):
             print("Take manual control of the vehicle.")
             return original, mask, steer
 
+    def apply_blue_filter(self, frame):
+        # Convert the frame to float32 to avoid clipping issues during manipulation
+        frame = frame.astype(np.float32)
+
+        # Increase the blue channel by multiplying the blue channel by a factor
+        # This will give the image a blue tint
+        blue_channel = 2  # Adjust this value to get the desired intensity
+        frame[:, :, 0] = frame[:, :, 0] * blue_channel  # Blue channel (index 0)
+
+        # Clip the values to be in the valid range [0, 255] and convert back to uint8
+        frame = np.clip(frame, 0, 255).astype(np.uint8)
+
+        return frame
 
     def start_following(self, frame, previous_left_id=None, previous_right_id=None):
-        # # Convert RGBA to RGB if needed
-        # if frame.shape[2] == 4:
-        #     frame = cv2.cvtColor(frame, cv2.COLOR_RGBA2RGB)
-
-        # # Get original frame dimensions
-        # original_height, original_width = frame.shape[:2]
-        
-        # cutoff_percent=0
-
-        # # Calculate the height of the cropped frame
-        # crop_height = int(original_height * (1 - cutoff_percent / 100.0))
-
-        # # Crop the frame (keep only the top part)
-        # cropped_frame = frame[:crop_height, :]
+        filtered_frame = self.apply_blue_filter(frame)
 
         # Load the YOLO model
         model = YOLO('laneTest.pt')
