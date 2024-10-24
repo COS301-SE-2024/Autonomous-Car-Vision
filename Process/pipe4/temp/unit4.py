@@ -270,9 +270,18 @@ def main(pipe):
     global lane_active
     global avoid
     pygame.init()
-    display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
-    pygame.display.set_caption("CARLA Manual Control")
 
+    # Set internal render resolution (800x600) and full screen size
+    original_size = (800, 600)  # Internal render resolution
+    screen_size = pygame.display.get_desktop_sizes()[0]  # Fullscreen resolution
+
+    # Create a fullscreen window
+    display = pygame.display.set_mode(screen_size, pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
+    
+    # Create an internal surface with the original resolution (800x600)
+    surface = pygame.Surface(original_size)
+
+    pygame.display.set_caption("CARLA Manual Control")
     pygame.font.init()
     font = pygame.font.Font(None, 36)
 
@@ -311,15 +320,13 @@ def main(pipe):
         sensors, sensor_labels = sensor_factory(world, vehicle, sensor_list)
         actor_list.extend(sensors)
 
-        # Variables for capturing and saving data
         frame_number = 0
         output_folder = "output_frames"
         os.makedirs(output_folder, exist_ok=True)
 
-        # Timer for the drive
         start_time = time.time()
         pipestring = pipe
-        # If pipestrign contains 'laneUnit', set lane_active to True
+
         if 'laneUnit' in pipestring:
             lane_active = True
         if 'observerUnit' in pipestring:
@@ -358,6 +365,9 @@ def main(pipe):
 
                 # Get vehicle transform (position and orientation)
                 vehicle_transform = vehicle.get_transform()
+                
+                image_surface = convert_array_to_surface(processed_image_array)
+                surface.blit(image_surface, (0, 0))
 
                 # Save frame and data, including the updated world data
                 # save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
@@ -367,10 +377,11 @@ def main(pipe):
                 # world_data_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_world_data.json")
                 # with open(world_data_filename, 'w') as world_data_file:
                 #     json.dump(world_data, world_data_file, indent=4)
+                
+                scaled_surface = pygame.transform.scale(surface, screen_size)
 
                 # Display the processed image
-                image_surface = convert_array_to_surface(processed_image_array)
-                display.blit(image_surface, (0, 0))
+                display.blit(scaled_surface, (0, 0))
 
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     # Render the text "Object avoidance on"
