@@ -437,7 +437,7 @@ class laneUnit(Unit):
         steering_value = self.analyse_steering(left_line, right_line, left_ref_line, right_ref_line, image_width)
         
         # Return the output image, the detected lanes, and the steering value
-        return out_image, None, steering_value
+        return out_image, steering_value
 
 
     def apply_blue_filter(self, frame):
@@ -467,8 +467,8 @@ class laneUnit(Unit):
         out_image, filtered_results = self.filter_detections(results, model, frame)
 
         # Pass the original frame, not the cropped one, to the follow_lane function
-        res, mask, steer = self.follow_lane(out_image, filtered_results, frame)
+        res, steer = self.follow_lane(out_image, filtered_results, frame)
 
         # Return results
-        output = {'image': res,'steering': steer, 'results': results, 'mask': mask}
+        output = {'image': res,'steering': steer, 'results': results, 'uncertaintty_count': 0.1, 'uncertain': 0.1}
         return res, output
