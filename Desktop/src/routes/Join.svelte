@@ -3,7 +3,6 @@
     import {theme } from "../stores/themeStore";
 </script>
 
-
 {#if $theme === 'highVizLight'}
     <div class="min-h-screen lightScreen">
         <OnboardJoin />

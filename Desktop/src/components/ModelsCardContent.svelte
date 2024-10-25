@@ -24,13 +24,11 @@
         <span class="ml-2"> Back </span>
         </button>
   <div class="grid grid-cols-2 grid-rows-3 bg-highVizLight-secondary grid-rows-2 gap-2 p-4 shadow-lg w-full h-full">
-    <!-- Video Section -->
     <div class="relative bg-highVizLight-accent rounded-lg block items-center justify-center col-span-1 row-span-2">
       <video src="https://www.pexels.com/download/video/3121459/" class="p-1 rounded-lg" loop autoplay muted playsinline></video>
       <!-- svelte-ignore a11y-img-redundant-alt -->
     </div>
     
-    <!-- Model Name and Description -->
     <div class="flex flex-col p-4 col-span-1 row-span-1">
       <div class="text-2xl  text-primary font-bold justify-center ">{Model.mName}</div>
       <div class=" text-black text-base">{Model.mDescription}</div>
@@ -58,7 +56,6 @@
       <!-- svelte-ignore a11y-img-redundant-alt -->
     </div>
     
-    <!-- Model Name and Description -->
     <div class="flex flex-col p-4 col-span-1 row-span-1">
       <div class="text-2xl  text-dark-primary font-bold justify-center ">{Model.mName}</div>
       <div class=" text-theme-dark-white text-base">{Model.mDescription}</div>

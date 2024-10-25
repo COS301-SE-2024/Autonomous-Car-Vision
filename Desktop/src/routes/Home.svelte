@@ -46,7 +46,6 @@
     window.electronAPI.storeUname(result.user.name);
     window.electronAPI.storeUemail(result.user.email);
 
-    // check if user is already in the database
     const userExists = await axios.post(
       "http://" + HOST_IP + ":8000/userExists/",
       {
@@ -103,7 +102,6 @@
         window.electronAPI.storeUname(result.user.name);
         window.electronAPI.storeUemail(result.user.email);
 
-        // check if user is already in the database
         const userExists = await axios.post(
           "http://" + HOST_IP + ":8000/userExists/",
           {
@@ -187,7 +185,7 @@
     >
       <div class="modalLight p-8 rounded-lg shadow-lg w-1/2">
         <h1 class="text-4xl text-center mb-6 font-bold text-black">
-          Welcome to High-Viz
+          Welcome to HighViz
         </h1>
         <div class="flex flex-col gap-4 items-center">
           <a href="#/login" class="w-full">
@@ -220,7 +218,7 @@
     >
       <div class="modal p-8 rounded-lg shadow-lg w-1/2">
         <h1 class="text-4xl text-center mb-6 font-bold text-white">
-          Welcome to High-Viz
+          Welcome to HighViz
         </h1>
         <div class="flex flex-col gap-4 items-center">
           <a href="#/login" class="w-full">

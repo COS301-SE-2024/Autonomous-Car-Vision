@@ -31,21 +31,17 @@ def elyptic(encoding):
 
 def encrypt_message(public_key_pem, data):
     try:
-        # Ensure the public key is in the correct string format
         if isinstance(public_key_pem, bytes):
             public_key_pem = public_key_pem.decode("utf-8")
 
-        # Load the public key
         public_key = serialization.load_pem_public_key(
             public_key_pem.encode("utf-8"), backend=default_backend()
         )
         print("Public key loaded successfully")
 
-        # Serialize the dictionary to a JSON string
         json_data = json.dumps(data)
         print("JSON data to encrypt:", json_data)
 
-        # Generate a symmetric key for AES encryption
         symmetric_key = os.urandom(32)
         iv = os.urandom(16)
         cipher = Cipher(
@@ -56,7 +52,6 @@ def encrypt_message(public_key_pem, data):
             encryptor.update(json_data.encode("utf-8")) + encryptor.finalize()
         )
 
-        # Encrypt the symmetric key with the RSA public key
         encrypted_symmetric_key = public_key.encrypt(
             symmetric_key,
             padding.OAEP(
@@ -66,7 +61,6 @@ def encrypt_message(public_key_pem, data):
             ),
         )
 
-        # Encode the results using Base64
         encrypted_message_base64 = base64.b64encode(encrypted_data).decode("utf-8")
         encrypted_symmetric_key_base64 = base64.b64encode(
             encrypted_symmetric_key
@@ -118,7 +112,6 @@ def asymmetric():
 
 def get_session(private_key, peer_public_key):
     shared_key = private_key.exchange(ec.ECDH(), peer_public_key)
-    # Derive a session key using HKDF
     session_key = HKDF(
         algorithm=hashes.SHA256(), length=32, salt=None, info=b"session key"
     ).derive(shared_key)

@@ -4,8 +4,6 @@ import json
 import sys
 
 def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
-    print("File name: ", filename)
-
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((ip, port))
 
@@ -22,7 +20,6 @@ def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
         filepath = "./" + filename
         s.sendall(filename.encode() + b"\0")
 
-        # move the file to the videoDestination
         with open(filepath, "wb") as f:
             print(f"Receiving file {filename}...")
             while True:
@@ -31,9 +28,7 @@ def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
                     break;
                 f.write(data)
         print(f"File {filename} received and saved to {filepath}")
-        
-        # move the file to the videoDestination
-        os.rename(filepath, videoDestination)
+        # os.rename(filepath, videoDestination)
 
 
 if __name__ == "__main__":

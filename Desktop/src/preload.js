@@ -12,6 +12,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getAppPath: async () => await ipcRenderer.invoke('get-app-path'),
+  getModelsPath: async () => await ipcRenderer.invoke('get-models-path'),
   resolvePath: async (...segments) => await ipcRenderer.invoke('resolve-path', ...segments),
   readDirectory: (directoryPath) => ipcRenderer.invoke('read-directory', directoryPath),
   storeToken: (token) => ipcRenderer.send('store-token', token),
@@ -39,7 +40,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateData: (mid, updates) => ipcRenderer.invoke('ureq', mid, updates),
   uploadFile: (filePath, mid, uid, token, mediaName) => ipcRenderer.invoke('upload-file', filePath, mid, uid, token, mediaName),
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
-  fetchVideos: () => ipcRenderer.invoke('fetch-videos'),
+  fetchVideos: (uid) => ipcRenderer.invoke('fetch-videos', uid),
   extractFrames: (videoPath) => ipcRenderer.invoke('extract-frames', videoPath),
   saveFile: (fileBuffer, fileName) => ipcRenderer.invoke('save-file', fileBuffer, fileName),
   fileExists: (filePath) => fs.existsSync(path.resolve(filePath)),
@@ -49,7 +50,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
   deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file', filePath),
   getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
-  downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
+  moveDownloadedVideo: (videoName, filePath) => ipcRenderer.invoke('move-video-to-downloads', videoName, filePath),
   getAIModels: () => ipcRenderer.invoke('get-ai-models'),
   loadStoreProcess: () => ipcRenderer.sendSync('load-store-process'),
   saveStoreProcess: async (store) => await ipcRenderer.invoke('save-store-process', store),
@@ -86,4 +87,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getTestData: () => ipcRenderer.invoke('get-test-data'),
   platform: process.platform,
   getBaseDirectory: async () => await ipcRenderer.invoke('get-base-directory'),
+  syncSqlite: (uid) => ipcRenderer.invoke('sync-sqlite', uid),
 });

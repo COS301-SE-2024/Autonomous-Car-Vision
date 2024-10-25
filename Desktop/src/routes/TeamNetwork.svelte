@@ -51,15 +51,14 @@
         }
 
         try {
-            // Fetch user data
             const userResponse = await axios.post(
                 "http://" + HOST_IP + ":8000/getCorporationUsersID/",
                 {
                     uid: window.electronAPI.getUid(),
                 },
             );
-            let users = userResponse.data.users || []; // Ensure users is an array
-            let userIDS = users.map((user) => user.uid); // Extract user IDs
+            let users = userResponse.data.users || [];
+            let userIDS = users.map((user) => user.uid);
 
             let agentsArray = [];
             for (let i = 0; i < userIDS.length; i++) {
@@ -69,41 +68,33 @@
                         uid: userIDS[i],
                     },
                 );
-                let agents = agentResponse.data.agents || []; // Ensure agents is an array
-                agentsArray.push(...agents); // Combine agents into one array
+                let agents = agentResponse.data.agents || [];
+                agentsArray.push(...agents);
             }
 
             agentsGlobal = agentsArray;
 
-            // Step 1: Filter agents - only keep agents if a user has uploaded to them
-            // We check if `uid` from the agent matches any in `userIDS`
             const filteredAgents = agentsArray.filter((agent) => {
                 return userIDS.includes(agent.uid);
             });
 
-            // Step 2: Remove duplicates based on 'aid' (Agent ID)
             const uniqueAgents = [
                 ...new Map(
                     filteredAgents.map((agent) => [agent.aid, agent]),
                 ).values(),
             ];
 
-            // Step 3: Process data and create nodes
             nodes = makeNodes({ clients: users, agents: uniqueAgents });
 
-            // Step 4: Update the writable stores
-
-            // Initialize TeamAgents with agent IDs and boolean values
             let agentBoolMap = {};
             uniqueAgents.forEach((agent) => {
-                agentBoolMap[agent.aid] = false; // Initialize with false
+                agentBoolMap[agent.aid] = false;
             });
             TeamAgents.set(agentBoolMap);
 
-            // Initialize TeamClients with client IDs and boolean values
             let clientBoolMap = {};
             users.forEach((client) => {
-                clientBoolMap[client.uid] = false; // Initialize with false
+                clientBoolMap[client.uid] = false;
             });
             TeamClients.set(clientBoolMap);
         } catch (error) {
@@ -114,34 +105,30 @@
     function makeNodes(JsonPayload) {
         let NodesMake = [];
 
-        // Ensure that agents and clients are available and are arrays
         const agents = JsonPayload.agents || [];
         const clients = JsonPayload.clients || [];
-
-        // Step 1: Create Broker node
+        
         let brokerNode = {
             id: "10000",
             type: "Broker",
             position: { x: 0, y: 0 },
             label: "Broker",
-            anchors: [{ id: "in1", type: "input" }], // Input for Agents
+            anchors: [{ id: "in1", type: "input" }],
             agents: agents.map((agent) => agent.aid.toString()),
             booleanID: 0,
             team_name: teamName
         };
         NodesMake.push(brokerNode);
 
-        // Step 2: Create Agent nodes and connect them to the Broker
         agents.forEach((agent, index) => {
             let agentNode = {
                 id: agent.aid.toString(),
                 type: "Agent",
-                position: { x: index * 200 - 500, y: -500 }, // Adjust positions dynamically
+                position: { x: index * 200 - 500, y: -500 },
                 label: `Agent ${agent.aid.toString()}`,
-                anchors: [{ id: "out1", type: "output", out: "10000" }], // Connected to Broker
-                clients: [], // Will populate later with connected clients
+                anchors: [{ id: "out1", type: "output", out: "10000" }],
+                clients: [],
                 booleanID: {
-                    // Track boolean state for visualization
                     bool: index,
                     id: agent.aid,
                 },
@@ -149,7 +136,6 @@
             NodesMake.push(agentNode);
         });
 
-        // Step 3: Create Client nodes and connect them to their respective Agents
         clients.forEach((client, index) => {
             let clientNode = {
                 id: client.uid.toString(),
@@ -160,15 +146,12 @@
                 agents: [],
                 booleanID: {
                     bool: index,
-                    id: client.uid, // Ensure unique ID for each client
+                    id: client.uid,
                 },
                 profilePhoto: null,
             };
             
-            // Matching user to profilePhoto
-            // Find the user corresponding to the client
             const matchingUser = users.find((user) => user.uid === client.uid);
-            // If a matching user is found, generate the Gravatar URL
             if (matchingUser && matchingUser.uemail) {
                 clientNode.profilePhoto =
                     "https://www.gravatar.com/avatar/" +
@@ -176,26 +159,21 @@
                     "?d=retro";
             }
 
-            // Collect agent connections and populate clientNode.agents
             agentsGlobal.forEach((agent) => {
-                // Check if the agent's uid matches the client's uid
                 if (clientNode.id === agent.uid.toString()) {
-                    // Add the agent's aid to the clientNode's agents list
                     if (!clientNode.agents.includes(agent.aid.toString())) {
                         clientNode.agents.push(agent.aid.toString());
                     }
 
-                    // Find the agent node in NodesMake
                     let agentNode = NodesMake.find(
                         (node) =>
                             node.id === agent.aid.toString() &&
                             node.type === "Agent",
                     );
 
-                    // If the agentNode exists, connect the client to it
                     if (agentNode) {
                         if (!agentNode.clients.includes(clientNode.id)) {
-                            agentNode.clients.push(clientNode.id); // Connect agent to client
+                            agentNode.clients.push(clientNode.id);
                         }
                     }
                 }

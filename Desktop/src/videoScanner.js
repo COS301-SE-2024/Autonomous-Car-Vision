@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to recursively get video file paths for folders containing "drive"
 function getVideoFiles(directory) {
   return new Promise((resolve, reject) => {
     function readDirectory(dir) {
@@ -18,7 +17,7 @@ function getVideoFiles(directory) {
             } else if (entry.isFile() && path.extname(entry.name).toLowerCase() === '.mp4' || entry.isFile() && path.extname(entry.name).toLowerCase() === '.avi') {
               return Promise.resolve({
                 path: fullPath,
-                name: path.basename(dir)  // Use folder name as video name
+                name: path.basename(dir) 
               });
             }
             return Promise.resolve(null);
@@ -26,7 +25,6 @@ function getVideoFiles(directory) {
 
           Promise.all(promises)
             .then((results) => {
-              // Flatten the array and filter out null values
               const files = results.flat().filter(Boolean);
               res(files);
             })

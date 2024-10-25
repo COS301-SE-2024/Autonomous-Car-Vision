@@ -13,8 +13,6 @@
     </div>
 {/if}
 
-<!--  -->
-
 <style>
     .lightScreen {
         background-image: linear-gradient(180deg, #f8f8f8, #b6d9e8);

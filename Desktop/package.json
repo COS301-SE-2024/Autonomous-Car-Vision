@@ -1,9 +1,10 @@
 {
   "name": "HighViz",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": {
     "email": "bitforge.capstone@gmail.com"
   },
+  "description": "HighViz a comprehensive suite of AI tools for autonomous car vision that aims to imporove the driving experience by providing a host of feature such as terrain mapping, lane following, obstacle avoidance.",
   "homepage": "206.189.188.197:8000/download",
   "main": "src/electron.js",
   "type": "commonjs",
@@ -31,6 +32,7 @@
     "@sveltejs/vite-plugin-svelte": "^3.1.1",
     "@testing-library/jest-dom": "^6.4.6",
     "@types/bcryptjs": "^2.4.6",
+    "adm-zip": "^0.5.16",
     "apexcharts": "^3.52.0",
     "autoprefixer": "^10.0.0",
     "axios": "^1.7.2",
@@ -63,7 +65,7 @@
     "sass": "^1.77.6",
     "sequelize": "^6.37.3",
     "shepherd.js": "^13.0.3",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "5.0.2",
     "svelte": "^3.0.0",
     "svelte-file-dropzone": "^2.0.7",
     "svelte-french-toast": "^1.2.0",
@@ -85,7 +87,7 @@
     "@vitest/ui": "^1.6.0",
     "babel-jest": "^27.0.0",
     "daisyui": "^4.12.10",
-    "electron": "^31.0.0",
+    "electron": "^30.0.9",
     "electron-builder": "^24.13.3",
     "electron-rebuild": "^3.2.9",
     "ffmpeg": "^0.0.4",
@@ -101,10 +103,12 @@
     "files": [
       "public/images",
       "public/build/**/*",
-      "src/*",
+      "src/**/*",
+      "src/routes/**/*.py",
       "public/index.html",
       ".env",
-      "../Process"
+      "python.zip",
+      "processVideo"
     ],
     "win": {
       "target": [
@@ -113,11 +117,11 @@
       ]
     },
     "linux": {
+      "icon": "build/icons",
       "target": [
-        "AppImage",
-        "deb",
-        "rpm"
+        "AppImage"
       ]
-    }
+    },
+    "asar": true
   }
 }

@@ -12,35 +12,28 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from collections import defaultdict
 
-# Initialize Pygame
 pygame.init()
 
-# Define constants
 IM_WIDTH = 800
 IM_HEIGHT = 600
 FPS = 10
 
-# Global variable to control the mode
 manual_mode = True
 
 def main():
     global manual_mode
 
-    # Connect to the CARLA server
     client = carla.Client('localhost', 2000)
     client.set_timeout(5.0)
     world = client.get_world()
 
     try:
-        # Get the blueprint library and choose a vehicle
         blueprint_library = world.get_blueprint_library()
         vehicle_bp = blueprint_library.filter('etron')[0]
 
-        # Spawn the vehicle at a random location
         spawn_point = world.get_map().get_spawn_points()[5]
         vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
-        # Add a camera sensor to the vehicle
         camera_bp = blueprint_library.find('sensor.camera.rgb')
         camera_bp.set_attribute('image_size_x', f'{IM_WIDTH}')
         camera_bp.set_attribute('image_size_y', f'{IM_HEIGHT}')
@@ -48,30 +41,25 @@ def main():
         camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))
         camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
 
-        # Set up the display
         display = pygame.display.set_mode((IM_WIDTH, IM_HEIGHT))
         pygame.display.set_caption("CARLA Lane Following")
         clock = pygame.time.Clock()
 
-        # Variables to store the camera image and control
         image_queue = []
         control = carla.VehicleControl()
         steer_value = 0.0
 
-        # Callback function to process camera images
         def process_image(data):
             array = np.frombuffer(data.raw_data, dtype=np.uint8)
             array = array.reshape((IM_HEIGHT, IM_WIDTH, 4))
-            array = array[:, :, :3]  # Remove alpha channel
+            array = array[:, :, :3]
             image_queue.append(array)
 
-        # Start the camera
         camera.listen(lambda data: process_image(data))
         
         previous_left_id = None
         previous_right_id = None
 
-        # Main loop
         while True:
             if len(image_queue) > 0:
                 frame = image_queue.pop(0)
@@ -80,10 +68,10 @@ def main():
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return  # Exit the script
+                    return
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
-                        manual_mode = not manual_mode  # Switch modes
+                        manual_mode = not manual_mode
                     elif manual_mode:
                         if event.key == pygame.K_w:
                             control.throttle = 0.5
@@ -94,7 +82,6 @@ def main():
                         elif event.key == pygame.K_d:
                             control.steer = 0.5
                     else:
-                        # In autonomous mode, reset manual controls
                         control.throttle = 0.0
                         control.brake = 0.0
                         control.steer = 0.0
@@ -107,13 +94,9 @@ def main():
                             control.steer = 0.0
 
             if manual_mode:
-                # Manual driving mode
-                # Display the camera frame
                 surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
                 display.blit(surface, (0, 0))
             else:
-                # Autonomous lane-following mode
-                # Pass the frame and previous variables to start_following function
                 processed_image, mask, steer_value, results, left_id, right_id = start_following(
                     frame, previous_left_id, previous_right_id
                 )
@@ -121,23 +104,18 @@ def main():
                 previoys_left_id = left_id
                 previous_right_id = right_id
 
-                # Update vehicle control with the steer value
                 control.steer = float(steer_value)
-                control.throttle = 0.15  # Adjust the throttle value as needed
+                control.throttle = 0.15
 
-                # Display the processed image
                 surface = pygame.surfarray.make_surface(processed_image.swapaxes(0, 1))
                 display.blit(surface, (0, 0))
 
-            # Apply the control to the vehicle
             vehicle.apply_control(control)
 
-            # Update the display
             pygame.display.flip()
             clock.tick(FPS)
 
     finally:
-        # Clean up
         camera.stop()
         vehicle.destroy()
         pygame.quit()

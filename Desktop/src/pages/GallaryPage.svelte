@@ -34,7 +34,6 @@
   // Fetch the video records from the database
   onMount(async () => {
     isLoading.set(true);
-
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
@@ -42,7 +41,18 @@
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
 
     try {
-      const response = await window.electronAPI.fetchVideos();
+      const syncSqlite = await window.electronAPI.syncSqlite(uid);
+      console.log("syncSqlite", syncSqlite);
+    } catch (error) {
+      console.error("Failed to sync data", error);
+    }
+    fetchVideos(uid);
+  });
+
+  async function fetchVideos(uid) {
+    isLoading.set(true);
+    try {
+      const response = await window.electronAPI.fetchVideos(uid);
       if (response.success) {
         videoURLs = response.data.map((record) => record.dataValues.localurl);
         videoNames = response.data.map((record) => record.dataValues.mname);
@@ -54,39 +64,24 @@
           videoURLs.map(async (url) => {
             const checkResponse =
               await window.electronAPI.checkFileExistence(url);
-            if (checkResponse.success) {
-              return checkResponse.exists;
-            } else {
-              console.error(
-                "Error checking file existence:",
-                checkResponse.error,
-              );
-              return false;
-            }
+            return checkResponse.success ? checkResponse.exists : false;
           }),
         );
-        filteredItems.set(videoURLs); 
+        filteredItems.set(videoURLs);
       } else {
         console.error("Failed to fetch video records:", response.error);
       }
-      data = await fetchData();
     } catch (error) {
       console.error("Failed to fetch data", error);
     } finally {
       isLoading.set(false);
     }
-  });
-
-  async function fetchData() {
-    // Replace with your actual data fetching logic
-    return { message: "Data loaded successfully" };
   }
 
   async function handleSearch(event) {
     searchQuery = event.target.value;
     filteredItems.update(() => {
       if (searchQuery === "") {
-        // If search query is empty, display all videos
         return videoURLs;
       } else {
         const searchRegex = new RegExp(searchQuery, "i");
@@ -123,6 +118,12 @@
 
   function handleListTypeChange(type) {
     listType = type;
+  }
+
+  function handleUploadSuccess(event) {
+    console.log("Upload successful, re-fetching videos...");
+    fetchVideos();
+    location.reload();
   }
 </script>
 
@@ -169,7 +170,7 @@
           </Button>
         </div>
         {#if listType === "grid"}
-          {#if $filteredItems.length > 0}
+          {#if $filteredItems.length > 0 || $isLoading}
             <div
               class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
             >
@@ -244,7 +245,7 @@
           </Button>
         </div>
         {#if listType === "grid"}
-          {#if $filteredItems.length > 0}
+          {#if $filteredItems.length > 0 || $isLoading}
             <div
               class="grid grid-flow-row-dense lg:grid-cols-3 md:grid-cols-2 grid-cols-1 items-center w-full"
             >
@@ -284,7 +285,7 @@
   {/if}
   {#if showModal}
     <div class="w-full h-full flex justify-center items-center">
-      <UploadModal bind:showModal />
+      <UploadModal on:uploadSuccess={handleUploadSuccess} bind:showModal />
     </div>
   {/if}
 </ProtectedRoutes>

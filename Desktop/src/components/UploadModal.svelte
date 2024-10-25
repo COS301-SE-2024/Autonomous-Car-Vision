@@ -6,10 +6,12 @@
     import { Button, Icon } from "svelte-materialify";
     import { mdiClose, mdiDeleteOutline, mdiUpload } from "@mdi/js";
     import { theme } from "../stores/themeStore";
+    import { createEventDispatcher } from "svelte";
 
     export let videoSource = "";
     export let showModal;
 
+    const dispatch = createEventDispatcher();
     let dialog;
     let filename = "";
     let file;
@@ -22,8 +24,7 @@
             filename = acceptedFiles[0].name;
             file = acceptedFiles[0];
         }
-
-        // Alert for rejected files
+        
         fileRejections.forEach((rejection) => {
             alert(
                 `File rejected: ${rejection.file.name}\nReason: ${rejection.errors[0].message}`,
@@ -40,15 +41,10 @@
             return;
         }
         isUploadLoading.set(true);
-        setInterval(async () => {
-            isUploadLoading.set(false);
-        }, 5000);
 
         let uid = window.electronAPI.getUid();
         let token = window.electronAPI.getToken();
         let sizeInBytes = file.size;
-
-        // Convert size to MB and round to 2 decimal places
         let size = (sizeInBytes / (1024 * 1024)).toFixed(2);
         let aip = "";
         let aport = "";
@@ -66,13 +62,23 @@
             if (response.success) {
                 aip = response.ip;
                 aport = response.port;
-                // You can now use response.ip and response.port as needed
+                console.log("IP: ", aip);
+                console.log("Port: ", aport);
             } else {
                 console.error("Error:", response.error);
             }
         } catch (error) {
             console.error("Error calling openFTP:", error);
         }
+
+        console.log("Uploading to agent...");
+        console.log("aip:", aip);
+        console.log("aport:", aport);
+        console.log("file.path:", file.path);
+        console.log("uid:", uid);
+        console.log("size:", size);
+        console.log("token:", token);
+        console.log("filename:", filename);
 
         await window.electronAPI.uploadToAgent(
             aip,
@@ -85,7 +91,6 @@
         );
 
         try {
-            // Save the file using the main process
             videoSource = await window.electronAPI.saveFile(
                 file.path,
                 filename,
@@ -94,25 +99,21 @@
                 mname: filename,
                 localurl: videoSource,
             };
-            // Insert the record into the database
             const response1 = await window.electronAPI.insertData(record);
 
-            // Select the record from the database
             const response2 = await window.electronAPI.selectData(filename);
 
             toast.success("Video uploaded successfully", {
                 duration: 5000,
                 position: "top-center",
             });
-
-            // sleep for 5 seconds
+            
             await new Promise((resolve) => setTimeout(resolve, 5000));
 
             if (response2.success) {
                 const mid = response2.data.dataValues.mid;
                 const uid = window.electronAPI.getUid();
                 const token = window.electronAPI.getToken();
-
             } else {
                 console.error(
                     "Failed to retrieve the record:",
@@ -120,6 +121,8 @@
                 );
             }
 
+            dispatch("uploadSuccess", { success: true });
+            isUploadLoading.set(false);
             showModal = false;
             push("/gallery");
         } catch (error) {

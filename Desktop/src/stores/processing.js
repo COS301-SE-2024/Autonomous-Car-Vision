@@ -1,6 +1,5 @@
 import { writable, get } from 'svelte/store';
 
-// Initialize writable stores
 export const processing = writable(false);
 export const cuda = writable(false);
 export const localProcess = writable(false);
@@ -11,9 +10,8 @@ export const remoteProcessingQueue = writable([]);
 
 let isStateLoaded = false;
 
-// Function to load state from electron-store
 export async function loadState() {
-    const store = window.electronAPI.loadStoreProcess(); // Ensure correct usage of electronAPI
+    const store = window.electronAPI.loadStoreProcess(); 
     processing.set(store.processing);
     cuda.set(store.cuda);
     localProcess.set(store.localProcess);
@@ -24,16 +22,14 @@ export async function loadState() {
     isStateLoaded = true;
 }
 
-// Function to save state to electron-store
 export async function saveState(state) {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         await window.electronAPI.saveStoreProcess(state);
     }
 }
 
-// Subscribe to stores and save state on change
 processing.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: value,
             cuda: get(cuda),
@@ -47,7 +43,7 @@ processing.subscribe(value => {
 });
 
 cuda.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: value,
@@ -61,7 +57,7 @@ cuda.subscribe(value => {
 });
 
 localProcess.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: get(cuda),
@@ -75,7 +71,7 @@ localProcess.subscribe(value => {
 });
 
 videoUrl.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: get(cuda),
@@ -89,7 +85,7 @@ videoUrl.subscribe(value => {
 });
 
 processingQueue.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: get(cuda),
@@ -103,7 +99,7 @@ processingQueue.subscribe(value => {
 });
 
 originalVideoURL.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: get(cuda),
@@ -117,7 +113,7 @@ originalVideoURL.subscribe(value => {
 });
 
 remoteProcessingQueue.subscribe(value => {
-    if (isStateLoaded) { // Only save if the state has been loaded
+    if (isStateLoaded) { 
         saveState({
             processing: get(processing),
             cuda: get(cuda),
@@ -130,5 +126,4 @@ remoteProcessingQueue.subscribe(value => {
     }
 });
 
-// Load state when the module is initialized
 loadState();

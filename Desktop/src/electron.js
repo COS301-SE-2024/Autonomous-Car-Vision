@@ -14,7 +14,6 @@ const { OAuth2Client } = require('google-auth-library');
 const http = require('http');
 const dotenv = require('dotenv');
 
-// import ability to get .env data
 require('dotenv').config();
 
 let envPath = path.join(app.getAppPath(), '.env');
@@ -41,30 +40,36 @@ async function loadElectronStore() {
 
 async function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 800,
+        width: 1080,
+        height: 720,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             enableRemoteModule: false,
             webviewTag: true,
-            nodeIntegration: true, // Enable Node.js integration
-            webSecurity: false, // Disabled web security for e2e testing
+            nodeIntegration: true,
+            webSecurity: false,
         },
         autoHideMenuBar: true,
         icon: path.join(__dirname, 'assets', 'HighViz(transparent)-white.png'),
     });
 
     mainWindow.loadFile('public/index.html');
-    // mainWindow.webContents.openDevTools();
-    // Initialize the store after the window is created
+
+    if (app.isPackaged) {
+        mainWindow.webContents.on('devtools-opened', () => {
+            mainWindow.webContents.closeDevTools();
+        });
+
+        mainWindow.webContents.on('context-menu', (e) => {
+            e.preventDefault();
+        });
+    }
     store = await loadElectronStore();
 }
 
 app.whenReady().then(() => {
     createWindow();
-
-    // Register protocol handler
     if (process.defaultApp) {
         if (process.argv.length >= 2) {
             app.setAsDefaultProtocolClient('myapp', process.execPath, [path.resolve(process.argv[1])])
@@ -75,7 +80,6 @@ app.whenReady().then(() => {
 });
 
 app.on('ready', () => {
-    // Suppress specific DevTools warnings
     const { session } = require('electron');
     session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
         if (details.url.includes('devtools://')) {
@@ -84,8 +88,6 @@ app.on('ready', () => {
             callback({ cancel: false });
         }
     });
-
-    // createWindow();
 });
 
 app.on('open-url', (event, url) => {
@@ -112,17 +114,42 @@ app.on('activate', () => {
     }
 });
 
-// try {
-//     require('electron-reloader')(module)
-// } catch (_) { }
+const AdmZip = require('adm-zip');
 
+function extractPythonFiles(pythonFile) {
+    const appDataDir = path.join(getBaseDirectory(), 'python-scripts');
+    const zipPath = path.join(app.getAppPath(), 'python.zip');
 
-// Get app path
+    console.log(`Zip Path: ${zipPath}`);
+    console.log(`App Data Directory: ${appDataDir}`);
+
+    if (!fs.existsSync(appDataDir)) {
+        fs.mkdirSync(appDataDir, { recursive: true });
+    }
+
+    const zip = new AdmZip(zipPath);
+    const extractedScriptPath = path.join(appDataDir, 'python', pythonFile);
+
+    if (fs.existsSync(extractedScriptPath)) {
+        console.log(`Python script already extracted at: ${extractedScriptPath}`);
+        return appDataDir;
+    }
+
+    zip.extractAllTo(appDataDir, true);
+
+    if (fs.existsSync(extractedScriptPath)) {
+        console.log(`Python script found at: ${extractedScriptPath}`);
+    } else {
+        console.error(`Python script NOT found at: ${extractedScriptPath}`);
+    }
+
+    return appDataDir;
+}
+
 ipcMain.handle('get-app-path', () => {
-    return app.getAppPath();
+    return getBaseDirectory();
 });
 
-// Read directory handler
 ipcMain.handle('read-directory', async (event, directoryPath) => {
     return new Promise((resolve, reject) => {
         fs.readdir(directoryPath, (err, files) => {
@@ -137,14 +164,12 @@ ipcMain.handle('read-directory', async (event, directoryPath) => {
 
 function getBaseDirectory() {
     if (os.platform() === 'win32') {
-      // For Windows, use the AppData directory
-      base_directory = path.join(process.env.APPDATA, 'HVstore');
+        base_directory = path.join(process.env.APPDATA, 'HVstore');
     } else if (os.platform() === 'linux') {
-      // For Linux, use ~/.local/share
-      base_directory = path.join(os.homedir(), '.local', 'share', 'HVstore');
+        base_directory = path.join(os.homedir(), '.local', 'share', 'HVstore');
     }
     return base_directory;
-  }
+}
 
 ipcMain.handle('get-host-ip', async (event) => {
     return process.env.HOST_IP;
@@ -263,12 +288,11 @@ ipcMain.handle('save-store-process', async (event, state) => {
     store.set('appProcessing', state);
 });
 
-// Helper function to update the store state
 function updateState(updates) {
     const currentState = store.get('appProcessing', {
         processing: false,
         cuda: false,
-        localProcess: false,
+        localProcess: true,
         videoUrl: '',
         originalVideoURL: '',
         processingQueue: [],
@@ -277,11 +301,10 @@ function updateState(updates) {
     const newState = { ...currentState, ...updates };
     console.log('Updated state:', newState);
     store.set('appProcessing', newState);
-    mainWindow.webContents.send('process-changed'); // Notify renderer about state change
+    mainWindow.webContents.send('process-changed');
     return newState;
 }
 
-// IPC handler for hashing password
 ipcMain.handle('hash-password', async (event, password) => {
     const salt = crypto.randomBytes(16).toString('hex');
     const hash = crypto.scryptSync(password, salt, 64).toString('hex');
@@ -297,6 +320,13 @@ ipcMain.handle('hash-password-salt', async (event, password, salt) => {
 });
 ipcMain.handle('insert-data', async (event, record) => {
     try {
+        const existingRecord = await LookupTable.findOne({ where: { mname: record.mname } });
+
+        if (existingRecord) {
+            console.log("ALREADY EXISTSS")
+            return { success: false, error: 'File with the same filename has already been uploaded.' };
+        }
+
         const result = await LookupTable.create(record);
         return { success: true, data: result };
     } catch (error) {
@@ -304,7 +334,6 @@ ipcMain.handle('insert-data', async (event, record) => {
         return { success: false, error: error.message };
     }
 });
-// IPC handler for selecting data by mname
 ipcMain.handle('select-data', async (event, mname) => {
     try {
         const result = await LookupTable.findOne({ where: { mname } });
@@ -319,7 +348,6 @@ ipcMain.handle('select-data', async (event, mname) => {
     }
 });
 
-// IPC handler for updating data by mid
 ipcMain.handle('ureq', async (event, mid, updates) => {
     try {
         const result = await LookupTable.update(updates, { where: { mid } });
@@ -329,9 +357,11 @@ ipcMain.handle('ureq', async (event, mid, updates) => {
         return { success: false, error: error.message };
     }
 });
+
+
 ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName) => {
     try {
-        console.log('Uploading file from path:', filePath); // Log file path for debugging
+        console.log('Uploading file from path:', filePath);
 
         const formData = new FormData();
         formData.append('media_url', fs.createReadStream(filePath));
@@ -346,13 +376,15 @@ ipcMain.handle('upload-file', async (event, filePath, mid, uid, token, mediaName
             },
         });
 
-        console.log('Upload response:', response.data); // Log response for debugging
+        console.log('Upload response:', response.data);
         return { success: true, data: response.data };
     } catch (error) {
         console.error('Failed to upload file:', error);
         return { success: false, error: error.message };
     }
 });
+
+
 ipcMain.handle('open-file-dialog', async () => {
     const result = await dialog.showOpenDialog({
         properties: ['openFile'],
@@ -367,9 +399,9 @@ ipcMain.handle('open-file-dialog', async () => {
         return { canceled: false, filePath: result.filePaths[0] };
     }
 });
-ipcMain.handle('fetch-videos', async () => {
+ipcMain.handle('fetch-videos', async (event, uid) => {
     try {
-        const records = await LookupTable.findAll({ where: { localurl: { [Sequelize.Op.not]: null } } });
+        const records = await LookupTable.findAll({ where: { localurl: { [Sequelize.Op.not]: null }, uid: uid } });
         return { success: true, data: records };
     } catch (error) {
         console.error('Failed to fetch videos:', error);
@@ -377,7 +409,6 @@ ipcMain.handle('fetch-videos', async () => {
     }
 });
 
-// Extract frames handler
 ipcMain.handle('extract-frames', async (event, videoPath) => {
     try {
         const { format } = await new Promise((resolve, reject) => {
@@ -391,19 +422,14 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
                     }
                 });
         });
-
-
         const duration = format.duration;
         const videoName = path.basename(videoPath, path.extname(videoPath));
-        const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
-
-        // checks if output directory exists
+        const outputDir = path.join(app.getPath('userData'), 'frames', videoName);
 
         if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
 
-        // Checking if the frames are already generated
         const frameFiles = fs.readdirSync(outputDir);
         if (frameFiles.length > 1) {
             console.log('Frames already exist for:', videoPath);
@@ -462,9 +488,8 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 });
 
 
-// IPC handler to save the file and return the file path
 ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
-    const appDataPath = app.getPath('userData');
+    const appDataPath = getBaseDirectory();
     const downloadsPath = path.join(appDataPath, 'Downloads');
 
     if (!fs.existsSync(downloadsPath)) {
@@ -485,7 +510,6 @@ ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
     });
 });
 
-// Function to process the queue
 async function processQueue() {
     console.log("In process -----------------------------------------------");
     const {
@@ -519,8 +543,6 @@ async function processQueue() {
     });
 
     try {
-        //call the run-python-script IPC handler
-
         const output = await runPythonScript(nextVideo.scriptPath, [
             nextVideo.videoPath,
             nextVideo.outputVideoPath,
@@ -550,7 +572,7 @@ async function processQueue() {
             processingQueue: processingQueue,
             remoteProcessingQueue: remoteProcessingQueue
         });
-        processQueue(); // Process the next video in the queue
+        processQueue();
     } catch (error) {
         console.error("Python Script Error:", error);
         updateState({
@@ -565,9 +587,7 @@ async function processQueue() {
     }
 }
 
-// IPC handler to queue a video for processing
 ipcMain.handle('queue-video', async (event, videoDetails) => {
-    // fetch localProcess from videoDetails
     let local = videoDetails.localProcess;
     console.log('Video Details being added:', videoDetails);
     if (local) {
@@ -627,34 +647,13 @@ ipcMain.handle('queue-video', async (event, videoDetails) => {
             processingQueue: processingQueue,
             remoteProcessingQueue: remoteProcessingQueue
         });
-        // Process video remotely
         processVideoRemotely(videoDetails);
     }
 
 });
 
-// Function to process video remotely
 async function processVideoRemotely(videoDetails) {
-    // TODO: Implement remote processing
     console.log('Processing video remotely:', videoDetails);
-    // Function should return success or failure
-    // Either add listner for when the video is done processing or return a promise
-    // If the process was unsuccessful, return false and notify user of failure
-    // After notifying user, remove from local database because it is already there
-    // Once done, failure of success, remove from remoteProcessingQueue
-    // Notify user on success
-    // mainWindow.webContents.send('python-script-done', 'Video done processing');
-
-    // INFO: This is a placeholder function for remote processing, above steps
-    // the video path will already be added to the local data base
-    // but the user will not be able to view it until it is processed
-    // this is only to show that the video is being processed
-    // so the video has to be removed from the database if the processing fails
-
-    // To remove use:
-    // removeVideo(videoDetails.outputVideoPath);
-
-    // Wait for 15 seconds then remove the video details from the remote processing queue
     setTimeout(() => {
         const {
             processing,
@@ -689,16 +688,12 @@ async function processVideoRemotely(videoDetails) {
     }, 15000);
 }
 
-// Function to run a python script with set parameters
+// const { execFile } = require('child_process');
+
 function runPythonScript(scriptPath, args) {
     console.log('Running Python Script:', scriptPath, args);
     return new Promise((resolve, reject) => {
-        const python = spawn('python', [scriptPath, ...args], {
-            detached: true,  // Detach the process
-            stdio: ['ignore', 'pipe', 'pipe'],  // Ignore stdin, but pipe stdout and stderr
-            shell: true,  // Run the command through a shell
-            windowsHide: true  // Hide the terminal window on Windows
-        });
+        const python = spawn('python', [scriptPath, ...args], {});
 
         console.log("Script path: " + scriptPath);
 
@@ -714,7 +709,6 @@ function runPythonScript(scriptPath, args) {
         });
 
         python.on('error', (err) => {
-            // Handle the error event, for example, when the process could not be spawned, killed, or there's a sending message error
             reject(new Error("Failed to execute Python script: " + err.message));
         });
 
@@ -723,28 +717,23 @@ function runPythonScript(scriptPath, args) {
                 resolve(output);
                 mainWindow.webContents.send('python-script-done', 'Video done processing');
             } else {
-                // If the process exited with a code other than 0, it means there was an error
                 mainWindow.webContents.send('python-script-done', 'Video done processing');
                 console.log('Python script done but exited with unexpected code:', code);
                 resolve(output);
             }
         });
 
-        // Detach the process and allow it to continue running
         python.unref();
     });
 }
 
-// IPC handler for checking CUDA availability
 ipcMain.handle('check-cuda', async () => {
     return new Promise((resolve, reject) => {
-        console.log("Checking cuda availability")
-        // get the root directory of the app
         const appPath = app.getAppPath();
-        let pythonPath = path.join(appPath, '..');
-        pythonPath = path.join(pythonPath, 'Models/cudaCheck.py');
+        const extractedPath = extractPythonFiles('cudaCheck.py');  // Use app data directory
+        const pythonPath = path.join(extractedPath, 'cudaCheck.py');  // Ensure the script has the correct path
         const python = spawn('python', [pythonPath], {
-            cwd: __dirname, // Ensure the working directory is correct
+            cwd: __dirname,
             stdio: ['pipe', 'pipe', 'pipe'],
             shell: true,
         });
@@ -761,6 +750,7 @@ ipcMain.handle('check-cuda', async () => {
         });
 
         python.on('close', (code) => {
+            resolve(true);
             if (code === 0) {
                 console.log("CUDA available:", output.trim() == 'True');
                 resolve(output.trim() == 'True');
@@ -776,20 +766,16 @@ ipcMain.handle('check-cuda', async () => {
 });
 
 ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, token, mname) => {
-    const scriptPath = 'src/routes/pythonUpload.py';
+    const extractedPath = extractPythonFiles('pythonUpload.py');
+    const scriptPath = path.join(extractedPath, 'python', 'pythonUpload.py');
+
     let rec = await LookupTable.findOne({ where: { mname: mname, uid: uid } });
     const mid = rec.mid;
     const args = [ip, port, `"${filepath}"`, uid, size, token, mid];
-    console.log("ARGS: " + args.join(" "));
 
     return new Promise((resolve, reject) => {
         const { spawn } = require('child_process');
-
         const python = spawn('python', [scriptPath, ...args], {});
-
-        console.log("Running Python script:");
-        console.log("Script path: " + scriptPath);
-        console.log("Args: " + args.join(" "));
 
         let output = '';
         let error = '';
@@ -809,9 +795,9 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
         python.on('close', (code) => {
             console.log(`Python process exited with code ${code}`);
             if (code === 0) {
-                resolve(output);  // Resolve with the captured output
+                resolve(output);
             } else {
-                reject(new Error(error));  // Reject with the captured error
+                reject(new Error(error));
             }
         });
 
@@ -824,7 +810,8 @@ ipcMain.handle('upload-to-agent', async (event, ip, port, filepath, uid, size, t
 
 
 ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size, token, videoDestination) => {
-    const scriptPath = 'src/routes/pythonDownload.py';
+    const extractedPath = extractPythonFiles('pythonDownload.py');
+    const scriptPath = path.join(extractedPath, 'python', 'pythonDownload.py');
     let rec = await LookupTable.findOne({ where: { mname: filepath, uid: uid } });
     const mid = rec.mid;
     const args = [ip, port, filepath, uid, size, token, mid, videoDestination];
@@ -833,13 +820,12 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
         const { spawn } = require('child_process');
         const python = spawn('python', [scriptPath, ...args]);
 
-        console.log("Script path: " + scriptPath);
-        console.log("Args: " + args.join(" "));
         let output = '';
         let error = '';
 
         python.stdout.on('data', (data) => {
             output += data.toString();
+            console.log(output);
         });
 
         python.stderr.on('data', (data) => {
@@ -857,10 +843,22 @@ ipcMain.handle('download-to-client', async (event, ip, port, filepath, uid, size
 });
 
 ipcMain.handle('resolve-path', (event, ...segments) => {
-    return path.resolve(...segments);
+    const resolvedPath = path.resolve(...segments); // Resolve the path from segments
+
+    try {
+        // Ensure that the directory structure exists by creating it if necessary
+        fs.mkdirSync(resolvedPath, { recursive: true });
+        console.log(`Directory created or already exists: ${resolvedPath}`);
+    } catch (err) {
+        console.error(`Error creating directory at path: ${resolvedPath}`, err);
+        return { success: false, error: err.message };
+    }
+
+    // Return the resolved path
+    console.log("RESOLVED PATH: ", resolvedPath)
+    return resolvedPath;
 });
 
-// IPC handler to check if a video file exists
 ipcMain.handle('check-file-existence', async (event, filePath) => {
     try {
         if (fs.existsSync(filePath)) {
@@ -874,32 +872,47 @@ ipcMain.handle('check-file-existence', async (event, filePath) => {
     }
 });
 
-// IPC handler to delete a video file
+// Helper function to retry the unlink after a delay
+const retryUnlink = async (filePath, retries = 5, delay = 1000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            await fs.promises.unlink(filePath);
+            return true;  // File deleted successfully
+        } catch (error) {
+            if (error.code === 'EBUSY' && attempt < retries) {
+                console.warn(`File is busy. Retrying in ${delay}ms... (Attempt ${attempt} of ${retries})`);
+                await new Promise(resolve => setTimeout(resolve, delay));  // Wait for the specified delay
+            } else {
+                throw error;  // Rethrow the error if it's not recoverable or max attempts reached
+            }
+        }
+    }
+};
+
 ipcMain.handle('delete-video-file', async (event, filePath) => {
     try {
-        // Delete the video file - Move it to deleted folder
+        console.log(`Attempting to delete file: ${filePath}`);
+        
         if (fs.existsSync(filePath)) {
-            // Move the video file to the Deleted folder in development mode
-            const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));
-            fs.mkdirSync(deletedDir, { recursive: true });
-            const newFilePath = path.join(deletedDir, path.basename(filePath));
-            fs.renameSync(filePath, newFilePath);
+            await retryUnlink(filePath);
+            console.log(`File deleted: ${filePath}`);
         } else {
             return { success: false, error: 'File does not exist' };
         }
 
-        // Determine the frames directory path
-        const framesDir = path.join(path.dirname(filePath), 'frames', path.basename(filePath, path.extname(filePath)));
+        // Get frames directory
+        const framesDir = path.join(app.getPath('userData'), 'frames', path.basename(filePath, path.extname(filePath)));
 
-        // Check if frames directory exists
+        // Delete frames if directory exists
         if (fs.existsSync(framesDir)) {
             const files = fs.readdirSync(framesDir);
 
-            // Keep the first frame and delete the rest
+            // Keep the first frame, start deleting from the second
             for (let i = 1; i < files.length; i++) {
                 const framePath = path.join(framesDir, files[i]);
                 if (fs.existsSync(framePath)) {
-                    fs.unlinkSync(framePath);
+                    await retryUnlink(framePath);
+                    console.log(`Frame deleted: ${framePath}`);
                 }
             }
         } else {
@@ -915,9 +928,8 @@ ipcMain.handle('delete-video-file', async (event, filePath) => {
 
 ipcMain.handle('get-video-frame', async (event, videoPath) => {
     const videoName = path.basename(videoPath, path.extname(videoPath));
-    const outputDir = path.join(path.dirname(videoPath), 'frames', videoName);
+    const outputDir = path.join(app.getPath('userData'), 'frames', videoName);
 
-    // Checking if the frames are already generated
     const frameFiles = fs.readdirSync(outputDir);
     if (frameFiles.length > 0) {
         console.log('Frames already exist for:', videoPath);
@@ -926,32 +938,65 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
     }
 });
 
-// IPC handler to move a video file from the Deleted folder to the Downloads folder
-ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
+
+ipcMain.handle('move-video-to-downloads', async (event, videoName, filePath) => {
     try {
-        // const deletedDir = path.join(path.dirname(filePath), 'Deleted', path.basename(filePath, path.extname(filePath)));/
-        const videoFilePath = filePath;
+        // Check if app is packaged or in development mode
+        const isDev = !app.isPackaged;
+        console.log(`Running in ${isDev ? 'development' : 'production'} mode`);
+
+        // Get the correct video file path based on environment
+        const videoFilePath = isDev 
+            ? path.join(__dirname, '..', videoName) // Development path
+            : path.join(path.dirname(app.getPath('exe')), videoName); // Production path
+        console.log("File path:", videoFilePath);
 
         if (!fs.existsSync(videoFilePath)) {
+            console.log("File does not exist");
             return { success: false, error: 'Video file does not exist' };
         }
 
-        // Get the user's Downloads folder path
-        const appDataPath = app.getPath('userData');
+        // Base directory for downloads (this should point to your user storage area)
+        const appDataPath = getBaseDirectory();
         const downloadsDir = path.join(appDataPath, 'Downloads');
+        console.log("App base directory:", appDataPath);
+        console.log("Downloads directory:", downloadsDir);
+
+        // Ensure the Downloads directory exists
+        if (!fs.existsSync(downloadsDir)) {
+            fs.mkdirSync(downloadsDir, { recursive: true });
+            console.log('Downloads directory created:', downloadsDir);
+        }
+
+        // Define destination path for the file move
         const destinationPath = path.join(downloadsDir, videoName);
-
         console.log('Moving video file to:', destinationPath);
-        console.log('from: ', deletedDir);
-        // Move the video file to the Downloads folder
-        fs.renameSync(videoFilePath, destinationPath);
 
+        // Move the file (using copyFile and unlink to handle potential errors)
+        await fs.promises.copyFile(videoFilePath, destinationPath);
+        await fs.promises.unlink(videoFilePath);
+        console.log("File moved");
+
+        // Update the database
+        const updatedRecord = await LookupTable.update(
+            { localurl: destinationPath },
+            { where: { mname: videoName } }
+        );
+        console.log("Database updated:", updatedRecord);
+
+        if (updatedRecord[0] === 0) {
+            console.error('No record found to update');
+            return { success: false, error: 'No record found to update' };
+        }
+
+        console.log('Video moved and lookup table updated:', destinationPath);
         return { success: true, videoFilePath: destinationPath };
     } catch (error) {
         console.error('Error moving video file:', error);
         return { success: false, error: error.message };
     }
 });
+
 
 ipcMain.handle('get-ai-models', async () => {
     try {
@@ -962,7 +1007,6 @@ ipcMain.handle('get-ai-models', async () => {
         return { success: false, error: error.message };
     }
 });
-// Handler to get video from the database by URL
 ipcMain.handle('getVideoByURL', async (event, videoURL) => {
     try {
         const video = await VideoTable.findOne({ where: { videoURL } });
@@ -1020,9 +1064,7 @@ ipcMain.handle('open-ftp', async (event, uid, token, size, media_name, media_url
             },
         });
 
-        console.log('Upload response:', response.data); // Log response for debugging
-
-        // Extract IP and port from the response
+        console.log('Upload response:', response.data);
         const { aip, aport } = response.data;
 
         return { success: true, ip: aip, port: aport };
@@ -1037,28 +1079,18 @@ ipcMain.handle('get-file-size', (event, filePath) => {
         const stats = fs.Stats(filePath);
         console.log('File stats:', stats);
         let fileSize = stats.size;
-        //   convert to string
         return fileSize.toString();
-        //   return stats.size;
     } catch (error) {
         console.error('Error getting file size:', error);
         return null;
     }
 });
-// Handler to get processed videos by original video ID
 ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
     try {
         const video = await VideoTable.findOne({ where: { videoUrl } });
-
-        // If the video is not found, return null
         if (!video) return null;
-
-        // Get the videoID
         const originalID = video.videoID
-
-        // Fetch all videos with the given original video ID
         const videos = await VideoTable.findOne({ where: { originalVidID: originalID } });
-        // Return true if at least one video is processed, else return false
         if (videos) return true;
         else return false;
     } catch (error) {
@@ -1067,7 +1099,6 @@ ipcMain.handle('checkIfVideoProcessed', async (event, videoUrl) => {
     }
 });
 
-// Handler to get all processed videos for a given original video ID
 ipcMain.handle('getProcessedVideos', async (event, originalVidID) => {
     try {
         const videos = await VideoTable.findAll({ where: { originalVidID } });
@@ -1088,7 +1119,6 @@ ipcMain.handle('addVideo', async (event, videoData) => {
     }
 });
 
-// Function to remove video from VideoTable
 function removeVideo(videoUrl) {
     return VideoTable.destroy({ where: { videoURL: videoUrl } });
 }
@@ -1131,10 +1161,8 @@ ipcMain.handle('readDriveLog', async (event, driveDirectory) => {
     }
 });
 
-// Ipc handler to save json pipe file
 ipcMain.handle('save-pipe-json', async (event, jsonString) => {
     try {
-        // Determine the base directory based on the operating system
         let baseDirectory;
         const platform = os.platform();
         if (platform === 'win32') {
@@ -1142,28 +1170,24 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
         } else if (platform === 'linux') {
             baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
         } else {
-            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); // Default to Windows for unsupported OS
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
         }
 
-        // Ensure the 'pipes' directory exists
         const pipesDirectory = path.join(baseDirectory, 'pipes');
         if (!fs.existsSync(pipesDirectory)) {
             fs.mkdirSync(pipesDirectory, { recursive: true });
         }
 
-        // File path for the pipes.json
         const filePath = path.join(pipesDirectory, 'pipes.json');
 
-        // Read the existing JSON data if the file exists
         let existingData = [];
         if (fs.existsSync(filePath)) {
             const fileContent = fs.readFileSync(filePath, 'utf-8');
 
-            // Parse the content and ensure it is an array
             try {
                 const parsedData = JSON.parse(fileContent);
                 if (Array.isArray(parsedData)) {
-                    existingData = parsedData; // If it's an array, use it
+                    existingData = parsedData;
                 } else {
                     console.warn('Existing data is not an array, initializing as empty array');
                 }
@@ -1172,11 +1196,9 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
             }
         }
 
-        // Append the new JSON data
         const newEntry = JSON.parse(jsonString);
-        existingData.push(newEntry); // Now safe because we ensured it's an array
+        existingData.push(newEntry);
 
-        // Write the updated data back to the file
         fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), 'utf-8');
 
         return { success: true, message: 'JSON data saved successfully!' };
@@ -1188,7 +1210,6 @@ ipcMain.handle('save-pipe-json', async (event, jsonString) => {
 
 ipcMain.handle('get-pipe-json', async (event) => {
     try {
-        // Determine the base directory based on the operating system
         let baseDirectory;
         const platform = os.platform();
         if (platform === 'win32') {
@@ -1196,23 +1217,19 @@ ipcMain.handle('get-pipe-json', async (event) => {
         } else if (platform === 'linux') {
             baseDirectory = path.join(os.homedir(), '.local', 'share', 'HVstore');
         } else {
-            baseDirectory = path.join(process.env.APPDATA, 'HVstore'); // Default to Windows for unsupported OS
+            baseDirectory = path.join(process.env.APPDATA, 'HVstore');
         }
 
-        // File path for the pipes.json
         const pipesDirectory = path.join(baseDirectory, 'pipes');
         const filePath = path.join(pipesDirectory, 'pipes.json');
 
-        // Check if the pipes.json file exists
         if (!fs.existsSync(filePath)) {
             return { success: true, data: [], message: 'No data found.' };
         }
 
-        // Read and parse the JSON data
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         const jsonData = JSON.parse(fileContent);
 
-        // Return the JSON data as an array
         return { success: true, data: jsonData, message: 'Data retrieved successfully!' };
     } catch (error) {
         console.error('Error getting JSON data:', error);
@@ -1235,7 +1252,7 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         pythonProcess.on('close', (code) => {
             console.log(`Python script exited with code ${code}`);
             resolve(code);
-            event.sender.send('python-script-done', code); // Optional: Notify the renderer process
+            event.sender.send('python-script-done', code);
         });
 
         pythonProcess.on('error', (err) => {
@@ -1244,12 +1261,10 @@ ipcMain.handle('run-python-script2', async (event, scriptPath, args) => {
         });
     });
 });
-// const client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 ipcMain.handle('google-sign-in', async () => {
-    // Generate the Google OAuth authorization URL
     const url = client.generateAuthUrl({
-        access_type: 'offline', // Ensures we get a refresh token
+        access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email']
     });
 
@@ -1260,7 +1275,7 @@ ipcMain.handle('google-sign-in', async () => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            webSecurity: true, // Enable web security
+            webSecurity: true,
         }
     });
 
@@ -1268,9 +1283,8 @@ ipcMain.handle('google-sign-in', async () => {
     authWindow.show();
 
     return new Promise((resolve, reject) => {
-        // Listen for URL navigation changes
         const handleNavigation = async (url) => {
-            console.log("Navigated to URL:", url); // Log the URL to see where it's going
+            console.log("Navigated to URL:", url);
             const raw_code = /code=([^&]*)/.exec(url) || null;
             const code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
             const error = /\?error=(.+)$/.exec(url);
@@ -1280,10 +1294,9 @@ ipcMain.handle('google-sign-in', async () => {
                 authWindow.destroy();
 
                 try {
-                    // Exchange the authorization code for access tokens
                     const { tokens } = await client.getToken(code);
                     client.setCredentials(tokens);
-                    resolve(tokens); // Send the tokens to the frontend
+                    resolve(tokens);
                 } catch (tokenError) {
                     console.error('Token exchange error:', tokenError);
                     reject(tokenError);
@@ -1295,7 +1308,6 @@ ipcMain.handle('google-sign-in', async () => {
             }
         };
 
-        // Capture the navigation on both will-navigate and did-navigate events
         authWindow.webContents.on('will-navigate', (event, url) => {
             handleNavigation(url);
         });
@@ -1304,7 +1316,6 @@ ipcMain.handle('google-sign-in', async () => {
             handleNavigation(url);
         });
 
-        // Close the window on redirect or when the user cancels authentication
         authWindow.on('close', () => {
             reject(new Error('User closed the OAuth window'));
         });
@@ -1351,7 +1362,6 @@ ipcMain.handle('exchange-code', async (event, code) => {
 
 ipcMain.handle('google-login-test', async () => {
     return new Promise((resolve, reject) => {
-        // Create an HTTP server
         const server = http.createServer(async (req, res) => {
             if (req.url.startsWith('/callback')) {
                 const urlParams = new URL(`http://${HOST_IP}${req.url}`).searchParams;
@@ -1383,7 +1393,6 @@ ipcMain.handle('google-login-test', async () => {
             }
         });
 
-        // Start listening on a random port
         server.listen(0, () => {
             const port = server.address().port;
             const redirectUri = `http://${HOST_IP}:${port}/callback`;
@@ -1402,7 +1411,6 @@ ipcMain.handle('google-login-test', async () => {
                 ],
             });
 
-            // Open the default browser to the authentication URL
             shell.openExternal(authUrl);
         });
     });
@@ -1446,7 +1454,6 @@ async function handleAuthCallback(callbackUrl) {
 
 ipcMain.handle('get-last-signin', async (event, uid) => {
     return new Promise((resolve, reject) => {
-        //TODO: get last signin from the database with uid and an axios post
         axios.post('http://' + HOST_IP + ':8000/api/getLastSignin/', { uid: uid })
             .then(response => {
                 resolve(response.data);
@@ -1459,7 +1466,6 @@ ipcMain.handle('get-last-signin', async (event, uid) => {
 
 ipcMain.handle('update-last-signin', async (event, uid) => {
     return new Promise((resolve, reject) => {
-        //TODO: update last signin in the database with uid and an axios post
         axios.post('http://' + HOST_IP + ':8000/api/updateLastSignin/', { uid: uid })
             .then(response => {
                 resolve(response.data);
@@ -1472,7 +1478,6 @@ ipcMain.handle('update-last-signin', async (event, uid) => {
 
 ipcMain.handle('request-uptime', async (event) => {
     return new Promise((resolve, reject) => {
-        // use get request
         axios.get('http://' + HOST_IP + ':8000/requestUptime/')
             .then(response => {
                 resolve(response.data);
@@ -1485,7 +1490,6 @@ ipcMain.handle('request-uptime', async (event) => {
 
 ipcMain.handle('get-test-data', async (event) => {
     return new Promise((resolve, reject) => {
-        // use get request
         axios.get('http://' + HOST_IP + ':8000/getTestData/')
             .then(response => {
                 resolve(response.data);
@@ -1497,7 +1501,6 @@ ipcMain.handle('get-test-data', async (event) => {
 });
 
 
-// IPC to get the base directory
 ipcMain.handle('get-base-directory', async (event) => {
     const platform = os.platform();
 
@@ -1510,9 +1513,6 @@ ipcMain.handle('get-base-directory', async (event) => {
         console.warn('Unknown platform. Defaulting to home directory.');
         baseDirectory = path.join(os.homedir(), 'HVstore');
     }
-
-
-
     return baseDirectory;
 });
 
@@ -1528,4 +1528,63 @@ function generateThumbnail(videoPath) {
                 folder: path.dirname(thumbnailPath),
             });
     });
+}
+
+ipcMain.handle('sync-sqlite', async (event, uid) => {
+    return new Promise((resolve, reject) => {
+        axios.post('http://' + HOST_IP + ':8000/api/syncSqlite/', { uid: uid })
+            .then(response => {
+                console.log("response", response.data);
+                insertLookupData(response.data);
+                console.log("DATA LOGGED", data);
+                logLookupTableContents();
+                resolve(response.data);
+            })
+            .catch(error => {
+                console.log("error", error);
+                reject(error);
+            });
+    });
+});
+
+async function insertLookupData(responseData) {
+    try {
+        const data = responseData.data;
+        for (const item of data) {
+            console.log("Attempting to insert item:", item);
+            if (!item.media_name || !item.uid) {
+                console.error("Invalid item data:", item);
+                continue;
+            }
+
+            const existingItem = await LookupTable.findOne({ where: { mname: item.media_name } });
+            if (existingItem) {
+                console.log('Item already exists in the database:', item.media_name);
+            }
+
+            await LookupTable.create({
+                mid: parseInt(item.mid),
+                mname: item.media_name,
+                localurl: item.media_url,
+                size: 0,
+                uid: item.uid
+            });
+            console.log('Item inserted successfully:', item.media_name);
+        }
+        console.log('All valid data inserted successfully');
+    } catch (error) {
+        console.error('Error inserting data:', error);
+    }
+}
+
+async function logLookupTableContents() {
+    try {
+        const allRecords = await LookupTable.findAll();
+        console.log('Contents of LookupTable:');
+        allRecords.forEach(record => {
+            console.log(record.toJSON());
+        });
+    } catch (error) {
+        console.error('Error fetching LookupTable contents:', error);
+    }
 }

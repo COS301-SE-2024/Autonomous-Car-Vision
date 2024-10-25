@@ -43,7 +43,6 @@ class TestCryptoFunctions(unittest.TestCase):
         self.assertIn("iv", encrypted_data)
 
     def test_ecdh_encryption_decryption(self):
-        # Generate ECDH keys for two parties
         keys1 = elyptic(encoding=False)
         keys2 = elyptic(encoding=False)
 
@@ -55,7 +54,6 @@ class TestCryptoFunctions(unittest.TestCase):
         decrypted_message = elyptic_decryptor(session_key2, encrypted_message)
 
         self.assertEqual(plaintext, decrypted_message)
-
 
 if __name__ == "__main__":
     unittest.main()

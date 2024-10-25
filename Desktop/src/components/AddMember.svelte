@@ -16,8 +16,8 @@
    
    function addMemberToList() {
         if (email.trim()) {
-        newMembers = [...newMembers, email.trim()]; // Add the email to the array
-        email = ''; // Clear the email field
+        newMembers = [...newMembers, email.trim()];
+        email = '';
         }
     }
 

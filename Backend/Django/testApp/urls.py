@@ -50,6 +50,7 @@ from .views import (
     updateLastSignin,
     getAgentUserConnections,
     requestUptime,
+    syncSqlite,
 )
 
 router = DefaultRouter()
@@ -108,4 +109,5 @@ urlpatterns = [
     path("getAgentUserConnections/", getAgentUserConnections),
     path("requestUptime/", requestUptime),
     path("getTestData/", getTestData),
+    path("syncSqlite/", syncSqlite),
 ]

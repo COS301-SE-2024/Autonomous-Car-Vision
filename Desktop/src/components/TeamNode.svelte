@@ -54,7 +54,7 @@
     function resetBooleanMaps(obj) {
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
-                obj[key] = false; // Set each value to false
+                obj[key] = false; 
             }
         }
     }
@@ -77,7 +77,7 @@
         }
 
         if (nodeType === "Client") {
-            clientBooleans[nodeData.booleanID.id] = true; // Set current client as active
+            clientBooleans[nodeData.booleanID.id] = true;
         }
 
         TeamAgents.set(agentBooleans);
@@ -90,11 +90,11 @@
 
     function updateEdgeColor() {
         if (nodeType === "Agent" && agents[nodeData.booleanID.id]) {
-            edgeColor = "blue"; // Blue for active agents
+            edgeColor = "blue";
         } else if (nodeType === "Client" && clients[nodeData.booleanID.id]) {
-            edgeColor = "green"; // Green for active clients
+            edgeColor = "green";
         } else {
-            edgeColor = "gray"; // Default edge color
+            edgeColor = "gray";
         }
     }
 

@@ -40,7 +40,7 @@
             id: "extend-teams",
             name: "Team",
             iconPath: mdiAccountGroup,
-            subRoutes: [  // Subroutes for the Team dropdown
+            subRoutes: [
                 {
                     id: "go-to-teams-view",
                     name: "Team View",
@@ -140,7 +140,6 @@
          HOST_IP = await window.electronAPI.getHostIp();
         document.addEventListener("click", handleClickOutside);
 
-        // Get user data with uid
         axios
             .post("http://" + HOST_IP + ":8000/getUserData/", {
                 uid: window.electronAPI.getUid(),
@@ -151,15 +150,12 @@
                     
                 let profileEmail = response.data.uemail;
                 profileEmail = profileEmail.trim().toLowerCase();
-                // const emailHash = profileEmail;
-
                 
                 const emailHash = CryptoJS.SHA256(profileEmail);
                 profileImg = `https://www.gravatar.com/avatar/${emailHash}?d=retro`;
             })
             .catch((error) => {
                 console.error("Error fetching user data:", error);
-                // Set a default image in case of error
                 profileImg = "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=retro";
             });
 

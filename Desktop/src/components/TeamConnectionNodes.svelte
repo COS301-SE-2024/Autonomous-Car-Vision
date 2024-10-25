@@ -54,7 +54,7 @@
     function resetBooleanMaps(obj) {
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
-                obj[key] = false; // Set each value to false
+                obj[key] = false;
             }
         }
     }
@@ -62,27 +62,24 @@
     function showConnectionToClient() {
         resetEdgeColors();
 
-        // Access the writable stores to update agents/clients
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
         resetBooleanMaps(agentBooleans);
         resetBooleanMaps(clientBooleans);
 
-        // If the node has clients, mark them as selected
         if (nodeData?.clients) {
             nodeData.clients.forEach((clientID) => {
                 if (clientBooleans.hasOwnProperty(clientID)) {
-                    clientBooleans[clientID] = true; // Set to true for active clients
+                    clientBooleans[clientID] = true;
                 }
             });
         }
 
         if (nodeType === "Agent") {
-            agentBooleans[nodeData.booleanID.id] = true; // Set current agent as active
+            agentBooleans[nodeData.booleanID.id] = true;
         }
-
-        // Update the writable stores
+        
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
     }
@@ -93,14 +90,14 @@
 
     function updateEdgeColor() {
         if (nodeType === "Agent" && agents[nodeData.booleanID.id]) {
-            edgeColor = "blue"; // Change to blue if agent is active
+            edgeColor = "blue";
         } else if (
             nodeType === "Client" &&
             clients[nodeData.booleanID.id]
         ) {
-            edgeColor = "green"; // Change to green if client is active
+            edgeColor = "green";
         } else {
-            edgeColor = "gray"; // Default color
+            edgeColor = "gray";
         }
     }
 

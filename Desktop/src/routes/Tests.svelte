@@ -3,6 +3,7 @@
     import { Icon, Button } from "svelte-materialify";
     import { isLoading } from "../stores/loading";
     import Spinner from "../components/Spinner.svelte";
+    import RingLoader from "../components/RingLoader.svelte";
     import { createEventDispatcher } from "svelte";
     import { theme } from "../stores/themeStore";
     import { onMount } from "svelte";
@@ -20,11 +21,9 @@
     onMount(async () => {
         HOST_IP = await window.electronAPI.getHostIp();
 
-        // Request uptime
         uptime = await window.electronAPI.requestUptime();
         uptime = uptime.uptime;
 
-        // Fetch test data
         loading = false;
     });
     
@@ -58,7 +57,7 @@
             <div class="results-container">
                 {#if performanceTestStarted}
                     <div class="flex justify-center w-full">
-                        <Spinner />
+                        <RingLoader />
                     </div>
                 {:else}
                     <div class="py-4">
@@ -99,7 +98,7 @@
             <div class="results-container">
                 {#if performanceTestStarted}
                     <div class="flex justify-center w-full h-fit">
-                        <Spinner />
+                        <RingLoader />
                     </div>
                 {:else}
                 <div class="py-4">

@@ -48,7 +48,6 @@
     if (!animationRunning) {
       animationRunning = true;
 
-      // Stop any ongoing baffle animation
       b.stop();
       b1.stop();
     
@@ -59,7 +58,7 @@
       });
       b.start();
       b.reveal(5000, () => {
-          animationRunning = false;  // Mark as finished after reveal
+          animationRunning = false;
         });;
 
       b1 = baffle(nameElement, {
@@ -68,7 +67,7 @@
       });
       b1.start();
       b1.reveal(5000, () => {
-          animationRunning = false;  // Mark as finished after reveal
+          animationRunning = false;
         });
       }
   };

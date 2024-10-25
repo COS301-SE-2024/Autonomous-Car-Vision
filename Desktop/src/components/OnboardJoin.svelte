@@ -16,7 +16,6 @@
   let tokenValue = "";
 
   const submit = async () => {
-    // check if team exists, if not, create team and add user to team
     try {
       const response = await axios.post(
         "http://" + HOST_IP + ":8000/joinTeam/",
@@ -38,7 +37,6 @@
 {#if $theme === "highVizLight"}
   <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClassLight">
-      <!-- <MaterialApp> -->
       <div class="flex flex-row">
         <a
           class="w-full h-14 flex flex-col flex-wrap justify-center items-center border-2 border-theme-dark-primary"

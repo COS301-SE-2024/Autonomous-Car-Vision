@@ -6,29 +6,29 @@ module.exports = {
         colors: {
           'theme-dark': {
             textHover: "#4D4D4D",
-            white: '#FFFFFF', // white
-            lightText: '#FFFFFF', // white
-            background: '#001524', // offBlack
+            white: '#FFFFFF',
+            lightText: '#FFFFFF',
+            background: '#001524',
             backgroundBlue: '#0C003C',
             bgHover: '#1C008D',
-            primary: '#0099ff', // techBlue
-            secondary: '#007acc', // techBlueDark
-            highlight: '#0066cc', // highlight
-            error: '#ff0000', // error
+            primary: '#0099ff',
+            secondary: '#007acc',
+            highlight: '#0066cc',
+            error: '#ff0000',
             download: "#181818e0"
           },
           'theme-light': {
             lightText: '#FFFFFF',
-            background: '#001524', // Timberwolf background
-            primary: '#28a745', // primary
-            secondary: '#218838', // secondary
-            error: '#ff0000', // error
+            background: '#001524',
+            primary: '#28a745',
+            secondary: '#218838',
+            error: '#ff0000',
           },
         },
         boxShadow: {
-          'tech-blue': '0 10px 20px #0C003C, 0 6px 20px #0C003C', // shadow-blue
-          'card-blue': '6px 6px 10px rgba(0.15, 40, 145, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)', // shadow-card
-          'tech-green': '0 10px 20px #218838, 0 6px 20px #218838', // shadow-green
+          'tech-blue': '0 10px 20px #0C003C, 0 6px 20px #0C003C',
+          'card-blue': '6px 6px 10px rgba(0.15, 40, 145, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)',
+          'tech-green': '0 10px 20px #218838, 0 6px 20px #218838',
           'card-white': '6px 6px 10px rgba(0.15, 244, 244, 0.2), 6px 6px 10px rgba(0.15, 40, 145, 0.2)'
         },
       },
@@ -42,9 +42,9 @@ module.exports = {
       },
       colors: {
         'dark' : {
-          background: '#011C27', // '#03254E',  // '#001524', '#011C27'
+          background: '#011C27',
           primary: '#0099ff',
-          secondary: '#007acc' ,// '#3EFF8B',
+          secondary: '#007acc',
           hover: '#012A3B',
           background_secondary: '#000000',
           fill: '#001524'

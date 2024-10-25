@@ -25,13 +25,10 @@
     const platform = os.platform();
 
     if (platform === "win32") {
-      // For Windows, use the AppData directory
       return path.join(process.env.APPDATA, "HVstore");
     } else if (platform === "linux") {
-      // For Linux, use ~/.local/share
       return path.join(os.homedir(), ".local", "share", "HVstore");
     } else if (platform === "darwin") {
-      // For macOS, use ~/Library/Application Support
       return path.join(
         os.homedir(),
         "Library",
@@ -39,7 +36,6 @@
         "HVstore",
       );
     } else {
-      // Default case for other platforms
       console.warn("Unknown platform. Defaulting to the home directory.");
       return path.join(os.homedir(), "HVstore");
     }
@@ -55,11 +51,9 @@
       const videos = await window.electronAPI.getDriveVideos(directoryPath);
       console.log(videos)
 
-      // Populate videoURLs and videoNames
       videoURLs = videos.map((video) => video.path);
       videoNames = videos.map((video) => video.name);
 
-      // Create a map for easy lookup of names by URL
       videoURLToNameMap = videoURLs.reduce((acc, url, index) => {
         acc[url] = videoNames[index];
         return acc;
@@ -94,7 +88,6 @@
           videoURLToNameMap[a].localeCompare(videoURLToNameMap[b]),
         );
       } else if (sortCategory === "Date") {
-        // Assume date info is available and parse appropriately
         sortedItems = [...items].sort(
           (a, b) => videoURLToNameMap[b].date - videoURLToNameMap[a].date,
         );

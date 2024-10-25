@@ -53,7 +53,6 @@ def load_image(file_path):
 
 
 def load_lidar_data(file_path):
-    # Load the LiDAR data from a .npy file
     lidar_data = np.load(file_path)
     return lidar_data
 
@@ -109,7 +108,3 @@ def test_lane():
     steer = output['steer']
     
     print("steer: ", steer)
-
-
-# processed_image, bounding_boxes = test_pipeline()
-# test_lane()

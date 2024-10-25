@@ -8,13 +8,10 @@ from pathlib import Path
 
 app = Flask(__name__)
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Construct the database URL
 DATABASE_URL = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 
-# Create an engine and bind the base
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 session = Session()

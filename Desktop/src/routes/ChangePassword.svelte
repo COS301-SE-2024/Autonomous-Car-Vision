@@ -76,7 +76,6 @@
     }
   };
 
-  // For loading screen purposes
   onMount(async () => {
     isLoading.set(true);
     HOST_IP = await window.electronAPI.getHostIp();
@@ -107,7 +106,6 @@
           Change Password
         </h2>
 
-        <!-- Old Password -->
         <div class="mb-4 w-1/2">
           <TextField
             id="oldPassword"
@@ -118,7 +116,6 @@
           > Old Password</TextField>
         </div>
 
-        <!-- New Password -->
         <div class="mb-4 w-1/2">
           <TextField
             id="newPassword"
@@ -129,7 +126,6 @@
           > New Password</TextField>
         </div>
 
-        <!-- Confirm New Password -->
         <div class="mb-4 w-1/2">
           <TextField
             id="confirmPassword"
@@ -146,13 +142,11 @@
           {/if}
         </div>
 
-        <!-- return button -->
         <Button
           class="shadow-none rounded"
           on:click={() => push("/accountSettings")}>Return?</Button
         >
 
-        <!-- Change Password Button -->
         <Button
           class="bg-theme-keith-accentone rounded"
           on:click={changePassword}>Change Password</Button

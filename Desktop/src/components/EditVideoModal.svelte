@@ -15,12 +15,11 @@
 </script>
 
 <div class="modal mx-autorounded-lg">
-    <!-- <video class="video-preview" src={videoSrc} controls></video> -->
      <img src={imgSource} alt="video preview"/>
-    <input type="range" min="0" max="100" class="timeline" /> <!--edt this please-->
+    <input type="range" min="0" max="100" class="timeline" />
     <div class="buttons">
-        <button on:click={cancel} class="cancel bg-red-600" >Cancel</button>  <!-- on:click={cancel} -->
-         <button on:click={save} class="save bg-green-600">Save</button> <!--on:click={save} -->
+        <button on:click={cancel} class="cancel bg-red-600" >Cancel</button>
+         <button on:click={save} class="save bg-green-600">Save</button>
     </div>
 </div>
 
@@ -41,17 +40,6 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         z-index: 1000;
     }
-
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-
     .buttons {
         margin-top: 20px;
     }
@@ -64,11 +52,6 @@
         border-radius: 2px;
         cursor: pointer;
         font-size: 10px;
-    }
-
-    .video-preview {
-        width: 100%;
-        height: auto;
     }
 
     .timeline {

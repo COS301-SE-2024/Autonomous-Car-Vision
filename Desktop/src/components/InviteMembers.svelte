@@ -6,8 +6,8 @@
   import { onMount } from "svelte";
 
     let add;
-    let email = ''; // Variable to store the email address
-    let newMembers = []; // Array to store the list of new members
+    let email = '';
+    let newMembers = [];
 
     let HOST_IP;
     onMount(async () => {
@@ -16,8 +16,8 @@
 
     function addMember() {
         if (email.trim()) {
-        newMembers = [...newMembers, email.trim()]; // Add the email to the array
-        email = ''; // Clear the email field
+        newMembers = [...newMembers, email.trim()];
+        email = '';
         }
     }
 
@@ -26,7 +26,6 @@
     }
 
     const sendEmails = async () => {
-        // Send the emails to the new members
         try {
             const response = await axios.post("http://" + HOST_IP + ":8000/sendInviteEmail/", {
                 newMembers: newMembers,

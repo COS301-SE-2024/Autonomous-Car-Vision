@@ -1,7 +1,7 @@
 # Node and Svelte specific
 .yarn
 node_modules
-build
+Desktop/public/build/*
 backendVenv
 modelsVenv
 ModelsVenv

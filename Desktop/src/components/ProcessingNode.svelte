@@ -23,7 +23,6 @@
     imageURL: "",
   };
 
-  // Create initial values for your parameters
   /**
    * @type {InputStructure}
    */
@@ -31,10 +30,8 @@
     imageURL: "Processing Node",
   };
 
-  // Generate a formatted inputs store
   let inputs = generateInput(initialData);
 
-  // Specify processor function
   /**
    * @param {InputStructure} inputs
    * @returns {number}
@@ -42,8 +39,7 @@
   const processor = (inputs) => {
     return inputs.imageURL;
   };
-
-  // Generate output store
+  
   let output = generateOutput(inputs, processor);
 
   $: (inputs) => {
@@ -62,8 +58,8 @@
   {position}
   id={identifier}
   connections={connectors}
-  width={400}
-  height={400}
+  width={200}
+  height={100}
   useDefaults
   {label}
   {bgColor}
@@ -72,24 +68,9 @@
   <div class="node">
     <div class="body">
       <div class="w-full flex flex-row justify-between">
-        <h1 class="font-bold text-left text-xl capitalize">
+        <h1 class="font-bold text-center text-xl capitalize">
           {label}
         </h1>
-        <!-- Will add this after DEMO 3 -->
-        <!-- <div>
-          <Button rounded class="bg-dark-background text-dark-primary" onclick={DeleteNodeID}>Delete</Button>
-        </div> -->
-      </div>
-      <div class="w-full h-full flex items-center justify-center flex-col">
-        <h1 class="text-2xl">
-            <!-- {$inputs} -->
-        </h1>
-        <!-- <div class="showImage"> -->
-          <!-- {#if $output !== "noImage.jpeg"} -->
-            <!-- svelte-ignore a11y-img-redundant-alt -->
-            <!-- <img src={$output} alt="image.jpeg" /> -->
-          <!-- {/if} -->
-        <!-- </div> -->
       </div>
       <div class="input-anchors">
         {#each Object.entries($inputs) as [key, value] (key)}
@@ -129,15 +110,6 @@
     align-items: center;
     align-content: center;
     height: 100%;
-  }
-
-  .showImage {
-    width: 20rem;
-    height: 20rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
   }
 
   .input-anchors {

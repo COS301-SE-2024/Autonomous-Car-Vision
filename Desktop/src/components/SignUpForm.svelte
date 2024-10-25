@@ -241,7 +241,7 @@
 <style>
 
   .custom-text-field input {
-    color: #f56565; /* Tailwind CSS red-500 color */
+    color: #f56565;
   }
 
   .containerClass{

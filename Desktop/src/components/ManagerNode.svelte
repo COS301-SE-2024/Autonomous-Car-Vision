@@ -18,7 +18,6 @@
         const hexRef = "0123456789abcdef";
         let hexColor = "";
 
-        // Function to calculate brightness
         const calculateBrightness = (hex) => {
             let r = parseInt(hex.substring(0, 2), 16);
             let g = parseInt(hex.substring(2, 4), 16);
@@ -26,17 +25,14 @@
             return (r * 299 + g * 587 + b * 114) / 1000;
         };
 
-        // Generate a hex color and ensure it's not too light
         while (true) {
             hexColor = "";
             for (let n = 0; n < size; n++) {
                 hexColor += hexRef[Math.floor(Math.random() * 16)];
             }
 
-            // Check if the color is too bright
             let brightness = calculateBrightness(hexColor);
             if (brightness < 200) {
-                // Adjust the threshold as needed
                 break;
             }
         }
@@ -51,25 +47,19 @@
     }
 
     function showConnectionToAgent() {
-
-        // Reset all edge colors
         resetEdgeColors();
-
-        // Access the writable stores to update agents/clients
         let agentBooleans = get(TeamAgents);
         let clientBooleans = get(TeamClients);
 
         agentBooleans.fill(false);
         clientBooleans.fill(false);
 
-        // If the node has clients, mark them as selected
         if (nodeData?.clients) {
             clientBooleans = clientBooleans.map((value, index) => {
                 return true;
             });
         }
 
-        // If the node has agents, mark them as selected
         if (nodeData?.agents) {
             agentBooleans = agentBooleans.map((value, index) => {
                 return nodeData.agents.includes(String(index + 10))
@@ -78,7 +68,6 @@
             });
         }
 
-        // Update the writable stores
         TeamAgents.set(agentBooleans);
         TeamClients.set(clientBooleans);
     }
@@ -88,19 +77,16 @@
     }
 
     function updateEdgeColor() {
-        // Check if the node is a Manager
         if (nodeType === "Manager") {
-            // Check if any agent is active
             const anyClientActive = clients.some((agent) => agent);
 
-            // Set edge color based on the presence of active clients
             if (anyClientActive) {
                 edgeColor = "green";
             } else {
-                edgeColor = "gray"; // Default color if no active clients
+                edgeColor = "gray";
             }
         } else {
-            edgeColor = "gray"; // Default color if node is not a Manager
+            edgeColor = "gray";
         }
     }
 
@@ -112,13 +98,13 @@
     TeamAgents.subscribe((newAgents) => {
         agents = newAgents;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 
     TeamClients.subscribe((newClients) => {
         clients = newClients;
         resetEdgeColors();
-        updateEdgeColor(); // Re-run to reflect the latest store values
+        updateEdgeColor();
     });
 </script>
 

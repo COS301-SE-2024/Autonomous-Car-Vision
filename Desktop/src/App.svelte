@@ -19,14 +19,14 @@
         duration: 5000,
         position: "top-center",
       });
+      isProcessing.set(false);
+      location.reload();
     });
 
-    // Listen for state changes from Electron main process
     window.electronAPI.onProcessChanged(async () => {
       await loadState();
     });
 
-    // call cuda-check and console.log
     const isCuda = await window.electronAPI.checkCUDA();
     cuda.set(isCuda);
   });
@@ -49,7 +49,6 @@
   $: {
     theme.subscribe((value) => {
       currentTheme = value;
-      // Change the body class when the theme changes
       document.body.className =
         theme === "theme" ? "highVizLight" : "highVizDark";
     });
@@ -57,7 +56,6 @@
 </script>
 
 <div style="height: inherit;">
-  <!-- class="mainContainer" -->
   <Toaster />
   <Router {routes} />
 </div>
