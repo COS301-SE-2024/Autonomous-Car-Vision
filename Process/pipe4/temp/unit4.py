@@ -43,6 +43,9 @@ reverse_toggle = False
 reverse_gear = False
 o_key_toggle = False
 
+processing = False
+do_process = False
+
 
 def get_keyboard_control(vehicle):
     # Toggle lane following with Q
@@ -80,6 +83,14 @@ def get_keyboard_control(vehicle):
         object_avoidance = not object_avoidance
         print("Object avoidance:", object_avoidance)
         o_key_toggle = True
+        
+    if keys[pygame.K_p] and not processing:
+        do_process = not do_process
+        processing = True
+
+    if not keys[pygame.K_p]:
+        processing = False
+
 
     if not keys[pygame.K_o]:
         o_key_toggle = False
@@ -270,18 +281,18 @@ def main(pipe):
     global lane_active
     global avoid
     pygame.init()
-
     # Set internal render resolution (800x600) and full screen size
     original_size = (800, 600)  # Internal render resolution
     screen_size = pygame.display.get_desktop_sizes()[0]  # Fullscreen resolution
-
+    
     # Create a fullscreen window
     display = pygame.display.set_mode(screen_size, pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
     
     # Create an internal surface with the original resolution (800x600)
     surface = pygame.Surface(original_size)
-
+    
     pygame.display.set_caption("CARLA Manual Control")
+
     pygame.font.init()
     font = pygame.font.Font(None, 36)
 
@@ -303,11 +314,6 @@ def main(pipe):
             'width': 800, 'height': 600, 'fov': 90,
             'sensor_label': 'camera', 'sensor_type': 'camera'
         }
-        camera_two_parameters = {
-            'x': 2.0, 'y': 0.00, 'z': 1, 'roll': 0, 'pitch': -10, 'yaw': 0,
-            'width': 800, 'height': 600, 'fov': 60,
-            'sensor_label': 'camera', 'sensor_type': 'camera'
-        }
         lidar_parameters = {
             'x': 0, 'y': 0, 'z': 2.0, 'roll': 0, 'pitch': 0, 'yaw': 0,
             'channels': 32, 'range': 60, 'lower_fov': -30, 'upper_fov': 30,
@@ -316,17 +322,19 @@ def main(pipe):
         }
 
         # Attach sensors to the vehicle
-        sensor_list = [camera_parameters, camera_two_parameters, lidar_parameters]
+        sensor_list = [camera_parameters, lidar_parameters]
         sensors, sensor_labels = sensor_factory(world, vehicle, sensor_list)
         actor_list.extend(sensors)
 
+        # Variables for capturing and saving data
         frame_number = 0
         output_folder = "output_frames"
         os.makedirs(output_folder, exist_ok=True)
 
+        # Timer for the drive
         start_time = time.time()
         pipestring = pipe
-
+        # If pipestrign contains 'laneUnit', set lane_active to True
         if 'laneUnit' in pipestring:
             lane_active = True
         if 'observerUnit' in pipestring:
@@ -342,32 +350,30 @@ def main(pipe):
 
                 # Get synchronized sensor data
                 data = sync_mode.tick(timeout=2.0)
-                latest_image, latest_image_two, latest_lidar_data = data
+                latest_image, latest_lidar_data = data
 
                 # Process the image
                 image_array = process_image(latest_image)
                 image_array_writable = np.copy(image_array)
-                image_array_two = process_image(latest_image_two)
-                image_array_writable_two = np.copy(image_array_two)
                 # processed_image_array, bounding_boxes = run_ai_model(image_array)
 
                 # Process LiDAR data, including intensity
                 latest_lidar_data_np = process_lidar_data(latest_lidar_data)
-                pipe.dataToken.add_processing_result('velocityUnit',vehicle.get_velocity().x)
                 pipe.dataToken.add_sensor_data('camera', image_array_writable)
-                pipe.dataToken.add_sensor_data('camera_two', image_array_writable_two)
                 pipe.dataToken.add_sensor_data('lidar', latest_lidar_data_np)
-                processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
-                bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
+                
+                processed_image_array = image_array_writable
+                
+                if (follow_lane or object_avoidance or do_process):
+                    processed_image_array, img_lidar, img_taggr, img_bb, img_la = pipe.process(pipe.dataToken)
+                    bounding_boxes = pipe.dataToken.get_processing_result('yoloUnit')
+
                 # Integrate LiDAR data with the image and update world data
                 # , world_data = integrate_lidar_with_image(processed_image_array,
                 # latest_lidar_data_np, bounding_boxes)
 
                 # Get vehicle transform (position and orientation)
                 vehicle_transform = vehicle.get_transform()
-                
-                image_surface = convert_array_to_surface(processed_image_array)
-                surface.blit(image_surface, (0, 0))
 
                 # Save frame and data, including the updated world data
                 # save_frame_and_data(processed_image_array, bounding_boxes, latest_lidar_data_np, frame_number,
@@ -377,21 +383,19 @@ def main(pipe):
                 # world_data_filename = os.path.join(output_folder, f"frame_{frame_number:06d}_world_data.json")
                 # with open(world_data_filename, 'w') as world_data_file:
                 #     json.dump(world_data, world_data_file, indent=4)
-                
-                scaled_surface = pygame.transform.scale(surface, screen_size)
 
                 # Display the processed image
-                display.blit(scaled_surface, (0, 0))
+                image_surface = convert_array_to_surface(processed_image_array)
+                display.blit(image_surface, (0, 0))
 
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     # Render the text "Object avoidance on"
                     text_surface = font.render("Object avoidance on", True, (0, 255, 0))  # Green text
                     display.blit(text_surface, (10, 10))
-                    velocity_text = f"Velocity: {abs(vehicle.get_velocity().x):.2f}"  # Format the velocity to 2 decimal places
-                    text_surface = font.render(velocity_text, True, (0, 255, 0))
-                    display.blit(text_surface, (10, 30))
 
                 frame_number += 1
+
+                pygame.display.flip()
 
                 # Apply vehicle control (manual control)
                 control = get_keyboard_control(vehicle)
@@ -401,33 +405,21 @@ def main(pipe):
                 print("avoidance:", object_avoidance)
                 if pipe.dataToken.get_flag("hasObserverData") and object_avoidance:
                     print("avoiding")
-
                     observerToken = pipe.dataToken.get_processing_result('observerUnit')
-                    x_text = f"avgX: {observerToken['avgX']:.2f}"
-                    print(x_text)
-                    # text_surface = font.render(x_text, True, (0, 255, 0))  # Green text
-                    # display.blit(text_surface, (10, 50))
                     breaking = observerToken['breaking']
                     handbreak = observerToken['handBreak']
                     if breaking > 0 or handbreak:
                         control.throttle = 0
-                    if breaking > 0.5 or handbreak:
-                        text_surface = font.render("Obstacle detected, stopping vehicle", True, (255,255,0))  # Green text
-                        display.blit(text_surface, (200, 150))
 
                     control.brake = breaking
                     control.hand_brake = handbreak
-                    # print(vehicle.get_velocity().x)
+                    print(vehicle.get_velocity().x)
                     if (vehicle.get_velocity().x < 2 or vehicle.get_velocity().x > 2) and breaking > 0:
                         control.hand_brake = True
                 if (follow_lane):
                     output = pipe.dataToken.get_processing_result('laneUnit')
-                    steer = output['steering']
-                    control.steer = steer if steer is not None else 0
-                    text_surface = font.render(f"Lane Following is on, Steer: {steer}", True, (0, 255, 0))
-                    display.blit(text_surface, (10, 10))
-
-                pygame.display.flip()
+                    steer = output['steer']
+                    control.steer = steer
 
                 vehicle.apply_control(control)
 

@@ -89,97 +89,62 @@ class outputUnit(Unit):
         if (self.la or self.all) and data_token.get_flag('has_lane_data'):
             output = data_token.get_processing_result('laneUnit')
             mask = output.get('mask', None)
+            
+            img_la = output.get('image', None)
+
             # Extract relevant lines from the output
-            left_line_points = output.get('left_line', [])
-            right_line_points = output.get('right_line', [])
-            red_line_points = output.get('red_line_points', [])
-            follow_line_points = output.get('follow_line', [])
-            # print(left_line_points, right_line_points, red_line_points, follow_line_points)
+            # solid_line_points = output.get('solid_line_points', [])
+            # green_line_points = output.get('green_line_points', [])
+            # red_line_points = output.get('red_line_points', [])
+            # pink_line_points = output.get('pink_line_points', [])  # Pink corresponds to divisor points (dotted line)
 
             # Prepare mask processing
-            if mask is not None:
-                if len(mask.shape) == 3 and mask.shape[2] == 3:
-                    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+            # if mask is not None:
+            #     if len(mask.shape) == 3 and mask.shape[2] == 3:
+            #         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
-                if mask.shape != annotated_frame.shape[:2]:
-                    mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
+            #     if mask.shape != annotated_frame.shape[:2]:
+            #         mask = cv2.resize(mask, (annotated_frame.shape[1], annotated_frame.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-                # Apply the green mask overlay to the frame
-                colored_mask = np.zeros_like(annotated_frame)
-                colored_mask[mask > 0] = [0, 255, 0]  # Green mask
+            #     # Apply the green mask overlay to the frame
+            #     colored_mask = np.zeros_like(annotated_frame)
+            #     colored_mask[mask > 0] = [0, 255, 0]  # Green mask
 
-                alpha = 0.5
-                img_la = image_two.copy()
-                img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
+            #     alpha = 0.5
+            #     img_la = image_two.copy()
+            #     img_la = cv2.addWeighted(img_la, 1 - alpha, colored_mask, alpha, 0)
 
-            # Draw the left field line using the best-fit line
-            if left_line_points:
-                points = np.array(left_line_points)
-                y_coords = points[:, 0]
-                x_coords = points[:, 1]
-                if len(points) > 1:
-                    # Calculate the best-fit line
-                    best_fit = np.polyfit(y_coords, x_coords, 1)
-                    slope = best_fit[0]
-                    intercept = best_fit[1]
+            # # Draw the orange solid line
+            # if solid_line_points:
+            #     for i in range(len(solid_line_points) - 1):
+            #         pt1 = tuple(solid_line_points[i])
+            #         pt2 = tuple(solid_line_points[i + 1])
+            #         cv2.line(annotated_frame, pt1, pt2, (0, 165, 255), 2)  # Orange color (BGR: 0, 165, 255)
 
-                    # Calculate points at the top and bottom of the image
-                    y1 = 0
-                    x1 = int(slope * y1 + intercept)
-                    y2 = annotated_frame.shape[0] - 1
-                    x2 = int(slope * y2 + intercept)
+            # # Draw the green recommended line
+            # if green_line_points:
+            #     for i in range(len(green_line_points) - 1):
+            #         pt1 = tuple(green_line_points[i])
+            #         pt2 = tuple(green_line_points[i + 1])
+            #         cv2.line(annotated_frame, pt1, pt2, (0, 255, 0), 2)  # Bright green color (BGR: 0, 255, 0)
 
-                    # Draw the line
-                    cv2.line(annotated_frame, (x1, y1), (x2, y2), (57, 255, 20), 2)  # Neon green color
+            # # Draw the red origin line (vertical center line)
+            # if red_line_points:
+            #     for i in range(len(red_line_points) - 1):
+            #         pt1 = tuple(red_line_points[i])
+            #         pt2 = tuple(red_line_points[i + 1])
+            #         cv2.line(annotated_frame, pt1, pt2, (0, 0, 255), 2)  # Red color (BGR: 0, 0, 255)
 
-            # Draw the right field line using the best-fit line
-            if right_line_points:
-                points = np.array(right_line_points)
-                y_coords = points[:, 0]
-                x_coords = points[:, 1]
-                if len(points) > 1:
-                    # Calculate the best-fit line
-                    best_fit = np.polyfit(y_coords, x_coords, 1)
-                    slope = best_fit[0]
-                    intercept = best_fit[1]
+            # # Draw the pink divisor line (best fit line or fallback)
+            # if pink_line_points:
+            #     for i in range(len(pink_line_points) - 1):
+            #         pt1 = tuple(pink_line_points[i])
+            #         pt2 = tuple(pink_line_points[i + 1])
+            #         cv2.line(annotated_frame, pt1, pt2, (255, 105, 180), 2)  # Pink color (BGR: 255, 105, 180)
 
-                    # Calculate points at the top and bottom of the image
-                    y1 = 0
-                    x1 = int(slope * y1 + intercept)
-                    y2 = annotated_frame.shape[0] - 1
-                    x2 = int(slope * y2 + intercept)
-
-                    # Draw the line
-                    cv2.line(annotated_frame, (x1, y1), (x2, y2), (0, 150, 150), 2)  # Neon green color
-
-            # Draw the red origin line (vertical center line)
-            if red_line_points:
-                pt1 = tuple(red_line_points[0])
-                pt2 = tuple(red_line_points[1])
-                cv2.line(annotated_frame, pt1, pt2, (0, 0, 255), 2)  # Red color (BGR: 0, 0, 255)
-
-            # Draw the follow line (blue line) using the best-fit line
-            if follow_line_points:
-                points = np.array(follow_line_points)
-                x_coords = points[:, 0]
-                y_coords = points[:, 1]
-                if len(points) > 1:
-                    # Calculate the best-fit line
-                    best_fit = np.polyfit(y_coords, x_coords, 1)
-                    slope = best_fit[0]
-                    intercept = best_fit[1]
-
-                    # Calculate points at the top and bottom of the image
-                    y1 = 0
-                    x1 = int(slope * y1 + intercept)
-                    y2 = annotated_frame.shape[0] - 1
-                    x2 = int(slope * y2 + intercept)
-
-                    # Draw the line
-                    cv2.line(annotated_frame, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Blue color
+                # At this point, 'annotated_frame' contains the overlay of all lines on the frame
 
 
 
         # print(f"{self.id}: Outputting final result with shape: {annotated_frame.shape}, ")
         return annotated_frame, img_lidar, img_taggr, img_bb, img_la
-
