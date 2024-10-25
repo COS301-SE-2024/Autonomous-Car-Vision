@@ -160,7 +160,7 @@ async def brokerStore(request: Request):
     message = await request.json()
     print(">>>BrokerStore initiated", message)
     print("Getting available agents")
-    agents = media.get_avail_store_agents(message['size'], message['corporation'])
+    agents = media.get_avail_store_agents(message['corporation'])
     print("avail agents: ", agents)
     avail = None
     for agent in agents:
@@ -168,7 +168,7 @@ async def brokerStore(request: Request):
             avail = agent
             break
     if avail is None:
-        avail = {"aid": 1, "aport": 8001, "aip": "localhost", "corporation": "dev"}
+        avail = {"aid": 1, "aport": 8010, "aip": HOST_IP, "corporation": "dev"}
 
     if not await charon.ping(avail["aip"], avail["aport"]):
         return {"status": "no agents available"}

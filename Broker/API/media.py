@@ -88,16 +88,16 @@ def get_agent_details_from_media(mid):
     return result
 
 
-def get_avail_store_agents(storage_capacity, corporation):
+def get_avail_store_agents(corporation):
     conn = get_connection()
     cursor = conn.cursor()
     query = """
     SELECT aid, aport, aip, corporation 
     FROM agentstore
     WHERE verified = FALSE AND (capacity = 'dual' OR capacity = 'store')
-    AND storage >= %s AND corporation = %s
+    AND corporation = %s
     """
-    cursor.execute(query, (storage_capacity, corporation))
+    cursor.execute(query, (corporation,))  # Note the comma to create a tuple
     rows = cursor.fetchall()
     column_names = [desc[0] for desc in cursor.description]
 

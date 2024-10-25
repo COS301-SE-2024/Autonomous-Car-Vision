@@ -281,16 +281,7 @@ def main(pipe):
     global lane_active
     global avoid
     pygame.init()
-    # Set internal render resolution (800x600) and full screen size
-    original_size = (800, 600)  # Internal render resolution
-    screen_size = pygame.display.get_desktop_sizes()[0]  # Fullscreen resolution
-    
-    # Create a fullscreen window
-    display = pygame.display.set_mode(screen_size, pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
-    
-    # Create an internal surface with the original resolution (800x600)
-    surface = pygame.Surface(original_size)
-    
+    display = pygame.display.set_mode((800, 600), pygame.HWSURFACE | pygame.DOUBLEBUF)
     pygame.display.set_caption("CARLA Manual Control")
 
     pygame.font.init()

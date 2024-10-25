@@ -24,14 +24,7 @@ class laneUnit(Unit):
         image = data_token.get_sensor_data('camera')
         output = data_token.get_processing_result('laneUnit')
         
-        if (output):
-            previous_left_id = output.get('previous_left_id', None)
-            previous_right_id = output.get('previous_right_id', None)
-        else:
-            previous_left_id = None
-            previous_right_id = None
-        
-        res, output = self.start_following(image, previous_left_id, previous_right_id)
+        res, output = self.start_following(image)
 
         data_token.add_processing_result(self.id, output)
 
@@ -281,373 +274,171 @@ class laneUnit(Unit):
     def get_current_lane(self, groups, image):
         output_image = image.copy()
         height, width, _ = image.shape
-        bottom_center = (width // 2, height - 1)
-
-        # Sort each group based on the x-coordinates of their start points
-        sorted_groups = sorted(groups, key=lambda group: min(line[0][0] for line in group))
-
-        # Iterate over the groups to find the current lane that contains the bottom center point
-        for i in range(len(sorted_groups) - 1):
-            left_group = sorted_groups[i]
-            right_group = sorted_groups[i + 1]
-
-            # Get all start and end points from the lines in the two groups
-            left_points = list(itertools.chain.from_iterable([(line[0], line[1]) for line in left_group]))
-            right_points = list(itertools.chain.from_iterable([(line[0], line[1]) for line in right_group]))
-
-            # Sort points to form a polygon (we use x-coordinates to help sorting)
-            left_points = sorted(left_points, key=lambda pt: pt[1])  # Sort by y-coordinate
-            right_points = sorted(right_points, key=lambda pt: pt[1], reverse=True)  # Sort by y-coordinate in reverse
-
-            # Create a polygon that connects the left and right line points
-            polygon_points = left_points + right_points
-
-            # Convert points to a numpy array in the format required by pointPolygonTest
-            polygon_points_np = np.array(polygon_points, np.int32)
-
-            # Check if the bottom center point is inside the polygon
-            if cv2.pointPolygonTest(polygon_points_np, bottom_center, False) >= 0:
-                # Fill the polygon with green color to indicate the current lane
-                cv2.fillPoly(output_image, [polygon_points_np.reshape((-1, 1, 2))], (0, 255, 0))
-                left_lines = [(line[0], line[1]) for line in left_group]
-                right_lines = [(line[0], line[1]) for line in right_group]
-                lane_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
-                cv2.fillPoly(lane_mask, [polygon_points_np.reshape((-1, 1, 2))], 255)
-                return output_image, lane_mask, left_lines, right_lines
-
-        return output_image, None, None, None
-
-    def get_safe_zone(self, image, lane_mask, left_lines, right_lines, factor):
-        output_image = image.copy()
-
-        if not np.any(lane_mask):
-            safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
-            return output_image, safe_zone_mask
-
-        factor = np.clip(factor, 0.0, 1.0)
-
-        left_points = []
-        for line in left_lines:
-            (x1, y1), (x2, y2) = line
-            left_points.append([x1, y1])
-            left_points.append([x2, y2])
-
-        right_points = []
-        for line in right_lines:
-            (x1, y1), (x2, y2) = line
-            right_points.append([x1, y1])
-            right_points.append([x2, y2])
-
-        left_points = np.array(left_points)
-        right_points = np.array(right_points)
-
-        if left_points.shape[0] < 2 or right_points.shape[0] < 2:
-            print("Not enough points to compute safe zone.")
-            safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
-
-        left_points = left_points[np.argsort(left_points[:, 1])]
-        right_points = right_points[np.argsort(right_points[:, 1])]
-
-        left_x = left_points[:, 0]
-        left_y = left_points[:, 1]
-        right_x = right_points[:, 0]
-        right_y = right_points[:, 1]
-
-        y_min = int(max(np.min(left_y), np.min(right_y)))
-        y_max = int(min(np.max(left_y), np.max(right_y)))
-        if y_min == y_max:
-            print("No overlapping y-values between left and right lanes.")
-            safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
-            return output_image, safe_zone_mask 
-        y_values = np.linspace(y_min, y_max, num=100)
-
-        x_left_values = np.interp(y_values, left_y, left_x)
-        x_right_values = np.interp(y_values, right_y, right_x)
-
-        x_center_values = (x_left_values + x_right_values) / 2
-
-        x_left_new = x_center_values + factor * (x_left_values - x_center_values)
-        x_right_new = x_center_values + factor * (x_right_values - x_center_values)
-
-        left_boundary_new = np.column_stack((x_left_new, y_values))
-        right_boundary_new = np.column_stack((x_right_new, y_values))
-
-        right_boundary_new = np.flipud(right_boundary_new)
-        polygon_points = np.vstack((left_boundary_new, right_boundary_new))
-        polygon_points = np.int32([polygon_points])
-
-        safe_zone_mask = np.zeros(output_image.shape[:2], dtype=np.uint8)
-        cv2.fillPoly(safe_zone_mask, polygon_points, 255)
-
-        blue_mask = np.zeros_like(output_image)
-        blue_mask[:, :, 0] = safe_zone_mask
-
-        alpha = 0.3 
-        cv2.addWeighted(blue_mask, alpha, output_image, 1 - alpha, 0, output_image)
-
-        return output_image, safe_zone_mask
-
-    def get_angle_lines(self, image):
-        output_image = image.copy()
-
-        height, width = output_image.shape[:2]
-
         center_x = width // 2
 
-        line_length = height
-        end_point_right = (center_x + line_length, height - line_length)
-        end_point_left = (center_x - line_length, height - line_length)
-        vertical_line = [center_x]
+        # Define initial reference lines (slightly tilted inward)
+        left_ref_line_start = (int(width * 0.3), height)  # Bottom of the image, 30% from the left
+        left_ref_line_end = (int(width * 0.45), int(height * 0.6))  # 60% down the height, tilted inwards
 
-        slope_right = -1
-        intercept_right = height - (slope_right * center_x)
-        right_diagonal = [slope_right, intercept_right]
+        right_ref_line_start = (int(width * 0.7), height)  # Bottom of the image, 70% from the left
+        right_ref_line_end = (int(width * 0.55), int(height * 0.6))  # 60% down the height, tilted inwards
 
-        slope_left = 1 
-        intercept_left = height - (slope_left * center_x)
-        left_diagonal = [slope_left, intercept_left]
+        # Define wider reference lines (in purple, just a bit wider than the current reference lines)
+        left_wide_ref_line_start = (int(width * 0.15), height)  # Slightly more to the left
+        left_wide_ref_line_end = (int(width * 0.35), int(height * 0.6))  # 60% down the height, tilted inwards
 
-        return output_image, vertical_line, right_diagonal, left_diagonal
+        right_wide_ref_line_start = (int(width * 0.85), height)  # Slightly more to the right
+        right_wide_ref_line_end = (int(width * 0.65), int(height * 0.6))  # 60% down the height, tilted inwards
 
-    def find_intersections_and_draw(self, image, vertical_line, right_diagonal, left_diagonal, green_mask):
-        output_image = image.copy()
-        
-        def check_intersections(line_points, line_vector, mask, image, original):
-            previous_in_mask = False 
-            in_lane = False 
-            intersections = [] 
+        # Draw the initial reference lines
+        cv2.line(output_image, left_ref_line_start, left_ref_line_end, (255, 0, 0), 2)  # Blue for left reference
+        cv2.line(output_image, right_ref_line_start, right_ref_line_end, (0, 0, 255), 2)  # Red for right reference
 
-            if len(mask.shape) > 2:
-                mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        # Draw the wider reference lines
+        cv2.line(output_image, left_wide_ref_line_start, left_wide_ref_line_end, (255, 0, 255), 2)  # Purple for wider left
+        cv2.line(output_image, right_wide_ref_line_start, right_wide_ref_line_end, (255, 0, 255), 2)  # Purple for wider right
 
-            height, width = mask.shape[:2]
+        # Initialize variables for the best matching lines
+        best_left_line = None
+        best_right_line = None
+        min_left_weighted_dist = float('inf')
+        min_right_weighted_dist = float('inf')
 
-            mask_points = np.argwhere(mask > 0)
-            if mask_points.size == 0:
-                return False, intersections
+        # Function to calculate the Euclidean distance between two points
+        def distance(pt1, pt2):
+            return math.sqrt((pt1[0] - pt2[0]) ** 2 + (pt1[1] - pt2[1]) ** 2)
 
-            max_y = np.max(mask_points[:, 0])
-            y_threshold = int(0.02 * height)
-            bottom_2_percent_points = mask_points[mask_points[:, 0] >= (max_y - y_threshold)]
-            if bottom_2_percent_points.size == 0:
-                return False, intersections
+        # Function to calculate the slope of a line
+        def calculate_slope(pt1, pt2):
+            if pt2[0] - pt1[0] == 0:
+                return float('inf')  # Vertical line
+            return (pt2[1] - pt1[1]) / (pt2[0] - pt1[0])
 
-            min_x = np.min(bottom_2_percent_points[:, 1])
-            max_x = np.max(bottom_2_percent_points[:, 1])
+        # Function to calculate a weighted distance that gives preference to lines lower on the screen and with reasonable angles
+        def weighted_distance(pt1, pt2, ref_pt1, ref_pt2, expected_slope):
+            dist = (distance(pt1, ref_pt1) + distance(pt2, ref_pt2)) / 2
+            # Add a preference for lines closer to the bottom of the image (larger y-values)
+            avg_y = (pt1[1] + pt2[1]) / 2
+            proximity_weight = (height - avg_y) / height  # Preference for lower lines (closer to bottom)
 
-            x_start, y_start = line_points[0]
-            if min_x <= x_start <= max_x:
-                in_lane = True  
-            else:
-                in_lane = False 
+            # Calculate the slope of the detected line
+            slope = calculate_slope(pt1, pt2)
+            # Penalize the line if its slope deviates too much from the expected slope
+            angle_penalty = abs(slope - expected_slope) / abs(expected_slope + 1e-5)  # Small value added to avoid division by zero
 
-            if in_lane and original:
-                previous_in_mask = True
+            # Adjust the distance with a weight based on proximity and slope (angle)
+            return dist * (1 - 0.5 * proximity_weight) * (1 + 0.6 * angle_penalty)  # 0.3 factor for angle penalty
 
-            for point in line_points:
-                x, y = point
+        # Expected slopes for left and right lanes (based on typical road angles)
+        expected_left_slope = (left_ref_line_end[1] - left_ref_line_start[1]) / (left_ref_line_end[0] - left_ref_line_start[0])
+        expected_right_slope = (right_ref_line_end[1] - right_ref_line_start[1]) / (right_ref_line_end[0] - right_ref_line_start[0])
 
-                if 0 <= x < mask.shape[1] and 0 <= y < mask.shape[0]:
-                    if mask[y, x] > 0:
-                        if not previous_in_mask:
-                            cv2.circle(output_image, (x, y), 5, (0, 0, 255), -1)
-                            angle = draw_fitted_line_and_calculate_angle(output_image, mask, x, y, line_vector)
-                            intersections.append({"angle": angle, "x": x, "y": y})
-                        previous_in_mask = True
-                    else:
-                        if previous_in_mask:
-                            cv2.circle(output_image, (x, y), 5, (0, 0, 255), -1)
-                            angle = draw_fitted_line_and_calculate_angle(output_image, mask, x, y, line_vector)
-                            intersections.append({"angle": angle, "x": x, "y": y})
-                        previous_in_mask = False
+        # Compare each group of detected lines with the reference lines
+        for group in groups:
+            for line in group:
+                pt1, pt2, _, _ = line
+                line_mid_x = (pt1[0] + pt2[0]) / 2
 
-            return in_lane, intersections
+                # Calculate the weighted distance of the current line to the reference lines, including slope check
+                left_weighted_dist = weighted_distance(pt1, pt2, left_ref_line_start, left_ref_line_end, expected_left_slope)
+                right_weighted_dist = weighted_distance(pt1, pt2, right_ref_line_start, right_ref_line_end, expected_right_slope)
 
-        def get_line_points(x1, y1, x2, y2):
-            points = []
-            dx = abs(x2 - x1)
-            dy = abs(y2 - y1)
-            sx = 1 if x1 < x2 else -1
-            sy = 1 if y1 < y2 else -1
-            err = dx - dy
-            while True:
-                points.append((x1, y1))
-                if x1 == x2 and y1 == y2:
-                    break
-                e2 = err * 2
-                if e2 > -dy:
-                    err -= dy
-                    x1 += sx
-                if e2 < dx:
-                    err += dx
-                    y1 += sy
-            return points
+                # Ensure the left line is to the left of the center and the right line to the right
+                if left_weighted_dist < min_left_weighted_dist and line_mid_x < center_x:
+                    min_left_weighted_dist = left_weighted_dist
+                    best_left_line = line
 
-        def draw_fitted_line_and_calculate_angle(image, mask, x, y, line_vector):
-            _, binary_mask = cv2.threshold(mask, 1, 255, cv2.THRESH_BINARY)
-            contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                if right_weighted_dist < min_right_weighted_dist and line_mid_x > center_x:
+                    min_right_weighted_dist = right_weighted_dist
+                    best_right_line = line
 
-            closest_point = None
-            min_dist = float('inf')
-            closest_contour = None
+        # If we found a best left line, draw it
+        if best_left_line:
+            cv2.line(output_image, best_left_line[0], best_left_line[1], (0, 255, 0), 3)  # Green for detected left lane
 
-            for contour in contours:
-                epsilon = 0.02 * cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, epsilon, True)
+        # If we found a best right line, draw it
+        if best_right_line:
+            cv2.line(output_image, best_right_line[0], best_right_line[1], (0, 255, 0), 3)  # Green for detected right lane
 
-                for contour_point in approx:
-                    cx, cy = contour_point[0]
-                    dist = np.sqrt((cx - x) ** 2 + (cy - y) ** 2)
-                    if dist < min_dist:
-                        min_dist = dist
-                        closest_point = (cx, cy)
-                        closest_contour = approx
+        # If only one line was found, extend it to fit the road
+        if best_left_line and not best_right_line:
+            best_right_line = ((best_left_line[1][0] + 100, best_left_line[1][1]), (best_left_line[0][0] + 100, best_left_line[0][1]), None, 1)
+            cv2.line(output_image, best_right_line[0], best_right_line[1], (0, 255, 0), 3)  # Green for detected right lane
 
-            if closest_point is not None and closest_contour is not None:
-                closest_edge = None
-                min_edge_dist = float('inf')
-                for i in range(len(closest_contour)):
-                    pt1 = tuple(closest_contour[i][0])
-                    pt2 = tuple(closest_contour[(i + 1) % len(closest_contour)][0])
+        if best_right_line and not best_left_line:
+            best_left_line = ((best_right_line[1][0] - 100, best_right_line[1][1]), (best_right_line[0][0] - 100, best_right_line[0][1]), None, 1)
+            cv2.line(output_image, best_left_line[0], best_left_line[1], (0, 255, 0), 3)  # Green for detected left lane
 
-                    edge_length = np.linalg.norm(np.array(pt2) - np.array(pt1))
-                    if edge_length == 0:
-                        continue
-                    distance = abs((pt2[0] - pt1[0]) * (pt1[1] - y) - (pt1[0] - x) * (pt2[1] - pt1[1])) / edge_length
+        # Return the output image, best left and right lines, and the outer reference lines
+        return output_image, best_left_line, best_right_line, (left_wide_ref_line_start, left_wide_ref_line_end), (right_wide_ref_line_start, right_wide_ref_line_end)
 
-                    if distance < min_edge_dist:
-                        min_edge_dist = distance
-                        closest_edge = (pt1, pt2)
+    def analyse_steering(self, best_left_line, best_right_line, left_ref_line, right_ref_line, image_width):
+        left_ref_start, left_ref_end = left_ref_line
+        right_ref_start, right_ref_end = right_ref_line
 
-                if closest_edge is not None:
-                    pt1, pt2 = closest_edge
-                    cv2.line(output_image, pt1, pt2, (255, 0, 255), 2)
-                    edge_vector = (pt2[0] - pt1[0], pt2[1] - pt1[1])
-                    angle = calculate_angle_between_vectors(line_vector, edge_vector)
-                    angle = min(angle, 180 - angle)  
-                    cv2.putText(output_image, f'{angle:.2f} deg', (int(x) + 10, int(y) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    return angle 
+        # Calculate the x-position of the middle of the image
+        center_x = image_width // 2
 
-            return 0 
+        steering_value = 0
+        steering_multiplier = 1.3  # Scaling factor to increase steering sensitivity
 
-        def calculate_angle_between_vectors(v1, v2):
-            dot_product = v1[0] * v2[0] + v1[1] * v2[1]
-            magnitude_v1 = np.sqrt(v1[0]**2 + v1[1]**2)
-            magnitude_v2 = np.sqrt(v2[0]**2 + v2[1]**2)
+        if best_left_line and best_right_line:
+            # Get the midpoint of the identified left and right lines
+            left_line_mid_x = (best_left_line[0][0] + best_left_line[1][0]) / 2
+            right_line_mid_x = (best_right_line[0][0] + best_right_line[1][0]) / 2
 
-            if magnitude_v1 == 0 or magnitude_v2 == 0:
-                return 0
+            # Average the left and right midpoints to get the center of the lane
+            lane_center_x = (left_line_mid_x + right_line_mid_x) / 2
 
-            cos_theta = dot_product / (magnitude_v1 * magnitude_v2)
-            angle_radians = np.arccos(np.clip(cos_theta, -1.0, 1.0))
-            angle_degrees = np.degrees(angle_radians)
+            # Calculate the deviation from the image center
+            deviation = lane_center_x - center_x
 
-            return angle_degrees
+            # Normalize the deviation into the range [-1, 1] (steering range)
+            steering_value = deviation / (image_width / 2)
 
-        vertical_points = get_line_points(vertical_line[0], 0, vertical_line[0], output_image.shape[0])
-        vertical_vector = (0, -1)
+        elif best_left_line:
+            # Use only the left lane line
+            left_line_mid_x = (best_left_line[0][0] + best_left_line[1][0]) / 2
+            deviation = left_line_mid_x - left_ref_start[0]
 
-        x_start_right = vertical_line[0]
-        y_start_right = output_image.shape[0]
-        x_end_right = x_start_right + output_image.shape[0]
-        y_end_right = 0
-        right_diagonal_points = get_line_points(x_start_right, y_start_right, x_end_right, y_end_right)
-        right_diagonal_vector = (1, -1)
+            # Normalize deviation to [-1, 1]
+            steering_value = deviation / (image_width / 2)
 
-        x_start_left = vertical_line[0]
-        y_start_left = output_image.shape[0]
-        x_end_left = x_start_left - output_image.shape[0]
-        y_end_left = 0
-        left_diagonal_points = get_line_points(x_start_left, y_start_left, x_end_left, y_end_left)
-        left_diagonal_vector = (-1, -1)
+        elif best_right_line:
+            # Use only the right lane line
+            right_line_mid_x = (best_right_line[0][0] + best_right_line[1][0]) / 2
+            deviation = right_line_mid_x - right_ref_start[0]
 
-        vertical_in_lane, vertical_intersections = check_intersections(vertical_points, vertical_vector, green_mask, output_image, True)
-        right_diagonal_in_lane, right_diagonal_intersections = check_intersections(right_diagonal_points, right_diagonal_vector, green_mask, output_image, True)
-        left_diagonal_in_lane, left_diagonal_intersections = check_intersections(left_diagonal_points, left_diagonal_vector, green_mask, output_image, True)
+            # Normalize deviation to [-1, 1]
+            steering_value = deviation / (image_width / 2)
 
-        vertical_intersections.sort(key=lambda p: p['y'], reverse=True)
-        right_diagonal_intersections.sort(key=lambda p: p['y'], reverse=True)
-        left_diagonal_intersections.sort(key=lambda p: p['y'], reverse=True)
+        # Amplify the steering value to make steering more sensitive, especially in corners
+        steering_value = steering_value * steering_multiplier
 
-        car_in_lane = False
+        # Clip the steering value to stay within the range [-1, 1]
+        steering_value = max(min(steering_value, 1), -1)
 
-        if vertical_in_lane and right_diagonal_in_lane and left_diagonal_in_lane:
-            car_in_lane = True
-
-        return output_image, car_in_lane, left_diagonal_intersections, vertical_intersections, right_diagonal_intersections
-
-    def analise_results(self, in_lane, left, middle, right):
-        steer = 0
-        if in_lane: 
-            left_angle = left[0]['angle']
-            middle_angle = middle[0]['angle']
-            right_angle = right[0]['angle']
-
-            print("Keeping car in lane.")
-            if left_angle < right_angle:
-                print("Left angle", left_angle)
-                print("Right angle", right_angle)
-                difference = ((left_angle + right_angle) / 2) - left_angle
-                percentage = difference / 90
-                steer = -(1 * percentage)
-            elif right_angle < left_angle:
-                print("Left angle", left_angle)
-                print("Right angle", right_angle)
-                difference = ((left_angle + right_angle) / 2) - right_angle
-                percentage = difference / 90
-                steer = (1 * percentage)
-            else:
-                steer = 0
-        else:
-            print("Getting the car back in the lane.")
-            if len(right) > 0 and len(middle) > 0 and len(left) == 0:
-                middle_angle = middle[0]['angle']
-                if (middle_angle > 35):
-                    steer = 0.08
-                elif (middle_angle < 15):
-                    steer = 0.17
-                else:
-                    steer = 0.11
-            elif len(left) > 0 and len(middle) > 0 and len(right) == 0:
-                middle_angle = middle[0]['angle']
-                if (middle_angle > 35):
-                    steer = -0.08
-                elif (middle_angle < 15):
-                    steer = -0.17
-                else:
-                    steer = -0.11
-            elif len(left) == 0 and len(middle) == 0 and len(right) > 0:
-                steer = 0.2
-            elif len(left) > 0 and len(middle) == 0 and len(right) == 0:
-                steer = -0.2
-            elif len(left) == 0 and len(middle) == 0 and len(right) == 0:
-                steer = 0
-
-        print(f"Steer: {steer}")
-        return steer
-
-
+        return steering_value
+    
     def follow_lane(self, out_image, filtered_results, original):
         bottom_length = 200
         top_length = 50
+        
+        # Process the filtered results to get lines and groups
         out_image, lines = self.get_lines(filtered_results, out_image)
         out_image, groups = self.identify_dotted(lines, out_image)
-        out_image, groups = self.extend_lines(groups, out_image)
-        out_image, lane_mask, left_lines, right_lines = self.get_current_lane(groups, out_image)
-        out_image, mask = self.get_safe_zone(original, lane_mask, left_lines, right_lines, 0.3)
+        # out_image, groups = self.extend_lines(groups, out_image)
+        
+        # Get the current lane information, including the best left and right lines and the reference lines
+        out_image, left_line, right_line, left_ref_line, right_ref_line = self.get_current_lane(groups, out_image)
+        
+        # Calculate steering based on the detected lanes and reference lines
+        image_width = out_image.shape[1]  # Get the width of the image
+        steering_value = self.analyse_steering(left_line, right_line, left_ref_line, right_ref_line, image_width)
+        
+        # Return the output image, the detected lanes, and the steering value
+        return out_image, None, steering_value
 
-        if np.any(mask):
-            out_image, vertical_line, right_diagonal, left_diagonal = self.get_angle_lines(out_image)
-            out_image, in_lane, left_intersections, middle_intersections, right_intersections = self.find_intersections_and_draw(out_image, vertical_line, right_diagonal, left_diagonal, mask)
-            if in_lane:
-                print("The vehicle is in the lane.")
-            steer = self.analise_results(in_lane, left_intersections, middle_intersections, right_intersections)
-            cv2.putText(out_image, f'Steer: {steer:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            return out_image, mask, steer
-        else:
-            steer = 0
-            print("Take manual control of the vehicle.")
-            return original, mask, steer
 
     def apply_blue_filter(self, frame):
         # Convert the frame to float32 to avoid clipping issues during manipulation
@@ -663,14 +454,14 @@ class laneUnit(Unit):
 
         return frame
 
-    def start_following(self, frame, previous_left_id=None, previous_right_id=None):
+    def start_following(self, frame):
         filtered_frame = self.apply_blue_filter(frame)
 
         # Load the YOLO model
         model = YOLO('laneTest.pt')
 
         # Run detection on the cropped frame
-        results = model.track(source=frame, persist=True, stream=True)
+        results = model(frame)
 
         # Filter the detections and prepare for further steps
         out_image, filtered_results = self.filter_detections(results, model, frame)
@@ -679,5 +470,5 @@ class laneUnit(Unit):
         res, mask, steer = self.follow_lane(out_image, filtered_results, frame)
 
         # Return results
-        output = {'image': res,'steer': steer, 'results': results, 'mask': mask, 'previous_left_id': None, 'previous_right_id': None}
+        output = {'image': res,'steering': steer, 'results': results, 'mask': mask}
         return res, output
