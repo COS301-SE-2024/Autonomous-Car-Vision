@@ -6,7 +6,7 @@ class DataToken:
         self.sensor_data = {}  # Dictionary to hold sensor data
         self.processing_results = {}  # Dictionary to hold processing results
         self.flags = {'has_lidar_data':False, 'has_tagger_data': False, 'has_lane_data': False, 'hasObserverData': False, 'has_bb_data':False}  # Dictionary to hold flags
-
+        self.process = {'bob': False, 'observer': False, 'lane': False}
     def add_sensor_data(self, sensor_name, data):
         if sensor_name not in self.sensors:
             raise ValueError(f"Sensor {sensor_name} is not registered in the pipeline.")
@@ -28,6 +28,12 @@ class DataToken:
 
     def get_flag(self, flag_name):
         return self.flags[f'{flag_name}']
+
+    def set_proc(self, flag_name, value=True):
+        self.process[flag_name] = value
+
+    def get_proc(self, flag_name):
+        return self.process[f'{flag_name}']
 
     def cleanup(self):
         self.sensor_data.clear()

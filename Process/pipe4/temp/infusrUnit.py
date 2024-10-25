@@ -15,11 +15,16 @@ lidar_parameters = {
     'sensor_label': 'lidar', 'sensor_type': 'lidar'
 }
 
+
 class infusrUnit(Unit):
     def __init__(self):
         super().__init__(id="infusrUnit", input_type=DataToken, output_type=DataToken)
 
     def process(self, data_token):
+        if not data_token.get_proc('bob') or not data_token.get_proc('observer'):
+            if self.next_unit:
+                return self.next_unit.process(data_token)
+            return data_token
         image = data_token.get_sensor_data('camera')
         lidar_data = data_token.get_sensor_data('lidar')
         integrated_image, results = self.integrate_lidar_with_image(image, lidar_data)
@@ -68,7 +73,7 @@ class infusrUnit(Unit):
         if pitch_offset != 0:
             angle_y = np.radians(pitch_offset)
             Ry = np.array([
-                [np.cos(angle_y), 0, np.sin(angle_y),0],
+                [np.cos(angle_y), 0, np.sin(angle_y), 0],
                 [0, 1, 0, 0],
                 [-np.sin(angle_y), 0, np.cos(angle_y), 0],
                 [0, 0, 0, 1]
@@ -111,7 +116,7 @@ class infusrUnit(Unit):
         modified_lidar_data[:, 0] = x
         modified_lidar_data[:, 1] = y
         modified_lidar_data[:, 2] = z
-        r = np.sqrt(x**2 + y**2 + z**2)
+        r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
         theta = np.arctan2(y, x)
         phi = np.arcsin(z / r)
         horizontal_fov = np.radians(90 / 2)

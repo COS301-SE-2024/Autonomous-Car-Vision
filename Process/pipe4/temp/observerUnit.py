@@ -36,6 +36,10 @@ class observerUnit(Unit):
                                           window_name="LiDAR Point Cloud: Pre-Filtered (Grey) and Post-Filtered (Red)")
 
     def process(self, data_token=DataToken):
+        if not data_token.get_proc('observer'):
+            if self.next_unit:
+                return self.next_unit.process(data_token)
+            return data_token
         image = data_token.get_sensor_data('camera')
         if image is None:
             print("No camera data found in DataToken.")

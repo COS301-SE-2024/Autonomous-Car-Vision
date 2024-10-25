@@ -49,6 +49,10 @@ class yoloUnit(Unit):
         self.context = None
 
     def process(self, data_token):
+        if not data_token.get_proc('bob') :
+            if self.next_unit:
+                return self.next_unit.process(data_token)
+            return data_token
         if data_token.get_sensor_data('camera') is None:
             raise ValueError("Yolo unit requires camera input. Please confirm the input stream.")
 

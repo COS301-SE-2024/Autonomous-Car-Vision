@@ -9,6 +9,10 @@ class taggrUnit(Unit):
         super().__init__(id="taggrUnit", input_type=DataToken, output_type=DataToken)
 
     def process(self, data_token):
+        if not data_token.get_proc('bob'):
+            if self.next_unit:
+                return self.next_unit.process(data_token)
+            return data_token
         image = data_token.get_sensor_data('camera')
         lidar_data = data_token.get_sensor_data('lidar')
 
