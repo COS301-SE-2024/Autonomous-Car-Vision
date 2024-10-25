@@ -63,7 +63,7 @@
         videoName = await getFileName(videoPath);
         videoNameExtract = videoName.split(".")[0];
         extention = videoName.split(".")[1];
-        outputVideoPath = `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`;
+        outputVideoPath = `${appPath}\\outputVideos\\${videoNameExtract}\\${videoNameExtract}_processed_${modelName}.${extention}`;
 
         const appDirectory = await window.electronAPI.resolvePath(
           appPath,
@@ -71,11 +71,11 @@
         );
 
         await window.electronAPI.resolvePath(
-          `${appPath}/outputVideos/${videoNameExtract}/${videoNameExtract}_processed_${modelName}.${extention}`,
+          `${appPath}\\outputVideos\\${videoNameExtract}\\${videoNameExtract}_processed_${modelName}.${extention}`,
           "..",
         )
-        scriptPath = `${appDirectory}/HVstore/python-scripts/python/processVideo.py`;
-        modelsPath = `${appDirectory}/HVstore/python-scripts/python/models/${modelName}/${modelName}.pt`;
+        scriptPath = `${appDirectory}\\HVstore\\python-scripts\\python\\processVideo.py`;
+        modelsPath = `${appDirectory}\\HVstore\\python-scripts\\python\\models\\${modelName}\\${modelName}.pt`;
         resolve();
       })();
     });
@@ -83,7 +83,7 @@
 
   async function getOutputFiles() {
     try {
-      const outputDir = `${appPath}/outputVideos/${videoNameExtract}`;
+      const outputDir = `${appPath}\\outputVideos\\${videoNameExtract}`;
       const files = await window.electronAPI.readDirectory(outputDir);
 
       await loadState();
@@ -232,9 +232,9 @@
     }
     processed = true;
     setInterval(() => {
-      isProcessing.set(false);
       isLoading.set(false);
     }, 1000);
+    location.reload();
     showModelList.set(true);
   }
 

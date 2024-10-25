@@ -19,6 +19,8 @@
         duration: 5000,
         position: "top-center",
       });
+      isProcessing.set(false);
+      location.reload();
     });
 
     window.electronAPI.onProcessChanged(async () => {

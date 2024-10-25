@@ -59,17 +59,16 @@
       uid,
       size,
       token,
-      videoSource,
+      videoName,
     );
 
-    console.log("DONE DOWNLOADING");
-
-    await window.electronAPI.downloadVideo(videoName, videoSource);
+    let {success, message} = await window.electronAPI.moveDownloadedVideo(videoName, videoSource);
     let currentFilePath = videoName;
 
     isDownloading = false;
     showMoreModal = false;
     isDownloaded = true;
+    location.reload();
   };
 
   function goToVideo() {

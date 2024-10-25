@@ -50,7 +50,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkFileExistence: (filePath) => ipcRenderer.invoke('check-file-existence', filePath),
   deleteVideoFile: (filePath) => ipcRenderer.invoke('delete-video-file', filePath),
   getVideoFrame: (videoPath) => ipcRenderer.invoke('get-video-frame', videoPath),
-  downloadVideo: (videoName, filePath) => ipcRenderer.invoke('move-deleted-video-to-downloads', videoName, filePath),
+  moveDownloadedVideo: (videoName, filePath) => ipcRenderer.invoke('move-video-to-downloads', videoName, filePath),
   getAIModels: () => ipcRenderer.invoke('get-ai-models'),
   loadStoreProcess: () => ipcRenderer.sendSync('load-store-process'),
   saveStoreProcess: async (store) => await ipcRenderer.invoke('save-store-process', store),

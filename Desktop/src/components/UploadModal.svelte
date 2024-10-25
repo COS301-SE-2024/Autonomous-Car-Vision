@@ -63,12 +63,23 @@
             if (response.success) {
                 aip = response.ip;
                 aport = response.port;
+                console.log("IP: ", aip);
+                console.log("Port: ", aport);
             } else {
                 console.error("Error:", response.error);
             }
         } catch (error) {
             console.error("Error calling openFTP:", error);
         }
+
+        console.log("Uploading to agent...");
+        console.log("aip:", aip);
+        console.log("aport:", aport);
+        console.log("file.path:", file.path);
+        console.log("uid:", uid);
+        console.log("size:", size);
+        console.log("token:", token);
+        console.log("filename:", filename);
 
         await window.electronAPI.uploadToAgent(
             aip,

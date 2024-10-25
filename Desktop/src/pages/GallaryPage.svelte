@@ -120,7 +120,8 @@
 
   function handleUploadSuccess(event) {
     console.log("Upload successful, re-fetching videos...");
-    fetchVideos(); 
+    fetchVideos();
+    location.reload();
   }
 </script>
 

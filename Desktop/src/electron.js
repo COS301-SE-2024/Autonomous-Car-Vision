@@ -489,7 +489,7 @@ ipcMain.handle('extract-frames', async (event, videoPath) => {
 
 
 ipcMain.handle('save-file', async (event, sourcePath, fileName) => {
-    const appDataPath = app.getPath('userData');
+    const appDataPath = getBaseDirectory();
     const downloadsPath = path.join(appDataPath, 'Downloads');
 
     if (!fs.existsSync(downloadsPath)) {
@@ -693,12 +693,7 @@ async function processVideoRemotely(videoDetails) {
 function runPythonScript(scriptPath, args) {
     console.log('Running Python Script:', scriptPath, args);
     return new Promise((resolve, reject) => {
-        const python = spawn('python', [scriptPath, ...args], {
-            detached: true,
-            stdio: ['ignore', 'pipe', 'pipe'],
-            shell: true,
-            windowsHide: true
-        });
+        const python = spawn('python', [scriptPath, ...args], {});
 
         console.log("Script path: " + scriptPath);
 
@@ -877,23 +872,47 @@ ipcMain.handle('check-file-existence', async (event, filePath) => {
     }
 });
 
+// Helper function to retry the unlink after a delay
+const retryUnlink = async (filePath, retries = 5, delay = 1000) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            await fs.promises.unlink(filePath);
+            return true;  // File deleted successfully
+        } catch (error) {
+            if (error.code === 'EBUSY' && attempt < retries) {
+                console.warn(`File is busy. Retrying in ${delay}ms... (Attempt ${attempt} of ${retries})`);
+                await new Promise(resolve => setTimeout(resolve, delay));  // Wait for the specified delay
+            } else {
+                throw error;  // Rethrow the error if it's not recoverable or max attempts reached
+            }
+        }
+    }
+};
+
 ipcMain.handle('delete-video-file', async (event, filePath) => {
     try {
+        console.log(`Attempting to delete file: ${filePath}`);
+        
         if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+            await retryUnlink(filePath);
+            console.log(`File deleted: ${filePath}`);
         } else {
             return { success: false, error: 'File does not exist' };
         }
 
+        // Get frames directory
         const framesDir = path.join(app.getPath('userData'), 'frames', path.basename(filePath, path.extname(filePath)));
 
+        // Delete frames if directory exists
         if (fs.existsSync(framesDir)) {
             const files = fs.readdirSync(framesDir);
 
+            // Keep the first frame, start deleting from the second
             for (let i = 1; i < files.length; i++) {
                 const framePath = path.join(framesDir, files[i]);
                 if (fs.existsSync(framePath)) {
-                    fs.unlinkSync(framePath);
+                    await retryUnlink(framePath);
+                    console.log(`Frame deleted: ${framePath}`);
                 }
             }
         } else {
@@ -919,16 +938,29 @@ ipcMain.handle('get-video-frame', async (event, videoPath) => {
     }
 });
 
-ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, filePath) => {
+
+ipcMain.handle('move-video-to-downloads', async (event, videoName, filePath) => {
     try {
-        const videoFilePath = filePath;
+        // Check if app is packaged or in development mode
+        const isDev = !app.isPackaged;
+        console.log(`Running in ${isDev ? 'development' : 'production'} mode`);
+
+        // Get the correct video file path based on environment
+        const videoFilePath = isDev 
+            ? path.join(__dirname, '..', videoName) // Development path
+            : path.join(path.dirname(app.getPath('exe')), videoName); // Production path
+        console.log("File path:", videoFilePath);
 
         if (!fs.existsSync(videoFilePath)) {
+            console.log("File does not exist");
             return { success: false, error: 'Video file does not exist' };
         }
 
-        const appDataPath = app.getPath('userData');
+        // Base directory for downloads (this should point to your user storage area)
+        const appDataPath = getBaseDirectory();
         const downloadsDir = path.join(appDataPath, 'Downloads');
+        console.log("App base directory:", appDataPath);
+        console.log("Downloads directory:", downloadsDir);
 
         // Ensure the Downloads directory exists
         if (!fs.existsSync(downloadsDir)) {
@@ -936,15 +968,21 @@ ipcMain.handle('move-deleted-video-to-downloads', async (event, videoName, fileP
             console.log('Downloads directory created:', downloadsDir);
         }
 
+        // Define destination path for the file move
         const destinationPath = path.join(downloadsDir, videoName);
-
         console.log('Moving video file to:', destinationPath);
-        fs.renameSync(videoFilePath, destinationPath);
 
+        // Move the file (using copyFile and unlink to handle potential errors)
+        await fs.promises.copyFile(videoFilePath, destinationPath);
+        await fs.promises.unlink(videoFilePath);
+        console.log("File moved");
+
+        // Update the database
         const updatedRecord = await LookupTable.update(
             { localurl: destinationPath },
             { where: { mname: videoName } }
         );
+        console.log("Database updated:", updatedRecord);
 
         if (updatedRecord[0] === 0) {
             console.error('No record found to update');
