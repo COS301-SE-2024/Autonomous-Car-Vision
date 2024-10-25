@@ -31,11 +31,13 @@
     videoURLToNameMap[url] = videoNames[index];
   });
 
+  // Fetch the video records from the database
   onMount(async () => {
     isLoading.set(true);
     const uid = await window.electronAPI.getUid();
 
     const lastSignin = await window.electronAPI.getLastSignin(uid);
+
     const updateLastSignin = await window.electronAPI.updateLastSignin(uid);
 
     try {
@@ -134,7 +136,6 @@
     <div class="items-center">
       <div>
         <div class="flex justify-between gap-2 items-center w-full mb-4 p-4">
-          <!--TODO: style the searchbar -->
           <div class="Card-Or-List rounded-md flex">
             <button
               on:click={() => handleListTypeChange("grid")}

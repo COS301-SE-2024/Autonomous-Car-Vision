@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-    import { Node, Edge, Anchor } from "svelvet";
+    import { Node, Anchor } from "svelvet";
     import { TeamAgents, TeamClients } from "../stores/store";
     import { get } from "svelte/store";
 

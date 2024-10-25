@@ -1,5 +1,5 @@
 <script>
-    import { Button, TextField, Icon, } from "svelte-materialify";
+    import { Button, TextField, } from "svelte-materialify";
     import axios from "axios";
     import { push } from "svelte-spa-router";
     import {theme } from "../stores/themeStore";
@@ -13,6 +13,7 @@
     let teamName = "";
 
     const submit = async () => {
+
       try{
         const response = await axios.post("http://" + HOST_IP + ":8000/createTeam/", {
           teamName: teamName,
@@ -63,6 +64,7 @@
             <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team name
             </TextField>
 
+          
              <div> 
                 <a
                 class="w-full mt-4 h-8 flex flex-col flex-wrap justify-center items-center"
@@ -71,7 +73,7 @@
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"
                 rounded
-                block on:click={submit}>Next</Button
+                block on:click={submit}>Next ↦</Button
                 >
              </div>
           </div>
@@ -113,6 +115,7 @@
             <TextField bind:value={teamName} outlined class="border-b border-dark-primary ">Team name
             </TextField>
 
+           
              <div> 
                 <a
                 class="w-full mt-4 h-8 flex flex-col flex-wrap justify-center items-center"
@@ -121,7 +124,7 @@
                 <Button
                 class="bg-theme-dark-primary text-theme-dark-lightText"
                 rounded
-                block on:click={submit}>Next</Button
+                block on:click={submit}>Next  ↦</Button
                 >
              </div>
           </div>
@@ -129,7 +132,10 @@
         
       </div>
     </div>
-  {/if}  
+  {/if}
+
+
+  
   
   <style>
       .containerClass{

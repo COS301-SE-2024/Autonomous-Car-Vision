@@ -5,8 +5,6 @@
   import { push } from "svelte-spa-router";
   import ProtectedRoutes from "../routes/ProtectedRoutes.svelte";
   import toast, { Toaster } from "svelte-french-toast";
-
-  // Loading screen imports
   import { isLoading } from "../stores/loading";
   import Spinner from "../components/Spinner.svelte";
 

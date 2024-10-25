@@ -1,15 +1,9 @@
 <script>
     import { createEventDispatcher } from 'svelte';
     import { Icon } from 'svelte-materialify';
-    import { mdiAccountCircle } from '@mdi/js';
     
     export let items = [];
     
-    const dispatch = createEventDispatcher();
-  
-    function handleOptionClick() {
-      dispatch('close');
-    }
   </script>
   
   <div class="bg-gray-dark text-white border border-white border-opacity-10 rounded-lg p-2 w-64 flex flex-col z-50">

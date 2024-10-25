@@ -34,6 +34,8 @@
       <div class=" text-black text-base">{Model.mDescription}</div>
       <div class="align-right font-bold text-black justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
     </div>
+
+    <!-- Summary -->
     <div class="text-black p-4 text-xl col-span-1 row-span-2">
       {Model.mSummary}
     </div>
@@ -59,6 +61,8 @@
       <div class=" text-theme-dark-white text-base">{Model.mDescription}</div>
       <div class="align-right font-bold text-theme-dark-white justify-right mt-2 text-lg "> Version: {Model.mVersion}</div>
     </div>
+
+    <!-- Summary -->
     <div class="text-white p-4 text-xl col-span-1 row-span-2">
       {Model.mSummary}
     </div>
@@ -69,7 +73,8 @@
 
 
 <style>
-  Button:hover{
+
+     Button:hover{
       color: aliceblue;
         opacity: 1;
         font-weight: 600;

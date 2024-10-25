@@ -60,7 +60,6 @@
     } catch (error) {
       console.error("Error checking if video is processed:", error);
     }
-    // Other fetching logic
 
     setInterval(() => {
       isGalLoading = false;

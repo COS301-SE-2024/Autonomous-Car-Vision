@@ -85,12 +85,22 @@
           />
         {/each}
       </div>
-      <Button
-        on:click={verifyCode}
-        class="w-full py-2 bg-theme-dark-primary text-theme-dark-white font-bold rounded hoverClass transition"
-      >
-        Verify
-      </Button>
+      <div class="flex mt-4 gap-2">
+        <a href="#/signup" class="w-full">
+          <Button
+            rounded
+            class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+          >
+            ↤ Back
+         </Button>
+        </a>
+        <Button
+          class=" font-bold theme-dark-primary text-theme-dark-lightText"
+          on:click={verifyCode}
+          rounded
+          >Verify  ↦</Button
+        >
+      </div>
     </div>
   </div>
 {:else}
@@ -120,12 +130,22 @@
           />
         {/each}
       </div>
-      <Button
-        on:click={verifyCode}
-        class="w-full py-2 bg-theme-dark-primary text-theme-dark-white font-bold rounded hoverClass transition"
-      >
-        Verify
-      </Button>
+      <div class="flex mt-4 gap-2">
+        <a href="#/signup" class="w-full">
+          <Button
+            rounded
+            class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+          >
+            ↤ Back
+         </Button>
+        </a>
+        <Button
+          class=" font-bold theme-dark-primary text-theme-dark-lightText"
+          on:click={verifyCode}
+          rounded
+          >Verify  ↦</Button
+        >
+      </div>
     </div>
   </div>
 {/if}

@@ -5,8 +5,6 @@
   import { push } from "svelte-spa-router";
   import {theme} from '../stores/themeStore';
   import { onMount } from "svelte";
-  import { isLoading } from "../stores/loading";
-  import Spinner from "../components/Spinner.svelte";
 
   let nToken = "";
   let pToken = "";
@@ -54,7 +52,7 @@
   };
 </script>
 
-<!-- TODO: add error messages -->
+
 {#if $theme === 'highVizLight'}
 <div class="lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
   <div class="containerClassLight">
@@ -88,12 +86,22 @@
       {#if step === 1}
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
           <TextField bind:value={nToken} outlined class="pt-4 border-b-2 border-dark-primary ">Username/Email</TextField>
-          <Button
-            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
-            on:click={onSubmitUsername}
-            rounded
-            block>Next</Button
-          >
+          <div class="flex mt-4 gap-2">
+            <a href="#/" class="w-full">
+              <Button
+                rounded
+                class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+              >
+                ↤ Back
+             </Button>
+            </a>
+            <Button
+              class=" bg-theme-dark-primary text-theme-dark-lightText"
+              on:click={onSubmitUsername}
+              rounded
+              >Next  ↦</Button
+            >
+          </div>
         </div>
       {/if}
       {#if step === 2}
@@ -184,12 +192,22 @@
               <Icon path={show ? mdiEyeOff : mdiEye} />
             </div>
           </TextField>
-          <Button
-            class="mt-4 bg-theme-dark-primary text-theme-dark-lightText"
-            on:click={onSubmitPassword}
-            rounded
-            block>Log in</Button
-          >
+          <div class="flex mt-4 gap-2">
+            <a href="#/" class="w-full">
+              <Button
+                rounded
+                class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+              >
+                ↤ Back
+             </Button>
+            </a>
+            <Button
+              class=" bg-theme-dark-primary text-theme-dark-lightText"
+              on:click={onSubmitUsername}
+              rounded
+              >Next  ↦</Button
+            >
+          </div>
         </div>
       {/if}
     </div>

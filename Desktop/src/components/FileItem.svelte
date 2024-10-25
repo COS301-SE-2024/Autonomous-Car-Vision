@@ -1,7 +1,6 @@
 <script>
     import { Icon } from "svelte-materialify";
     import { mdiCloseThick } from '@mdi/js';
-    import { mdiLogout } from "@mdi/js";
 
     export let file;
     export let onRemove;

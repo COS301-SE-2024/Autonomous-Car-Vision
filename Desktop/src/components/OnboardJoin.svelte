@@ -57,6 +57,7 @@
           <p class="text-black">Please enter the team name below.</p>
         </div>
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
+
           <TextField
             bind:value={teamName}
             outlined
@@ -75,7 +76,7 @@
               class="bg-theme-dark-primary text-theme-dark-lightText mt-4"
               rounded
               block
-              on:click={submit}>Next</Button
+              on:click={submit}>Next  ↦</Button
             >
           </a>
         </div>
@@ -105,6 +106,7 @@
           <p class="text-white">Please enter the team name below.</p>
         </div>
         <div id="form" class="flex flex-col gap-2 py-3 text-white">
+
           <TextField
             bind:value={teamName}
             outlined
@@ -123,7 +125,7 @@
               class="bg-theme-dark-primary text-theme-dark-lightText mt-4"
               rounded
               block
-              on:click={submit}>Next</Button
+              on:click={submit}>Next  ↦</Button
             >
           </a>
         </div>
@@ -131,8 +133,6 @@
     </div>
   </div>
 {/if}
-
-
 
 <style>
   .containerClass {

@@ -1,5 +1,5 @@
 <script>
-  import { Button, TextField, Icon, MaterialApp } from "svelte-materialify";
+  import { Button, TextField, Icon } from "svelte-materialify";
   import { mdiEyeOff, mdiEye } from "@mdi/js";
   import axios from "axios";
   import { push } from "svelte-spa-router";
@@ -32,6 +32,7 @@
       return;
     }
     
+  
     try {
       const { hash, salt } = await window.electronAPI.hashPassword(pToken);
       const response = await axios.post("http://" + HOST_IP + ":8000/signup/", {
@@ -126,15 +127,25 @@
               </div>
             </TextField>
           </div>
-          <Button
-            class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClassLight"
-            on:click={onSubmit}
-            rounded
-            block>Sign up</Button
-          >
+          <div class="flex mt-4 gap-2">
+            <a href="#/" class="w-full">
+              <Button
+                rounded
+                class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+              >
+                ↤ Back
+            </Button>
+            </a>
+            <Button
+              class="bg-theme-dark-primary text-theme-dark-white hoverClassLight"
+              on:click={onSubmit}
+              rounded
+              >Sign up  ↦</Button
+            >
+          </div>
         </div>
       </div>
-  </div>
+    </div>
   {:else}
   <div class=" lg:w-4/12 w-6/12 mx-auto py-14 mb-4">
     <div class="containerClass">
@@ -207,17 +218,26 @@
               </div>
             </TextField>
           </div>
-          <Button
-            class="mt-4 bg-theme-dark-primary text-theme-dark-white hoverClass"
-            on:click={onSubmit}
-            rounded
-            block>Sign up</Button
-          >
+          <div class="flex mt-4 gap-2">
+            <a href="#/" class="w-full">
+              <Button
+                rounded
+                class=" py-2 bg-theme-dark-primary text-white hoverClassLight transition"
+              >
+                ↤ Back
+            </Button>
+            </a>
+            <Button
+              class="bg-theme-dark-primary text-theme-dark-white hoverClassLight"
+              on:click={onSubmit}
+              rounded
+              >Sign up  ↦</Button
+            >
+          </div>
         </div>
       </div>
   </div>
   {/if}
-
 <style>
 
   .custom-text-field input {

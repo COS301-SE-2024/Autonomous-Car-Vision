@@ -1,6 +1,5 @@
 <script>
     import Dropzone from "svelte-file-dropzone";
-    import { location } from "svelte-spa-router";
     import toast, { Toaster } from "svelte-french-toast";
     import { isUploadLoading } from "../stores/uploadLoading";
     import RingLoader from "./RingLoader.svelte";

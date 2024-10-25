@@ -40,15 +40,6 @@
     }
   };
 
-  const googleLoginTest = async () => {
-    try {
-      const authUrl = await window.electronAPI.getAuthUrlTest();
-      window.electronAPI.openExternal(authUrl);
-    } catch (error) {
-      console.error("Error getting auth URL:", error);
-    }
-  };
-
   const handleAuthSuccess = async (result) => {
     window.electronAPI.storeToken(result.tokens.access_token.substring(0, 40));
     window.electronAPI.storeUid(result.user.id.substring(0, 10));

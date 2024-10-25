@@ -9,7 +9,6 @@
         mdiAccountCog,
         mdiLogout,
         mdiCar,
-        mdiEyeRefresh,
         mdiAccountGroup,
         mdiAccountCheckOutline,
         mdiLanPending,
@@ -20,8 +19,6 @@
     } from "@mdi/js";
     import axios from "axios";
     import CryptoJS from 'crypto-js';
-
-    import ThemeToggler from "./ThemeToggler.svelte";
     import {theme } from "../stores/themeStore";
 
 

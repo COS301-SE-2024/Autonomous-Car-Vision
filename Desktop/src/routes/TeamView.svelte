@@ -122,7 +122,7 @@
         </div>
     {:else}
     <Toaster />
-        <div class="user-list text-theme-dark-lightText">
+        <div class="user-list text-white-lightText">
             <div class="header text-4xl items-center text-center">
                 <h2>{teamName}</h2>
             </div>
