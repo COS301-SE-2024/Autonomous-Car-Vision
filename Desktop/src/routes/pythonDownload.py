@@ -28,7 +28,7 @@ def receive_file(ip, port, filename, uid, size, token, mid, videoDestination):
                     break;
                 f.write(data)
         print(f"File {filename} received and saved to {filepath}")
-        os.rename(filepath, videoDestination)
+        # os.rename(filepath, videoDestination)
 
 
 if __name__ == "__main__":
