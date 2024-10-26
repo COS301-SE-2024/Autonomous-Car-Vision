@@ -144,7 +144,7 @@ uvicorn==0.30.1
 watchfiles==0.22.0
 wcwidth==0.2.13
 websockets==12.0
-werkzeug==3.0.4
+werkzeug==3.0.6
 widgetsnbextension==4.0.13
 yarl==1.13.1
 zipp==3.20.2
